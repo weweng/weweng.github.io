@@ -1,0 +1,23 @@
+<HTML>
+
+<HEAD>
+<TITLE>Your Title Here</TITLE>
+</HEAD>
+
+<BODY BGCOLOR="FFFFFF">
+<p>This is the section to cover IP networking study.</p>
+<ul>
+  <li>IPV4 addressing</li>
+  <li>IPV6 addressing</li>
+  <li>DHCP</li>
+  <li>Static Routing</li>
+  <li>OSFP Routing</li>
+  <li>BGP Routing</li>
+  <li>IPSec</li>
+  <li>VPN</li>
+  <li>IP Forward performance Testing</li>
+  <li>DPDK Study</li>
+</ul>
+<p>&nbsp;</p>
+</BODY>
+</HTML> 

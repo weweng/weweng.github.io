@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset='UTF-8'>
+	<title>Marvell ARMADA 7K Linux boot using u-boot | Wenwei's tech Blog</title>
+	<link rel='alternate' type='application/rss+xml' title='Wenwei Feed' href='http://weweng.github.io/atom.xml'>
+	<meta name='description' content=''/>
+	<meta name='keywords' content='linux kernel initramfs image boot'/>
+	<meta name='viewport' content='width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no'>
+	<meta name='theme-color' content='#655B54'>
+	<link rel='shortcut icon' href='/assets/favicon.ico' type='image/x-icon'> 
+	<!--- <link rel='icon' href='/assets/favicon.ico' type='image/x-icon'> --->
+<link rel='icon' href='/assets/blogger.png' type='image/x-png'>
+
+	<link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro:400,700' rel='stylesheet' type='text/css'>
+	<link rel='stylesheet' type='text/css' href='/assets/css/code-highlighter.css' />
+<link rel='stylesheet' type='text/css' href='/assets/css/default.min.css' />
+<link rel='stylesheet' type='text/css' href='/assets/css/github.css' />
+<link rel='stylesheet' type='text/css' href='/assets/css/pure-base-min.css' />
+<link rel='stylesheet' type='text/css' href='/assets/css/pure-grids-responsive-min.css' />
+<link rel='stylesheet' type='text/css' href='/assets/css/pure-menus-min.css' />
+<link rel='stylesheet' type='text/css' href='/assets/css/pure-tables-min.css' />
+<link rel='stylesheet' type='text/css' href='/assets/css/social-buttons.css' />
+<link rel='stylesheet' type='text/css' href='/assets/css/weweng.css' />
+
+
+	
+</head>
+<body>
+
+<div class='pure-g' id='layout'>
+    <div class='sidebar pure-u-1 pure-u-md-1-4'>
+      <div class='header'>
+	<nav class='nav'>
+	  <ul class='nav-list'>
+	    <li class='nav-item'>
+	      <strong> <a href='/workblog.html'>Blog</a> </strong>
+	    </li>
+<!--
+	    <li class='nav-item'>
+	      <strong> <a href='/study/index.html'>Study</a> </strong>
+	    </li>
+	    <li class='nav-item'>
+	      <strong> <a href='/projects/index.html'>Projects</a> </strong>
+	    </li>
+-->
+<!--
+            <li class='nav-item'>
+              <strong> <a href='/services/index.html'>读书笔记</a> </strong>
+            </li>
+-->
+	    <li class='nav-item'>
+	      <strong><a href='/aboutme.html'>About Me</a></strong>
+	    </li>
+	</ul>
+	</nav>
+	<br> 
+	<h1 class='brand-title'>
+	  <a href='/index.html'>
+		<img src='/assets/img/avatar.png' height='100'/>
+	  </a>
+	</h1>
+      </div>
+</div>
+
+<div class='pure-u-1'>
+	<div class='content'>
+		<section class='post'>
+	<header class='post-header'>
+		<h2 class='post-title'> Marvell ARMADA 7K Linux boot using u-boot </h2>
+		<p class='post-meta'>
+			Posted on <time class='date' datetime='2017-03-24T00:00:00+01:00'>24 Mar 2017</time>
+		</p>
+	</header>
+
+	<div class='post-description'>
+		<p>For the last few days, I have been working on build new image for a new platform at work. I found out it is useful to able to boot manually with kernel, dtb, initramfs from u-boot. By doing this, if the thing doesn&#39;t work, we can change any one of them to identify which one has issue.</p>
+
+<p><img src="/uploads/linux/armada7k-boot-linux-steps.jpg" alt="armada7k boot manually"></p>
+
+<!--more-->
+
+<p>First you need prepare kernel image as &quot;Image&quot; format, device tree blob (dtb file), and initramfs.</p>
+
+<p>If you have initramfs file in cpio.gz format, you need do following:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="c">#since it is for u-boot to use, it has to be converted to add a header in front</span>
+mkimage -A arm64 -T ramdisk -C gzip -n <span class="s2">&quot;Sparrow Ramdisk Image&quot;</span> -d initramfs.cpio.gz initramfs.cpio.gz.uRamdisk</code></pre></figure>
+
+<p>When all three images are ready, and loaded them into SD card,</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"> 
+
+<span class="c">#check what files are in SD card partition#1 </span>
+Marvell&gt;&gt;  fatls mmc 0:1
+ <span class="m">14472704</span>   image-armv8le-a70x0-a80x0-ga-17.02.2 
+    <span class="m">25563</span>   armada-7040-db-a-armv8le-a70x0-a80x0-ga-17.02.2.dtb 
+ <span class="m">94229849</span>   initramfs.igz 
+ <span class="m">304035328</span>   initramfs.cpio 
+   <span class="m">407653</span>   ramdisk.img.gz 
+ <span class="m">97505226</span>   uramdisk 
+    <span class="m">21008</span>   armada-7040-tsn-h-sgmii.dtb.cisco 
+ <span class="m">12466176</span>   image-4.4.27-a7040-16.07.8.cisco 
+  <span class="m">3815722</span>   initramfs.arm64.ir909.ramfs.cpio.gz 
+  <span class="m">3815786</span>   initramfs.arm64.ir909.filesystem 
+  <span class="m">4758592</span>   u_rootfs-buildroot-2015.11-16.08.0.ext2 
+  <span class="m">1794156</span>   uramdisk-armv8-tiny-le 
+  <span class="m">3866681</span>   initramfs.arm64.uramdisk 
+  <span class="m">3815786</span>   initramfs.arm64.ramfs.cpio.gz.uramdisk 
+ <span class="m">13428224</span>   image.new 
+ <span class="m">12651270</span>   initramfs.arm64.ir909.ramfs.new.cpio.gz 
+ <span class="m">12651334</span>   initramfs.arm64.ir909.ramfs.new.cpio.gz.uramdisk 
+    <span class="m">25740</span>   devicetree-image-armada-7040-db-a.new.dtb 
+
+<span class="m">18</span> file<span class="o">(</span>s<span class="o">)</span>, <span class="m">0</span> dir<span class="o">(</span>s<span class="o">)</span>
+
+<span class="c"># load dtb file</span>
+Marvell&gt;&gt;  fatload mmc 0:1 <span class="nv">$fdt_addr</span> devicetree-image-armada-7040-db-a.new.dtb
+reading devicetree-image-armada-7040-db-a.new.dtb
+<span class="m">25740</span> bytes <span class="nb">read </span>in <span class="m">40</span> ms <span class="o">(</span>627.9 KiB/s<span class="o">)</span>
+
+<span class="c">#load image file</span>
+Marvell&gt;&gt; fatload mmc 0:1 <span class="nv">$kernel_addr</span> image.new
+reading image.new
+<span class="m">13428224</span> bytes <span class="nb">read </span>in <span class="m">2736</span> ms <span class="o">(</span>4.7 MiB/s<span class="o">)</span>
+Marvell&gt;&gt; setenv ramfs_addr 0x12000000
+Marvell&gt;&gt; fatload mmc 0:1 <span class="nv">$ramfs_addr</span> initramfs.arm64.ramfs.new.cpio.gz.uramdisk
+reading initramfs.arm64.ir909.ramfs.new.cpio.gz.uramdisk
+<span class="m">12651334</span> bytes <span class="nb">read </span>in <span class="m">2587</span> ms <span class="o">(</span>4.7 MiB/s<span class="o">)</span>
+
+<span class="c"># set console</span>
+Marvell&gt;&gt; setenv bootargs <span class="nv">console</span><span class="o">=</span>ttyS0,115200
+Marvell&gt;&gt; booti <span class="nv">$kernel_addr</span> <span class="nv">$ramfs_addr</span> <span class="nv">$fdt_addr</span>
+<span class="c">## Current stack ends at 0x3f970fd0 *  ramdisk: cmdline image address = 0x12000000</span>
+<span class="c">## Loading init Ramdisk from Legacy Image at 12000000 ...</span>
+   Image Name:   Sparrow Ramdisk Image
+   Created:      2017-03-23  23:52:49 UTC
+   Image Type:   AArch64 Linux RAMDisk Image <span class="o">(</span>gzip compressed<span class="o">)</span>
+   Data Size:    <span class="m">12651270</span> <span class="nv">Bytes</span> <span class="o">=</span> 12.1 MiB
+   Load Address: 00000000
+   Entry Point:  00000000
+   Verifying Checksum ... OK
+   ramdisk <span class="nv">start</span> <span class="o">=</span> 0x12000040, ramdisk <span class="nv">end</span> <span class="o">=</span> 0x12c10b46
+<span class="c">## Flattened Device Tree blob at 01000000</span>
+   Booting using the fdt blob at 0x1000000
+using: FDT
+<span class="c">## initrd_high = 0xffffffffffffffff, copy_to_ram = 1</span>
+   Loading Ramdisk to 3ed5f000, end 3f96fb06 ... OK
+   ramdisk load <span class="nv">start</span> <span class="o">=</span> 0x3ed5f000, ramdisk load <span class="nv">end</span> <span class="o">=</span> 0x3f96fb06
+   Using Device Tree in place at 0000000001000000, end 000000000100948b
+<span class="c">## Transferring control to Linux (at address 80000)...</span>
+
+Starting kernel ...
+
+Timer summary in microseconds:
+       Mark    Elapsed  Stage
+          <span class="m">0</span>          <span class="m">0</span>  reset
+    987,000    987,000  <span class="nv">id</span><span class="o">=</span>64
+  1,188,000    201,000  <span class="nv">id</span><span class="o">=</span>65
+  1,214,000     26,000  main_loop
+  4,236,000  3,022,000  <span class="nv">id</span><span class="o">=</span>80
+  4,236,000          <span class="m">0</span>  tftp_start
+  4,236,000          <span class="m">0</span>  eth_start
+  4,245,000      9,000  <span class="nv">id</span><span class="o">=</span>81
+  4,245,000          <span class="m">0</span>  tftp_done
+  4,258,000     13,000  bootm_start
+160,127,000155,869,000  <span class="nv">id</span><span class="o">=</span>9
+160,127,000          <span class="m">0</span>  <span class="nv">id</span><span class="o">=</span>10
+162,117,000  1,990,000  <span class="nv">id</span><span class="o">=</span>11
+162,135,000     18,000  <span class="nv">id</span><span class="o">=</span>12
+166,294,000  4,159,000  <span class="nv">id</span><span class="o">=</span>15
+166,296,000      2,000  start_kernel
+769,189,068,930,788,833,6769,189,068,914,159,233,6  board_init_f
+
+Accumulated <span class="nb">time</span>:
+<span class="o">[</span>    0.000000<span class="o">]</span> Booting Linux on physical CPU 0x0
+<span class="o">[</span>    0.000000<span class="o">]</span> Initializing cgroup subsys cpuset
+<span class="o">[</span>    0.000000<span class="o">]</span> Initializing cgroup subsys cpu
+<span class="o">[</span>    0.000000<span class="o">]</span> Initializing cgroup subsys cpuacct
+<span class="o">[</span>    0.000000<span class="o">]</span> Linux version 4.4.51-armada-17.02.2  <span class="o">(</span>xelinux@xe-linux-bld2<span class="o">)</span> <span class="o">(</span>gcc version 5.3.0 <span class="o">(</span>GCC<span class="o">)</span> <span class="o">)</span> <span class="c">#1 SMP Wed Mar 22 05:447</span>
+<span class="o">[</span>    0.000000<span class="o">]</span> Boot CPU: AArch64 Processor <span class="o">[</span>410fd081<span class="o">]</span>
+<span class="o">[</span>    0.000000<span class="o">]</span> efi: Getting EFI parameters from FDT:
+<span class="o">[</span>    0.000000<span class="o">]</span> efi: UEFI not found.
+<span class="o">[</span>    0.000000<span class="o">]</span> cma: Reserved <span class="m">128</span> MiB at 0x0000000078000000
+...</code></pre></figure>
+
+	</div>
+
+<!--	
+	<div class='share-button-container'>
+		<p>Like it? Share it!</p>
+		<div class='share-button share-button-twitter' data-share-url="http://weweng.github.io/2017/03/ARMv8-manual-boot/">
+			<div clas='box'>
+				<a href="https://twitter.com/share?url=http://weweng.github.io%2F2017%2F03%2FARMv8-manual-boot%2F&text=Marvell ARMADA 7K Linux boot using u-boot&via=weweng" target='_blank'>
+					<span class='share'>Tweet</span>
+					<span class='count'>0</span>
+				</a>
+			</div>
+		</div>
+
+		<div class="share-button share-button-facebook" data-share-url="http://weweng.github.io/2017/03/ARMv8-manual-boot/">
+			<div class="box">
+				<a href="https://www.facebook.com/sharer/sharer.php?u=http://weweng.github.io%2F2017%2F03%2FARMv8-manual-boot%2F">
+					<span class='share'>Share</span>
+					<span class='count'>0</span>
+				</a>
+			</div>
+		</div>
+	</div>
+-->
+
+</section>
+
+<div id='comments'>
+	<div id='disqus_thread'></div>
+	<script type='text/javascript'>
+		var disqus_shortname = 'wewenggithubio';
+		(function() {
+			var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+			dsq.src = 'http://' + disqus_shortname + '.disqus.com/embed.js';
+			(document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+		})();
+	</script>
+
+	<noscript>Please enable JavaScript to view the comments</noscript>
+</div>
+<script type='text/javascript' src='/assets/js/StaticShareButtons.js'></script>
+
+
+	</div>
+
+	<footer class='footer'>
+		<span>Copyright 2015-2017, Wenwei Weng</span>
+	</footer>
+</div>
+</div>
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-62997612-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+
+
+<script type="text/javascript">
+// Open external links in new tab
+(window.onload = function(){
+	var links = document.links;
+
+	for(i=0; i<=links.length -1; i++){
+		if(links[i].hostname != window.location.hostname){
+			links[i].target = '_blank';
+		}
+	}
+})();
+</script>
+</body>
+</html>

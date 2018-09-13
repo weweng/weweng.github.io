@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset='UTF-8'>
+	<title>4G/LTE Mobile Network Test Bed | Wenwei's tech Blog</title>
+	<link rel='alternate' type='application/rss+xml' title='Wenwei Feed' href='http://weweng.github.io/atom.xml'>
+	<meta name='description' content=''/>
+	<meta name='keywords' content='Mobile Network 4G LTE'/>
+	<meta name='viewport' content='width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no'>
+	<meta name='theme-color' content='#655B54'>
+	<link rel='shortcut icon' href='/assets/favicon.ico' type='image/x-icon'> 
+	<!--- <link rel='icon' href='/assets/favicon.ico' type='image/x-icon'> --->
+<link rel='icon' href='/assets/blogger.png' type='image/x-png'>
+
+	<link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro:400,700' rel='stylesheet' type='text/css'>
+	<link rel='stylesheet' type='text/css' href='/assets/css/code-highlighter.css' />
+<link rel='stylesheet' type='text/css' href='/assets/css/default.min.css' />
+<link rel='stylesheet' type='text/css' href='/assets/css/github.css' />
+<link rel='stylesheet' type='text/css' href='/assets/css/pure-base-min.css' />
+<link rel='stylesheet' type='text/css' href='/assets/css/pure-grids-responsive-min.css' />
+<link rel='stylesheet' type='text/css' href='/assets/css/pure-menus-min.css' />
+<link rel='stylesheet' type='text/css' href='/assets/css/pure-tables-min.css' />
+<link rel='stylesheet' type='text/css' href='/assets/css/social-buttons.css' />
+<link rel='stylesheet' type='text/css' href='/assets/css/weweng.css' />
+
+
+	
+</head>
+<body>
+
+<div class='pure-g' id='layout'>
+    <div class='sidebar pure-u-1 pure-u-md-1-4'>
+      <div class='header'>
+	<nav class='nav'>
+	  <ul class='nav-list'>
+	    <li class='nav-item'>
+	      <strong> <a href='/workblog.html'>Blog</a> </strong>
+	    </li>
+<!--
+	    <li class='nav-item'>
+	      <strong> <a href='/study/index.html'>Study</a> </strong>
+	    </li>
+	    <li class='nav-item'>
+	      <strong> <a href='/projects/index.html'>Projects</a> </strong>
+	    </li>
+-->
+<!--
+            <li class='nav-item'>
+              <strong> <a href='/services/index.html'>读书笔记</a> </strong>
+            </li>
+-->
+	    <li class='nav-item'>
+	      <strong><a href='/aboutme.html'>About Me</a></strong>
+	    </li>
+	</ul>
+	</nav>
+	<br> 
+	<h1 class='brand-title'>
+	  <a href='/index.html'>
+		<img src='/assets/img/avatar.png' height='100'/>
+	  </a>
+	</h1>
+      </div>
+</div>
+
+<div class='pure-u-1'>
+	<div class='content'>
+		<section class='post'>
+	<header class='post-header'>
+		<h2 class='post-title'> 4G/LTE Mobile Network Test Bed </h2>
+		<p class='post-meta'>
+			Posted on <time class='date' datetime='2016-07-05T00:00:00+01:00'>05 Jul 2016</time>
+		</p>
+	</header>
+
+	<div class='post-description'>
+		<p>During the software development of mobile router, IOT gateway, it is essential to
+have 4G/LTE test bed in place.</p>
+
+<p><img src="/uploads/lte-testbed.jpg" alt="LTE testbed">
+In this post, I will cover three approaches to set up test bed for 4G/LTE test bed.</p>
+
+<!--more-->
+
+<p>To have a cost effective, and easy to use 4G/LTE test bed is critical for software development when
+it comes to mobile router, IOT gateway software development. It could be also critical for hardware
+compliance testing as well.</p>
+
+<p>In my lab at Cisco, there are three approaches:</p>
+
+<ol>
+<li> Using SIM card from carrier, and connect to live 4G/LTE network.</li>
+<li> Using the dedicated base state simulator (BSS)</li>
+<li> Using software defined radio (SDR) picoLTE </li>
+</ol>
+
+<p>The above three ways, there are pros and cons as decribed below.</p>
+
+<h1>Using SIM card from carrier, and connect to live 4G/LTE network.</h1>
+
+<p>With this approach, you can buy SIM card from wireless carrier like AT&amp;T, Verizon, T-Mobile. 
+The SIM card is inserted into unit under test (UUT), it is ready for testing.</p>
+
+<p>pros:
+<ol>
+<li> Minimum effort to prepare. </li>
+<li> Very minimum initial cost to start.
+</ol></p>
+
+<p>cons:
+<ol>
+<li> It requires monthly payment even when it is not used. </li>
+<li> The network is not under fully controlled enviroment. Even though most time the carrier network should be up running, 
+     there is down time for sure. This will add up another variable. This could be a serious concern especially when the
+     software is still under development.  </li>
+<li> This is not suitable for performance testing.</li>
+<li> One SIM card is limited to the modem for the carrier only,  i.e. it can NOT be used to test different model of modems. </li>
+</ol></p>
+
+<h1>Using the dedicated base state simulator (BSS)</h1>
+
+<p>With this approach, you need buy the dedicated BSS from vendors such as <a href="http://www.rohde-schwarz.com">Rohde &amp; Schwarz</a>, 
+<a href="http://www.anritsu.com">Anritsu</a>.
+A test SIM card is used, typically RF cable will be used to feed radio signal to UUT.</p>
+
+<p>pros:
+<ol>
+<li> The whole enviroment is under fully controlled, meaning it is stable and to be trusted. </li>
+<li> It typically provides ethernet port to feed traffic from device like IXIA, Spirent for performance testing.</li>
+<li> It can test various modems by changing the setup.</li>
+<li> It can do almost all kinds of testing. </li>
+</ol></p>
+
+<p>cons:
+<ol>
+<li> BSS is very expensive, a basic setup box easily costs $70K. This is a lot investment!</li>
+<li> Typically one box can be used to test one UUT at one time, at most two UUTs.</li>
+<li> The setup is quite complicated.</li>
+</ol></p>
+
+<h1>Using software defined radio (SDR) picoLTE</h1>
+
+<p>With this approach, you need purchase the dedicated SDR picoLTE from vendor like <a href="http://www.nutaq.com">Nutaq</a>.
+A test SIM card is used. picoLTE will be acting as eNode, also with mme, PGW. The ethernet interface is provided
+so that it can be connected to corporate network for testing.</p>
+
+<p>pros:
+<ol>
+<li> It is cost effective comparing to BSS (only cost 1/3 or half)</li>
+<li> It can test many UUT devices(e.g. 50) in the sametime. </li>
+<li> It runs under a controlled enviroment. </li>
+<li> The setup is relative easy. Mainly it needs to change the configuration file to change the radio frequency.</li>
+</ol></p>
+
+<p>cons:
+<ol>
+<li> It can NOT be used for performance testing. </li>
+</ol></p>
+
+<p>Besides the above three approaches, there are other ways like using a low end eNode, then run MME, SGW, PGW software stack in another linux box. 
+This would require more resources, but could be a good approach too if the company owns those software stack.</p>
+
+	</div>
+
+<!--	
+	<div class='share-button-container'>
+		<p>Like it? Share it!</p>
+		<div class='share-button share-button-twitter' data-share-url="http://weweng.github.io/2016/07/LTE-Test-bed/">
+			<div clas='box'>
+				<a href="https://twitter.com/share?url=http://weweng.github.io%2F2016%2F07%2FLTE-Test-bed%2F&text=4G/LTE Mobile Network Test Bed&via=weweng" target='_blank'>
+					<span class='share'>Tweet</span>
+					<span class='count'>0</span>
+				</a>
+			</div>
+		</div>
+
+		<div class="share-button share-button-facebook" data-share-url="http://weweng.github.io/2016/07/LTE-Test-bed/">
+			<div class="box">
+				<a href="https://www.facebook.com/sharer/sharer.php?u=http://weweng.github.io%2F2016%2F07%2FLTE-Test-bed%2F">
+					<span class='share'>Share</span>
+					<span class='count'>0</span>
+				</a>
+			</div>
+		</div>
+	</div>
+-->
+
+</section>
+
+<div id='comments'>
+	<div id='disqus_thread'></div>
+	<script type='text/javascript'>
+		var disqus_shortname = 'wewenggithubio';
+		(function() {
+			var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+			dsq.src = 'http://' + disqus_shortname + '.disqus.com/embed.js';
+			(document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+		})();
+	</script>
+
+	<noscript>Please enable JavaScript to view the comments</noscript>
+</div>
+<script type='text/javascript' src='/assets/js/StaticShareButtons.js'></script>
+
+
+	</div>
+
+	<footer class='footer'>
+		<span>Copyright 2015-2017, Wenwei Weng</span>
+	</footer>
+</div>
+</div>
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-62997612-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+
+
+<script type="text/javascript">
+// Open external links in new tab
+(window.onload = function(){
+	var links = document.links;
+
+	for(i=0; i<=links.length -1; i++){
+		if(links[i].hostname != window.location.hostname){
+			links[i].target = '_blank';
+		}
+	}
+})();
+</script>
+</body>
+</html>

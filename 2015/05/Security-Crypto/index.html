@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset='UTF-8'>
+	<title>Internet Security - Cryptography fundamentals | Wenwei's tech Blog</title>
+	<link rel='alternate' type='application/rss+xml' title='Wenwei Feed' href='http://weweng.github.io/atom.xml'>
+	<meta name='description' content=''/>
+	<meta name='keywords' content='Security Cryptography'/>
+	<meta name='viewport' content='width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no'>
+	<meta name='theme-color' content='#655B54'>
+	<link rel='shortcut icon' href='/assets/favicon.ico' type='image/x-icon'> 
+	<!--- <link rel='icon' href='/assets/favicon.ico' type='image/x-icon'> --->
+<link rel='icon' href='/assets/blogger.png' type='image/x-png'>
+
+	<link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro:400,700' rel='stylesheet' type='text/css'>
+	<link rel='stylesheet' type='text/css' href='/assets/css/code-highlighter.css' />
+<link rel='stylesheet' type='text/css' href='/assets/css/default.min.css' />
+<link rel='stylesheet' type='text/css' href='/assets/css/github.css' />
+<link rel='stylesheet' type='text/css' href='/assets/css/pure-base-min.css' />
+<link rel='stylesheet' type='text/css' href='/assets/css/pure-grids-responsive-min.css' />
+<link rel='stylesheet' type='text/css' href='/assets/css/pure-menus-min.css' />
+<link rel='stylesheet' type='text/css' href='/assets/css/pure-tables-min.css' />
+<link rel='stylesheet' type='text/css' href='/assets/css/social-buttons.css' />
+<link rel='stylesheet' type='text/css' href='/assets/css/weweng.css' />
+
+
+	
+</head>
+<body>
+
+<div class='pure-g' id='layout'>
+    <div class='sidebar pure-u-1 pure-u-md-1-4'>
+      <div class='header'>
+	<nav class='nav'>
+	  <ul class='nav-list'>
+	    <li class='nav-item'>
+	      <strong> <a href='/workblog.html'>Blog</a> </strong>
+	    </li>
+<!--
+	    <li class='nav-item'>
+	      <strong> <a href='/study/index.html'>Study</a> </strong>
+	    </li>
+	    <li class='nav-item'>
+	      <strong> <a href='/projects/index.html'>Projects</a> </strong>
+	    </li>
+-->
+<!--
+            <li class='nav-item'>
+              <strong> <a href='/services/index.html'>读书笔记</a> </strong>
+            </li>
+-->
+	    <li class='nav-item'>
+	      <strong><a href='/aboutme.html'>About Me</a></strong>
+	    </li>
+	</ul>
+	</nav>
+	<br> 
+	<h1 class='brand-title'>
+	  <a href='/index.html'>
+		<img src='/assets/img/avatar.png' height='100'/>
+	  </a>
+	</h1>
+      </div>
+</div>
+
+<div class='pure-u-1'>
+	<div class='content'>
+		<section class='post'>
+	<header class='post-header'>
+		<h2 class='post-title'> Internet Security - Cryptography fundamentals </h2>
+		<p class='post-meta'>
+			Posted on <time class='date' datetime='2015-05-29T00:00:00+01:00'>29 May 2015</time>
+		</p>
+	</header>
+
+	<div class='post-description'>
+		<p>Internet security is becoming more relevant in life as internet is growing daily. There are many aspects of internet security. 
+Cryptograph is a fundamental element when we talk about internet security related to encryption and decryption.</p>
+
+<p><img src="/uploads/crypto/security-crypto-1.jpg" alt="cryptography"></p>
+
+<p>In this post, I will give a summary of cypto used in network security.</p>
+
+<!--more-->
+
+<h1>terminology</h1>
+
+<h2>Cipher</h2>
+
+<p>A cipher is an algorithm for performing data encryption and decryption. e.g. old day&#39;s Caesar Cipher, Vigenere Cipher, Tranposition Cipher;
+today&#39;s DES, 3DES, AES, Rivest Ciphers. See a brief desciption for each.</p>
+
+<h3>DES</h3>
+
+<p>The Data Encryption Standard (DES) has now been in use for over 35 years and still has
+not been found to have a signifi cant fl aw. However, because its key length is relatively
+short, it can be susceptible to brute - force attacks.
+DES uses a 64 -bit key, but only 56 of the bits are used for encryption. Unfortunately, 16
+of those remaining 56 bits are known and 40 bits are unknown. The other 8 bits are used
+for parity. What that means, essentially, is that DES has a 40 - bit key strength. 
+DES has two operating modes, stream cipher and block cipher. Further, each of these
+two modes has two types within it.</p>
+
+<h3>3DES</h3>
+
+<p>Triple DES, as the 3DES encryption algorithm has become known, essentially strengthens
+the original DES algorithm by applying it three times. Because the original DES algorithm is
+cryptographically strong, it can be made much stronger by encrypting the data three times.
+This triple encryption makes a brute - force attack unfeasible. The effective key strength can be
+either 112 bit or 168 bit, which is what Cisco uses. Let us examine how the 3DES algorithm works.
+<ol>
+ <li> A first 56 -bit key is used to encrypt the plaintext.</li>
+ <li> A second 56 -bit key is used to decrypt the data.</li>
+ <li> A third 56 -bit key is used to encrypt the data again.</li>
+</ol> </p>
+
+<h3>AES</h3>
+
+<p>Advanced Encryption Algorithm (AES) came about after the federal government decided
+that it needed to create a new standard that would replace DES as the offi cial government
+encryption cipher. A bake - off of sorts was initiated in 1997. The winner, selected in 2000,
+was the Rijndael cipher, a mixture of the last names of the two creators, Joan Daemen and
+Vincent Rijmen. This cipher became an offi cial government standard in 2002.
+The Rijndael cipher uses a variable key length and block size in the implementation of
+the cipher. There are potentially nine different combinations of key length and block size.
+You may use a key length of 256 bits, 192 bits, or 128 bits to encrypt block sizes of
+128 bits, 192 bits, or 256 bits.</p>
+
+<h3>Rivest Ciphers</h3>
+
+<p>The Rivest ciphers are also known as the RC ciphers. Ron Rivest is a well -known cryptographer
+and professor at MIT. He is the author of the Rivest ciphers known as RC2, RC4, and RC5 and
+coauthor of RC6.
+<ul>
+ <li>RC2: Variable - length key - block cipher, designed to be an alternative to DES. </li>
+ <li>RC4: Variable key - length stream cipher used frequently in file encryption products, as well as in Secure Sockets Layer (SSL).</li>
+ <li>RC5: RC5 has a variable - length key and variable - length block size. </li>
+ <li>RC6: Block cipher meant to compete for the AES standard. </li> 
+</ul></p>
+
+<h3>Examples: encryt and decrypt a text file</h3>
+
+<p>We can use openssl in linux to encrypt and decryt file.</p>
+
+<p>First let&#39;s create a file named as &quot;plaintext-hello.txt&quot;</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">weng@weng-VirtualBox:/tmp<span class="nv">$ </span><span class="nb">echo</span> <span class="s2">&quot;hello world&quot;</span> &gt; plaintext-hello.txt
+weng@weng-VirtualBox:/tmp<span class="nv">$ </span>cat plaintext-hello.txt 
+hello world</code></pre></figure>
+
+<p>Second, let&#39;s encrypt it using passord &quot;cipherme&quot;</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"> weng@weng-VirtualBox:/tmp<span class="nv">$ </span>openssl enc -aes-256-cbc -in plaintext-hello.txt -out cipher-hello.bin
+enter aes-256-cbc encryption password:
+Verifying - enter aes-256-cbc encryption password:
+weng@weng-VirtualBox:/tmp<span class="nv">$ </span>ls -l plaintext-hello.txt cipher-hello.bin 
+-rw-rw-r-- <span class="m">1</span> weng weng <span class="m">32</span> May <span class="m">29</span> 23:21 cipher-hello.bin
+-rw-rw-r-- <span class="m">1</span> weng weng <span class="m">12</span> May <span class="m">29</span> 16:46 plaintext-hello.txt
+weng@weng-VirtualBox:/tmp<span class="nv">$ </span>file cipher-hello.bin
+cipher-hello.bin: data
+weng@weng-VirtualBox:/tmp<span class="nv">$ </span>hexdump cipher-hello.bin 
+<span class="m">0000000</span> <span class="m">6153</span> 746c <span class="m">6465</span> 5f5f b3c1 c94b f30d 73a9
+<span class="m">0000010</span> 1ab0 022b 57c9 40fe 3da4 <span class="m">3450</span> f47d ec8f
+0000020
+weng@weng-VirtualBox:/tmp<span class="nv">$ </span></code></pre></figure>
+
+<p>Third, let&#39;s decrypt the binary to see if we can restore &quot;hello world&quot; plain text. As shown below, we did it.</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">weng@weng-VirtualBox:/tmp<span class="nv">$ </span>openssl enc -aes-256-cbc -d -in cipher-hello.bin -out decrypt-plaintext-hello.txt
+enter aes-256-cbc decryption password:
+weng@weng-VirtualBox:/tmp<span class="nv">$ </span>ls -l plaintext-hello.txt decrypt-plaintext-hello.txt 
+-rw-rw-r-- <span class="m">1</span> weng weng <span class="m">12</span> May <span class="m">29</span> 23:23 decrypt-plaintext-hello.txt
+-rw-rw-r-- <span class="m">1</span> weng weng <span class="m">12</span> May <span class="m">29</span> 16:46 plaintext-hello.txt
+weng@weng-VirtualBox:/tmp<span class="nv">$ </span>cat decrypt-plaintext-hello.txt 
+hello world
+weng@weng-VirtualBox:/tmp<span class="nv">$ </span>diff plaintext-hello.txt  decrypt-plaintext-hello.txt 
+weng@weng-VirtualBox:/tmp<span class="nv">$ </span></code></pre></figure>
+
+<p>In the above example, the algorithm aes-256-cbc is picked. For supported encrypt algorithm, use &quot;man openssl&quot; to find out.</p>
+
+<h2>Digital signature</h2>
+
+<h3>hashing</h3>
+
+<p>What is hashing? Simply put, hashing is taking some type of input data and generating
+some sort of value. This value is typically a fixed - length integer. The process of taking
+input data and generating the value is called a hash function . The output of the hash
+function is called the hash value. 
+A hash function has fi ve main features:
+<ul>
+<li> Easily compute the hash value for any message ---&gt; Fast and Efficient </li>
+<li> Must never create the same hash value from two different sets of data ---&gt; Collision Resistant</li>
+<li> Cannot modify the message without altering the hash value ---&gt; Manipulation resistant</li>
+<li> Cannot determine the message from the hash value ---&gt;  One-way hash </li>
+<li> Take variable -length data and produce a fixed-length value ---&gt; Fixed-length hash value</li> 
+</ul></p>
+
+<p>The typical hashing used are: MD5, SHA1, SHA256, SHA512. See example below.</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">weng@weng-VirtualBox:/tmp<span class="nv">$ </span>md5sum plaintext-hello.txt 
+6f5902ac237024bdd0c176cb93063dc4  plaintext-hello.txt
+weng@weng-VirtualBox:/tmp<span class="nv">$ </span>sha1sum plaintext-hello.txt 
+22596363b3de40b06f981fb85d82312e8c0ed511  plaintext-hello.txt
+weng@weng-VirtualBox:/tmp<span class="nv">$ </span>sha256sum plaintext-hello.txt 
+a948904f2f0f479b8f8197694b30184b0d2ed1c1cd2a1ec0fb85d299a192a447  plaintext-hello.txt
+weng@weng-VirtualBox:/tmp<span class="nv">$ </span>sha512sum plaintext-hello.txt 
+db3974a97f2407b7cae1ae637c0030687a11913274d578492558e39c16c017de84eacdc8c62fe34ee4e12b4b1428817f09b6a2760c3f8a664ceae94d2434a593  plaintext-hello.txt
+weng@weng-VirtualBox:/tmp<span class="nv">$ </span></code></pre></figure>
+
+<h3>Hash  Message Authentication Code (HMAC)</h3>
+
+<p>Hash Message Authentication Code (HMAC) is a way to further secure a hash. HMAC
+is not a hash function requirement but has its place when we talk about securing the hash
+function. Because some popular hash algorithms have been shown not to be completely
+collision resistant, it is important to add newer techniques to validate the integrity of a
+hash. HMAC accomplishes this by adding another layer of data into the hashing mix. This
+layer is called a <strong>secret key</strong> . The secret key is known only by the sender and receiver, and it
+provides authentication to HMAC.
+In the HMAC process, the input data is taken and a secret key is added. Both the input data
+and secret key are put through the hashing algorithm. This produces an HMAC hash . The size
+of the HMAC hash is the same as that of the corresponding hashing algorithm. (The two main
+types of HMAC hashes are HMAC - MD5, which produces a 128 - bit hash, and HMAC - SHA -
+1, which produces a 160 -bit hash.)</p>
+
+<p>See example below, HMAC of &quot;Hello World&quot; from file plaintext-hello.txt, using secret key &quot;mykey&quot;.
+The sender sends the message along with HMAC using shared secret key (in below example &quot;mykey&quot;).
+The receiver gets the message, and computes HMAC using received data, plus shared secret key, 
+generate HMAC, and comparing too received HMAC. If both are equal, then it means message is received as sent exactly.</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">weng@weng-VirtualBox:/tmp<span class="nv">$ </span>cat plaintext-hello.txt <span class="p">|</span> openssl dgst -md5 -hmac <span class="s2">&quot;mykey&quot;</span>
+<span class="o">(</span>stdin<span class="o">)=</span> 8bd99a681483d550395267d84b9f18dc
+weng@weng-VirtualBox:/tmp<span class="nv">$ </span>cat plaintext-hello.txt <span class="p">|</span> openssl dgst -sha1 -hmac <span class="s2">&quot;mykey&quot;</span>
+<span class="o">(</span>stdin<span class="o">)=</span> 7d7eaa5f37fda075bfc031b4b7c36d14c841f217
+weng@weng-VirtualBox:/tmp<span class="nv">$ </span></code></pre></figure>
+
+<h3>Digital Signatures</h3>
+
+<p>A digital signature is an electronic means to validate the authenticity and integrity of a
+message, software, or document. Most digital signatures use asymmetric cryptography to
+accomplish the authenticity. </p>
+
+<p><img src="/uploads/crypto/digital-signature-process.jpg" alt="digtial signature process"></p>
+
+<p>As shown above, it uses private key to genearte HMAC in the sender side, however the pubic key is used in receiver side to generate HMAC to compare.
+This is the key feature of asymmetric encryption technology, which we talk next.</p>
+
+<h2>Asymmetric encryption</h2>
+
+<h2>PKI</h2>
+
+<h2>Digital Certificate</h2>
+
+	</div>
+
+<!--	
+	<div class='share-button-container'>
+		<p>Like it? Share it!</p>
+		<div class='share-button share-button-twitter' data-share-url="http://weweng.github.io/2015/05/Security-Crypto/">
+			<div clas='box'>
+				<a href="https://twitter.com/share?url=http://weweng.github.io%2F2015%2F05%2FSecurity-Crypto%2F&text=Internet Security - Cryptography fundamentals&via=weweng" target='_blank'>
+					<span class='share'>Tweet</span>
+					<span class='count'>0</span>
+				</a>
+			</div>
+		</div>
+
+		<div class="share-button share-button-facebook" data-share-url="http://weweng.github.io/2015/05/Security-Crypto/">
+			<div class="box">
+				<a href="https://www.facebook.com/sharer/sharer.php?u=http://weweng.github.io%2F2015%2F05%2FSecurity-Crypto%2F">
+					<span class='share'>Share</span>
+					<span class='count'>0</span>
+				</a>
+			</div>
+		</div>
+	</div>
+-->
+
+</section>
+
+<div id='comments'>
+	<div id='disqus_thread'></div>
+	<script type='text/javascript'>
+		var disqus_shortname = 'wewenggithubio';
+		(function() {
+			var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+			dsq.src = 'http://' + disqus_shortname + '.disqus.com/embed.js';
+			(document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+		})();
+	</script>
+
+	<noscript>Please enable JavaScript to view the comments</noscript>
+</div>
+<script type='text/javascript' src='/assets/js/StaticShareButtons.js'></script>
+
+
+	</div>
+
+	<footer class='footer'>
+		<span>Copyright 2015-2017, Wenwei Weng</span>
+	</footer>
+</div>
+</div>
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-62997612-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+
+
+<script type="text/javascript">
+// Open external links in new tab
+(window.onload = function(){
+	var links = document.links;
+
+	for(i=0; i<=links.length -1; i++){
+		if(links[i].hostname != window.location.hostname){
+			links[i].target = '_blank';
+		}
+	}
+})();
+</script>
+</body>
+</html>

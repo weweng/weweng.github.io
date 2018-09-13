@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset='UTF-8'>
+	<title>Install docker from binary distribution | Wenwei's tech Blog</title>
+	<link rel='alternate' type='application/rss+xml' title='Wenwei Feed' href='http://weweng.github.io/atom.xml'>
+	<meta name='description' content=''/>
+	<meta name='keywords' content='docker installation binary'/>
+	<meta name='viewport' content='width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no'>
+	<meta name='theme-color' content='#655B54'>
+	<link rel='shortcut icon' href='/assets/favicon.ico' type='image/x-icon'> 
+	<!--- <link rel='icon' href='/assets/favicon.ico' type='image/x-icon'> --->
+<link rel='icon' href='/assets/blogger.png' type='image/x-png'>
+
+	<link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro:400,700' rel='stylesheet' type='text/css'>
+	<link rel='stylesheet' type='text/css' href='/assets/css/code-highlighter.css' />
+<link rel='stylesheet' type='text/css' href='/assets/css/default.min.css' />
+<link rel='stylesheet' type='text/css' href='/assets/css/github.css' />
+<link rel='stylesheet' type='text/css' href='/assets/css/pure-base-min.css' />
+<link rel='stylesheet' type='text/css' href='/assets/css/pure-grids-responsive-min.css' />
+<link rel='stylesheet' type='text/css' href='/assets/css/pure-menus-min.css' />
+<link rel='stylesheet' type='text/css' href='/assets/css/pure-tables-min.css' />
+<link rel='stylesheet' type='text/css' href='/assets/css/social-buttons.css' />
+<link rel='stylesheet' type='text/css' href='/assets/css/weweng.css' />
+
+
+	
+</head>
+<body>
+
+<div class='pure-g' id='layout'>
+    <div class='sidebar pure-u-1 pure-u-md-1-4'>
+      <div class='header'>
+	<nav class='nav'>
+	  <ul class='nav-list'>
+	    <li class='nav-item'>
+	      <strong> <a href='/workblog.html'>Blog</a> </strong>
+	    </li>
+<!--
+	    <li class='nav-item'>
+	      <strong> <a href='/study/index.html'>Study</a> </strong>
+	    </li>
+	    <li class='nav-item'>
+	      <strong> <a href='/projects/index.html'>Projects</a> </strong>
+	    </li>
+-->
+<!--
+            <li class='nav-item'>
+              <strong> <a href='/services/index.html'>读书笔记</a> </strong>
+            </li>
+-->
+	    <li class='nav-item'>
+	      <strong><a href='/aboutme.html'>About Me</a></strong>
+	    </li>
+	</ul>
+	</nav>
+	<br> 
+	<h1 class='brand-title'>
+	  <a href='/index.html'>
+		<img src='/assets/img/avatar.png' height='100'/>
+	  </a>
+	</h1>
+      </div>
+</div>
+
+<div class='pure-u-1'>
+	<div class='content'>
+		<section class='post'>
+	<header class='post-header'>
+		<h2 class='post-title'> Install docker from binary distribution </h2>
+		<p class='post-meta'>
+			Posted on <time class='date' datetime='2017-02-27T00:00:00+01:00'>27 Feb 2017</time>
+		</p>
+	</header>
+
+	<div class='post-description'>
+		<p>Docker is growing with amazing features, and it becomes a platform to deploy services even in embedded linux enviroment. There are different ways to install docker, one approach is to install using the pre-built binary distribution.</p>
+
+<p><img src="/uploads/linux/install-docker-binary.jpg" alt="docker install"></p>
+
+<p>The following post shows what I did under ubuntu 16.04.</p>
+
+<!--more-->
+
+<p>Let&#39;s go through some basic steps:</p>
+
+<h1>Prerequistes</h1>
+
+<p><ul>
+<li>A 64-bit installation </li>
+<li>Version 3.10 or higher of the Linux kernel. The latest version of the kernel available for you platform is recommended. </li>
+<li>iptables version 1.4 or higher.</li>
+<li>git version 1.7 or higher. </li>
+<li>A ps executable, usually provided by procps or a similar package.</li>
+<li>XZ Utils 4.9 or higher. </li>
+<li>a properly mounted cgroupfs hierarchy; a single, all-encompassing cgroup mount point is not sufficient. See Github issues #2683, #3485, #4568).</li></p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">iot@sgbu-ucs-11:/nobackup/docker/docker-1.13.1<span class="nv">$ </span>uname -a
+Linux sgbu-ucs-11 4.4.0-53-generic <span class="c">#74-Ubuntu SMP Fri Dec 2 15:59:10 UTC 2016 x86_64 x86_64 x86_64 GNU/Linux</span>
+iot@sgbu-ucs-11:/nobackup/docker/docker-1.13.1<span class="nv">$iptables</span> --version
+iptables v1.6.0
+iot@sgbu-ucs-11:/nobackup/docker/docker-1.13.1<span class="nv">$ </span>git --version
+git version 2.7.4
+iot@sgbu-ucs-11:/nobackup/docker/docker-1.13.1<span class="nv">$ </span>which ps
+/bin/ps
+iot@sgbu-ucs-11:/nobackup/docker/docker-1.13.1<span class="nv">$ </span>which xz
+/usr/bin/xz
+iot@sgbu-ucs-11:/nobackup/docker/docker-1.13.1<span class="nv">$ </span>xz --version
+xz <span class="o">(</span>XZ Utils<span class="o">)</span> 5.1.0alpha
+liblzma 5.1.0alpha
+iot@sgbu-ucs-11:/nobackup/docker/docker-1.13.1<span class="nv">$ </span>cat /proc/filesystems <span class="p">|</span> grep cgroup
+nodev   cgroup</code></pre></figure>
+
+<h1>Download docker binary distribution</h1>
+
+<p>Check <a href="https://github.com/docker/docker/releases">GITHUB docker release site</a> to pick a version you want, I pick version 1.13.1.</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">iot@sgbu-ucs-11:/nobackup/docker<span class="nv">$ </span>wget  https://get.docker.com/builds/Linux/x86_64/docker-1.13.1.tgz
+--2017-03-04 15:56:54--  https://get.docker.com/builds/Linux/x86_64/docker-1.13.1.tgz
+Resolving proxy.esl.cisco.com <span class="o">(</span>proxy.esl.cisco.com<span class="o">)</span>... 173.36.224.109, 2001:420:620::4
+Connecting to proxy.esl.cisco.com <span class="o">(</span>proxy.esl.cisco.com<span class="o">)</span><span class="p">|</span>173.36.224.109<span class="p">|</span>:8080... connected.
+Proxy request sent, awaiting response... <span class="m">200</span> OK
+Length: <span class="m">27851024</span> <span class="o">(</span>27M<span class="o">)</span> <span class="o">[</span>application/x-tar<span class="o">]</span>
+Saving to: docker-1.13.1.tgz
+
+docker-1.13.1.tgz                100%<span class="o">[=========================================================</span>&gt;<span class="o">]</span>  26.56M  26.5MB/s    in 1.0s
+
+2017-03-04 15:56:55 <span class="o">(</span>26.5 MB/s<span class="o">)</span> - docker-1.13.1.tgz saved <span class="o">[</span>27851024/27851024<span class="o">]</span>
+
+iot@sgbu-ucs-11:/nobackup/docker<span class="nv">$ </span>ls -l docker-1.13.1.tgz
+-rw-rw-r-- <span class="m">1</span> iot iot <span class="m">27851024</span> Feb  <span class="m">8</span> 00:52 docker-1.13.1.tgz
+iot@sgbu-ucs-11:/nobackup/docker<span class="err">$</span></code></pre></figure>
+
+<h1>Installation</h1>
+
+<p>Installation is straightforward by extracting tarball, and copy the binary into a directory like &quot;usr/bin&quot;, any directory which is part of your existing $PATH is fine.</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">iot@sgbu-ucs-11:/nobackup/docker<span class="nv">$ </span>tar xvf docker-1.13.1.tgz <span class="o">&amp;&amp;</span> mv docker docker-1.13.1
+iot@sgbu-ucs-11:/nobackup/docker<span class="nv">$ </span>ls -l
+total 866320
+drwxr-xr-x  <span class="m">3</span> iot iot      <span class="m">4096</span> Feb  <span class="m">8</span> 00:51 docker-1.13.1
+-rw-rw-r--  <span class="m">1</span> iot iot  <span class="m">27851024</span> Feb  <span class="m">8</span> 00:52 docker-1.13.1.tgz
+iot@sgbu-ucs-11:/nobackup/docker<span class="nv">$ </span>ls -l docker-1.13.1
+total 82856
+drwxr-xr-x <span class="m">5</span> iot iot     <span class="m">4096</span> Feb  <span class="m">8</span> 00:51 completion
+-rwxr-xr-x <span class="m">1</span> iot iot <span class="m">14125488</span> Feb  <span class="m">8</span> 00:51 docker
+-rwxr-xr-x <span class="m">1</span> iot iot  <span class="m">8932648</span> Feb  <span class="m">8</span> 00:51 docker-containerd
+-rwxr-xr-x <span class="m">1</span> iot iot  <span class="m">8381448</span> Feb  <span class="m">8</span> 00:51 docker-containerd-ctr
+-rwxr-xr-x <span class="m">1</span> iot iot  <span class="m">3047368</span> Feb  <span class="m">8</span> 00:51 docker-containerd-shim
+-rwxr-xr-x <span class="m">1</span> iot iot <span class="m">39941680</span> Feb  <span class="m">8</span> 00:51 dockerd
+-rwxr-xr-x <span class="m">1</span> iot iot   <span class="m">772400</span> Feb  <span class="m">8</span> 00:51 docker-init
+-rwxr-xr-x <span class="m">1</span> iot iot  <span class="m">2534781</span> Feb  <span class="m">8</span> 00:51 docker-proxy
+-rwxr-xr-x <span class="m">1</span> iot iot  <span class="m">7092736</span> Feb  <span class="m">8</span> 00:51 docker-runc
+iot@sgbu-ucs-11:/nobackup/docker<span class="nv">$ </span>sudo cp docker-1.13.1/* /usr/bin</code></pre></figure>
+
+<h1>Run</h1>
+
+<p>It is important to know that docker is running in a client server mode, it means that &quot;dockerd&quot; runs as a daemon, which is server and does all the heavy lifting work; &quot;docker&quot; is client tool, which used to send command to dockerd to do actual work.</p>
+
+<p>Here I show to run docker manually. Since my box is running inside Cisco lab, which sits behind proxy, I pass the proxy setting to dockerd directly, this works well. I ecountered erros in a apt-get docker set up case, even after I configured docker proxy under /etc/default/docker. Another thing to be aware, you need to know that docker needs storage space to store all containers, which could grow significantly depending on what you do.
+In my case, I create a directory &quot;/nobackup/docker/workspace1.13.1/&quot; as storage area.</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">iot@sgbu-ucs-11:/nobackup/docker<span class="nv">$ </span>mkdir workspace1.13.1
+iot@sgbu-ucs-11:/nobackup/docker<span class="nv">$ </span>sudo <span class="nv">https_proxy</span><span class="o">=</span><span class="s2">&quot;https://proxy.esl.cisco.com:8080&quot;</span> <span class="nv">http_proxy</span><span class="o">=</span><span class="s2">&quot;http://proxy.esl.cisco.com:8080&quot;</span> dockerd -g /nobackup/docker/workspace1.13.1/ <span class="p">&amp;</span>
+<span class="o">[</span>1<span class="o">]</span> 10038
+iot@sgbu-ucs-11:/nobackup/docker<span class="nv">$ </span>INFO<span class="o">[</span>0000<span class="o">]</span> libcontainerd: new containerd process, pid: <span class="m">10050</span> 
+WARN<span class="o">[</span>0000<span class="o">]</span> containerd: low RLIMIT_NOFILE changing to max  <span class="nv">current</span><span class="o">=</span><span class="m">1024</span> <span class="nv">max</span><span class="o">=</span>65536
+INFO<span class="o">[</span>0001<span class="o">]</span> <span class="o">[</span>graphdriver<span class="o">]</span> using prior storage driver: aufs 
+INFO<span class="o">[</span>0001<span class="o">]</span> Graph migration to content-addressability took 0.00 seconds 
+WARN<span class="o">[</span>0001<span class="o">]</span> Your kernel does not support swap memory limit 
+WARN<span class="o">[</span>0001<span class="o">]</span> Your kernel does not support cgroup rt period 
+WARN<span class="o">[</span>0001<span class="o">]</span> Your kernel does not support cgroup rt runtime 
+INFO<span class="o">[</span>0001<span class="o">]</span> Loading containers: start.                   
+INFO<span class="o">[</span>0001<span class="o">]</span> Firewalld running: <span class="nb">false                     </span>
+INFO<span class="o">[</span>0001<span class="o">]</span> Default bridge <span class="o">(</span>docker0<span class="o">)</span> is assigned with an IP address 172.17.0.0/16. Daemon option --bip can be used to <span class="nb">set </span>a preferred IP address 
+INFO<span class="o">[</span>0001<span class="o">]</span> Loading containers: <span class="k">done</span>.                    
+WARN<span class="o">[</span>0001<span class="o">]</span> Couldn<span class="err">&#39;</span>t run auplink before unmount /nobackup/docker/workspace1.13.1/tmp/docker-aufs-union687449707: <span class="nb">exec</span>: <span class="s2">&quot;auplink&quot;</span>: executable file not found in <span class="nv">$PATH</span> 
+INFO<span class="o">[</span>0001<span class="o">]</span> Daemon has completed initialization          
+INFO<span class="o">[</span>0001<span class="o">]</span> Docker daemon                                 <span class="nv">commit</span><span class="o">=</span>092cba3 <span class="nv">graphdriver</span><span class="o">=</span>aufs <span class="nv">version</span><span class="o">=</span>1.13.1
+INFO<span class="o">[</span>0001<span class="o">]</span> API listen on /var/run/docker.sock           
+
+iot@sgbu-ucs-11:/nobackup/docker<span class="err">$</span>
+iot@sgbu-ucs-11:/nobackup/docker<span class="nv">$ </span>ps -ef <span class="p">|</span> grep docker
+root     <span class="m">10038</span>  <span class="m">8482</span>  <span class="m">0</span> 16:18 pts/16   00:00:00 sudo <span class="nv">https_proxy</span><span class="o">=</span>https://proxy.esl.cisco.com:8080 <span class="nv">http_proxy</span><span class="o">=</span>http://proxy.esl.cisco.com:8080 dockerd -g /nobackup/docker/workspace1.13.1/
+root     <span class="m">10039</span> <span class="m">10038</span>  <span class="m">0</span> 16:18 pts/16   00:00:01 dockerd -g /nobackup/docker/workspace1.13.1/
+root     <span class="m">10050</span> <span class="m">10039</span>  <span class="m">0</span> 16:18 ?        00:00:00 docker-containerd -l unix:///var/run/docker/libcontainerd/docker-containerd.sock --metrics-interval<span class="o">=</span><span class="m">0</span> --start-timeout 2m --state-dir /var/run/docker/libcontainerd/containerd --shim docker-containerd-shim --runtime docker-runc
+iot      <span class="m">10248</span>  <span class="m">8482</span>  <span class="m">0</span> 16:22 pts/16   00:00:00 grep --color<span class="o">=</span>auto docker
+iot@sgbu-ucs-11:/nobackup/docker<span class="nv">$ </span>
+
+As it is shwoing, docker is running nicely.</code></pre></figure>
+
+<h1>Deploy containers</h1>
+
+<p>First we make sure there is no docker images there:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">iot@sgbu-ucs-11:/nobackup/docker<span class="nv">$ </span>sudo docker images
+REPOSITORY          TAG                 IMAGE ID            CREATED             SIZE
+iot@sgbu-ucs-11:/nobackup/docker<span class="nv">$ </span></code></pre></figure>
+
+<p>As a sanity testing, we install &quot;hello-world&quot; from docker hub to make sure it is working well:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">iot@sgbu-ucs-11:/nobackup/docker<span class="nv">$ </span>sudo docker pull hello-world
+Using default tag: latest
+latest: Pulling from library/hello-world
+78445dd45222: Already exists 
+Digest: sha256:c5515758d4c5e1e838e9cd307f6c6a0d620b5e07e6f927b07d05f6d12a1ac8d7
+Status: Downloaded newer image <span class="k">for</span> hello-world:latest
+iot@sgbu-ucs-11:/nobackup/docker<span class="nv">$ </span>sudo docker images
+REPOSITORY          TAG                 IMAGE ID            CREATED             SIZE
+hello-world         latest              48b5124b2768        <span class="m">7</span> weeks ago         1.84 kB
+iot@sgbu-ucs-11:/nobackup/docker<span class="nv">$ </span></code></pre></figure>
+
+<p>Second we can install a &quot;fedora&quot; image and &quot;nginx&quot; image.</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">iot@sgbu-ucs-11:/nobackup/docker<span class="nv">$ </span>sudo docker pull fedora
+Using default tag: latest
+latest: Pulling from library/fedora
+1b39978eabd9: Pull <span class="nb">complete </span>
+Digest: sha256:8d3f642aa4d3fa8f9dc52ab0e3bbbe8bc2494843dc6ebb26c4a6958db888e5a2
+Status: Downloaded newer image <span class="k">for</span> fedora:latest
+iot@sgbu-ucs-11:/nobackup/docker<span class="nv">$ </span>sudo docker pull nginx
+Using default tag: latest
+latest: Pulling from library/nginx
+693502eb7dfb: Pull <span class="nb">complete </span>
+6decb850d2bc: Pull <span class="nb">complete </span>
+c3e19f087ed6: Pull <span class="nb">complete </span>
+Digest: sha256:52a189e49c0c797cfc5cbfe578c68c225d160fb13a42954144b29af3fe4fe335
+Status: Downloaded newer image <span class="k">for</span> nginx:latest
+iot@sgbu-ucs-11:/nobackup/docker<span class="nv">$ </span>sudo docker images
+REPOSITORY          TAG                 IMAGE ID            CREATED             SIZE
+nginx               latest              6b914bbcb89e        <span class="m">4</span> days ago          <span class="m">182</span> MB
+fedora              latest              1f8ec1108a3f        <span class="m">2</span> weeks ago         <span class="m">230</span> MB
+hello-world         latest              48b5124b2768        <span class="m">7</span> weeks ago         1.84 kB
+iot@sgbu-ucs-11:/nobackup/docker<span class="nv">$ </span></code></pre></figure>
+
+<p>Third, let run fedora interactive through bash: it shows it is fedora 25, however you can see it is actually has ubuntu kernel since container is a user space virtualization technology.</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">iot@sgbu-ucs-11:/nobackup/docker<span class="nv">$ </span>sudo docker run -it fedora /bin/bash
+WARN<span class="o">[</span>0699<span class="o">]</span> Couldn<span class="s1">&#39;t run auplink before unmount /nobackup/docker/workspace1.13.1/aufs/mnt/f7babbdcde18ee51bc5efffbe67aff8edc734753624c91f0bfb8702ef4922d93-init: exec: &quot;auplink&quot;: executable file not found in $PATH </span>
+<span class="s1">WARN[0699] Couldn&#39;</span>t run auplink before unmount /nobackup/docker/workspace1.13.1/aufs/mnt/f7babbdcde18ee51bc5efffbe67aff8edc734753624c91f0bfb8702ef4922d93: <span class="nb">exec</span>: <span class="s2">&quot;auplink&quot;</span>: executable file not found in <span class="nv">$PATH</span> 
+INFO<span class="o">[</span>0700<span class="o">]</span> No non-localhost DNS nameservers are left in resolv.conf. Using default external servers: <span class="o">[</span>nameserver 8.8.8.8 nameserver 8.8.4.4<span class="o">]</span> 
+          INFO<span class="o">[</span>0700<span class="o">]</span> IPv6 enabled<span class="p">;</span> Adding default IPv6 external servers: <span class="o">[</span>nameserver 2001:4860:4860::8888 nameserver 2001:4860:4860::8844<span class="o">]</span> 
+<span class="o">[</span>root@18ca8d8ced5b /<span class="o">]</span><span class="c"># cat /etc/fedora-release </span>
+Fedora release <span class="m">25</span> <span class="o">(</span>Twenty Five<span class="o">)</span>
+<span class="o">[</span>root@18ca8d8ced5b /<span class="o">]</span><span class="c"># uname -a</span>
+Linux 18ca8d8ced5b 4.4.0-53-generic <span class="c">#74-Ubuntu SMP Fri Dec 2 15:59:10 UTC 2016 x86_64 x86_64 x86_64 GNU/Linux</span>
+<span class="o">[</span>root@18ca8d8ced5b /<span class="o">]</span><span class="c"># </span>
+<span class="o">[</span>root@18ca8d8ced5b /<span class="o">]</span><span class="c"># df -h</span>
+Filesystem      Size  Used Avail Use% Mounted on
+none            823G   49G  733G   7% /
+tmpfs            48G     <span class="m">0</span>   48G   0% /dev
+tmpfs            48G     <span class="m">0</span>   48G   0% /sys/fs/cgroup
+/dev/sda1       823G   49G  733G   7% /etc/hosts
+shm              64M     <span class="m">0</span>   64M   0% /dev/shm
+tmpfs            48G     <span class="m">0</span>   48G   0% /sys/firmware
+<span class="o">[</span>root@18ca8d8ced5b /<span class="o">]</span><span class="c"># exit</span>
+<span class="nb">exit</span>
+iot@sgbu-ucs-11:/nobackup/docker<span class="nv">$ </span>WARN<span class="o">[</span>0988<span class="o">]</span> Couldn<span class="err">&#39;</span>t run auplink before unmount /nobackup/docker/workspace1.13.1/aufs/mnt/f7babbdcde18ee51bc5efffbe67aff8edc734753624c91f0bfb8702ef4922d93: <span class="nb">exec</span>: <span class="s2">&quot;auplink&quot;</span>: executable file not found in <span class="nv">$PATH</span> 
+
+iot@sgbu-ucs-11:/nobackup/docker<span class="nv">$ </span>sudo docker ps -a
+CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS                         PORTS               NAMES
+18ca8d8ced5b        fedora              <span class="s2">&quot;/bin/bash&quot;</span>         <span class="m">5</span> minutes ago       Exited <span class="o">(</span>0<span class="o">)</span> <span class="m">12</span> seconds ago                          romantic_einstein
+81b59ab256b3        hello-world         <span class="s2">&quot;/hello&quot;</span>            About an hour ago   Exited <span class="o">(</span>0<span class="o">)</span> About an hour ago                       keen_mestorf
+iot@sgbu-ucs-11:/nobackup/docker<span class="nv">$ </span></code></pre></figure>
+
+<p>There is another way to load docker image by reading a prepared and downloaded binary of docker image:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">iot@sgbu-ucs-11:/nobackup/docker<span class="nv">$ </span>sudo docker load --input widevine-api.tar 
+e7ebc6e16708: Loading layer <span class="o">[==================================================</span>&gt;<span class="o">]</span> 133.8 MB/133.8 MB
+f934e33a54a6: Loading layer <span class="o">[==================================================</span>&gt;<span class="o">]</span> 15.87 kB/15.87 kB
+bf6751561805: Loading layer <span class="o">[==================================================</span>&gt;<span class="o">]</span> 11.78 kB/11.78 kB
+943edb549a83: Loading layer <span class="o">[==================================================</span>&gt;<span class="o">]</span> 4.608 kB/4.608 kB
+c1bd37d01c89: Loading layer <span class="o">[==================================================</span>&gt;<span class="o">]</span> 3.072 kB/3.072 kB
+a95df000892a: Loading layer <span class="o">[==================================================</span>&gt;<span class="o">]</span> 31.23 kB/31.23 kB
+87a8db33c00a: Loading layer <span class="o">[==================================================</span>&gt;<span class="o">]</span> 680.7 MB/680.7 MB
+3eb94c8c4801: Loading layer <span class="o">[==================================================</span>&gt;<span class="o">]</span> 1.536 kB/1.536 kB
+ae09daac5f09: Loading layer <span class="o">[==================================================</span>&gt;<span class="o">]</span> 10.37 MB/10.37 MB
+7515649c4f96: Loading layer <span class="o">[==================================================</span>&gt;<span class="o">]</span> 34.23 MB/34.23 MB
+3df54ddc927e: Loading layer <span class="o">[==================================================</span>&gt;<span class="o">]</span> 3.584 kB/3.584 kB
+afaa58df73a7: Loading layer <span class="o">[==================================================</span>&gt;<span class="o">]</span> 3.584 kB/3.584 kB
+54f82330fe32: Loading layer <span class="o">[==================================================</span>&gt;<span class="o">]</span> 4.608 kB/4.608 kB
+cce3f38770a6: Loading layer <span class="o">[==================================================</span>&gt;<span class="o">]</span> 3.072 kB/3.072 kB
+f157603ca1b0: Loading layer <span class="o">[==================================================</span>&gt;<span class="o">]</span> 2.048 kB/2.048 kB
+14f338761f7e: Loading layer <span class="o">[==================================================</span>&gt;<span class="o">]</span> 2.048 kB/2.048 kB
+Loaded image: registry.axinom.com/widevine-api/app:latest
+iot@sgbu-ucs-11:/nobackup/docker<span class="nv">$ </span>sudo docker images
+REPOSITORY                             TAG                 IMAGE ID            CREATED             SIZE
+nginx                                  latest              6b914bbcb89e        <span class="m">4</span> days ago          <span class="m">182</span> MB
+fedora                                 latest              1f8ec1108a3f        <span class="m">2</span> weeks ago         <span class="m">230</span> MB
+hello-world                            latest              48b5124b2768        <span class="m">7</span> weeks ago         1.84 kB
+registry.axinom.com/widevine-api/app   latest              a8c197b7a44b        <span class="m">3</span> months ago        <span class="m">840</span> MB
+iot@sgbu-ucs-11:/nobackup/docker<span class="nv">$ </span>iot@sgbu-ucs-11:/nobackup/docker<span class="nv">$ </span>sudo docker run registry.axinom.com/widevine-api/app -it
+WARN<span class="o">[</span>1873<span class="o">]</span> Couldn<span class="s1">&#39;t run auplink before unmount /nobackup/docker/workspace1.13.1/aufs/mnt/f17847c68b04f64b687f745fb49abf82cde3fcb4ba38cbdb94748862e69c4d2b-init: exec: &quot;auplink&quot;: executable file not found in $PATH </span>
+<span class="s1">WARN[1873] Couldn&#39;</span>t run auplink before unmount /nobackup/docker/workspace1.13.1/aufs/mnt/f17847c68b04f64b687f745fb49abf82cde3fcb4ba38cbdb94748862e69c4d2b: <span class="nb">exec</span>: <span class="s2">&quot;auplink&quot;</span>: executable file not found in <span class="nv">$PATH</span> 
+INFO<span class="o">[</span>1874<span class="o">]</span> No non-localhost DNS nameservers are left in resolv.conf. Using default external servers: <span class="o">[</span>nameserver 8.8.8.8 nameserver 8.8.4.4<span class="o">]</span> 
+INFO<span class="o">[</span>1874<span class="o">]</span> IPv6 enabled<span class="p">;</span> Adding default IPv6 external servers: <span class="o">[</span>nameserver 2001:4860:4860::8888 nameserver 2001:4860:4860::8844<span class="o">]</span> 
+The setup has been successfully completed.
+..........</code></pre></figure>
+
+<h1>Reference</h1>
+
+<p>For more details, check <a href="https://docs.docker.com/engine/installation/binaries/#install-daemon-and-client-binaries-on-linux">docker docs</a>.</p>
+
+	</div>
+
+<!--	
+	<div class='share-button-container'>
+		<p>Like it? Share it!</p>
+		<div class='share-button share-button-twitter' data-share-url="http://weweng.github.io/2017/02/docker-binary-install/">
+			<div clas='box'>
+				<a href="https://twitter.com/share?url=http://weweng.github.io%2F2017%2F02%2Fdocker-binary-install%2F&text=Install docker from binary distribution&via=weweng" target='_blank'>
+					<span class='share'>Tweet</span>
+					<span class='count'>0</span>
+				</a>
+			</div>
+		</div>
+
+		<div class="share-button share-button-facebook" data-share-url="http://weweng.github.io/2017/02/docker-binary-install/">
+			<div class="box">
+				<a href="https://www.facebook.com/sharer/sharer.php?u=http://weweng.github.io%2F2017%2F02%2Fdocker-binary-install%2F">
+					<span class='share'>Share</span>
+					<span class='count'>0</span>
+				</a>
+			</div>
+		</div>
+	</div>
+-->
+
+</section>
+
+<div id='comments'>
+	<div id='disqus_thread'></div>
+	<script type='text/javascript'>
+		var disqus_shortname = 'wewenggithubio';
+		(function() {
+			var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+			dsq.src = 'http://' + disqus_shortname + '.disqus.com/embed.js';
+			(document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+		})();
+	</script>
+
+	<noscript>Please enable JavaScript to view the comments</noscript>
+</div>
+<script type='text/javascript' src='/assets/js/StaticShareButtons.js'></script>
+
+
+	</div>
+
+	<footer class='footer'>
+		<span>Copyright 2015-2017, Wenwei Weng</span>
+	</footer>
+</div>
+</div>
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-62997612-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+
+
+<script type="text/javascript">
+// Open external links in new tab
+(window.onload = function(){
+	var links = document.links;
+
+	for(i=0; i<=links.length -1; i++){
+		if(links[i].hostname != window.location.hostname){
+			links[i].target = '_blank';
+		}
+	}
+})();
+</script>
+</body>
+</html>

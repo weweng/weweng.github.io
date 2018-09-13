@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset='UTF-8'>
+	<title>Linux kernel development enviroment setup | Wenwei's tech Blog</title>
+	<link rel='alternate' type='application/rss+xml' title='Wenwei Feed' href='http://weweng.github.io/atom.xml'>
+	<meta name='description' content=''/>
+	<meta name='keywords' content='Linux kernel build'/>
+	<meta name='viewport' content='width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no'>
+	<meta name='theme-color' content='#655B54'>
+	<link rel='shortcut icon' href='/assets/favicon.ico' type='image/x-icon'> 
+	<!--- <link rel='icon' href='/assets/favicon.ico' type='image/x-icon'> --->
+<link rel='icon' href='/assets/blogger.png' type='image/x-png'>
+
+	<link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro:400,700' rel='stylesheet' type='text/css'>
+	<link rel='stylesheet' type='text/css' href='/assets/css/code-highlighter.css' />
+<link rel='stylesheet' type='text/css' href='/assets/css/default.min.css' />
+<link rel='stylesheet' type='text/css' href='/assets/css/github.css' />
+<link rel='stylesheet' type='text/css' href='/assets/css/pure-base-min.css' />
+<link rel='stylesheet' type='text/css' href='/assets/css/pure-grids-responsive-min.css' />
+<link rel='stylesheet' type='text/css' href='/assets/css/pure-menus-min.css' />
+<link rel='stylesheet' type='text/css' href='/assets/css/pure-tables-min.css' />
+<link rel='stylesheet' type='text/css' href='/assets/css/social-buttons.css' />
+<link rel='stylesheet' type='text/css' href='/assets/css/weweng.css' />
+
+
+	
+</head>
+<body>
+
+<div class='pure-g' id='layout'>
+    <div class='sidebar pure-u-1 pure-u-md-1-4'>
+      <div class='header'>
+	<nav class='nav'>
+	  <ul class='nav-list'>
+	    <li class='nav-item'>
+	      <strong> <a href='/workblog.html'>Blog</a> </strong>
+	    </li>
+<!--
+	    <li class='nav-item'>
+	      <strong> <a href='/study/index.html'>Study</a> </strong>
+	    </li>
+	    <li class='nav-item'>
+	      <strong> <a href='/projects/index.html'>Projects</a> </strong>
+	    </li>
+-->
+<!--
+            <li class='nav-item'>
+              <strong> <a href='/services/index.html'>读书笔记</a> </strong>
+            </li>
+-->
+	    <li class='nav-item'>
+	      <strong><a href='/aboutme.html'>About Me</a></strong>
+	    </li>
+	</ul>
+	</nav>
+	<br> 
+	<h1 class='brand-title'>
+	  <a href='/index.html'>
+		<img src='/assets/img/avatar.png' height='100'/>
+	  </a>
+	</h1>
+      </div>
+</div>
+
+<div class='pure-u-1'>
+	<div class='content'>
+		<section class='post'>
+	<header class='post-header'>
+		<h2 class='post-title'> Linux kernel development enviroment setup </h2>
+		<p class='post-meta'>
+			Posted on <time class='date' datetime='2015-11-17T00:00:00+01:00'>17 Nov 2015</time>
+		</p>
+	</header>
+
+	<div class='post-description'>
+		<p>Playing around Linux kernel is always something very interesting to me. In fact, it is very straightforward to run the kernel built by ourself. also in order to play around a linux driver, it is must to have a kernel build enviroment in place first.</p>
+
+<p><img src="/uploads/linux/linux-kernel-dev.png" alt="Linux kernel dev"> </p>
+
+<!--more-->
+
+<h1>Choose a linux distribution to start</h1>
+
+<p>There are so many Linux distributions around, and it could be confusing which one to use. After I did a bit homework, I landed with Fedora. Here is the path I walked through: the majorities of linux boxes in my Cisco lab run either Ubuntu or Redhat Enterprise/Centos. Since Redhat/Centos has pretty old version os kernel, I&#39;m not that interested to use that. So initially I wanted to use Ubuntu, I love Ubuntu because it is so easy to get most tools/packages I wanted to be installed. I thought it would be awesome to have my own built kernel running in my boxes. However, after I played around it, I realized there are some wrapper layers around Ubuntu kernel build. If I want to download and build kernel from kernel.org, which is not going to work straightly. Then I looked into Gentoo and Arch Linux, which are two who are famous for providing the flexibity for the developer to customize what he wants. I did install Gentoo, but felt it was a bit too much for customization as I already used to smoothe installation of ubuntu. I want something in between. I did a bit googling, and found Fedora is the one what I look for. Some peopel said Linus Torvalds is using Fedora too.</p>
+
+<p><img src="/uploads/linux/fedora-23.jpg" alt="linux fedora 23"></p>
+
+<p>Following are the steps to follow to set up a kernel development using Fedora 23.</p>
+
+<h2>Download Fedora 23 workstation.</h2>
+
+<figure class="highlight"><pre><code class="language-c" data-lang="c"><span class="n">xterm</span><span class="err">#</span> <span class="n">wget</span> <span class="nl">http</span><span class="p">:</span><span class="c1">//fedora.mirror.lstn.net/releases/23/Workstation/x86_64/iso/Fedora-Live-Workstation-x86_64-23-10.iso</span></code></pre></figure>
+
+<p>Download and burn into a DVD if needed.</p>
+
+<h2>Install Fedora</h2>
+
+<p>There are two ways: 
+<ul>
+<li> Install as virtual machine, e.g. using VirtualBox. It is convient, but could lost some functionality like HPET etc.</li>
+<li> Install in a bare metal box.</li>
+</ul></p>
+
+<h2>Boot Fedora and rebuild vanilla linux kernel from mainline</h2>
+
+<ol>
+<li> Clone Linus' GIT repository from GitHub: git clone https://github.com/torvalds/linux.git.</li>
+
+<li> In order to do kernel configuration change through "make menuconfig", ncurses-devel package needs to be installed: dnf install ncurses-devel</li>
+
+<li>By default openssl-devel package is not installed, and which is required by kernel build: dnf install openssl-devel </li>
+
+<li>kernel configuration: copy the kernel configuration file of current running kernel: cp /boot/config-$(uname -r) .config, then invoke "make menuconfig: to adjust the kernel configuration, save it.  </li>
+
+<li>make oldconfig && make bzImage </li>
+<li>make modules && make modules_install </li>
+<li>make install </li>
+<li> reboot </li>
+</ol>
+
+<p>Now you should have kernel built by yourself running.</p>
+
+<p>You are ready to build your own kernel driver.</p>
+
+	</div>
+
+<!--	
+	<div class='share-button-container'>
+		<p>Like it? Share it!</p>
+		<div class='share-button share-button-twitter' data-share-url="http://weweng.github.io/2015/11/Linux-kernel-dev/">
+			<div clas='box'>
+				<a href="https://twitter.com/share?url=http://weweng.github.io%2F2015%2F11%2FLinux-kernel-dev%2F&text=Linux kernel development enviroment setup&via=weweng" target='_blank'>
+					<span class='share'>Tweet</span>
+					<span class='count'>0</span>
+				</a>
+			</div>
+		</div>
+
+		<div class="share-button share-button-facebook" data-share-url="http://weweng.github.io/2015/11/Linux-kernel-dev/">
+			<div class="box">
+				<a href="https://www.facebook.com/sharer/sharer.php?u=http://weweng.github.io%2F2015%2F11%2FLinux-kernel-dev%2F">
+					<span class='share'>Share</span>
+					<span class='count'>0</span>
+				</a>
+			</div>
+		</div>
+	</div>
+-->
+
+</section>
+
+<div id='comments'>
+	<div id='disqus_thread'></div>
+	<script type='text/javascript'>
+		var disqus_shortname = 'wewenggithubio';
+		(function() {
+			var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+			dsq.src = 'http://' + disqus_shortname + '.disqus.com/embed.js';
+			(document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+		})();
+	</script>
+
+	<noscript>Please enable JavaScript to view the comments</noscript>
+</div>
+<script type='text/javascript' src='/assets/js/StaticShareButtons.js'></script>
+
+
+	</div>
+
+	<footer class='footer'>
+		<span>Copyright 2015-2017, Wenwei Weng</span>
+	</footer>
+</div>
+</div>
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-62997612-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+
+
+<script type="text/javascript">
+// Open external links in new tab
+(window.onload = function(){
+	var links = document.links;
+
+	for(i=0; i<=links.length -1; i++){
+		if(links[i].hostname != window.location.hostname){
+			links[i].target = '_blank';
+		}
+	}
+})();
+</script>
+</body>
+</html>

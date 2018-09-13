@@ -1,0 +1,63 @@
+<HTML>
+<HEAD>
+<TITLE>Programming Algorithms</TITLE>
+<link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro:400,700' rel='stylesheet' type='text/css'>
+<link rel='stylesheet' type='text/css' href='/assets/css/code-highlighter.css' />
+<link rel='stylesheet' type='text/css' href='/assets/css/pure-base-min.css' />
+<link rel='stylesheet' type='text/css' href='/assets/css/pure-grids-responsive-min.css' />
+<link rel='stylesheet' type='text/css' href='/assets/css/pure-menus-min.css' />
+<link rel='stylesheet' type='text/css' href='/assets/css/pure-tables-min.css' />
+<link rel='stylesheet' type='text/css' href='/assets/css/social-buttons.css' />
+<link rel='stylesheet' type='text/css' href='/assets/css/weweng.css' />
+<link rel='stylesheet' type='text/css' href='/assets/css/github.css' />
+<link rel='stylesheet' type='text/css' href='/assets/css/default.min.css' />
+<link rel='stylesheet' type='text/css' href='/assets/css/default.min.css' />
+<script src="/asset/js/highlight.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+</HEAD>
+
+<BODY BGCOLOR="FFFFFF">
+<p>This is the section to cover programming algorithms study.
+</p>
+<p>Data Structure:</p>
+<ul>
+  <li>link list</li>
+  <li>hashtable</li>
+  <li>tree</li>
+</ul>
+<p>Algorithms:</p>
+<ul>
+  <li>searching</li>
+  <li>sorting</li>
+</ul>
+<p>Typical problems:</p>
+<ul>
+  <li>tba1</li>
+  <li>tba2 </li>
+</ul>
+
+
+<div class="common system">
+      <h2>C++</h2>
+      <pre><code class="cpp">#include &lt;iostream&gt;
+
+int main(int argc, char *argv[]) {
+
+  /* An annoying &quot;Hello World&quot; example */
+  for (auto i = 0; i &lt; 0xFFFF; i++)
+    cout &lt;&lt; &quot;Hello, World!&quot; &lt;&lt; endl;
+
+  char c = &#39;\n&#39;;
+  unordered_map &lt;string, vector&lt;string&gt; &gt; m;
+  m[&quot;key&quot;] = &quot;\\\\&quot;; // this is an error
+
+  return -2e3 + 12l;
+}
+</code></pre>
+</div>
+
+hello
+
+</BODY>
+
+</HTML> 

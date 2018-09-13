@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset='UTF-8'>
+	<title>Home | Wenwei's tech Blog</title>
+	<link rel='alternate' type='application/rss+xml' title='Wenwei Feed' href='http://weweng.github.io/atom.xml'>
+	<meta name='description' content=''/>
+	<meta name='keywords' content=''/>
+	<meta name='viewport' content='width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no'>
+	<meta name='theme-color' content='#655B54'>
+	<link rel='shortcut icon' href='/assets/favicon.ico' type='image/x-icon'> 
+	<!--- <link rel='icon' href='/assets/favicon.ico' type='image/x-icon'> --->
+<link rel='icon' href='/assets/blogger.png' type='image/x-png'>
+
+	<link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro:400,700' rel='stylesheet' type='text/css'>
+	<link rel='stylesheet' type='text/css' href='/assets/css/code-highlighter.css' />
+<link rel='stylesheet' type='text/css' href='/assets/css/default.min.css' />
+<link rel='stylesheet' type='text/css' href='/assets/css/github.css' />
+<link rel='stylesheet' type='text/css' href='/assets/css/pure-base-min.css' />
+<link rel='stylesheet' type='text/css' href='/assets/css/pure-grids-responsive-min.css' />
+<link rel='stylesheet' type='text/css' href='/assets/css/pure-menus-min.css' />
+<link rel='stylesheet' type='text/css' href='/assets/css/pure-tables-min.css' />
+<link rel='stylesheet' type='text/css' href='/assets/css/social-buttons.css' />
+<link rel='stylesheet' type='text/css' href='/assets/css/weweng.css' />
+
+
+	
+</head>
+<body>
+
+<div class='pure-g' id='layout'>
+    <div class='sidebar pure-u-1 pure-u-md-1-4'>
+      <div class='header'>
+	<nav class='nav'>
+	  <ul class='nav-list'>
+	    <li class='nav-item'>
+	      <strong> <a href='/workblog.html'>Blog</a> </strong>
+	    </li>
+<!--
+	    <li class='nav-item'>
+	      <strong> <a href='/study/index.html'>Study</a> </strong>
+	    </li>
+	    <li class='nav-item'>
+	      <strong> <a href='/projects/index.html'>Projects</a> </strong>
+	    </li>
+-->
+<!--
+            <li class='nav-item'>
+              <strong> <a href='/services/index.html'>读书笔记</a> </strong>
+            </li>
+-->
+	    <li class='nav-item'>
+	      <strong><a href='/aboutme.html'>About Me</a></strong>
+	    </li>
+	</ul>
+	</nav>
+	<br> 
+	<h1 class='brand-title'>
+	  <a href='/index.html'>
+		<img src='/assets/img/avatar.png' height='100'/>
+	  </a>
+	</h1>
+      </div>
+</div>
+
+<div class='pure-u-1'>
+	<div class='content'>
+		
+	<h1 class='content-subhead'>Page 14</h1>
+
+
+
+<section class='post'>
+	<header class='post-header'>
+		<h2 class='post-title'>
+			<a href="/2015/10/Fast_Packet-Forward-design/">IP Network Software Based Fast Packet Forward Design Principle</a>
+		</h2>
+
+		<p class='post-meta'>
+			Posted on 17 Oct 2015
+		</p>
+	</header>
+
+	<div class='post-description'>
+		<p>The main responsibility of router is to route the IP/L3 packet out as soon as possible once it enters the router.</p>
+
+<p><img src="/uploads/ip/router-1.png" alt="IP Packet"></p>
+
+<p>Let&#39;s look into the inside to see what are the principles to follow in order to achieve the best throughput.</p>
+
+
+
+		<p><a href='/2015/10/Fast_Packet-Forward-design/'>Continue reading &rarr;</a></p>
+	</div>
+</section>
+
+<section class='post'>
+	<header class='post-header'>
+		<h2 class='post-title'>
+			<a href="/2015/07/Hardware-Crypto/">Internet Security - Hardware Crypto Accelerator</a>
+		</h2>
+
+		<p class='post-meta'>
+			Posted on 07 Jul 2015
+		</p>
+	</header>
+
+	<div class='post-description'>
+		<p>As internet is growing daily, network security is becoming a very important aspect to address. 
+IPSec provides a way to encrypt/decrypt the IP packet, it is the foundation of Virtual Private Network. 
+There are two ways to encrypt/decrypt IP packet: 
+<ol>
+  <li>software based: use main CPU cycle to execute software to have IP packet encrypted/decrypted. It can be more generic implementation (software wise), no additional hardware cost; however encryption/decryption is CPU intensive work, it causes CPU busy and low throughput.</li>
+  <li>hardware based: use dedicate piece of hardware to perform packet encryption/decryption. It frees up main CPU, provide high throughput; however requires additionall hardware cost, and specific software driver to make it work.</li>
+</ol></p>
+
+<p>As internet traffic is increasing fast, the demand of higher IPSEc throughput is high. In fact, it creates a new business called &quot;Security Processor&quot;.
+There are three main players: Cavium neworks, Freescale and Intel.</p>
+
+<p>The following diagram shows how a typical way of security processor works in high level:</p>
+
+<p><img src="/uploads/crypto/security-processor-model.jpg" alt="cryptography"></p>
+
+<p>In this post, I will give a summary of three hardware cypto players.</p>
+
+
+
+		<p><a href='/2015/07/Hardware-Crypto/'>Continue reading &rarr;</a></p>
+	</div>
+</section>
+
+<section class='post'>
+	<header class='post-header'>
+		<h2 class='post-title'>
+			<a href="/2015/06/Docker-Overview/">Docker overview</a>
+		</h2>
+
+		<p class='post-meta'>
+			Posted on 09 Jun 2015
+		</p>
+	</header>
+
+	<div class='post-description'>
+		<p>Docker is becoming a very popular in virtualization world.<br>
+What is Docker? It is an open-source project that automates the deployment of applications inside linux container.<br>
+What is Linux container? It provides &quot;operation-system level virtualization&quot; on Linux, i.e. it provides a way for user to create a userspace enviroment(root file system) on top of underlying host linux kernel.<br>
+What is needed from Linux kernel? In general, it requires kernel 3.10+, with namespace, cgroup, plus libcontainer.</p>
+
+<p>The following diagram shows the overall picture of Docker.</p>
+
+<p><img src="/uploads/docker/docker-overview.jpg" alt="Docker Overview"></p>
+
+<p>In this post, I will share what I learned about Docker.</p>
+
+
+
+		<p><a href='/2015/06/Docker-Overview/'>Continue reading &rarr;</a></p>
+	</div>
+</section>
+
+
+
+
+<p style='text-align:center; margin-top: 30px;'>
+	
+		
+			<a href='/page13/'>&larr; Previous page</a>
+		
+	
+
+	
+		|
+	
+
+	
+		<a href='/page15/'>Next page &rarr;</a>
+	
+</p>
+	</div>
+
+	<footer class='footer'>
+		<span>Copyright 2015-2017, Wenwei Weng</span>
+	</footer>
+</div>
+</div>
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-62997612-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+
+
+<script type="text/javascript">
+// Open external links in new tab
+(window.onload = function(){
+	var links = document.links;
+
+	for(i=0; i<=links.length -1; i++){
+		if(links[i].hostname != window.location.hostname){
+			links[i].target = '_blank';
+		}
+	}
+})();
+</script>
+</body>
+</html>

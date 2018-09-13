@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset='UTF-8'>
+	<title>VLAN Routing and Bridging on a Cisco Router Using the IRB | Wenwei's tech Blog</title>
+	<link rel='alternate' type='application/rss+xml' title='Wenwei Feed' href='http://weweng.github.io/atom.xml'>
+	<meta name='description' content=''/>
+	<meta name='keywords' content='Cisco Routing Bridging IRB'/>
+	<meta name='viewport' content='width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no'>
+	<meta name='theme-color' content='#655B54'>
+	<link rel='shortcut icon' href='/assets/favicon.ico' type='image/x-icon'> 
+	<!--- <link rel='icon' href='/assets/favicon.ico' type='image/x-icon'> --->
+<link rel='icon' href='/assets/blogger.png' type='image/x-png'>
+
+	<link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro:400,700' rel='stylesheet' type='text/css'>
+	<link rel='stylesheet' type='text/css' href='/assets/css/code-highlighter.css' />
+<link rel='stylesheet' type='text/css' href='/assets/css/default.min.css' />
+<link rel='stylesheet' type='text/css' href='/assets/css/github.css' />
+<link rel='stylesheet' type='text/css' href='/assets/css/pure-base-min.css' />
+<link rel='stylesheet' type='text/css' href='/assets/css/pure-grids-responsive-min.css' />
+<link rel='stylesheet' type='text/css' href='/assets/css/pure-menus-min.css' />
+<link rel='stylesheet' type='text/css' href='/assets/css/pure-tables-min.css' />
+<link rel='stylesheet' type='text/css' href='/assets/css/social-buttons.css' />
+<link rel='stylesheet' type='text/css' href='/assets/css/weweng.css' />
+
+
+	
+</head>
+<body>
+
+<div class='pure-g' id='layout'>
+    <div class='sidebar pure-u-1 pure-u-md-1-4'>
+      <div class='header'>
+	<nav class='nav'>
+	  <ul class='nav-list'>
+	    <li class='nav-item'>
+	      <strong> <a href='/workblog.html'>Blog</a> </strong>
+	    </li>
+<!--
+	    <li class='nav-item'>
+	      <strong> <a href='/study/index.html'>Study</a> </strong>
+	    </li>
+	    <li class='nav-item'>
+	      <strong> <a href='/projects/index.html'>Projects</a> </strong>
+	    </li>
+-->
+<!--
+            <li class='nav-item'>
+              <strong> <a href='/services/index.html'>读书笔记</a> </strong>
+            </li>
+-->
+	    <li class='nav-item'>
+	      <strong><a href='/aboutme.html'>About Me</a></strong>
+	    </li>
+	</ul>
+	</nav>
+	<br> 
+	<h1 class='brand-title'>
+	  <a href='/index.html'>
+		<img src='/assets/img/avatar.png' height='100'/>
+	  </a>
+	</h1>
+      </div>
+</div>
+
+<div class='pure-u-1'>
+	<div class='content'>
+		<section class='post'>
+	<header class='post-header'>
+		<h2 class='post-title'> VLAN Routing and Bridging on a Cisco Router Using the IRB </h2>
+		<p class='post-meta'>
+			Posted on <time class='date' datetime='2016-10-29T00:00:00+01:00'>29 Oct 2016</time>
+		</p>
+	</header>
+
+	<div class='post-description'>
+		<p>In order for a VLAN to span a router, the router must be capable of forwarding frames from one interface to another, while maintaining the VLAN header. If the router is configured for routing a Layer 3 (network layer) protocol, it will terminate the VLAN and MAC layers at the interface a frame arrives on. The MAC layer header can be maintained if the router is bridging the network layer protocol. However, regular bridging still terminates the VLAN header. Using the IRB feature in Cisco IOS® Release 11.2 or greater, a router can be configured for routing and bridging the same network layer protocol on the same interface. This allows the VLAN header to be maintained on a frame while it transits a router from one interface to another. IRB provides the ability to route between a bridged domain and a routed domain with Bridge Group Virtual Interface (BVI). The BVI is a virtual interface within the router that acts like a normal routed interface that does not support bridging, but represents the comparable bridge group to routed interfaces within the router. The interface number of the BVI is the number of the bridge group that the virtual interface represents. The number is the link between the BVI and the bridge group.</p>
+
+<p><img src="/uploads/cisco/IRB.jpg" alt="Cisco"></p>
+
+<!--more-->
+
+<p>When you configure and enable routing on the BVI, packets that come in on a routed interface, which are destined for a host on a segment in a bridge group, are routed to the BVI. From the BVI, the packet is forwarded to the bridging engine, which forwards it through a bridged interface. This is forwarded based on the destination MAC address. Similarly, packets that come in on a bridged interface, but are destined for a host on a routed network, first go to the BVI. Next, the BVI forwards the packets to the routing engine before it sends them out of the routed interface. On a single physical interface, the IRB can be created with two VLAN sub-interfaces (802.1Q tagging); one VLAN sub-interface has an IP address that is used for routing, and the other VLAN sub-interface bridges between the sub-interface used for routing and the other physical interface on the router.
+Since the BVI represents a bridge group as a routed interface, it must be configured only with Layer 3 (L3) characteristics, such as network layer addresses. Similarly, the interfaces configured for bridging a protocol must not be configured with any L3 characteristics.</p>
+
+<h1>IRB configuration example</h1>
+
+<h2>Network topology</h2>
+
+<p>I&#39;m running Cisco IOL to simulate Cisco Router and Switch. See tolopogy below:
+<img src="/uploads/cisco/IRB-topo.jpg" alt="Cisco"></p>
+
+<p>The Router Customer<em>A,Customer</em>B,Customer<em>C act as end point device. A &amp; B has the interface in the same subnet (10.10.10.0/24), but connect to Router</em>1 different L3 interfaces. Router<em>1 has BVI interface configured with IP address 10.10.10.1, and has members of interface E0/0 and E3/0. Router</em>1 has a serial WAN link to Router<em>2, the link has IP subnet of 10.10.20.0/24. There is another interface E0/0 in Router</em>2, which has IP address 10.10.30.1, and in the same subnet as Customer_C, which has E0/0 with IP address 10.10.30.2.</p>
+
+<p>With above setup, when Customer<em>A pings 10.10.10.2 in Customer</em>B, Router<em>1 will simply bridge the packet from E0/0 to E3/0 in Router</em>1, which will be eventually devlier to E0/0 in Customner<em>B, because they are in the same subnet. When Customer</em>A pings 10.10.30.2 in Customer<em>C, the packet will be routed to Router</em>2, the packet will be switched to Customer_C E0/0 interface.</p>
+
+<p>Following the running configuration of each router:</p>
+
+<h2>Configuration example</h2>
+
+<h3>Customer_A</h3>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">Customer_A#show running-config 
+Building configuration...
+
+Current configuration : <span class="m">3072</span> bytes
+!
+version 15.1
+service timestamps debug datetime msec
+service timestamps log datetime msec
+no service password-encryption
+!
+hostname Customer_A
+!
+boot-start-marker
+boot-end-marker
+!
+!
+!
+no aaa new-model
+clock timezone PST -8
+!
+!
+ip cef
+no ipv6 cef
+!
+interface Ethernet0/0
+ ip address 10.10.10.3 255.255.255.0
+!         
+interface Ethernet0/1
+ description !DO NOT USE! 
+ no ip address
+ shutdown 
+!         
+............................................................
+!
+interface Serial7/3
+ description !DO NOT USE! 
+ no ip address
+ shutdown
+ serial restart-delay 0
+!
+ip forward-protocol nd
+!
+!
+no ip http server
+ip route 0.0.0.0 0.0.0.0 10.10.10.1
+!
+!
+!
+!
+control-plane
+!
+!
+line con 0
+ logging synchronous
+ transport output all
+line aux 0
+line vty <span class="m">0</span> 4
+ login
+ transport input all
+!
+!
+end
+
+Customer_A#</code></pre></figure>
+
+<h3>Customer_B</h3>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">Customer_B#show running-config 
+Building configuration...
+
+Current configuration : <span class="m">3072</span> bytes
+!
+version 15.1
+service timestamps debug datetime msec
+service timestamps log datetime msec
+no service password-encryption
+!
+hostname Customer_B
+!
+boot-start-marker
+boot-end-marker
+!
+!
+!
+no aaa new-model
+clock timezone PST -8
+!
+!
+ip cef
+no ipv6 cef
+!
+!
+interface Ethernet0/0
+ ip address 10.10.10.2 255.255.255.0
+!
+interface Ethernet0/1
+ description !DO NOT USE! 
+ no ip address
+ shutdown
+!
+......
+interface Serial7/3
+ description !DO NOT USE! 
+ no ip address
+ shutdown
+ serial restart-delay 0
+!
+ip forward-protocol nd
+!
+!
+no ip http server
+ip route 0.0.0.0 0.0.0.0 10.10.10.1
+!
+!
+!
+!         
+control-plane
+!
+!
+line con 0
+ logging synchronous
+ transport output all
+line aux 0
+line vty <span class="m">0</span> 4
+ login
+ transport input all
+!
+!
+end
+
+Customer_B#</code></pre></figure>
+
+<h3>Router_1</h3>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">Router-1#show running-config 
+Building configuration...
+
+Current configuration : <span class="m">3187</span> bytes
+!
+version 15.1
+service timestamps debug datetime msec
+service timestamps log datetime msec
+no service password-encryption
+!
+hostname Router-1
+!
+boot-start-marker
+boot-end-marker
+!
+!
+!
+no aaa new-model
+clock timezone PST -8
+!
+!
+ip cef
+no ipv6 cef
+!
+!
+bridge irb
+!         
+!         
+interface Ethernet0/0
+ no ip address
+ bridge-group 1
+!         
+interface Ethernet0/1
+ description !DO NOT USE! 
+ no ip address
+ shutdown 
+!         
+interface Ethernet0/2
+ description !DO NOT USE! 
+ no ip address
+ shutdown 
+!         
+interface Ethernet0/3
+ description !DO NOT USE! 
+ no ip address
+ shutdown 
+!         
+interface Ethernet1/0
+ no ip address
+ shutdown 
+!         
+.........................................................
+!
+interface Serial7/0
+ ip address 10.10.20.1 255.255.255.0
+ serial restart-delay 0
+!
+interface Serial7/1
+ description !DO NOT USE! 
+ no ip address
+ shutdown
+ serial restart-delay 0
+!
+interface Serial7/2
+ description !DO NOT USE! 
+ no ip address
+ shutdown 
+ serial restart-delay 0
+!         
+interface Serial7/3
+ description !DO NOT USE! 
+ no ip address
+ shutdown 
+ serial restart-delay 0
+!         
+interface BVI1
+ ip address 10.10.10.1 255.255.255.0
+!         
+ip forward-protocol nd
+!         
+!         
+no ip http server
+ip route 10.10.30.0 255.255.255.0 10.10.20.2
+!         
+!         
+!         
+bridge <span class="m">1</span> protocol ieee
+bridge <span class="m">1</span> route ip
+!         
+control-plane
+!         
+!         
+line con 0
+ logging synchronous
+ transport output all
+line aux 0
+line vty <span class="m">0</span> 4
+ login    
+ transport input all
+!         
+!         
+end       
+          
+Router-1#</code></pre></figure>
+
+<h3>Router_2</h3>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">Router-2#show running-config 
+Building configuration...
+
+Current configuration : <span class="m">3081</span> bytes
+!
+version 15.1
+service timestamps debug datetime msec
+service timestamps log datetime msec
+no service password-encryption
+!
+hostname Router-2
+!
+boot-start-marker
+boot-end-marker
+!
+!
+!
+no aaa new-model
+clock timezone PST -8
+!
+!
+ip cef
+no ipv6 cef
+!
+!         
+interface Ethernet0/0
+ ip address 10.10.30.1 255.255.255.0
+!         
+interface Ethernet0/1
+ description !DO NOT USE! 
+ no ip address
+ shutdown 
+!         
+.........................................................
+!         
+interface Serial7/0
+ ip address 10.10.20.2 255.255.255.0
+ serial restart-delay 0
+!         
+interface Serial7/1
+ description !DO NOT USE! 
+ no ip address
+ shutdown 
+ serial restart-delay 0
+!         
+interface Serial7/2
+ description !DO NOT USE! 
+ no ip address
+ shutdown 
+ serial restart-delay 0
+!         
+interface Serial7/3
+ description !DO NOT USE! 
+ no ip address
+ shutdown 
+ serial restart-delay 0
+!         
+ip forward-protocol nd
+!         
+!         
+no ip http server
+ip route 10.10.10.0 255.255.255.0 10.10.20.1
+!         
+control-plane
+!         
+!         
+line con 0
+ logging synchronous
+ transport output all
+line aux 0
+line vty <span class="m">0</span> 4
+ login    
+ transport input all
+!         
+!         
+end       
+          
+Router-2#</code></pre></figure>
+
+<h3>Customer_C</h3>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">Customer_C#show running-config 
+Building configuration...
+
+Current configuration : <span class="m">3072</span> bytes
+!
+version 15.1
+service timestamps debug datetime msec
+service timestamps log datetime msec
+no service password-encryption
+!
+hostname Customer_C
+!
+boot-start-marker
+boot-end-marker
+!
+!
+!
+no aaa new-model
+clock timezone PST -8
+!
+!
+ip cef
+no ipv6 cef
+!
+!         
+interface Ethernet0/0
+ ip address 10.10.30.2 255.255.255.0
+!         
+interface Ethernet0/1
+ description !DO NOT USE! 
+ no ip address
+ shutdown 
+!         
+...........................................................
+!
+ip forward-protocol nd
+!
+!
+no ip http server
+ip route 0.0.0.0 0.0.0.0 10.10.30.1
+!
+control-plane
+!
+!
+line con 0
+ logging synchronous
+ transport output all
+line aux 0
+line vty <span class="m">0</span> 4
+ login
+ transport input all
+!
+!
+end
+
+Customer_C#</code></pre></figure>
+
+<h2>Ping test</h2>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">Customer_A#
+Customer_A#ping 10.10.10.2
+Type escape sequence to abort.
+Sending 5, 100-byte ICMP Echos to 10.10.10.2, timeout is <span class="m">2</span> seconds:
+.!!!!
+Success rate is <span class="m">80</span> percent <span class="o">(</span>4/5<span class="o">)</span>, round-trip min/avg/max <span class="o">=</span> 1/1/4 ms
+Customer_A#ping 10.10.30.2
+Type escape sequence to abort.
+Sending 5, 100-byte ICMP Echos to 10.10.30.2, timeout is <span class="m">2</span> seconds:
+.!!!!
+Success rate is <span class="m">80</span> percent <span class="o">(</span>4/5<span class="o">)</span>, round-trip min/avg/max <span class="o">=</span> 12/18/24 ms
+Customer_A#</code></pre></figure>
+
+<h1>Reference:</h1>
+
+<p>http://www.cisco.com/c/en/us/support/docs/lan-switching/integrated-routing-bridging-irb/17054-741-10.html</p>
+
+	</div>
+
+<!--	
+	<div class='share-button-container'>
+		<p>Like it? Share it!</p>
+		<div class='share-button share-button-twitter' data-share-url="http://weweng.github.io/2016/10/Cisco-IRB/">
+			<div clas='box'>
+				<a href="https://twitter.com/share?url=http://weweng.github.io%2F2016%2F10%2FCisco-IRB%2F&text=VLAN Routing and Bridging on a Cisco Router Using the IRB&via=weweng" target='_blank'>
+					<span class='share'>Tweet</span>
+					<span class='count'>0</span>
+				</a>
+			</div>
+		</div>
+
+		<div class="share-button share-button-facebook" data-share-url="http://weweng.github.io/2016/10/Cisco-IRB/">
+			<div class="box">
+				<a href="https://www.facebook.com/sharer/sharer.php?u=http://weweng.github.io%2F2016%2F10%2FCisco-IRB%2F">
+					<span class='share'>Share</span>
+					<span class='count'>0</span>
+				</a>
+			</div>
+		</div>
+	</div>
+-->
+
+</section>
+
+<div id='comments'>
+	<div id='disqus_thread'></div>
+	<script type='text/javascript'>
+		var disqus_shortname = 'wewenggithubio';
+		(function() {
+			var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+			dsq.src = 'http://' + disqus_shortname + '.disqus.com/embed.js';
+			(document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+		})();
+	</script>
+
+	<noscript>Please enable JavaScript to view the comments</noscript>
+</div>
+<script type='text/javascript' src='/assets/js/StaticShareButtons.js'></script>
+
+
+	</div>
+
+	<footer class='footer'>
+		<span>Copyright 2015-2017, Wenwei Weng</span>
+	</footer>
+</div>
+</div>
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-62997612-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+
+
+<script type="text/javascript">
+// Open external links in new tab
+(window.onload = function(){
+	var links = document.links;
+
+	for(i=0; i<=links.length -1; i++){
+		if(links[i].hostname != window.location.hostname){
+			links[i].target = '_blank';
+		}
+	}
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset='UTF-8'>
+	<title>RTC support in embedded Linux box | Wenwei's tech Blog</title>
+	<link rel='alternate' type='application/rss+xml' title='Wenwei Feed' href='http://weweng.github.io/atom.xml'>
+	<meta name='description' content=''/>
+	<meta name='keywords' content='linux RTC I2C'/>
+	<meta name='viewport' content='width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no'>
+	<meta name='theme-color' content='#655B54'>
+	<link rel='shortcut icon' href='/assets/favicon.ico' type='image/x-icon'> 
+	<!--- <link rel='icon' href='/assets/favicon.ico' type='image/x-icon'> --->
+<link rel='icon' href='/assets/blogger.png' type='image/x-png'>
+
+	<link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro:400,700' rel='stylesheet' type='text/css'>
+	<link rel='stylesheet' type='text/css' href='/assets/css/code-highlighter.css' />
+<link rel='stylesheet' type='text/css' href='/assets/css/default.min.css' />
+<link rel='stylesheet' type='text/css' href='/assets/css/github.css' />
+<link rel='stylesheet' type='text/css' href='/assets/css/pure-base-min.css' />
+<link rel='stylesheet' type='text/css' href='/assets/css/pure-grids-responsive-min.css' />
+<link rel='stylesheet' type='text/css' href='/assets/css/pure-menus-min.css' />
+<link rel='stylesheet' type='text/css' href='/assets/css/pure-tables-min.css' />
+<link rel='stylesheet' type='text/css' href='/assets/css/social-buttons.css' />
+<link rel='stylesheet' type='text/css' href='/assets/css/weweng.css' />
+
+
+	
+</head>
+<body>
+
+<div class='pure-g' id='layout'>
+    <div class='sidebar pure-u-1 pure-u-md-1-4'>
+      <div class='header'>
+	<nav class='nav'>
+	  <ul class='nav-list'>
+	    <li class='nav-item'>
+	      <strong> <a href='/workblog.html'>Blog</a> </strong>
+	    </li>
+<!--
+	    <li class='nav-item'>
+	      <strong> <a href='/study/index.html'>Study</a> </strong>
+	    </li>
+	    <li class='nav-item'>
+	      <strong> <a href='/projects/index.html'>Projects</a> </strong>
+	    </li>
+-->
+<!--
+            <li class='nav-item'>
+              <strong> <a href='/services/index.html'>读书笔记</a> </strong>
+            </li>
+-->
+	    <li class='nav-item'>
+	      <strong><a href='/aboutme.html'>About Me</a></strong>
+	    </li>
+	</ul>
+	</nav>
+	<br> 
+	<h1 class='brand-title'>
+	  <a href='/index.html'>
+		<img src='/assets/img/avatar.png' height='100'/>
+	  </a>
+	</h1>
+      </div>
+</div>
+
+<div class='pure-u-1'>
+	<div class='content'>
+		<section class='post'>
+	<header class='post-header'>
+		<h2 class='post-title'> RTC support in embedded Linux box </h2>
+		<p class='post-meta'>
+			Posted on <time class='date' datetime='2017-08-02T00:00:00+01:00'>02 Aug 2017</time>
+		</p>
+	</header>
+
+	<div class='post-description'>
+		<p>Real Time Clock (RTC) is a small but important piece of hardware in an embedded Linux box. It saves time and keep time valid while box is in shutdown state. When the box boots again next time, it will provide a valid time to Linux system.</p>
+
+<p><img src="/uploads/linux/linux-rtc.jpg" alt="Linux RTC"></p>
+
+<!--more-->
+
+<h2>Real Time Clock in Linux</h2>
+
+<p>Two clocks are important in Linux system: a ‘hardware clock’, also known as RTC, CMOS or BIOS clock. This is the battery backed clock that keeps time even when the system is shut down. The second clock is called the ‘system clock’ or &#39;kernel clock&#39; and is maintained by Linux OS. At boot time, the hardware clock is read and used to set the system clock. From that point onward the system clock is used to track time. Typically during the linux system shutdown process, Linux will flush its time into RTC to save it.</p>
+
+<p>For many SoC, it has RTC embedded. However in my platform an external RTC is connected to SoC through I2C bus with typical address 0x68. This external RTC cnsumes less current than embedded one.</p>
+
+<h2>Check the two clocks</h2>
+
+<p>The simplest commands to check two clocks are: &quot;date&quot; and &quot;hwclock&quot;</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">bash-4.3# <span class="c"># the command date can be used to check the current system time</span>
+bash-4.3# date
+Wed Aug  <span class="m">2</span> 10:11:35 Universal 2017
+bash-4.3# <span class="c"># command hwclock can read clock from RTC device</span>
+bash-4.3# hwclock -r
+Fri Jan  <span class="m">1</span> 01:01:49 <span class="m">2010</span>  0.000000 seconds
+bash-4.3#
+bash-4.3# <span class="c"># hwclock can push the system into RTC device</span>
+bash-4.3# hwclock -w
+bash-4.3#
+bash-4.3# hwclock -r
+Wed Aug  <span class="m">2</span> 10:13:19 <span class="m">2017</span>  0.000000 seconds
+bash-4.3# date
+Wed Aug  <span class="m">2</span> 10:13:22 Universal 2017
+bash-4.3# <span class="c">#Now both times are synced.</span></code></pre></figure>
+
+<p>As shown in the above command, there are two different clocks, and they can be synced using hwclock.</p>
+
+<h2>What need to be done ?</h2>
+
+<p>Linux kernel is able to support mutiple RTC devices in the same time. This can be checked by &quot;ls -l /dev/rtc*&quot; to see how many RTC devices are registered with Linux kernel.</p>
+
+<p>What takes to make RTC devices work properly?
+<ul>
+<li> Make sure hardware setup is in place, either connected through I2C, or SPI bus. </li>
+<li> Properly configured in device Tree file (DTS) to make it enabled. In my case, I need disable RTC inside SoC, and enable external RTC.</li></p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"> 
+bash# cat armada-7040-sparrow-v6.dts
+.......
+                        rtc@284000 <span class="o">{</span>
+                                <span class="nv">compatible</span> <span class="o">=</span> <span class="s2">&quot;marvell,armada8k-rtc&quot;</span><span class="p">;</span>
+                                <span class="nv">reg</span> <span class="o">=</span> &lt;0x284000 0x20 0x284080 0x24&gt;<span class="p">;</span>
+                                reg-names <span class="o">=</span> <span class="s2">&quot;rtc&quot;</span>, <span class="s2">&quot;rtc-soc&quot;</span><span class="p">;</span>
+                                <span class="c">#address-cells = &lt;0x1&gt;;</span>
+                                <span class="c">#size-cells = &lt;0x0&gt;;</span>
+                                <span class="nv">interrupts</span> <span class="o">=</span> &lt;0x0 0x4d 0x4&gt;<span class="p">;</span>
+                                <span class="nv">status</span> <span class="o">=</span> <span class="s2">&quot;disabled&quot;</span><span class="p">;</span>
+                        <span class="o">}</span><span class="p">;</span>
+.......
+                        i2c@701100 <span class="o">{</span>
+                                <span class="nv">compatible</span> <span class="o">=</span> <span class="s2">&quot;marvell,mv78230-i2c&quot;</span><span class="p">;</span>
+                                <span class="nv">reg</span> <span class="o">=</span> &lt;0x701100 0x20&gt;<span class="p">;</span>
+                                <span class="c">#address-cells = &lt;0x1&gt;;</span>
+                                <span class="c">#size-cells = &lt;0x0&gt;;</span>
+                                <span class="nv">interrupts</span> <span class="o">=</span> &lt;0x0 0x79 0x4&gt;<span class="p">;</span>
+                                timeout-ms <span class="o">=</span> &lt;0x3e8&gt;<span class="p">;</span>
+                                <span class="nv">clocks</span> <span class="o">=</span> &lt;0x26 0x1 0x15&gt;<span class="p">;</span>
+                                <span class="nv">status</span> <span class="o">=</span> <span class="s2">&quot;okay&quot;</span><span class="p">;</span>
+                                clock-frequency <span class="o">=</span> &lt;0x186a0&gt;<span class="p">;</span>
+                                rtc@68 <span class="o">{</span>
+                                        <span class="nv">compatible</span> <span class="o">=</span> <span class="s2">&quot;dallas,ds1337&quot;</span><span class="p">;</span>
+                                        <span class="nv">reg</span> <span class="o">=</span> &lt;0x68&gt;<span class="p">;</span>
+                                <span class="o">}</span><span class="p">;</span>
+
+                        <span class="o">}</span><span class="p">;</span>
+.......</code></pre></figure>
+
+<p><li> Configure Linux kernel with proper driver, and tell linux kernel the correct RTC instance to use in order to save time.</li></p>
+
+<p>In the following example, DS1307 driver is enabled in kernel config, which will be the only RTC device rgistered in the system, so &quot;rtc0&quot; is set for system to sync to.</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"> 
+
+<span class="nv">CONFIG_RTC_LIB</span><span class="o">=</span>y
+<span class="nv">CONFIG_RTC_CLASS</span><span class="o">=</span>y
+<span class="nv">CONFIG_RTC_HCTOSYS</span><span class="o">=</span>y
+<span class="nv">CONFIG_RTC_HCTOSYS_DEVICE</span><span class="o">=</span><span class="s2">&quot;rtc0&quot;</span>
+<span class="nv">CONFIG_RTC_SYSTOHC</span><span class="o">=</span>y
+<span class="nv">CONFIG_RTC_SYSTOHC_DEVICE</span><span class="o">=</span><span class="s2">&quot;rtc0&quot;</span>
+<span class="c"># CONFIG_RTC_DEBUG is not set</span>
+
+<span class="c">#</span>
+<span class="c"># RTC interfaces</span>
+<span class="c">#</span>
+<span class="nv">CONFIG_RTC_INTF_SYSFS</span><span class="o">=</span>y
+<span class="nv">CONFIG_RTC_INTF_PROC</span><span class="o">=</span>y
+<span class="nv">CONFIG_RTC_INTF_DEV</span><span class="o">=</span>y
+<span class="c"># CONFIG_RTC_INTF_DEV_UIE_EMUL is not set</span>
+<span class="c"># CONFIG_RTC_DRV_TEST is not set</span>
+
+<span class="c">#</span>
+<span class="c"># I2C RTC drivers</span>
+<span class="c">#</span>
+<span class="c"># CONFIG_RTC_DRV_ABB5ZES3 is not set</span>
+<span class="c"># CONFIG_RTC_DRV_ABX80X is not set</span>
+<span class="nv">CONFIG_RTC_DRV_DS1307</span><span class="o">=</span>y
+<span class="c"># CONFIG_RTC_DRV_DS1374 is not set</span></code></pre></figure>
+
+<p></ul></p>
+
+<h2>Check the box...</h2>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"> 
+
+bash-4.3#  dmesg <span class="p">|</span> grep rtc
+<span class="o">[</span>    0.000000<span class="o">]</span> Kernel <span class="nb">command </span>line: Image.sparrow.rtc1337 <span class="nv">initrd</span><span class="o">=</span>initramfs-0328.cpio.gz <span class="nv">dtb</span><span class="o">=</span>armada-7040-sparrow-v6.dtb <span class="nv">console</span><span class="o">=</span>ttyS0,115200 emergency <span class="nv">init</span><span class="o">=</span>/bin/bash <span class="nv">crashkernel</span><span class="o">=</span>64M
+<span class="o">[</span>    4.157793<span class="o">]</span> rtc-ds1307 0-0068: rtc core: registered ds1337 as rtc0
+<span class="o">[</span>    4.232706<span class="o">]</span> rtc-ds1307 0-0068: setting system clock to 2017-08-02 10:09:01 UTC <span class="o">(</span>1501668541<span class="o">)</span>
+bash-4.3# ls -l /dev/rtc*
+crw------- <span class="m">1</span> <span class="m">0</span> <span class="m">0</span> 253, <span class="m">0</span> Jan  <span class="m">1</span>  <span class="m">1970</span> /dev/rtc0
+bash-4.3# 
+bash-4.3# date <span class="o">&amp;&amp;</span> hwclock -r
+Wed Aug  <span class="m">2</span> 10:33:25 Universal 2017
+Wed Aug  <span class="m">2</span> 10:33:24 <span class="m">2017</span>  0.000000 seconds
+bash-4.3#</code></pre></figure>
+
+<p>As it is shown from dmesg, external RTC is registered as &quot;rtc0&quot;, SoC RTC is not seen by kernel since it is disabled in DTS. Both clocks are synced.</p>
+
+	</div>
+
+<!--	
+	<div class='share-button-container'>
+		<p>Like it? Share it!</p>
+		<div class='share-button share-button-twitter' data-share-url="http://weweng.github.io/2017/08/RTC-Support-embedded-box/">
+			<div clas='box'>
+				<a href="https://twitter.com/share?url=http://weweng.github.io%2F2017%2F08%2FRTC-Support-embedded-box%2F&text=RTC support in embedded Linux box&via=weweng" target='_blank'>
+					<span class='share'>Tweet</span>
+					<span class='count'>0</span>
+				</a>
+			</div>
+		</div>
+
+		<div class="share-button share-button-facebook" data-share-url="http://weweng.github.io/2017/08/RTC-Support-embedded-box/">
+			<div class="box">
+				<a href="https://www.facebook.com/sharer/sharer.php?u=http://weweng.github.io%2F2017%2F08%2FRTC-Support-embedded-box%2F">
+					<span class='share'>Share</span>
+					<span class='count'>0</span>
+				</a>
+			</div>
+		</div>
+	</div>
+-->
+
+</section>
+
+<div id='comments'>
+	<div id='disqus_thread'></div>
+	<script type='text/javascript'>
+		var disqus_shortname = 'wewenggithubio';
+		(function() {
+			var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+			dsq.src = 'http://' + disqus_shortname + '.disqus.com/embed.js';
+			(document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+		})();
+	</script>
+
+	<noscript>Please enable JavaScript to view the comments</noscript>
+</div>
+<script type='text/javascript' src='/assets/js/StaticShareButtons.js'></script>
+
+
+	</div>
+
+	<footer class='footer'>
+		<span>Copyright 2015-2017, Wenwei Weng</span>
+	</footer>
+</div>
+</div>
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-62997612-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+
+
+<script type="text/javascript">
+// Open external links in new tab
+(window.onload = function(){
+	var links = document.links;
+
+	for(i=0; i<=links.length -1; i++){
+		if(links[i].hostname != window.location.hostname){
+			links[i].target = '_blank';
+		}
+	}
+})();
+</script>
+</body>
+</html>

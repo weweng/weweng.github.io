@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset='UTF-8'>
+	<title>Linux boot up process - sysvinit | Wenwei's tech Blog</title>
+	<link rel='alternate' type='application/rss+xml' title='Wenwei Feed' href='http://weweng.github.io/atom.xml'>
+	<meta name='description' content=''/>
+	<meta name='keywords' content='Linux boot up process'/>
+	<meta name='viewport' content='width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no'>
+	<meta name='theme-color' content='#655B54'>
+	<link rel='shortcut icon' href='/assets/favicon.ico' type='image/x-icon'> 
+	<!--- <link rel='icon' href='/assets/favicon.ico' type='image/x-icon'> --->
+<link rel='icon' href='/assets/blogger.png' type='image/x-png'>
+
+	<link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro:400,700' rel='stylesheet' type='text/css'>
+	<link rel='stylesheet' type='text/css' href='/assets/css/code-highlighter.css' />
+<link rel='stylesheet' type='text/css' href='/assets/css/default.min.css' />
+<link rel='stylesheet' type='text/css' href='/assets/css/github.css' />
+<link rel='stylesheet' type='text/css' href='/assets/css/pure-base-min.css' />
+<link rel='stylesheet' type='text/css' href='/assets/css/pure-grids-responsive-min.css' />
+<link rel='stylesheet' type='text/css' href='/assets/css/pure-menus-min.css' />
+<link rel='stylesheet' type='text/css' href='/assets/css/pure-tables-min.css' />
+<link rel='stylesheet' type='text/css' href='/assets/css/social-buttons.css' />
+<link rel='stylesheet' type='text/css' href='/assets/css/weweng.css' />
+
+
+	
+</head>
+<body>
+
+<div class='pure-g' id='layout'>
+    <div class='sidebar pure-u-1 pure-u-md-1-4'>
+      <div class='header'>
+	<nav class='nav'>
+	  <ul class='nav-list'>
+	    <li class='nav-item'>
+	      <strong> <a href='/workblog.html'>Blog</a> </strong>
+	    </li>
+<!--
+	    <li class='nav-item'>
+	      <strong> <a href='/study/index.html'>Study</a> </strong>
+	    </li>
+	    <li class='nav-item'>
+	      <strong> <a href='/projects/index.html'>Projects</a> </strong>
+	    </li>
+-->
+<!--
+            <li class='nav-item'>
+              <strong> <a href='/services/index.html'>读书笔记</a> </strong>
+            </li>
+-->
+	    <li class='nav-item'>
+	      <strong><a href='/aboutme.html'>About Me</a></strong>
+	    </li>
+	</ul>
+	</nav>
+	<br> 
+	<h1 class='brand-title'>
+	  <a href='/index.html'>
+		<img src='/assets/img/avatar.png' height='100'/>
+	  </a>
+	</h1>
+      </div>
+</div>
+
+<div class='pure-u-1'>
+	<div class='content'>
+		<section class='post'>
+	<header class='post-header'>
+		<h2 class='post-title'> Linux boot up process - sysvinit </h2>
+		<p class='post-meta'>
+			Posted on <time class='date' datetime='2016-10-16T00:00:00+01:00'>16 Oct 2016</time>
+		</p>
+	</header>
+
+	<div class='post-description'>
+		<p>Booting a Linux installation involves multiple stages and software components, 
+including firmware initialization, execution of a boot loader, loading and startup of a Linux kernel image, and execution of various startup scripts and daemons. For each of these stages and components there are different variations and approaches based on various hardware; for example, GRUB, LILO, SYSLINUX or Loadlin can be used as boot loaders, while the startup scripts can be either traditional init-style, or the system configuration can be performed through modern alternatives such as systemd or Upstart.</p>
+
+<p>The following diagram shows a typical x86 based linux boot steps.</p>
+
+<p><img src="/uploads/linux/linux-boot-process-sysvinit.jpg" alt="Linux kernel timer"></p>
+
+<p>In this post, I will go throught sysvinit based boot up process using a yocto based linux system running inside qemu.</p>
+
+<!--more-->
+
+<h1>What version of init in the system?</h1>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">root@qemux86:/etc# ls -l /sbin/init
+lrwxrwxrwx <span class="m">1</span> root root <span class="m">19</span> Sep <span class="m">28</span> 03:00 /sbin/init -&gt; /sbin/init.sysvinit
+root@qemux86:/etc# /sbin/init --help
+/sbin/init: invalid option -- <span class="s1">&#39;-&#39;</span>
+Usage: init <span class="o">{</span>-e VAR<span class="o">[=</span>VAL<span class="o">]</span> <span class="p">|</span> <span class="o">[</span>-t SECONDS<span class="o">]</span> <span class="o">{</span>0<span class="p">|</span>1<span class="p">|</span>2<span class="p">|</span>3<span class="p">|</span>4<span class="p">|</span>5<span class="p">|</span>6<span class="p">|</span>S<span class="p">|</span>s<span class="p">|</span>Q<span class="p">|</span>q<span class="p">|</span>A<span class="p">|</span>a<span class="p">|</span>B<span class="p">|</span>b<span class="p">|</span>C<span class="p">|</span>c<span class="p">|</span>U<span class="p">|</span>u<span class="o">}}</span></code></pre></figure>
+
+<h1>sysvinit based init File structure</h1>
+
+<ul>
+<li> /etc/initab : top level set up </li>
+
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">root@qemux86:/etc# ls -l inittab
+-rw-r--r-- <span class="m">1</span> root root <span class="m">1147</span> Sep <span class="m">28</span> 01:30 inittab
+root@qemux86:/etc#</code></pre></figure>
+
+
+<li> /etc/init.d/: directory contains all init scripts for initial boot setup, including "/etc/init.d/rc" which will kicks in the right runlevel, e.g. " /etc/init.d/rc 5" </li>
+
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">root@qemux86:/etc# ls -l init.d/
+total 82
+-rwxr-xr-x <span class="m">1</span> root root  <span class="m">553</span> Sep <span class="m">28</span> 02:11 acpid
+-rwxr-xr-x <span class="m">1</span> root root  <span class="m">483</span> Sep <span class="m">28</span> 02:37 atd
+-rwxr-xr-x <span class="m">1</span> root root  <span class="m">492</span> Sep <span class="m">28</span> 02:19 banner.sh
+-rwxr-xr-x <span class="m">1</span> root root <span class="m">1529</span> Sep <span class="m">28</span> 02:19 bootlogd
+-rwxr-xr-x <span class="m">1</span> root root <span class="m">1584</span> Sep <span class="m">28</span> 02:19 bootmisc.sh
+-rwxr-xr-x <span class="m">1</span> root root <span class="m">3229</span> Sep <span class="m">28</span> 02:19 checkroot.sh
+-rwxr-xr-x <span class="m">1</span> root root <span class="m">1533</span> Sep <span class="m">28</span> 02:38 crond
+-rwxr-xr-x <span class="m">1</span> root root <span class="m">2774</span> Sep <span class="m">28</span> 02:40 dbus-1
+-rwxr-xr-x <span class="m">1</span> root root  <span class="m">526</span> Sep <span class="m">28</span> 02:19 devpts.sh
+-rwxr-xr-x <span class="m">1</span> root root  <span class="m">988</span> Sep <span class="m">28</span> 02:44 dhcp-relay
+-rwxr-xr-x <span class="m">1</span> root root   <span class="m">35</span> Sep <span class="m">28</span> 02:23 fbsetup
+lrwxrwxrwx <span class="m">1</span> root root   <span class="m">33</span> Sep <span class="m">28</span> 02:58 functions -&gt; /etc/init.d/functions.initscripts
+-rw-r--r-- <span class="m">1</span> root root <span class="m">1408</span> Sep <span class="m">28</span> 02:19 functions.initscripts
+-rwxr-xr-x <span class="m">1</span> root root  <span class="m">510</span> Sep <span class="m">28</span> 02:19 halt
+-rwxr-xr-x <span class="m">1</span> root root  <span class="m">270</span> Sep <span class="m">28</span> 02:19 hostname.sh
+-rwxr-xr-x <span class="m">1</span> root root <span class="m">2541</span> Sep <span class="m">28</span> 02:22 hwclock.sh
+-rwxr-xr-x <span class="m">1</span> root root  <span class="m">632</span> Sep <span class="m">28</span> 02:35 lighttpd
+-rwxr-xr-x <span class="m">1</span> root root <span class="m">1223</span> Sep <span class="m">28</span> 02:10 modutils.sh
+-rwxr-xr-x <span class="m">1</span> root root  <span class="m">859</span> Sep <span class="m">28</span> 02:19 mountall.sh
+-rwxr-xr-x <span class="m">1</span> root root <span class="m">1542</span> Sep <span class="m">28</span> 02:19 mountnfs.sh
+-rwxr-xr-x <span class="m">1</span> root root <span class="m">1909</span> Sep <span class="m">28</span> 02:10 networking
+-rwxr-xr-x <span class="m">1</span> root root <span class="m">3766</span> Sep <span class="m">28</span> 02:40 nfsserver
+-rwxr-xr-x <span class="m">1</span> root root <span class="m">1446</span> Sep <span class="m">28</span> 02:44 ntpd
+-rwxr-xr-x <span class="m">1</span> root root <span class="m">6347</span> Sep <span class="m">28</span> 02:19 populate-volatile.sh
+-rwxr-xr-x <span class="m">1</span> root root  <span class="m">521</span> Sep <span class="m">28</span> 02:22 psplash.sh
+-rwxr-xr-x <span class="m">1</span> root root <span class="m">4358</span> Sep <span class="m">28</span> 02:19 rc
+-rwxr-xr-x <span class="m">1</span> root root  <span class="m">525</span> Sep <span class="m">28</span> 02:19 rcS
+-rwxr-xr-x <span class="m">1</span> root root  <span class="m">278</span> Sep <span class="m">28</span> 02:19 <span class="nb">read</span>-only-rootfs-hook.sh
+-rwxr-xr-x <span class="m">1</span> root root  <span class="m">289</span> Sep <span class="m">28</span> 02:19 reboot
+-rwxr-xr-x <span class="m">1</span> root root  <span class="m">585</span> Sep <span class="m">28</span> 02:19 rmnologin.sh
+-rwxr-xr-x <span class="m">1</span> root root <span class="m">1798</span> Sep <span class="m">28</span> 02:37 rpcbind
+-rwxr-xr-x <span class="m">1</span> root root  <span class="m">321</span> Sep <span class="m">28</span> 02:19 save-rtc.sh
+-rwxr-xr-x <span class="m">1</span> root root  <span class="m">438</span> Sep <span class="m">28</span> 02:19 sendsigs
+-rwxr-xr-x <span class="m">1</span> root root  <span class="m">578</span> Sep <span class="m">28</span> 02:19 single
+-rwxr-xr-x <span class="m">1</span> root root <span class="m">2143</span> Sep <span class="m">28</span> 02:40 sshd
+lrwxrwxrwx <span class="m">1</span> root root    <span class="m">8</span> Sep <span class="m">28</span> 03:00 stop-bootlogd -&gt; bootlogd
+-rwxr-xr-x <span class="m">1</span> root root  <span class="m">660</span> Sep <span class="m">28</span> 02:19 sysfs.sh
+lrwxrwxrwx <span class="m">1</span> root root   <span class="m">27</span> Sep <span class="m">28</span> 02:58 syslog -&gt; /etc/init.d/syslog.sysklogd
+-rwxr-xr-x <span class="m">1</span> root root <span class="m">1711</span> Sep <span class="m">28</span> 02:22 syslog.busybox
+-rwxr-xr-x <span class="m">1</span> root root <span class="m">3564</span> Sep <span class="m">28</span> 02:19 syslog.sysklogd
+-rwxr-xr-x <span class="m">1</span> root root <span class="m">1525</span> Sep <span class="m">28</span> 02:10 tpm
+-rwxr-xr-x <span class="m">1</span> root root <span class="m">3172</span> Sep <span class="m">28</span> 02:37 udev
+-rwxr-xr-x <span class="m">1</span> root root  <span class="m">516</span> Sep <span class="m">28</span> 02:19 umountfs
+-rwxr-xr-x <span class="m">1</span> root root  <span class="m">711</span> Sep <span class="m">28</span> 02:19 umountnfs.sh
+-rwxr-xr-x <span class="m">1</span> root root <span class="m">1349</span> Sep <span class="m">28</span> 02:19 urandom
+root@qemux86:/etc#</code></pre></figure>
+
+
+<li> /etc/rc[0-6].d. </li>
+under each directory, it can have script name starts with "K[0-9][0-9]*.sh", which is to stop the service, and name starts with "S[0-9][0-9]*.sh", to start service.
+
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">root@qemux86:/etc# ls -ld rc*
+drwxr-xr-x <span class="m">2</span> root root <span class="m">1024</span> Sep <span class="m">28</span> 03:01 rc0.d
+drwxr-xr-x <span class="m">2</span> root root <span class="m">1024</span> Sep <span class="m">28</span> 03:01 rc1.d
+drwxr-xr-x <span class="m">2</span> root root <span class="m">1024</span> Sep <span class="m">28</span> 03:01 rc2.d
+drwxr-xr-x <span class="m">2</span> root root <span class="m">1024</span> Sep <span class="m">28</span> 03:01 rc3.d
+drwxr-xr-x <span class="m">2</span> root root <span class="m">1024</span> Sep <span class="m">28</span> 03:01 rc4.d
+drwxr-xr-x <span class="m">2</span> root root <span class="m">1024</span> Sep <span class="m">28</span> 03:01 rc5.d
+drwxr-xr-x <span class="m">2</span> root root <span class="m">1024</span> Sep <span class="m">28</span> 03:01 rc6.d
+drwxr-xr-x <span class="m">2</span> root root <span class="m">1024</span> Oct <span class="m">15</span> 04:39 rcS.d
+root@qemux86:/etc#
+
+root@qemux86:/etc# ls -l rc5.d
+total 0
+lrwxrwxrwx <span class="m">1</span> root root <span class="m">16</span> Sep <span class="m">28</span> 03:01 S02dbus-1 -&gt; ../init.d/dbus-1
+lrwxrwxrwx <span class="m">1</span> root root <span class="m">14</span> Sep <span class="m">28</span> 03:01 S09sshd -&gt; ../init.d/sshd
+lrwxrwxrwx <span class="m">1</span> root root <span class="m">15</span> Sep <span class="m">28</span> 02:58 S20acpid -&gt; ../init.d/acpid
+lrwxrwxrwx <span class="m">1</span> root root <span class="m">20</span> Sep <span class="m">28</span> 02:58 S20hwclock.sh -&gt; ../init.d/hwclock.sh
+lrwxrwxrwx <span class="m">1</span> root root <span class="m">19</span> Sep <span class="m">28</span> 03:01 S20nfsserver -&gt; ../init.d/nfsserver
+lrwxrwxrwx <span class="m">1</span> root root <span class="m">14</span> Sep <span class="m">28</span> 03:01 S20ntpd -&gt; ../init.d/ntpd
+lrwxrwxrwx <span class="m">1</span> root root <span class="m">16</span> Sep <span class="m">28</span> 02:58 S20syslog -&gt; ../init.d/syslog
+lrwxrwxrwx <span class="m">1</span> root root <span class="m">18</span> Sep <span class="m">28</span> 03:01 S70lighttpd -&gt; ../init.d/lighttpd
+lrwxrwxrwx <span class="m">1</span> root root <span class="m">15</span> Sep <span class="m">28</span> 03:01 S90crond -&gt; ../init.d/crond
+lrwxrwxrwx <span class="m">1</span> root root <span class="m">22</span> Sep <span class="m">28</span> 02:58 S99rmnologin.sh -&gt; ../init.d/rmnologin.sh
+lrwxrwxrwx <span class="m">1</span> root root <span class="m">23</span> Sep <span class="m">28</span> 03:00 S99stop-bootlogd -&gt; ../init.d/stop-bootlogd
+root@qemux86:/etc#
+
+root@qemux86:/etc# ls -l rc6.d/
+total 0
+lrwxrwxrwx <span class="m">1</span> root root <span class="m">14</span> Sep <span class="m">28</span> 03:01 K09sshd -&gt; ../init.d/sshd
+lrwxrwxrwx <span class="m">1</span> root root <span class="m">15</span> Sep <span class="m">28</span> 02:58 K20acpid -&gt; ../init.d/acpid
+lrwxrwxrwx <span class="m">1</span> root root <span class="m">16</span> Sep <span class="m">28</span> 03:01 K20dbus-1 -&gt; ../init.d/dbus-1
+lrwxrwxrwx <span class="m">1</span> root root <span class="m">20</span> Sep <span class="m">28</span> 02:58 K20hwclock.sh -&gt; ../init.d/hwclock.sh
+lrwxrwxrwx <span class="m">1</span> root root <span class="m">19</span> Sep <span class="m">28</span> 03:01 K20nfsserver -&gt; ../init.d/nfsserver
+lrwxrwxrwx <span class="m">1</span> root root <span class="m">14</span> Sep <span class="m">28</span> 03:01 K20ntpd -&gt; ../init.d/ntpd
+lrwxrwxrwx <span class="m">1</span> root root <span class="m">20</span> Sep <span class="m">28</span> 02:58 K20psplash.sh -&gt; ../init.d/psplash.sh
+lrwxrwxrwx <span class="m">1</span> root root <span class="m">16</span> Sep <span class="m">28</span> 02:58 K20syslog -&gt; ../init.d/syslog
+lrwxrwxrwx <span class="m">1</span> root root <span class="m">20</span> Sep <span class="m">28</span> 02:58 K40networking -&gt; ../init.d/networking
+lrwxrwxrwx <span class="m">1</span> root root <span class="m">15</span> Sep <span class="m">28</span> 03:01 K60crond -&gt; ../init.d/crond
+lrwxrwxrwx <span class="m">1</span> root root <span class="m">18</span> Sep <span class="m">28</span> 03:01 K70lighttpd -&gt; ../init.d/lighttpd
+lrwxrwxrwx <span class="m">1</span> root root <span class="m">18</span> Sep <span class="m">28</span> 02:58 S20sendsigs -&gt; ../init.d/sendsigs
+lrwxrwxrwx <span class="m">1</span> root root <span class="m">21</span> Sep <span class="m">28</span> 02:58 S25save-rtc.sh -&gt; ../init.d/save-rtc.sh
+lrwxrwxrwx <span class="m">1</span> root root <span class="m">17</span> Sep <span class="m">28</span> 02:58 S30urandom -&gt; ../init.d/urandom
+lrwxrwxrwx <span class="m">1</span> root root <span class="m">22</span> Sep <span class="m">28</span> 02:58 S31umountnfs.sh -&gt; ../init.d/umountnfs.sh
+lrwxrwxrwx <span class="m">1</span> root root <span class="m">17</span> Sep <span class="m">28</span> 02:58 S32rpcbind -&gt; ../init.d/rpcbind
+lrwxrwxrwx <span class="m">1</span> root root <span class="m">18</span> Sep <span class="m">28</span> 02:58 S40umountfs -&gt; ../init.d/umountfs
+lrwxrwxrwx <span class="m">1</span> root root <span class="m">16</span> Sep <span class="m">28</span> 02:58 S90reboot -&gt; ../init.d/reboot
+root@qemux86:/etc#</code></pre></figure>
+
+
+</ul>
+
+<h1>what is runlevel?</h1>
+
+<p>What is runlevel?</p>
+
+<p>Runlevel is a mode of linux system operation, possible value:</p>
+
+<ul>
+<li> 0: Halt, Shuts down the system. </li>
+<li> 1: Single-user mode,   Mode for administrative tasks.</li>
+<li> 2: Multi-user mode, Does not configure network interfaces and does not export networks services. </li>
+<li> 3: Multi-user mode with networking Starts the system normally. </li>
+<li> 4: Not used/user-definable For special purposes. </li>
+<li> 5: Start the system normally with appropriate display manager (with GUI)   Same as runlevel 3 + display manager. </li>
+<li> 6: Reboot, Reboots the system. </li>
+</ul>
+
+<p>How to know what runlevel the system is in:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">root@qemux86:/etc# runlevel
+N 5
+root@qemux86:/etc# who -r
+         run-level <span class="m">5</span>  Oct <span class="m">15</span> 05:34                   <span class="nv">last</span><span class="o">=</span>S
+root@qemux86:/etc#</code></pre></figure>
+
+<p>switch runlevel, use the following command:</p>
+
+<p>init [0-6]
+or telinit [0-6]</p>
+
+<p>e.g. often we will do &quot;init 6&quot; to reboot box, after command is entered, the scripts under &quot;rc6.d&quot; will be executed, the last one is S90reboot, which is a softlink to &quot;reboot&quot; script, which eventually runs /sbin/reboot.sysvinit. </p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">root@qemux86:/etc# ls -l rc6.d/
+total 0
+lrwxrwxrwx <span class="m">1</span> root root <span class="m">14</span> Sep <span class="m">28</span> 03:01 K09sshd -&gt; ../init.d/sshd
+lrwxrwxrwx <span class="m">1</span> root root <span class="m">15</span> Sep <span class="m">28</span> 02:58 K20acpid -&gt; ../init.d/acpid
+lrwxrwxrwx <span class="m">1</span> root root <span class="m">16</span> Sep <span class="m">28</span> 03:01 K20dbus-1 -&gt; ../init.d/dbus-1
+lrwxrwxrwx <span class="m">1</span> root root <span class="m">20</span> Sep <span class="m">28</span> 02:58 K20hwclock.sh -&gt; ../init.d/hwclock.sh
+lrwxrwxrwx <span class="m">1</span> root root <span class="m">19</span> Sep <span class="m">28</span> 03:01 K20nfsserver -&gt; ../init.d/nfsserver
+lrwxrwxrwx <span class="m">1</span> root root <span class="m">14</span> Sep <span class="m">28</span> 03:01 K20ntpd -&gt; ../init.d/ntpd
+lrwxrwxrwx <span class="m">1</span> root root <span class="m">20</span> Sep <span class="m">28</span> 02:58 K20psplash.sh -&gt; ../init.d/psplash.sh
+lrwxrwxrwx <span class="m">1</span> root root <span class="m">16</span> Sep <span class="m">28</span> 02:58 K20syslog -&gt; ../init.d/syslog
+lrwxrwxrwx <span class="m">1</span> root root <span class="m">20</span> Sep <span class="m">28</span> 02:58 K40networking -&gt; ../init.d/networking
+lrwxrwxrwx <span class="m">1</span> root root <span class="m">15</span> Sep <span class="m">28</span> 03:01 K60crond -&gt; ../init.d/crond
+lrwxrwxrwx <span class="m">1</span> root root <span class="m">18</span> Sep <span class="m">28</span> 03:01 K70lighttpd -&gt; ../init.d/lighttpd
+lrwxrwxrwx <span class="m">1</span> root root <span class="m">18</span> Sep <span class="m">28</span> 02:58 S20sendsigs -&gt; ../init.d/sendsigs
+lrwxrwxrwx <span class="m">1</span> root root <span class="m">21</span> Sep <span class="m">28</span> 02:58 S25save-rtc.sh -&gt; ../init.d/save-rtc.sh
+lrwxrwxrwx <span class="m">1</span> root root <span class="m">17</span> Sep <span class="m">28</span> 02:58 S30urandom -&gt; ../init.d/urandom
+lrwxrwxrwx <span class="m">1</span> root root <span class="m">22</span> Sep <span class="m">28</span> 02:58 S31umountnfs.sh -&gt; ../init.d/umountnfs.sh
+lrwxrwxrwx <span class="m">1</span> root root <span class="m">17</span> Sep <span class="m">28</span> 02:58 S32rpcbind -&gt; ../init.d/rpcbind
+lrwxrwxrwx <span class="m">1</span> root root <span class="m">18</span> Sep <span class="m">28</span> 02:58 S40umountfs -&gt; ../init.d/umountfs
+lrwxrwxrwx <span class="m">1</span> root root <span class="m">16</span> Sep <span class="m">28</span> 02:58 S90reboot -&gt; ../init.d/reboot
+root@qemux86:/etc#
+
+root@qemux86:/etc# cat init.d/reboot
+<span class="c">#!/bin/sh</span>
+<span class="c">### BEGIN INIT INFO</span>
+<span class="c"># Provides:          reboot</span>
+<span class="c"># Required-Start:</span>
+<span class="c"># Required-Stop:</span>
+<span class="c"># Default-Start:</span>
+<span class="c"># Default-Stop:      6</span>
+<span class="c"># Short-Description: Execute the reboot command.</span>
+<span class="c"># Description:</span>
+<span class="c">### END INIT INFO</span>
+
+<span class="nv">PATH</span><span class="o">=</span>/sbin:/bin:/usr/sbin:/usr/bin
+
+<span class="nb">echo</span> -n <span class="s2">&quot;Rebooting... &quot;</span>
+reboot -d -f
+root@qemux86:/etc# which reboot
+/sbin/reboot
+root@qemux86:/etc# file /sbin/reboot
+/sbin/reboot: symbolic link to <span class="sb">`</span>/sbin/reboot.sysvinit<span class="s1">&#39;</span>
+<span class="s1">root@qemux86:/etc# file /sbin/reboot.sysvinit</span>
+<span class="s1">/sbin/reboot.sysvinit: symbolic link to `halt.sysvinit&#39;</span>
+root@qemux86:/etc# file /sbin/halt.sysvinit
+/sbin/halt.sysvinit: ELF 32-bit LSB executable, Intel 80386, version <span class="m">1</span> <span class="o">(</span>SYSV<span class="o">)</span>, dynamically linked <span class="o">(</span>uses shared libs<span class="o">)</span>, <span class="k">for</span> GNU/Linux 2.6.16, BuildID<span class="o">[</span>sha1<span class="o">]=</span>638a764335d30a864f9b9c0d9321c8f1de7afbd8, stripped
+root@qemux86:/etc#</code></pre></figure>
+
+<h1>understanding inittab</h1>
+
+<p>The inittab file describes which processes are started at bootup and during normal operation (e.g. /etc/init.d/boot, /etc/init.d/rc, gettys...). Init distinguishes multiple runlevels, each of which can have its own set of processes that are started. Valid runlevels are 0-6 plus A, B, and C for ondemand entries. An entry in the inittab file has the following format:</p>
+
+<p><b>id:runlevels:action:process</b></p>
+
+<p>Lines beginning with ‘#’ are ignored.
+<ul>
+<li>id: is a unique sequence of 1-4 characters which identifies an entry in inittab (for versions of sysvinit compiled with the old libc5 (&lt; 5.2.18) or a.out libraries the limit is 2 characters).
+(Note: traditionally, for getty and other login processes, the value of the id field is kept the same as the suffix of the corresponding tty, e.g. 1 for tty1. Some ancient login accounting programs might expect this, though I can’t think of any.) </li>
+<li>runlevels: lists the runlevels for which the specified action should be taken. 
+The runlevels field may contain multiple characters for different runlevels. For example, 123 specifies that the process should be started in runlevels 1, 2, and 3. The runlevels for ondemand entries may contain an A, B, or C. The runlevels field of sysinit, boot, and bootwait entries are ignored.
+When the system runlevel is changed, any running processes that are not specified for the new runlevel are killed, first with SIGTERM , then with SIGKILL. </li>
+<li>action: describes which action should be taken.</li>
+Valid actions for the action field are:
+    <ul>
+    <li>respawn: The process will be restarted whenever it terminates (e.g. getty).</li>
+    <li>wait:: The process will be started once when the specified runlevel is entered and init will wait for its termination.</li>
+    <li>once: The process will be executed once when the specified runlevel is entered.</li>
+    <li>boot  : The process will be executed during system boot. The runlevels field is ignored.</li>
+    <li>bootwait: The process will be executed during system boot, while init waits for its termination (e.g. /etc/rc). The runlevels field is ignored. </li>
+    <li>off : This does nothing.</li>
+    <li>ondemand: A process marked with an ondemand runlevel will be executed whenever the specified ondemand runlevel is called. However, no runlevel change will occur (ondemand runlevels are ‘a’, ‘b’, and ‘c’).</li>
+    <li>initdefault: An initdefault entry specifies the runlevel which should be entered after system boot. If none exists, init will ask for a runlevel on the console. The process field is ignored.</li>
+    <li>sysinit: The process will be executed during system boot. It will be executed before any boot or bootwait entries. The runlevels field is ignored.</li>
+    <li>powerwait: The process will be executed when the power goes down. Init is usually informed about this by a process talking to a UPS connected to the computer. Init will wait for the process to finish before continuing.</li>
+    <li>powerfail : As for powerwait, except that init does not wait for the process’s completion.</li>
+    <li>powerokwait: This process will be executed as soon as init is informormed that the power has been restored.</li>
+    <li>powerfailnow: This process will be executed when init is told that the battery of the external UPS is almost empty and the power is failing (provided that the external UPS and the monitoring process are able to detect this condition).</li>
+    <li>ctrlaltdel: The process will be executed when init receives the SIGINT signal. This means that someone on the system console has pressed the CTRL-ALT-DEL key combination. Typically one wants to execute some sort of shutdown either to get into single-user level or to reboot the machine.</li>
+    <li>kbrequest: The process will be executed when init receives a signal from the keyboard handler that a special key combination was pressed on the console keyboard.</li>
+    </ul></p>
+
+<p><li>process: specifies the process to be executed. If the process field starts with a ‘+’ character, init will not do utmp and wtmp accounting for that process. This is needed for gettys that insist on doing their own utmp/wtmp housekeeping. This is also a historic bug.</li>
+</ul></p>
+
+<h1>inittab example</h1>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">root@qemux86:/etc# cat -n /etc/inittab
+     <span class="m">1</span>  <span class="c"># /etc/inittab: init(8) configuration.</span>
+     <span class="m">2</span>  <span class="c"># $Id: inittab,v 1.91 2002/01/25 13:35:21 miquels Exp $</span>
+     3
+     <span class="m">4</span>  <span class="c"># The default runlevel.</span>
+     <span class="m">5</span>  id:5:initdefault:
+     6
+     <span class="m">7</span>  <span class="c"># Boot-time system configuration/initialization script.</span>
+     <span class="m">8</span>  <span class="c"># This is run first except when booting in emergency (-b) mode.</span>
+     <span class="m">9</span>  si::sysinit:/etc/init.d/rcS
+    10
+    <span class="m">11</span>  <span class="c"># What to do in single-user mode.</span>
+    <span class="m">12</span>  ~~:S:wait:/sbin/sulogin
+    13
+    <span class="m">14</span>  <span class="c"># /etc/init.d executes the S and K scripts upon change</span>
+    <span class="m">15</span>  <span class="c"># of runlevel.</span>
+    <span class="m">16</span>  <span class="c">#</span>
+    <span class="m">17</span>  <span class="c"># Runlevel 0 is halt.</span>
+    <span class="m">18</span>  <span class="c"># Runlevel 1 is single-user.</span>
+    <span class="m">19</span>  <span class="c"># Runlevels 2-5 are multi-user.</span>
+    <span class="m">20</span>  <span class="c"># Runlevel 6 is reboot.</span>
+    21
+    <span class="m">22</span>  l0:0:wait:/etc/init.d/rc 0
+    <span class="m">23</span>  l1:1:wait:/etc/init.d/rc 1
+    <span class="m">24</span>  l2:2:wait:/etc/init.d/rc 2
+    <span class="m">25</span>  l3:3:wait:/etc/init.d/rc 3
+    <span class="m">26</span>  l4:4:wait:/etc/init.d/rc 4
+    <span class="m">27</span>  l5:5:wait:/etc/init.d/rc 5
+    <span class="m">28</span>  l6:6:wait:/etc/init.d/rc 6
+    <span class="m">29</span>  <span class="c"># Normally not reached, but fallthrough in case of emergency.</span>
+    <span class="m">30</span>  z6:6:respawn:/sbin/sulogin
+    <span class="m">31</span>  tpmc:5:respawn:python /home/root/fap/tpmc.py
+    <span class="m">32</span>  mon:5:respawn:/usr/bin/monit
+    <span class="m">33</span>  S:2345:respawn:/sbin/getty <span class="m">115200</span> ttyS0
+    <span class="m">34</span>  <span class="c"># /sbin/getty invocations for the runlevels.</span>
+    <span class="m">35</span>  <span class="c">#</span>
+    <span class="m">36</span>  <span class="c"># The &quot;id&quot; field MUST be the same as the last</span>
+    <span class="m">37</span>  <span class="c"># characters of the device (after &quot;tty&quot;).</span>
+    <span class="m">38</span>  <span class="c">#</span>
+    <span class="m">39</span>  <span class="c"># Format:</span>
+    <span class="m">40</span>  <span class="c">#  &lt;id&gt;:&lt;runlevels&gt;:&lt;action&gt;:&lt;process&gt;</span>
+    <span class="m">41</span>  <span class="c">#</span>
+    42
+    <span class="m">43</span>  1:2345:respawn:/sbin/getty <span class="m">38400</span> tty1
+    44
+root@qemux86:/etc#</code></pre></figure>
+
+<h2>explanation:</h2>
+
+<p><ul>
+<li>line#5 tell system goes to runlevel 5 after system boot. </li>
+<li>line#9 and 12: runs when it boots in single user mode. </li>
+<li>line#22 - 28: invoke set up for each runlevel.
+In the above setup, this is what will occur:
+system goes into runlevel 5, which will trigger all scripts under &quot;/etc/rc5.d/&quot; to be executed. </li></p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">root@qemux86:/etc# ls -l rc5.d
+total 0
+lrwxrwxrwx <span class="m">1</span> root root <span class="m">16</span> Sep <span class="m">28</span> 03:01 S02dbus-1 -&gt; ../init.d/dbus-1
+lrwxrwxrwx <span class="m">1</span> root root <span class="m">14</span> Sep <span class="m">28</span> 03:01 S09sshd -&gt; ../init.d/sshd
+lrwxrwxrwx <span class="m">1</span> root root <span class="m">15</span> Sep <span class="m">28</span> 02:58 S20acpid -&gt; ../init.d/acpid
+lrwxrwxrwx <span class="m">1</span> root root <span class="m">20</span> Sep <span class="m">28</span> 02:58 S20hwclock.sh -&gt; ../init.d/hwclock.sh
+lrwxrwxrwx <span class="m">1</span> root root <span class="m">19</span> Sep <span class="m">28</span> 03:01 S20nfsserver -&gt; ../init.d/nfsserver
+lrwxrwxrwx <span class="m">1</span> root root <span class="m">14</span> Sep <span class="m">28</span> 03:01 S20ntpd -&gt; ../init.d/ntpd
+lrwxrwxrwx <span class="m">1</span> root root <span class="m">16</span> Sep <span class="m">28</span> 02:58 S20syslog -&gt; ../init.d/syslog
+lrwxrwxrwx <span class="m">1</span> root root <span class="m">18</span> Sep <span class="m">28</span> 03:01 S70lighttpd -&gt; ../init.d/lighttpd
+lrwxrwxrwx <span class="m">1</span> root root <span class="m">15</span> Sep <span class="m">28</span> 03:01 S90crond -&gt; ../init.d/crond
+lrwxrwxrwx <span class="m">1</span> root root <span class="m">22</span> Sep <span class="m">28</span> 02:58 S99rmnologin.sh -&gt; ../init.d/rmnologin.sh
+lrwxrwxrwx <span class="m">1</span> root root <span class="m">23</span> Sep <span class="m">28</span> 03:00 S99stop-bootlogd -&gt; ../init.d/stop-bootlogd
+root@qemux86:/etc#</code></pre></figure>
+
+<p>After this is done, the system is ready to be used!</p>
+
+<h1>Example : adding a script to do something after box is up running</h1>
+
+<p>Let&#39;s try to do an exercise to create a script do something after box bootup.</p>
+
+<h2>Create a script under /etc/init.d/</h2>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">root@qemux86:~#  cat /etc/init.d/test-sysvinit
+<span class="c">#!/bin/bash</span>
+
+<span class="c"># do whatever needed for the service here</span>
+<span class="c"># for testing, simply drop a file named as /tmp/test-sysvinit</span>
+touch /tmp/test-sysvinit
+
+root@qemux86:~#</code></pre></figure>
+
+<h2>Create a softlink under /etc/rc5.d/</h2>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">root@qemux86:/etc/rc5.d# ls -l
+total 0
+lrwxrwxrwx <span class="m">1</span> root root <span class="m">16</span> Sep <span class="m">28</span> 03:01 S02dbus-1 -&gt; ../init.d/dbus-1
+lrwxrwxrwx <span class="m">1</span> root root <span class="m">14</span> Sep <span class="m">28</span> 03:01 S09sshd -&gt; ../init.d/sshd
+lrwxrwxrwx <span class="m">1</span> root root <span class="m">15</span> Sep <span class="m">28</span> 02:58 S20acpid -&gt; ../init.d/acpid
+lrwxrwxrwx <span class="m">1</span> root root <span class="m">20</span> Sep <span class="m">28</span> 02:58 S20hwclock.sh -&gt; ../init.d/hwclock.sh
+lrwxrwxrwx <span class="m">1</span> root root <span class="m">19</span> Sep <span class="m">28</span> 03:01 S20nfsserver -&gt; ../init.d/nfsserver
+lrwxrwxrwx <span class="m">1</span> root root <span class="m">14</span> Sep <span class="m">28</span> 03:01 S20ntpd -&gt; ../init.d/ntpd
+lrwxrwxrwx <span class="m">1</span> root root <span class="m">16</span> Sep <span class="m">28</span> 02:58 S20syslog -&gt; ../init.d/syslog
+lrwxrwxrwx <span class="m">1</span> root root <span class="m">18</span> Sep <span class="m">28</span> 03:01 S70lighttpd -&gt; ../init.d/lighttpd
+lrwxrwxrwx <span class="m">1</span> root root <span class="m">15</span> Sep <span class="m">28</span> 03:01 S90crond -&gt; ../init.d/crond
+lrwxrwxrwx <span class="m">1</span> root root <span class="m">22</span> Sep <span class="m">28</span> 02:58 S99rmnologin.sh -&gt; ../init.d/rmnologin.sh
+lrwxrwxrwx <span class="m">1</span> root root <span class="m">23</span> Sep <span class="m">28</span> 03:00 S99stop-bootlogd -&gt; ../init.d/stop-bootlogd
+root@qemux86:/etc/rc5.d# ln -s ../init.d/test-sysvinit  S98-test-sysvinit
+root@qemux86:/etc/rc5.d# ls -l
+total 0
+lrwxrwxrwx <span class="m">1</span> root root <span class="m">16</span> Sep <span class="m">28</span> 03:01 S02dbus-1 -&gt; ../init.d/dbus-1
+lrwxrwxrwx <span class="m">1</span> root root <span class="m">14</span> Sep <span class="m">28</span> 03:01 S09sshd -&gt; ../init.d/sshd
+lrwxrwxrwx <span class="m">1</span> root root <span class="m">15</span> Sep <span class="m">28</span> 02:58 S20acpid -&gt; ../init.d/acpid
+lrwxrwxrwx <span class="m">1</span> root root <span class="m">20</span> Sep <span class="m">28</span> 02:58 S20hwclock.sh -&gt; ../init.d/hwclock.sh
+lrwxrwxrwx <span class="m">1</span> root root <span class="m">19</span> Sep <span class="m">28</span> 03:01 S20nfsserver -&gt; ../init.d/nfsserver
+lrwxrwxrwx <span class="m">1</span> root root <span class="m">14</span> Sep <span class="m">28</span> 03:01 S20ntpd -&gt; ../init.d/ntpd
+lrwxrwxrwx <span class="m">1</span> root root <span class="m">16</span> Sep <span class="m">28</span> 02:58 S20syslog -&gt; ../init.d/syslog
+lrwxrwxrwx <span class="m">1</span> root root <span class="m">18</span> Sep <span class="m">28</span> 03:01 S70lighttpd -&gt; ../init.d/lighttpd
+lrwxrwxrwx <span class="m">1</span> root root <span class="m">15</span> Sep <span class="m">28</span> 03:01 S90crond -&gt; ../init.d/crond
+lrwxrwxrwx <span class="m">1</span> root root <span class="m">23</span> Oct <span class="m">31</span> 02:22 S98-test-sysvinit -&gt; ../init.d/test-sysvinit
+lrwxrwxrwx <span class="m">1</span> root root <span class="m">22</span> Sep <span class="m">28</span> 02:58 S99rmnologin.sh -&gt; ../init.d/rmnologin.sh
+lrwxrwxrwx <span class="m">1</span> root root <span class="m">23</span> Sep <span class="m">28</span> 03:00 S99stop-bootlogd -&gt; ../init.d/stop-bootlogd
+root@qemux86:/etc/rc5.d# sync
+root@qemux86:/etc/rc5.d#
+root@qemux86:/etc/rc5.d# reboot</code></pre></figure>
+
+<h2>Verify it after reboot</h2>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">Poky 9.0 <span class="o">(</span>Yocto Project 1.4 Reference Distro<span class="o">)</span> 1.4.1 qemux86 ttyS0
+
+qemux86 login: root
+root@qemux86:~# ls /tmp
+<span class="nb">test</span>-sysvinit
+root@qemux86:~#</code></pre></figure>
+
+	</div>
+
+<!--	
+	<div class='share-button-container'>
+		<p>Like it? Share it!</p>
+		<div class='share-button share-button-twitter' data-share-url="http://weweng.github.io/2016/10/linux-bootup-process-sysvinit/">
+			<div clas='box'>
+				<a href="https://twitter.com/share?url=http://weweng.github.io%2F2016%2F10%2Flinux-bootup-process-sysvinit%2F&text=Linux boot up process - sysvinit&via=weweng" target='_blank'>
+					<span class='share'>Tweet</span>
+					<span class='count'>0</span>
+				</a>
+			</div>
+		</div>
+
+		<div class="share-button share-button-facebook" data-share-url="http://weweng.github.io/2016/10/linux-bootup-process-sysvinit/">
+			<div class="box">
+				<a href="https://www.facebook.com/sharer/sharer.php?u=http://weweng.github.io%2F2016%2F10%2Flinux-bootup-process-sysvinit%2F">
+					<span class='share'>Share</span>
+					<span class='count'>0</span>
+				</a>
+			</div>
+		</div>
+	</div>
+-->
+
+</section>
+
+<div id='comments'>
+	<div id='disqus_thread'></div>
+	<script type='text/javascript'>
+		var disqus_shortname = 'wewenggithubio';
+		(function() {
+			var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+			dsq.src = 'http://' + disqus_shortname + '.disqus.com/embed.js';
+			(document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+		})();
+	</script>
+
+	<noscript>Please enable JavaScript to view the comments</noscript>
+</div>
+<script type='text/javascript' src='/assets/js/StaticShareButtons.js'></script>
+
+
+	</div>
+
+	<footer class='footer'>
+		<span>Copyright 2015-2017, Wenwei Weng</span>
+	</footer>
+</div>
+</div>
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-62997612-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+
+
+<script type="text/javascript">
+// Open external links in new tab
+(window.onload = function(){
+	var links = document.links;
+
+	for(i=0; i<=links.length -1; i++){
+		if(links[i].hostname != window.location.hostname){
+			links[i].target = '_blank';
+		}
+	}
+})();
+</script>
+</body>
+</html>

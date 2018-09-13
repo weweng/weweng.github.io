@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset='UTF-8'>
+	<title>UEFI ARM Linux boot | Wenwei's tech Blog</title>
+	<link rel='alternate' type='application/rss+xml' title='Wenwei Feed' href='http://weweng.github.io/atom.xml'>
+	<meta name='description' content=''/>
+	<meta name='keywords' content='linux UEFI boot'/>
+	<meta name='viewport' content='width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no'>
+	<meta name='theme-color' content='#655B54'>
+	<link rel='shortcut icon' href='/assets/favicon.ico' type='image/x-icon'> 
+	<!--- <link rel='icon' href='/assets/favicon.ico' type='image/x-icon'> --->
+<link rel='icon' href='/assets/blogger.png' type='image/x-png'>
+
+	<link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro:400,700' rel='stylesheet' type='text/css'>
+	<link rel='stylesheet' type='text/css' href='/assets/css/code-highlighter.css' />
+<link rel='stylesheet' type='text/css' href='/assets/css/default.min.css' />
+<link rel='stylesheet' type='text/css' href='/assets/css/github.css' />
+<link rel='stylesheet' type='text/css' href='/assets/css/pure-base-min.css' />
+<link rel='stylesheet' type='text/css' href='/assets/css/pure-grids-responsive-min.css' />
+<link rel='stylesheet' type='text/css' href='/assets/css/pure-menus-min.css' />
+<link rel='stylesheet' type='text/css' href='/assets/css/pure-tables-min.css' />
+<link rel='stylesheet' type='text/css' href='/assets/css/social-buttons.css' />
+<link rel='stylesheet' type='text/css' href='/assets/css/weweng.css' />
+
+
+	
+</head>
+<body>
+
+<div class='pure-g' id='layout'>
+    <div class='sidebar pure-u-1 pure-u-md-1-4'>
+      <div class='header'>
+	<nav class='nav'>
+	  <ul class='nav-list'>
+	    <li class='nav-item'>
+	      <strong> <a href='/workblog.html'>Blog</a> </strong>
+	    </li>
+<!--
+	    <li class='nav-item'>
+	      <strong> <a href='/study/index.html'>Study</a> </strong>
+	    </li>
+	    <li class='nav-item'>
+	      <strong> <a href='/projects/index.html'>Projects</a> </strong>
+	    </li>
+-->
+<!--
+            <li class='nav-item'>
+              <strong> <a href='/services/index.html'>读书笔记</a> </strong>
+            </li>
+-->
+	    <li class='nav-item'>
+	      <strong><a href='/aboutme.html'>About Me</a></strong>
+	    </li>
+	</ul>
+	</nav>
+	<br> 
+	<h1 class='brand-title'>
+	  <a href='/index.html'>
+		<img src='/assets/img/avatar.png' height='100'/>
+	  </a>
+	</h1>
+      </div>
+</div>
+
+<div class='pure-u-1'>
+	<div class='content'>
+		<section class='post'>
+	<header class='post-header'>
+		<h2 class='post-title'> UEFI ARM Linux boot </h2>
+		<p class='post-meta'>
+			Posted on <time class='date' datetime='2017-07-21T00:00:00+01:00'>21 Jul 2017</time>
+		</p>
+	</header>
+
+	<div class='post-description'>
+		<p>For the last few days, I have been working on switching u-boot based bootloader to UEFI based boot loader for a new platform at work. I found out it is useful to able to boot manually with kernel, dtb, initramfs. By doing this, if the thing doesn&#39;t work, we can change any one of them to identify which one has issue.</p>
+
+<p><img src="/uploads/linux/uefi-shell-boot-linux.jpg" alt="armada7k boot manually"></p>
+
+<!--more-->
+
+<p>First you need prepare kernel image as &quot;Image&quot; format, device tree blob (dtb file), and initramfs.</p>
+
+<ul>
+<li> Linux kernel image: The Linux Kernel (linux>=3.3) supports EFISTUB (EFI BOOT STUB) booting. This feature allows EFI firmware to load the kernel as an EFI executable from EFI shell. The option is enabled by default on Arch Linux kernels or can be activated by setting CONFIG_EFI_STUB=y in the Kernel configuration. </li>
+
+<li> Make an initramfs file in cpio.gz format. </li>
+
+<li> Build a dtb file from DTS file using "dtc": e.g. dtc -O dtb -I dts -o myboard.dtb myboard.dts </li>
+
+</ul>
+ 
+
+<p>When all three images are ready, and loaded them into USB pendrive, which needs to be in FAT file system.</p>
+
+<p>Cautions: The board needs to have UEFI boot loader image flashed in SPI flash. 
+<ul>
+<li> If it is running u-boot, then the bootloader image (ATF + UEFI shell + any UEFI Applications) can be burn into SPI flash using u-boot command &quot;bubt&quot;.
+Typically you want to first verify the new UEFI bootloader is working ok before burn into flash, this can be done by running from DRAM, here is an example: (*.fd file is UEFI binary to run, *.bin is ATF+UEFI binary) </li></p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">Marvell&gt;&gt;  usb start
+...
+Marvell&gt;&gt;  fatls usb 0:1
+06/29/2017  09:38               4,083  armada-7040.dtsi
+06/29/2017  09:37              23,880  armada-7040-sparrow-v1.dtb
+06/29/2017  09:38               5,952  armada-7040-sparrow-v1.dts
+06/29/2017  10:21              23,876  armada-7040-sparrow-v2.dtb
+06/29/2017  09:59          13,362,176  Image.440.eval
+04/14/2017  19:15          13,428,224  Image.anil
+04/19/2017  00:59          13,006,336  image.tsn.weweng
+04/14/2017  19:15          12,651,334  initramfs.anilURam
+04/19/2017  00:43          20,024,514  initramfs0328.uRam
+07/17/2017  15:01          20,024,450  initramfs-0328.cpio.gz
+06/26/2017  12:15           1,403,344  sparrow-u-bootloader-img.bin.S0
+07/19/2017  12:47           1,217,816  flash-image-17.06-u-boot.bin
+07/19/2017  18:14           1,048,576  uefi-img-cisco1.fd
+07/20/2017  09:30           1,048,576  uefi-img-efi-shell.fd
+07/20/2017  10:02           1,606,320  uefi-bootloader-efi-shell.bin
+07/20/2017  13:26           1,048,576  ARMADA_EFI.fd
+07/20/2017  17:27             393,216  CiscoRommon1.efi
+
+<span class="c"># load UEFI binary into DRAM at address 0x2000000</span>
+Marvell&gt;&gt;  fatload usb 0:1 0x2000000 uefi-img-efi-shell.fd
+
+<span class="c"># relocate to address 0</span>
+Marvell&gt;&gt;  cp 0x2000000 <span class="m">0</span> 0x100000
+
+<span class="c"># run UEFI bootloader from address 0</span>
+Marvell&gt;&gt;  go 0
+
+<span class="c"># after verify it boots to UEFI shell, then it can be burn into SPI chip:</span>
+<span class="c"># first reboot the box back to u-boot prompt</span>
+Marvell&gt;&gt; usb start
+Marvell&gt;&gt; fatls usb 0:1
+
+<span class="c"># Note this time you use the *.bin image which has ATF + UEFI together.</span>
+Marvell&gt;&gt; bubt uefi-bootloader-efi-shell.bin spi usb
+
+<span class="c"># after completes, it is ready to reboot and get into UEFI shell</span></code></pre></figure>
+
+<p><li> If it is running an old version UEFI boot loader and needs to be upgraded,  using &quot;fupdate&quot; command. </li></p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"> 
+Shell:<span class="se">\&gt;</span> fs0:
+FS0:<span class="se">\&gt;</span> cls
+FS0:<span class="se">\&gt;</span> dir
+Directory of: FS0:<span class="se">\</span>
+07/02/2017  10:49               2,831  linux-login-blogs.txt
+06/28/2017  16:42 &lt;DIR&gt;        32,768  bringup-june26
+06/29/2017  09:38               4,083  armada-7040.dtsi
+06/29/2017  09:37              23,880  armada-7040-sparrow-v1.dtb
+06/29/2017  09:38               5,952  armada-7040-sparrow-v1.dts
+06/29/2017  10:21              23,876  armada-7040-sparrow-v2.dtb
+06/29/2017  09:59          13,362,176  Image.440.eval
+04/14/2017  19:15          13,428,224  Image.anil
+04/19/2017  00:59          13,006,336  image.tsn.weweng
+04/14/2017  19:15          12,651,334  initramfs.anilURam
+04/19/2017  00:43          20,024,514  initramfs0328.uRam
+07/17/2017  15:01          20,024,450  initramfs-0328.cpio.gz
+06/26/2017  12:15           1,403,344  sparrow-u-bootloader-img.bin.S0
+07/19/2017  12:47           1,217,816  flash-image-17.06-u-boot.bin
+07/19/2017  18:14           1,048,576  uefi-img-cisco1.fd
+07/20/2017  09:30           1,048,576  uefi-img-efi-shell.fd
+07/20/2017  10:02           1,606,320  uefi-bootloader-efi-shell.bin
+07/20/2017  13:26           1,048,576  ARMADA_EFI.fd
+07/20/2017  17:27             393,216  CiscoRommon1.efi
+07/20/2017  17:43             393,216  CiscoRommon2.efi
+FS0:<span class="se">\&gt;</span> fupdate file:uefi-bootloader-efi-shell.bin
+...
+<span class="c"># After it completes, reboot the box to UEFI shell</span></code></pre></figure>
+
+<p></ul></p>
+
+<h1>With UEFI shell ready and all images are ready , you can boot Linux now:</h1>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"> 
+Shell:<span class="se">\&gt;</span> fs0:
+FS0:<span class="se">\&gt;</span> cls
+FS0:<span class="se">\&gt;</span> dir
+Directory of: FS0:<span class="se">\</span>
+07/02/2017  10:49               2,831  linux-login-blogs.txt
+06/28/2017  16:42 &lt;DIR&gt;        32,768  bringup-june26
+06/29/2017  09:38               4,083  armada-7040.dtsi
+06/29/2017  09:37              23,880  armada-7040-sparrow-v1.dtb
+06/29/2017  09:38               5,952  armada-7040-sparrow-v1.dts
+06/29/2017  10:21              23,876  armada-7040-sparrow-v2.dtb
+06/29/2017  09:59          13,362,176  Image.440.eval
+04/14/2017  19:15          13,428,224  Image.anil
+04/19/2017  00:59          13,006,336  image.tsn.weweng
+04/14/2017  19:15          12,651,334  initramfs.anilURam
+04/19/2017  00:43          20,024,514  initramfs0328.uRam
+07/17/2017  15:01          20,024,450  initramfs-0328.cpio.gz
+06/26/2017  12:15           1,403,344  sparrow-u-bootloader-img.bin.S0
+07/19/2017  12:47           1,217,816  flash-image-17.06-u-boot.bin
+07/19/2017  18:14           1,048,576  uefi-img-cisco1.fd
+07/20/2017  09:30           1,048,576  uefi-img-efi-shell.fd
+07/20/2017  10:02           1,606,320  uefi-bootloader-efi-shell.bin
+07/20/2017  13:26           1,048,576  ARMADA_EFI.fd
+07/20/2017  17:27             393,216  CiscoRommon1.efi
+07/20/2017  17:43             393,216  CiscoRommon2.efi
+FS0:<span class="se">\&gt;</span> Image.440.eval <span class="nv">dtb</span><span class="o">=</span>armada-7040-sparrow-v2.dtb <span class="nv">initrd</span><span class="o">=</span>initramfs-0328.cpio.gz <span class="nv">console</span><span class="o">=</span>ttyS0,115200 emergency <span class="nv">init</span><span class="o">=</span>/bin/bash <span class="nv">root</span><span class="o">=</span>/dev/ram0 rw <span class="nv">maxloop</span><span class="o">=</span>64
+
+EFI stub: Booting Linux Kernel...
+ConvertPages: range 7F280000 - 7F28FFFF covers multiple entries
+EFI stub: Using DTB from <span class="nb">command </span>line
+EFI stub: Exiting boot services and installing virtual address map...
+<span class="o">[</span>    0.000000<span class="o">]</span> Booting Linux on physical CPU 0x0
+<span class="o">[</span>    0.000000<span class="o">]</span> Initializing cgroup subsys cpuset
+<span class="o">[</span>    0.000000<span class="o">]</span> Initializing cgroup subsys cpu
+<span class="o">[</span>    0.000000<span class="o">]</span> Initializing cgroup subsys cpuacct
+<span class="o">[</span>    0.000000<span class="o">]</span> Linux version 4.4.51-armada-17.02.2  <span class="o">(</span>weweng@sjc-asr-124<span class="o">)</span> <span class="o">(</span>gcc version 5.3.0 <span class="o">(</span>GCC<span class="o">)</span> <span class="o">)</span> <span class="c">#1 SMP Fri Apr 7 11:46:27 PDT 2017</span>
+<span class="o">[</span>    0.000000<span class="o">]</span> Boot CPU: AArch64 Processor <span class="o">[</span>410fd081<span class="o">]</span>
+<span class="o">[</span>    0.000000<span class="o">]</span> efi: Getting EFI parameters from FDT:
+<span class="o">[</span>    0.000000<span class="o">]</span> EFI v2.60 by EDK II
+<span class="o">[</span>    0.000000<span class="o">]</span> efi:  SMBIOS 3.0<span class="o">=</span>0x77da0000  ACPI 2.0<span class="o">=</span>0x6e760000
+<span class="o">[</span>    0.000000<span class="o">]</span> cma: Reserved <span class="m">128</span> MiB at 0x0000000078000000
+<span class="o">[</span>    0.000000<span class="o">]</span> pkg not found or empty
+<span class="o">[</span>    0.000000<span class="o">]</span>  - disabling package support
+<span class="o">[</span>    0.000000<span class="o">]</span> psci: probing <span class="k">for</span> conduit method from DT.
+<span class="o">[</span>    0.000000<span class="o">]</span> psci: PSCIv1.0 detected in firmware.
+<span class="o">[</span>    0.000000<span class="o">]</span> psci: Using standard PSCI v0.2 <span class="k">function</span> IDs
+<span class="o">[</span>    0.000000<span class="o">]</span> psci: MIGRATE_INFO_TYPE not supported.
+<span class="o">[</span>    0.000000<span class="o">]</span> PERCPU: Embedded <span class="m">15</span> pages/cpu @ffffffc0778c1000 s24472 r8192 d28776 u61440
+<span class="o">[</span>    0.000000<span class="o">]</span> Detected PIPT I-cache on CPU0
+<span class="o">[</span>    0.000000<span class="o">]</span> Built <span class="m">1</span> zonelists in Zone order, mobility grouping on.  Total pages: 515088
+<span class="o">[</span>    0.000000<span class="o">]</span> Kernel <span class="nb">command </span>line: Image.440.eval <span class="nv">dtb</span><span class="o">=</span>armada-7040-sparrow-v2.dtb <span class="nv">initrd</span><span class="o">=</span>initramfs-0328.cpio.gz <span class="nv">console</span><span class="o">=</span>ttyS0,115200 emergency <span class="nv">init</span><span class="o">=</span>/bin/bash <span class="nv">root</span><span class="o">=</span>/dev/ram0 rw <span class="nv">maxloop</span><span class="o">=</span>64
+<span class="o">[</span>    0.000000<span class="o">]</span> log_buf_len individual max cpu contribution: <span class="m">4096</span> bytes
+<span class="o">[</span>    0.000000<span class="o">]</span> log_buf_len total cpu_extra contributions: <span class="m">12288</span> bytes
+<span class="o">[</span>    0.000000<span class="o">]</span> log_buf_len min size: <span class="m">16384</span> bytes
+<span class="o">[</span>    0.000000<span class="o">]</span> log_buf_len: <span class="m">32768</span> bytes
+<span class="o">[</span>    0.000000<span class="o">]</span> early log buf free: 14520<span class="o">(</span>88%<span class="o">)</span>
+<span class="o">[</span>    0.000000<span class="o">]</span> PID <span class="nb">hash </span>table entries: <span class="m">4096</span> <span class="o">(</span>order: 3, <span class="m">32768</span> bytes<span class="o">)</span>
+<span class="o">[</span>    0.000000<span class="o">]</span> Dentry cache <span class="nb">hash </span>table entries: <span class="m">262144</span> <span class="o">(</span>order: 9, <span class="m">2097152</span> bytes<span class="o">)</span>
+<span class="o">[</span>    0.000000<span class="o">]</span> Inode-cache <span class="nb">hash </span>table entries: <span class="m">131072</span> <span class="o">(</span>order: 8, <span class="m">1048576</span> bytes<span class="o">)</span>
+<span class="o">[</span>    0.000000<span class="o">]</span> software IO TLB <span class="o">[</span>mem 0x71500000-0x75500000<span class="o">]</span> <span class="o">(</span>64MB<span class="o">)</span> mapped at <span class="o">[</span>ffffffc071100000-ffffffc0750fffff<span class="o">]</span>
+<span class="o">[</span>    0.000000<span class="o">]</span> Memory: 1819492K/2093056K available <span class="o">(</span>8820K kernel code, 553K rwdata, 3216K rodata, 452K init, 293K bss, 142492K reserved, 131072K cma-reserved<span class="o">)</span>
+<span class="o">[</span>    0.000000<span class="o">]</span> Virtual kernel memory layout:
+<span class="o">[</span>    0.000000<span class="o">]</span>     vmalloc : 0xffffff8000000000 - 0xffffffbdbfff0000   <span class="o">(</span>   <span class="m">246</span> GB<span class="o">)</span>
+<span class="o">[</span>    0.000000<span class="o">]</span>     vmemmap : 0xffffffbdc0000000 - 0xffffffbfc0000000   <span class="o">(</span>     <span class="m">8</span> GB maximum<span class="o">)</span>
+<span class="o">[</span>    0.000000<span class="o">]</span>               0xffffffbdc0010000 - 0xffffffbdc2000000   <span class="o">(</span>    <span class="m">31</span> MB actual<span class="o">)</span>
+<span class="o">[</span>    0.000000<span class="o">]</span>     fixed   : 0xffffffbffa7fd000 - 0xffffffbffac00000   <span class="o">(</span>  <span class="m">4108</span> KB<span class="o">)</span>
+<span class="o">[</span>    0.000000<span class="o">]</span>     PCI I/O : 0xffffffbffae00000 - 0xffffffbffbe00000   <span class="o">(</span>    <span class="m">16</span> MB<span class="o">)</span>
+<span class="o">[</span>    0.000000<span class="o">]</span>     modules : 0xffffffbffc000000 - 0xffffffc000000000   <span class="o">(</span>    <span class="m">64</span> MB<span class="o">)</span>
+<span class="o">[</span>    0.000000<span class="o">]</span>     memory  : 0xffffffc000000000 - 0xffffffc07fc00000   <span class="o">(</span>  <span class="m">2044</span> MB<span class="o">)</span>
+<span class="o">[</span>    0.000000<span class="o">]</span>       .init : 0xffffffc000c43000 - 0xffffffc000cb4000   <span class="o">(</span>   <span class="m">452</span> KB<span class="o">)</span>
+<span class="o">[</span>    0.000000<span class="o">]</span>       .text : 0xffffffc000080000 - 0xffffffc000c43000   <span class="o">(</span> <span class="m">12044</span> KB<span class="o">)</span>
+<span class="o">[</span>    0.000000<span class="o">]</span>       .data : 0xffffffc000cb4000 - 0xffffffc000d3e400   <span class="o">(</span>   <span class="m">553</span> KB<span class="o">)</span>
+<span class="o">[</span>    0.000000<span class="o">]</span> SLUB: <span class="nv">HWalign</span><span class="o">=</span>64, <span class="nv">Order</span><span class="o">=</span>0-3, <span class="nv">MinObjects</span><span class="o">=</span>0, <span class="nv">CPUs</span><span class="o">=</span>4, <span class="nv">Nodes</span><span class="o">=</span>1
+<span class="o">[</span>    0.000000<span class="o">]</span> Hierarchical RCU implementation.
+<span class="o">[</span>    0.000000<span class="o">]</span>  Build-time adjustment of leaf fanout to 64.
+<span class="o">[</span>    0.000000<span class="o">]</span>  RCU restricting CPUs from <span class="nv">NR_CPUS</span><span class="o">=</span><span class="m">64</span> to <span class="nv">nr_cpu_ids</span><span class="o">=</span>4.
+<span class="o">[</span>    0.000000<span class="o">]</span> RCU: Adjusting geometry <span class="k">for</span> <span class="nv">rcu_fanout_leaf</span><span class="o">=</span>64, <span class="nv">nr_cpu_ids</span><span class="o">=</span>4
+<span class="o">[</span>    0.000000<span class="o">]</span> NR_IRQS:64 nr_irqs:64 0
+<span class="o">[</span>    0.000000<span class="o">]</span> GICv2m: Overriding V2M MSI_TYPER <span class="o">(</span>base:160, num:32<span class="o">)</span>
+<span class="o">[</span>    0.000000<span class="o">]</span> GICv2m: Node v2m: range<span class="o">[</span>0xf0280000:0xf0280fff<span class="o">]</span>, SPI<span class="o">[</span>160:192<span class="o">]</span>
+<span class="o">[</span>    0.000000<span class="o">]</span> GICv2m: Overriding V2M MSI_TYPER <span class="o">(</span>base:192, num:32<span class="o">)</span>
+<span class="o">[</span>    0.000000<span class="o">]</span> GICv2m: Node v2m: range<span class="o">[</span>0xf0290000:0xf0290fff<span class="o">]</span>, SPI<span class="o">[</span>192:224<span class="o">]</span>
+<span class="o">[</span>    0.000000<span class="o">]</span> GICv2m: Overriding V2M MSI_TYPER <span class="o">(</span>base:224, num:32<span class="o">)</span>
+<span class="o">[</span>    0.000000<span class="o">]</span> GICv2m: Node v2m: range<span class="o">[</span>0xf02a0000:0xf02a0fff<span class="o">]</span>, SPI<span class="o">[</span>224:256<span class="o">]</span>
+<span class="o">[</span>    0.000000<span class="o">]</span> GICv2m: Overriding V2M MSI_TYPER <span class="o">(</span>base:256, num:32<span class="o">)</span>
+<span class="o">[</span>    0.000000<span class="o">]</span> GICv2m: Node v2m: range<span class="o">[</span>0xf02b0000:0xf02b0fff<span class="o">]</span>, SPI<span class="o">[</span>256:288<span class="o">]</span>
+<span class="o">[</span>    0.000000<span class="o">]</span> mvebu-pic: registered with <span class="m">19</span> irqs
+<span class="o">[</span>    0.000000<span class="o">]</span> mvebu-sei: registered with <span class="m">64</span> irqs
+<span class="o">[</span>    0.000000<span class="o">]</span> Architected cp15 timer<span class="o">(</span>s<span class="o">)</span> running at 25.00MHz <span class="o">(</span>phys<span class="o">)</span>.
+<span class="o">[</span>    0.000000<span class="o">]</span> clocksource: arch_sys_counter: mask: 0xffffffffffffff max_cycles: 0x5c40939b5, max_idle_ns: <span class="m">440795202646</span> ns
+<span class="o">[</span>    0.000002<span class="o">]</span> sched_clock: <span class="m">56</span> bits at 25MHz, resolution 40ns, wraps every 4398046511100ns
+<span class="o">[</span>    0.000117<span class="o">]</span> Console: colour dummy device 80x25
+<span class="o">[</span>    0.000130<span class="o">]</span> Calibrating delay loop <span class="o">(</span>skipped<span class="o">)</span>, value calculated using timer frequency.. 50.00 BogoMIPS <span class="o">(</span><span class="nv">lpj</span><span class="o">=</span>100000<span class="o">)</span>
+<span class="o">[</span>    0.000137<span class="o">]</span> pid_max: default: <span class="m">32768</span> minimum: 301
+<span class="o">[</span>    0.000174<span class="o">]</span> Security Framework initialized
+<span class="o">[</span>    0.000195<span class="o">]</span> Mount-cache <span class="nb">hash </span>table entries: <span class="m">4096</span> <span class="o">(</span>order: 3, <span class="m">32768</span> bytes<span class="o">)</span>
+<span class="o">[</span>    0.000199<span class="o">]</span> Mountpoint-cache <span class="nb">hash </span>table entries: <span class="m">4096</span> <span class="o">(</span>order: 3, <span class="m">32768</span> bytes<span class="o">)</span>
+<span class="o">[</span>    0.000596<span class="o">]</span> Initializing cgroup subsys memory
+<span class="o">[</span>    0.000613<span class="o">]</span> Initializing cgroup subsys devices
+<span class="o">[</span>    0.000619<span class="o">]</span> Initializing cgroup subsys freezer
+<span class="o">[</span>    0.000625<span class="o">]</span> Initializing cgroup subsys net_cls
+<span class="o">[</span>    0.000630<span class="o">]</span> Initializing cgroup subsys hugetlb
+<span class="o">[</span>    0.000652<span class="o">]</span> Syspage size <span class="m">3832</span> bytes, <span class="m">300</span> task entries
+<span class="o">[</span>    0.001235<span class="o">]</span> Remapping and enabling EFI services.
+<span class="o">[</span>    0.001242<span class="o">]</span>   EFI remap <span class="nv">0x0000000077810000</span> <span class="o">=</span>&gt; 0000000040000000
+<span class="o">[</span>    0.001323<span class="o">]</span>   EFI remap <span class="nv">0x0000000077d20000</span> <span class="o">=</span>&gt; 00000000403e0000
+<span class="o">[</span>    0.001377<span class="o">]</span>   EFI remap <span class="nv">0x00000000f2284000</span> <span class="o">=</span>&gt; 00000000406a4000
+<span class="o">[</span>    0.001390<span class="o">]</span> ASID allocator initialised with <span class="m">65536</span> entries
+<span class="o">[</span>    0.002085<span class="o">]</span> Detected PIPT I-cache on CPU1
+<span class="o">[</span>    0.002119<span class="o">]</span> CPU1: Booted secondary processor <span class="o">[</span>410fd081<span class="o">]</span>
+<span class="o">[</span>    0.002316<span class="o">]</span> Detected PIPT I-cache on CPU2
+<span class="o">[</span>    0.002345<span class="o">]</span> CPU2: Booted secondary processor <span class="o">[</span>410fd081<span class="o">]</span>
+<span class="o">[</span>    0.002536<span class="o">]</span> Detected PIPT I-cache on CPU3
+<span class="o">[</span>    0.002555<span class="o">]</span> CPU3: Booted secondary processor <span class="o">[</span>410fd081<span class="o">]</span>
+<span class="o">[</span>    0.002591<span class="o">]</span> Brought up <span class="m">4</span> CPUs
+<span class="o">[</span>    0.002603<span class="o">]</span> SMP: Total of <span class="m">4</span> processors activated.
+<span class="o">[</span>    0.002611<span class="o">]</span> CPU: All CPU<span class="o">(</span>s<span class="o">)</span> started at EL2
+<span class="o">[</span>    0.002954<span class="o">]</span> devtmpfs: initialized
+<span class="o">[</span>    0.005912<span class="o">]</span> SMBIOS 3.0.0 present.
+<span class="o">[</span>    0.006035<span class="o">]</span> clocksource: jiffies: mask: 0xffffffff max_cycles: 0xffffffff, max_idle_ns: <span class="m">7645041785100000</span> ns
+<span class="o">[</span>    0.006046<span class="o">]</span> futex <span class="nb">hash </span>table entries: <span class="m">1024</span> <span class="o">(</span>order: 5, <span class="m">131072</span> bytes<span class="o">)</span>
+<span class="o">[</span>    0.007836<span class="o">]</span> xor: measuring software checksum speed
+<span class="o">[</span>    0.044003<span class="o">]</span>    8regs     :  4819.000 MB/sec
+<span class="o">[</span>    0.084028<span class="o">]</span>    8regs_prefetch:  4216.000 MB/sec
+<span class="o">[</span>    0.124055<span class="o">]</span>    32regs    :  5523.000 MB/sec
+<span class="o">[</span>    0.164082<span class="o">]</span>    32regs_prefetch:  4580.000 MB/sec
+<span class="o">[</span>    0.164085<span class="o">]</span> xor: using <span class="k">function</span>: 32regs <span class="o">(</span>5523.000 MB/sec<span class="o">)</span>
+<span class="o">[</span>    0.164101<span class="o">]</span> pinctrl core: initialized pinctrl subsystem
+<span class="o">[</span>    0.164680<span class="o">]</span> NET: Registered protocol family 16
+<span class="o">[</span>    0.176106<span class="o">]</span> cpuidle: using governor ladder
+<span class="o">[</span>    0.186213<span class="o">]</span> cpuidle: using governor menu
+<span class="o">[</span>    0.186335<span class="o">]</span> vdso: <span class="m">2</span> pages <span class="o">(</span><span class="m">1</span> code @ ffffffc000cb9000, <span class="m">1</span> data @ ffffffc000cb8000<span class="o">)</span>
+<span class="o">[</span>    0.186353<span class="o">]</span> hw-breakpoint: found <span class="m">6</span> breakpoint and <span class="m">4</span> watchpoint registers.
+<span class="o">[</span>    0.200479<span class="o">]</span> DMA: preallocated <span class="m">256</span> KiB pool <span class="k">for</span> atomic allocations
+<span class="o">[</span>    0.200561<span class="o">]</span> Serial: AMBA PL011 UART driver
+<span class="o">[</span>    0.289141<span class="o">]</span> raid6: int64x1  gen<span class="o">()</span>   <span class="m">844</span> MB/s
+<span class="o">[</span>    0.357179<span class="o">]</span> raid6: int64x1  xor<span class="o">()</span>   <span class="m">637</span> MB/s
+<span class="o">[</span>    0.425243<span class="o">]</span> raid6: int64x2  gen<span class="o">()</span>  <span class="m">1325</span> MB/s
+<span class="o">[</span>    0.493288<span class="o">]</span> raid6: int64x2  xor<span class="o">()</span>  <span class="m">1026</span> MB/s
+<span class="o">[</span>    0.561324<span class="o">]</span> raid6: int64x4  gen<span class="o">()</span>  <span class="m">1687</span> MB/s
+<span class="o">[</span>    0.629390<span class="o">]</span> raid6: int64x4  xor<span class="o">()</span>  <span class="m">1064</span> MB/s
+<span class="o">[</span>    0.697426<span class="o">]</span> raid6: int64x8  gen<span class="o">()</span>  <span class="m">1883</span> MB/s
+<span class="o">[</span>    0.765481<span class="o">]</span> raid6: int64x8  xor<span class="o">()</span>  <span class="m">1046</span> MB/s
+<span class="o">[</span>    0.833518<span class="o">]</span> raid6: neonx1   gen<span class="o">()</span>  <span class="m">1617</span> MB/s
+<span class="o">[</span>    0.901581<span class="o">]</span> raid6: neonx1   xor<span class="o">()</span>   <span class="m">985</span> MB/s
+<span class="o">[</span>    0.969628<span class="o">]</span> raid6: neonx2   gen<span class="o">()</span>  <span class="m">2494</span> MB/s
+<span class="o">[</span>    1.037683<span class="o">]</span> raid6: neonx2   xor<span class="o">()</span>  <span class="m">1600</span> MB/s
+<span class="o">[</span>    1.105722<span class="o">]</span> raid6: neonx4   gen<span class="o">()</span>  <span class="m">3232</span> MB/s
+<span class="o">[</span>    1.173777<span class="o">]</span> raid6: neonx4   xor<span class="o">()</span>  <span class="m">1990</span> MB/s
+<span class="o">[</span>    1.241813<span class="o">]</span> raid6: neonx8   gen<span class="o">()</span>  <span class="m">3124</span> MB/s
+<span class="o">[</span>    1.309861<span class="o">]</span> raid6: neonx8   xor<span class="o">()</span>  <span class="m">2109</span> MB/s
+<span class="o">[</span>    1.309865<span class="o">]</span> raid6: using algorithm neonx4 gen<span class="o">()</span> <span class="m">3232</span> MB/s
+<span class="o">[</span>    1.309868<span class="o">]</span> raid6: .... xor<span class="o">()</span> <span class="m">1990</span> MB/s, rmw enabled
+<span class="o">[</span>    1.309871<span class="o">]</span> raid6: using intx1 recovery algorithm
+<span class="o">[</span>    1.309984<span class="o">]</span> ACPI: Interpreter disabled.
+<span class="o">[</span>    1.310079<span class="o">]</span> reg-fixed-voltage usb3-gpio-vbus: could not find pctldev <span class="k">for</span> node /cpn-110-master/config-space/pinctrl@440000/xhci0-vbus-pins, deferring probe
+<span class="o">[</span>    1.310138<span class="o">]</span> gpio-regulator ap806:config-space:regulator@0: No <span class="s1">&#39;states&#39;</span> property found
+<span class="o">[</span>    1.310145<span class="o">]</span> gpio-regulator: probe of ap806:config-space:regulator@0 failed with error -22
+<span class="o">[</span>    1.310312<span class="o">]</span> arm-smmu f0100000.iommu: probing hardware configuration...
+<span class="o">[</span>    1.310317<span class="o">]</span> arm-smmu f0100000.iommu: SMMUv2 with:
+<span class="o">[</span>    1.310322<span class="o">]</span> arm-smmu f0100000.iommu:         stage <span class="m">1</span> translation
+<span class="o">[</span>    1.310326<span class="o">]</span> arm-smmu f0100000.iommu:         stage <span class="m">2</span> translation
+<span class="o">[</span>    1.310329<span class="o">]</span> arm-smmu f0100000.iommu:         nested translation
+<span class="o">[</span>    1.310334<span class="o">]</span> arm-smmu f0100000.iommu:         coherent table walk
+<span class="o">[</span>    1.310339<span class="o">]</span> arm-smmu f0100000.iommu:         stream matching with <span class="m">16</span> register groups, mask 0x7fff
+<span class="o">[</span>    1.310344<span class="o">]</span> arm-smmu f0100000.iommu:         <span class="m">8</span> context banks <span class="o">(</span><span class="m">0</span> stage-2 only<span class="o">)</span>
+<span class="o">[</span>    1.310350<span class="o">]</span> arm-smmu f0100000.iommu:         Supported page sizes: 0x60211000
+<span class="o">[</span>    1.310354<span class="o">]</span> arm-smmu f0100000.iommu:         Stage-1: 48-bit VA -&gt; 48-bit IPA
+<span class="o">[</span>    1.310358<span class="o">]</span> arm-smmu f0100000.iommu:         Stage-2: 48-bit IPA -&gt; 48-bit PA
+<span class="o">[</span>    1.310402<span class="o">]</span> arm-smmu f0100000.iommu: registered <span class="m">4</span> master devices
+<span class="o">[</span>    1.310817<span class="o">]</span> iommu: Adding device f2500000.usb3 to group 0
+<span class="o">[</span>    1.310832<span class="o">]</span> iommu: Adding device f26a0000.cpxor0 to group 1
+<span class="o">[</span>    1.310845<span class="o">]</span> iommu: Adding device f26c0000.cpxor1 to group 2
+<span class="o">[</span>    1.311159<span class="o">]</span> vgaarb: loaded
+<span class="o">[</span>    1.311289<span class="o">]</span> SCSI subsystem initialized
+<span class="o">[</span>    1.311473<span class="o">]</span> usbcore: registered new interface driver usbfs
+<span class="o">[</span>    1.311500<span class="o">]</span> usbcore: registered new interface driver hub
+<span class="o">[</span>    1.311532<span class="o">]</span> usbcore: registered new device driver usb
+<span class="o">[</span>    1.311805<span class="o">]</span> pps_core: LinuxPPS API ver. <span class="m">1</span> registered
+<span class="o">[</span>    1.311809<span class="o">]</span> pps_core: Software ver. 5.3.6 - Copyright 2005-2007 Rodolfo Giometti &lt;giometti@linux.it&gt;
+<span class="o">[</span>    1.311820<span class="o">]</span> PTP clock support registered
+<span class="o">[</span>    1.312519<span class="o">]</span> clocksource: Switched to clocksource arch_sys_counter
+<span class="o">[</span>    1.312764<span class="o">]</span> pnp: PnP ACPI: disabled
+<span class="o">[</span>    1.316183<span class="o">]</span> NET: Registered protocol family 2
+<span class="o">[</span>    1.316432<span class="o">]</span> TCP established <span class="nb">hash </span>table entries: <span class="m">16384</span> <span class="o">(</span>order: 5, <span class="m">131072</span> bytes<span class="o">)</span>
+<span class="o">[</span>    1.316496<span class="o">]</span> TCP <span class="nb">bind hash </span>table entries: <span class="m">16384</span> <span class="o">(</span>order: 6, <span class="m">262144</span> bytes<span class="o">)</span>
+<span class="o">[</span>    1.316624<span class="o">]</span> TCP: Hash tables configured <span class="o">(</span>established <span class="m">16384</span> <span class="nb">bind </span>16384<span class="o">)</span>
+<span class="o">[</span>    1.316682<span class="o">]</span> UDP <span class="nb">hash </span>table entries: <span class="m">1024</span> <span class="o">(</span>order: 3, <span class="m">32768</span> bytes<span class="o">)</span>
+<span class="o">[</span>    1.316699<span class="o">]</span> UDP-Lite <span class="nb">hash </span>table entries: <span class="m">1024</span> <span class="o">(</span>order: 3, <span class="m">32768</span> bytes<span class="o">)</span>
+<span class="o">[</span>    1.316791<span class="o">]</span> NET: Registered protocol family 1
+<span class="o">[</span>    1.316936<span class="o">]</span> RPC: Registered named UNIX socket transport module.
+<span class="o">[</span>    1.316941<span class="o">]</span> RPC: Registered udp transport module.
+<span class="o">[</span>    1.316944<span class="o">]</span> RPC: Registered tcp transport module.
+<span class="o">[</span>    1.316948<span class="o">]</span> RPC: Registered tcp NFSv4.1 backchannel transport module.
+<span class="o">[</span>    1.317087<span class="o">]</span> Trying to unpack rootfs image as initramfs...
+<span class="o">[</span>    1.317087<span class="o">]</span> initrd_start 0xffffffc01ece0000 initrd_end 0xffffffc01fff8c82 size 20024450
+<span class="o">[</span>    1.961786<span class="o">]</span> Freeing initrd memory: 19552K <span class="o">(</span>ffffffc01ece0000 - ffffffc01fff8000<span class="o">)</span>
+<span class="o">[</span>    1.962065<span class="o">]</span> hw perfevents: enabled with armv8_cortex_a72 PMU driver, <span class="m">7</span> counters available
+<span class="o">[</span>    1.962617<span class="o">]</span> kvm <span class="o">[</span>1<span class="o">]</span>: 8-bit VMID
+<span class="o">[</span>    1.962622<span class="o">]</span> kvm <span class="o">[</span>1<span class="o">]</span>: Hyp mode initialized successfully
+<span class="o">[</span>    1.962705<span class="o">]</span> kvm <span class="o">[</span>1<span class="o">]</span>: interrupt-controller@f0240000 IRQ7
+<span class="o">[</span>    1.962826<span class="o">]</span> kvm <span class="o">[</span>1<span class="o">]</span>: timer IRQ5
+<span class="o">[</span>    1.964298<span class="o">]</span> audit: initializing netlink subsys <span class="o">(</span>disabled<span class="o">)</span>
+<span class="o">[</span>    1.964323<span class="o">]</span> audit: <span class="nb">type</span><span class="o">=</span><span class="m">2000</span> audit<span class="o">(</span>1.956:1<span class="o">)</span>: initialized
+<span class="o">[</span>    1.964719<span class="o">]</span> HugeTLB registered <span class="m">2</span> MB page size, pre-allocated <span class="m">0</span> pages
+<span class="o">[</span>    1.968686<span class="o">]</span> VFS: Disk quotas dquot_6.6.0
+<span class="o">[</span>    1.968777<span class="o">]</span> VFS: Dquot-cache <span class="nb">hash </span>table entries: <span class="m">512</span> <span class="o">(</span>order 0, <span class="m">4096</span> bytes<span class="o">)</span>
+<span class="o">[</span>    1.969488<span class="o">]</span> squashfs: version 4.0 <span class="o">(</span>2009/01/31<span class="o">)</span> Phillip Lougher
+<span class="o">[</span>    1.970057<span class="o">]</span> NFS: Registering the id_resolver key <span class="nb">type</span>
+<span class="o">[</span>    1.970087<span class="o">]</span> Key <span class="nb">type </span>id_resolver registered
+<span class="o">[</span>    1.970091<span class="o">]</span> Key <span class="nb">type </span>id_legacy registered
+<span class="o">[</span>    1.970119<span class="o">]</span> jffs2: version 2.2. <span class="o">(</span>NAND<span class="o">)</span> Â© 2001-2006 Red Hat, Inc.
+<span class="o">[</span>    1.970363<span class="o">]</span> fuse init <span class="o">(</span>API version 7.23<span class="o">)</span>
+<span class="o">[</span>    1.970583<span class="o">]</span> 9p: Installing v9fs 9p2000 file system support
+<span class="o">[</span>    1.971146<span class="o">]</span> async_tx: api initialized <span class="o">(</span>async<span class="o">)</span>
+<span class="o">[</span>    1.971241<span class="o">]</span> Block layer SCSI generic <span class="o">(</span>bsg<span class="o">)</span> driver version 0.4 loaded <span class="o">(</span>major 250<span class="o">)</span>
+<span class="o">[</span>    1.971249<span class="o">]</span> io scheduler noop registered
+<span class="o">[</span>    1.971378<span class="o">]</span> io scheduler cfq registered <span class="o">(</span>default<span class="o">)</span>
+<span class="o">[</span>    1.971940<span class="o">]</span> armada-ap806-pinctrl f06f4000.pinctrl: registered pinctrl driver
+<span class="o">[</span>    1.972366<span class="o">]</span> armada-cp110-pinctrl f2440000.pinctrl: registered pinctrl driver
+<span class="o">[</span>    1.972581<span class="o">]</span> irq: Cannot allocate irq_descs @ IRQ38, assuming pre-allocated
+<span class="o">[</span>    1.972768<span class="o">]</span> irq: Cannot allocate irq_descs @ IRQ58, assuming pre-allocated
+<span class="o">[</span>    1.972911<span class="o">]</span> irq: Cannot allocate irq_descs @ IRQ90, assuming pre-allocated
+<span class="o">[</span>    1.973059<span class="o">]</span> Ethernet Channel Bonding Driver: v3.7.1 <span class="o">(</span>April 27, 2011<span class="o">)</span>
+<span class="o">[</span>    1.974061<span class="o">]</span> libphy: Fixed MDIO Bus: probed
+<span class="o">[</span>    1.974070<span class="o">]</span> tun: Universal TUN/TAP device driver, 1.6
+<span class="o">[</span>    1.974073<span class="o">]</span> tun: <span class="o">(</span>C<span class="o">)</span> 1999-2004 Max Krasnyansky &lt;maxk@qualcomm.com&gt;
+<span class="o">[</span>    1.974174<span class="o">]</span> libphy: mdio_driver_register: mv88e6085
+<span class="o">[</span>    1.974278<span class="o">]</span> libphy: orion_mdio_bus: probed
+<span class="o">[</span>    1.974371<span class="o">]</span> libphy: Marvell XSMI MDIO Bus: probed
+<span class="o">[</span>    1.974449<span class="o">]</span> sky2: driver version 1.30
+<span class="o">[</span>    1.974607<span class="o">]</span> e1000e: Intel<span class="o">(</span>R<span class="o">)</span> PRO/1000 Network Driver - 3.2.6-k
+<span class="o">[</span>    1.974610<span class="o">]</span> e1000e: Copyright<span class="o">(</span>c<span class="o">)</span> <span class="m">1999</span> - <span class="m">2015</span> Intel Corporation.
+<span class="o">[</span>    1.974640<span class="o">]</span> igb: Intel<span class="o">(</span>R<span class="o">)</span> Gigabit Ethernet Network Driver - version 5.3.0-k
+<span class="o">[</span>    1.974643<span class="o">]</span> igb: Copyright <span class="o">(</span>c<span class="o">)</span> 2007-2014 Intel Corporation.
+<span class="o">[</span>    1.974671<span class="o">]</span> igbvf: Intel<span class="o">(</span>R<span class="o">)</span> Gigabit Virtual Function Network Driver - version 2.0.2-k
+<span class="o">[</span>    1.974674<span class="o">]</span> igbvf: Copyright <span class="o">(</span>c<span class="o">)</span> <span class="m">2009</span> - <span class="m">2012</span> Intel Corporation.
+<span class="o">[</span>    1.974701<span class="o">]</span> ixgbe: Intel<span class="o">(</span>R<span class="o">)</span> <span class="m">10</span> Gigabit PCI Express Network Driver - version 4.2.1-k
+<span class="o">[</span>    1.974704<span class="o">]</span> ixgbe: Copyright <span class="o">(</span>c<span class="o">)</span> 1999-2015 Intel Corporation.
+<span class="o">[</span>    1.974739<span class="o">]</span> ixgbevf: Intel<span class="o">(</span>R<span class="o">)</span> <span class="m">10</span> Gigabit PCI Express Virtual Function Network Driver - version 2.12.1-k
+<span class="o">[</span>    1.974742<span class="o">]</span> ixgbevf: Copyright <span class="o">(</span>c<span class="o">)</span> <span class="m">2009</span> - <span class="m">2012</span> Intel Corporation.
+<span class="o">[</span>    1.974768<span class="o">]</span> ixgb: Intel<span class="o">(</span>R<span class="o">)</span> PRO/10GbE Network Driver - version 1.0.135-k2-NAPI
+<span class="o">[</span>    1.974771<span class="o">]</span> ixgb: Copyright <span class="o">(</span>c<span class="o">)</span> 1999-2008 Intel Corporation.
+<span class="o">[</span>    1.974910<span class="o">]</span> usbcore: registered new interface driver asix
+<span class="o">[</span>    1.974945<span class="o">]</span> usbcore: registered new interface driver ax88179_178a
+<span class="o">[</span>    1.974968<span class="o">]</span> usbcore: registered new interface driver cdc_ether
+<span class="o">[</span>    1.974997<span class="o">]</span> usbcore: registered new interface driver smsc75xx
+<span class="o">[</span>    1.975019<span class="o">]</span> usbcore: registered new interface driver net1080
+<span class="o">[</span>    1.975042<span class="o">]</span> usbcore: registered new interface driver cdc_subset
+<span class="o">[</span>    1.975064<span class="o">]</span> usbcore: registered new interface driver zaurus
+<span class="o">[</span>    1.975099<span class="o">]</span> usbcore: registered new interface driver cdc_ncm
+<span class="o">[</span>    1.975516<span class="o">]</span> mv_xor_v2 f0400000.xor0: Marvell Version <span class="m">2</span> XOR driver
+<span class="o">[</span>    1.977402<span class="o">]</span> mv_xor_v2 f0420000.xor1: Marvell Version <span class="m">2</span> XOR driver
+<span class="o">[</span>    1.978995<span class="o">]</span> mv_xor_v2 f0440000.xor2: Marvell Version <span class="m">2</span> XOR driver
+<span class="o">[</span>    1.980614<span class="o">]</span> mv_xor_v2 f0460000.xor3: Marvell Version <span class="m">2</span> XOR driver
+<span class="o">[</span>    1.982208<span class="o">]</span> mv_xor_v2 f26a0000.cpxor0: Marvell Version <span class="m">2</span> XOR driver
+<span class="o">[</span>    1.982283<span class="o">]</span> mv_xor_v2 f26c0000.cpxor1: Marvell Version <span class="m">2</span> XOR driver
+<span class="o">[</span>    1.983834<span class="o">]</span> Serial: 8250/16550 driver, <span class="m">4</span> ports, IRQ sharing disabled
+<span class="o">[</span>    1.984486<span class="o">]</span> console <span class="o">[</span>ttyS0<span class="o">]</span> disabled
+<span class="o">[</span>    2.004652<span class="o">]</span> f0512000.serial: ttyS0 at MMIO 0xf0512000 <span class="o">(</span><span class="nv">irq</span> <span class="o">=</span> 13, <span class="nv">base_baud</span> <span class="o">=</span> 12500000<span class="o">)</span> is a 16550A
+<span class="o">[</span>    3.317096<span class="o">]</span> console <span class="o">[</span>ttyS0<span class="o">]</span> enabled
+<span class="o">[</span>    3.321121<span class="o">]</span> omap_rng f2760000.trng: initialization failed.
+<span class="o">[</span>    3.326752<span class="o">]</span> Unable to detect cache hierarchy from DT <span class="k">for</span> CPU 0
+<span class="o">[</span>    3.333009<span class="o">]</span> brd: module loaded
+<span class="o">[</span>    3.338449<span class="o">]</span> loop: module loaded
+<span class="o">[</span>    3.342529<span class="o">]</span> VFIO - User Level meta-driver version: 0.3
+<span class="o">[</span>    3.350074<span class="o">]</span> ehci_hcd: USB 2.0 <span class="s1">&#39;Enhanced&#39;</span> Host Controller <span class="o">(</span>EHCI<span class="o">)</span> Driver
+<span class="o">[</span>    3.356648<span class="o">]</span> ehci-pci: EHCI PCI platform driver
+<span class="o">[</span>    3.361138<span class="o">]</span> ehci-platform: EHCI generic platform driver
+<span class="o">[</span>    3.366453<span class="o">]</span> ehci-orion: EHCI orion driver
+<span class="o">[</span>    3.370537<span class="o">]</span> ohci_hcd: USB 1.1 <span class="s1">&#39;Open&#39;</span> Host Controller <span class="o">(</span>OHCI<span class="o">)</span> Driver
+<span class="o">[</span>    3.376756<span class="o">]</span> ohci-pci: OHCI PCI platform driver
+<span class="o">[</span>    3.381247<span class="o">]</span> ohci-platform: OHCI generic platform driver
+<span class="o">[</span>    3.386773<span class="o">]</span> usbcore: registered new interface driver usb-storage
+<span class="o">[</span>    3.392859<span class="o">]</span> usbcore: registered new interface driver usbserial
+<span class="o">[</span>    3.398997<span class="o">]</span> mousedev: PS/2 mouse device common <span class="k">for</span> all mice
+<span class="o">[</span>    3.405025<span class="o">]</span> armada38x-rtc f2284000.rtc: rtc core: registered f2284000.rtc as rtc0
+<span class="o">[</span>    3.412708<span class="o">]</span> rtc-efi rtc-efi: rtc core: registered rtc-efi as rtc1
+<span class="o">[</span>    3.418843<span class="o">]</span> i2c /dev entries driver
+<span class="o">[</span>    3.432631<span class="o">]</span> armada_thermal f06f808c.thermal: Overheat threshold between 93..107
+<span class="o">[</span>    3.450105<span class="o">]</span> armada_thermal f2400078.thermal: Overheat threshold between 92..107
+<span class="o">[</span>    3.457540<span class="o">]</span> md: linear personality registered <span class="k">for</span> level -1
+<span class="o">[</span>    3.463055<span class="o">]</span> md: raid0 personality registered <span class="k">for</span> level 0
+<span class="o">[</span>    3.468395<span class="o">]</span> md: raid1 personality registered <span class="k">for</span> level 1
+<span class="o">[</span>    3.473738<span class="o">]</span> md: raid10 personality registered <span class="k">for</span> level 10
+<span class="o">[</span>    3.479330<span class="o">]</span> md: raid6 personality registered <span class="k">for</span> level 6
+<span class="o">[</span>    3.484670<span class="o">]</span> md: raid5 personality registered <span class="k">for</span> level 5
+<span class="o">[</span>    3.490008<span class="o">]</span> md: raid4 personality registered <span class="k">for</span> level 4
+<span class="o">[</span>    3.495518<span class="o">]</span> device-mapper: ioctl: 4.34.0-ioctl <span class="o">(</span>2015-10-28<span class="o">)</span> initialised: dm-devel@redhat.com
+<span class="o">[</span>    3.504455<span class="o">]</span> sdhci: Secure Digital Host Controller Interface driver
+<span class="o">[</span>    3.510673<span class="o">]</span> sdhci: Copyright<span class="o">(</span>c<span class="o">)</span> Pierre Ossman
+<span class="o">[</span>    3.515054<span class="o">]</span> sdhci-pltfm: SDHCI platform and OF driver helper
+<span class="o">[</span>    3.520832<span class="o">]</span> xenon-sdhci f2780000.sdhci: Failed to setup input clk: -517
+<span class="o">[</span>    3.527564<span class="o">]</span> ledtrig-cpu: registered to indicate activity on CPUs
+<span class="o">[</span>    3.533682<span class="o">]</span> usbcore: registered new interface driver usbhid
+<span class="o">[</span>    3.539282<span class="o">]</span> usbhid: USB HID core driver
+<span class="o">[</span>    3.543849<span class="o">]</span> coresight-tmc f0809000.etf0: TMC initialized
+<span class="o">[</span>    3.549339<span class="o">]</span> coresight-tmc f080a000.etf1: TMC initialized
+<span class="o">[</span>    3.554806<span class="o">]</span> coresight-tmc f080b000.etf2: TMC initialized
+<span class="o">[</span>    3.560271<span class="o">]</span> coresight-tmc f080c000.etf3: TMC initialized
+<span class="o">[</span>    3.565756<span class="o">]</span> coresight-tmc f0811000.etf5: TMC initialized
+<span class="o">[</span>    3.575210<span class="o">]</span> coresight-tmc f0812000.etr: TMC initialized
+<span class="o">[</span>    3.580660<span class="o">]</span> coresight-funnel f0810000.funnel: FUNNEL initialized
+<span class="o">[</span>    3.587026<span class="o">]</span> coresight-etm4x f0c40000.etm0: ETM 4.0 initialized
+<span class="o">[</span>    3.593083<span class="o">]</span> coresight-etm4x f0d40000.etm1: ETM 4.0 initialized
+<span class="o">[</span>    3.599138<span class="o">]</span> coresight-etm4x f0e40000.etm2: ETM 4.0 initialized
+<span class="o">[</span>    3.605190<span class="o">]</span> coresight-etm4x f0f40000.etm3: ETM 4.0 initialized
+<span class="o">[</span>    3.611095<span class="o">]</span> of_graph_get_next_endpoint<span class="o">()</span>: no port node found in /ap806/config-space/axim-ddr-rd@840000
+<span class="o">[</span>    3.620561<span class="o">]</span> coresight-axim f0840000.axim-ddr-rd: AXIM 4.0 2.0 initialized
+<span class="o">[</span>    3.627399<span class="o">]</span> of_graph_get_next_endpoint<span class="o">()</span>: no port node found in /ap806/config-space/axim-ddr-wr@841000
+<span class="o">[</span>    3.636849<span class="o">]</span> coresight-axim f0841000.axim-ddr-wr: AXIM 4.0 2.0 initialized
+<span class="o">[</span>    3.643689<span class="o">]</span> of_graph_get_next_endpoint<span class="o">()</span>: no port node found in /ap806/config-space/axim-sb-rd@848000
+<span class="o">[</span>    3.653055<span class="o">]</span> coresight-axim f0848000.axim-sb-rd: AXIM 4.0 2.0 initialized
+<span class="o">[</span>    3.659806<span class="o">]</span> of_graph_get_next_endpoint<span class="o">()</span>: no port node found in /ap806/config-space/axim-sb-wr@849000
+<span class="o">[</span>    3.669174<span class="o">]</span> coresight-axim f0849000.axim-sb-wr: AXIM 4.0 2.0 initialized
+<span class="o">[</span>    3.675928<span class="o">]</span> of_graph_get_next_endpoint<span class="o">()</span>: no port node found in /cpn-110-master/config-space/axim-cp-rd@3c5000
+<span class="o">[</span>    3.686088<span class="o">]</span> coresight-axim f23c5000.axim-cp-rd: AXIM 4.0 1.0 initialized
+<span class="o">[</span>    3.692840<span class="o">]</span> of_graph_get_next_endpoint<span class="o">()</span>: no port node found in /cpn-110-master/config-space/axim-cp-wr@3c6000
+<span class="o">[</span>    3.703001<span class="o">]</span> coresight-axim f23c6000.axim-cp-wr: AXIM 4.0 1.0 initialized
+<span class="o">[</span>    3.709754<span class="o">]</span> of_graph_get_next_endpoint<span class="o">()</span>: no port node found in /cpn-110-master/config-space/axim-ppv2-rd@3c0000
+<span class="o">[</span>    3.720089<span class="o">]</span> coresight-axim f23c0000.axim-ppv2-rd: AXIM 4.0 1.0 initialized
+<span class="o">[</span>    3.727017<span class="o">]</span> of_graph_get_next_endpoint<span class="o">()</span>: no port node found in /cpn-110-master/config-space/axim-ppv2-wr@3c1000
+<span class="o">[</span>    3.737350<span class="o">]</span> coresight-axim f23c1000.axim-ppv2-wr: AXIM 4.0 1.0 initialized
+<span class="o">[</span>    3.744277<span class="o">]</span> of_graph_get_next_endpoint<span class="o">()</span>: no port node found in /cpn-110-master/config-space/axim-hb1-rd@3c8000
+<span class="o">[</span>    3.754524<span class="o">]</span> coresight-axim f23c8000.axim-hb1-rd: AXIM 4.0 1.0 initialized
+<span class="o">[</span>    3.761363<span class="o">]</span> of_graph_get_next_endpoint<span class="o">()</span>: no port node found in /cpn-110-master/config-space/axim-hb1-wr@3c9000
+<span class="o">[</span>    3.771613<span class="o">]</span> coresight-axim f23c9000.axim-hb1-wr: AXIM 4.0 1.0 initialized
+<span class="o">[</span>    3.778972<span class="o">]</span> NET: Registered protocol family 10
+<span class="o">[</span>    3.783903<span class="o">]</span> sit: IPv6 over IPv4 tunneling driver
+<span class="o">[</span>    3.788824<span class="o">]</span> NET: Registered protocol family 17
+<span class="o">[</span>    3.793315<span class="o">]</span> bridge: automatic filtering via arp/ip/ip6tables has been deprecated. Update your scripts to load br_netfilter <span class="k">if</span> you need this.
+<span class="o">[</span>    3.806093<span class="o">]</span> 8021q: 802.1Q VLAN Support v1.8
+<span class="o">[</span>    3.810328<span class="o">]</span> 9pnet: Installing 9P2000 support
+<span class="o">[</span>    3.814657<span class="o">]</span> Key <span class="nb">type </span>dns_resolver registered
+<span class="o">[</span>    3.818952<span class="o">]</span> openvswitch: Open vSwitch switching datapath
+<span class="o">[</span>    3.824417<span class="o">]</span> mpls_gso: MPLS GSO support
+<span class="o">[</span>    3.828623<span class="o">]</span> registered taskstats version 1
+<span class="o">[</span>    3.833849<span class="o">]</span> Btrfs loaded
+<span class="o">[</span>    3.850896<span class="o">]</span> mac_addr 0:0:0:0:0:3
+<span class="o">[</span>    3.864042<span class="o">]</span> mvpp2 f2000000.ppv22 eth0: Using device tree mac address 00:00:00:00:00:03
+<span class="o">[</span>    3.872358<span class="o">]</span> mv_xor_v2 f26a0000.cpxor0: Marvell Version <span class="m">2</span> XOR driver
+<span class="o">[</span>    3.880641<span class="o">]</span> mv_xor_v2 f26c0000.cpxor1: Marvell Version <span class="m">2</span> XOR driver
+<span class="o">[</span>    3.888724<span class="o">]</span> omap_rng f2760000.trng: Random Number Generator ver. 203b34c
+<span class="o">[</span>    3.895576<span class="o">]</span> xhci-hcd f2500000.usb3: xHCI Host Controller
+<span class="o">[</span>    3.900924<span class="o">]</span> xhci-hcd f2500000.usb3: new USB bus registered, assigned bus number 1
+<span class="o">[</span>    3.917037<span class="o">]</span> xhci-hcd f2500000.usb3: hcc params 0x0a000990 hci version 0x100 quirks 0x00010010
+<span class="o">[</span>    3.925641<span class="o">]</span> xhci-hcd f2500000.usb3: irq 27, io mem 0xf2500000
+<span class="o">[</span>    3.931831<span class="o">]</span> hub 1-0:1.0: USB hub found
+<span class="o">[</span>    3.935625<span class="o">]</span> hub 1-0:1.0: <span class="m">1</span> port detected
+<span class="o">[</span>    3.939730<span class="o">]</span> xhci-hcd f2500000.usb3: xHCI Host Controller
+<span class="o">[</span>    3.945081<span class="o">]</span> xhci-hcd f2500000.usb3: new USB bus registered, assigned bus number 2
+<span class="o">[</span>    3.952650<span class="o">]</span> usb usb2: We don<span class="err">&#39;</span>t know the algorithms <span class="k">for</span> LPM <span class="k">for</span> this host, disabling LPM.
+<span class="o">[</span>    3.961065<span class="o">]</span> hub 2-0:1.0: USB hub found
+<span class="o">[</span>    3.964856<span class="o">]</span> hub 2-0:1.0: <span class="m">1</span> port detected
+<span class="o">[</span>    3.969166<span class="o">]</span> xenon-sdhci f2780000.sdhci: Fail to get Xenon PHY type. Use default eMMC 5.1 PHY
+<span class="o">[</span>    3.978949<span class="o">]</span> xenon-sdhci f2780000.sdhci: No vmmc regulator found
+<span class="o">[</span>    3.984912<span class="o">]</span> xenon-sdhci f2780000.sdhci: No vqmmc regulator found
+<span class="o">[</span>    4.028525<span class="o">]</span> mmc0: SDHCI controller on f2780000.sdhci <span class="o">[</span>f2780000.sdhci<span class="o">]</span> using ADMA 64-bit
+<span class="o">[</span>    4.040840<span class="o">]</span> armada38x-rtc f2284000.rtc: setting system clock to 2079-12-13 02:24:14 UTC <span class="o">(</span>3469659854<span class="o">)</span>
+<span class="o">[</span>    4.051151<span class="o">]</span> Freeing unused kernel memory: 452K <span class="o">(</span>ffffffc000c43000 - ffffffc000cb4000<span class="o">)</span>
+<span class="o">[</span>    4.064651<span class="o">]</span> random: systemd: uninitialized urandom <span class="nb">read</span> <span class="o">(</span><span class="m">16</span> bytes <span class="nb">read</span>, <span class="m">1</span> bits of entropy available<span class="o">)</span>
+<span class="o">[</span>    4.074318<span class="o">]</span> random: systemd: uninitialized urandom <span class="nb">read</span> <span class="o">(</span><span class="m">16</span> bytes <span class="nb">read</span>, <span class="m">1</span> bits of entropy available<span class="o">)</span>
+<span class="o">[</span>    4.084421<span class="o">]</span> systemd<span class="o">[</span>1<span class="o">]</span>: systemd <span class="m">229</span> running in system mode. <span class="o">(</span>+PAM +AUDIT +SELINUX +IMA -APPARMOR +SMACK +SYSVINIT +UTMP -LIBCRYPTSETUP -GCRYPT +GNUTLS +ACL +XZ -LZ4 -SECCOMP +BLKID -ELFUTILS +KMOD -IDN<span class="o">)</span>
+<span class="o">[</span>    4.098103<span class="o">]</span> mmc0: MAN_BKOPS_EN bit is not <span class="nb">set</span>
+<span class="o">[</span>    4.107145<span class="o">]</span> systemd<span class="o">[</span>1<span class="o">]</span>: Detected architecture arm64.
+<span class="o">[</span>    4.109402<span class="o">]</span> mmc0: new HS200 MMC card at address 0001
+<span class="o">[</span>    4.109648<span class="o">]</span> mmcblk0: mmc0:0001 Q2J55L 7.09 GiB
+<span class="o">[</span>    4.109737<span class="o">]</span> mmcblk0boot0: mmc0:0001 Q2J55L partition <span class="m">1</span> 16.0 MiB
+<span class="o">[</span>    4.109829<span class="o">]</span> mmcblk0boot1: mmc0:0001 Q2J55L partition <span class="m">2</span> 16.0 MiB
+<span class="o">[</span>    4.109921<span class="o">]</span> mmcblk0rpmb: mmc0:0001 Q2J55L partition <span class="m">3</span> 4.00 MiB
+<span class="o">[</span>    4.112627<span class="o">]</span>  mmcblk0: p1 p2 &lt; p5 p6 p7 p8 p9 p10 &gt; p3
+<span class="o">[</span>    4.144592<span class="o">]</span> systemd<span class="o">[</span>1<span class="o">]</span>: Running with unpopulated /etc.
+<span class="o">[</span>    4.149839<span class="o">]</span> systemd<span class="o">[</span>1<span class="o">]</span>: No hostname configured.
+<span class="o">[</span>    4.154427<span class="o">]</span> systemd<span class="o">[</span>1<span class="o">]</span>: Set hostname to &lt;localhost&gt;.
+<span class="o">[</span>    4.159470<span class="o">]</span> random: systemd: uninitialized urandom <span class="nb">read</span> <span class="o">(</span><span class="m">16</span> bytes <span class="nb">read</span>, <span class="m">2</span> bits of entropy available<span class="o">)</span>
+<span class="o">[</span>    4.168668<span class="o">]</span> systemd<span class="o">[</span>1<span class="o">]</span>: Initializing machine ID from random generator.
+<span class="o">[</span>    4.176466<span class="o">]</span> random: systemd: uninitialized urandom <span class="nb">read</span> <span class="o">(</span><span class="m">16</span> bytes <span class="nb">read</span>, <span class="m">2</span> bits of entropy available<span class="o">)</span>
+<span class="o">[</span>    4.186211<span class="o">]</span> random: systemd: uninitialized urandom <span class="nb">read</span> <span class="o">(</span><span class="m">16</span> bytes <span class="nb">read</span>, <span class="m">2</span> bits of entropy available<span class="o">)</span>
+<span class="o">[</span>    4.196445<span class="o">]</span> random: systemd: uninitialized urandom <span class="nb">read</span> <span class="o">(</span><span class="m">16</span> bytes <span class="nb">read</span>, <span class="m">2</span> bits of entropy available<span class="o">)</span>
+<span class="o">[</span>    4.207839<span class="o">]</span> random: systemd: uninitialized urandom <span class="nb">read</span> <span class="o">(</span><span class="m">16</span> bytes <span class="nb">read</span>, <span class="m">2</span> bits of entropy available<span class="o">)</span>
+<span class="o">[</span>    4.221062<span class="o">]</span> random: systemd: uninitialized urandom <span class="nb">read</span> <span class="o">(</span><span class="m">16</span> bytes <span class="nb">read</span>, <span class="m">2</span> bits of entropy available<span class="o">)</span>
+<span class="o">[</span>    4.232749<span class="o">]</span> random: systemd: uninitialized urandom <span class="nb">read</span> <span class="o">(</span><span class="m">16</span> bytes <span class="nb">read</span>, <span class="m">2</span> bits of entropy available<span class="o">)</span>
+<span class="o">[</span>    4.244142<span class="o">]</span> random: systemd: uninitialized urandom <span class="nb">read</span> <span class="o">(</span><span class="m">16</span> bytes <span class="nb">read</span>, <span class="m">2</span> bits of entropy available<span class="o">)</span>
+<span class="o">[</span>    4.253781<span class="o">]</span> systemd<span class="o">[</span>1<span class="o">]</span>: Failed to populate /etc with preset unit settings, ignoring: No such file or directory
+<span class="o">[</span>    4.301708<span class="o">]</span> systemd<span class="o">[</span>1<span class="o">]</span>: Created slice System Slice.
+<span class="o">[</span>    4.324534<span class="o">]</span> usb 1-1: new high-speed USB device number <span class="m">2</span> using xhci-hcd
+<span class="o">[</span>    4.328641<span class="o">]</span> systemd<span class="o">[</span>1<span class="o">]</span>: Started Emergency Shell.
+<span class="o">[</span>    4.328975<span class="o">]</span> systemd<span class="o">[</span>1<span class="o">]</span>: Reached target Emergency Mode.
+<span class="o">[</span>    4.329045<span class="o">]</span> systemd<span class="o">[</span>1<span class="o">]</span>: Startup finished in 4.057s <span class="o">(</span>kernel<span class="o">)</span> + 266ms <span class="o">(</span>userspace<span class="o">)</span> <span class="o">=</span> 4.324s.
+Welcome to emergbash-4.3# <span class="o">[</span>    4.479740<span class="o">]</span> hub 1-1:1.0: USB hub found
+<span class="o">[</span>    4.483584<span class="o">]</span> hub 1-1:1.0: <span class="m">4</span> ports detected
+<span class="o">[</span>    4.776524<span class="o">]</span> usb 1-1.1: new high-speed USB device number <span class="m">3</span> using xhci-hcd
+<span class="o">[</span>    4.888729<span class="o">]</span> hub 1-1.1:1.0: USB hub found
+<span class="o">[</span>    4.892984<span class="o">]</span> hub 1-1.1:1.0: <span class="m">4</span> ports detected
+<span class="o">[</span>    5.172524<span class="o">]</span> usb 1-1.1.3: new high-speed USB device number <span class="m">4</span> using xhci-hcd
+<span class="o">[</span>    5.372758<span class="o">]</span> usb 1-1.1.3: ep 0x81 - rounding interval to <span class="m">128</span> microframes, ep desc says <span class="m">255</span> microframes
+<span class="o">[</span>    5.384461<span class="o">]</span> usb 1-1.1.3: ep 0x2 - rounding interval to <span class="m">128</span> microframes, ep desc says <span class="m">255</span> microframes
+<span class="o">[</span>    5.393854<span class="o">]</span> usb-storage 1-1.1.3:1.0: USB Mass Storage device detected
+<span class="o">[</span>    5.401678<span class="o">]</span> usb-storage 1-1.1.3:1.0: Quirks match <span class="k">for</span> vid 054c pid 02a5: 80000
+<span class="o">[</span>    5.408991<span class="o">]</span> scsi host0: usb-storage 1-1.1.3:1.0
+
+bash-4.3# <span class="o">[</span>    6.591678<span class="o">]</span> scsi 0:0:0:0: Direct-Access     Sony     Storage Media    <span class="m">0100</span> PQ: <span class="m">0</span> ANSI: 4
+<span class="o">[</span>    6.600245<span class="o">]</span> sd 0:0:0:0: <span class="o">[</span>sda<span class="o">]</span> <span class="m">7628544</span> 512-byte logical blocks: <span class="o">(</span>3.91 GB/3.64 GiB<span class="o">)</span>
+<span class="o">[</span>    6.608725<span class="o">]</span> sd 0:0:0:0: <span class="o">[</span>sda<span class="o">]</span> No Caching mode page found
+<span class="o">[</span>    6.616445<span class="o">]</span>  sda: sda1
+<span class="o">[</span>    6.620264<span class="o">]</span> sd 0:0:0:0: <span class="o">[</span>sda<span class="o">]</span> Attached SCSI removable disk
+
+bash-4.3#</code></pre></figure>
+
+	</div>
+
+<!--	
+	<div class='share-button-container'>
+		<p>Like it? Share it!</p>
+		<div class='share-button share-button-twitter' data-share-url="http://weweng.github.io/2017/07/ARMv8-UEFI-manual-boot/">
+			<div clas='box'>
+				<a href="https://twitter.com/share?url=http://weweng.github.io%2F2017%2F07%2FARMv8-UEFI-manual-boot%2F&text=UEFI ARM Linux boot&via=weweng" target='_blank'>
+					<span class='share'>Tweet</span>
+					<span class='count'>0</span>
+				</a>
+			</div>
+		</div>
+
+		<div class="share-button share-button-facebook" data-share-url="http://weweng.github.io/2017/07/ARMv8-UEFI-manual-boot/">
+			<div class="box">
+				<a href="https://www.facebook.com/sharer/sharer.php?u=http://weweng.github.io%2F2017%2F07%2FARMv8-UEFI-manual-boot%2F">
+					<span class='share'>Share</span>
+					<span class='count'>0</span>
+				</a>
+			</div>
+		</div>
+	</div>
+-->
+
+</section>
+
+<div id='comments'>
+	<div id='disqus_thread'></div>
+	<script type='text/javascript'>
+		var disqus_shortname = 'wewenggithubio';
+		(function() {
+			var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+			dsq.src = 'http://' + disqus_shortname + '.disqus.com/embed.js';
+			(document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+		})();
+	</script>
+
+	<noscript>Please enable JavaScript to view the comments</noscript>
+</div>
+<script type='text/javascript' src='/assets/js/StaticShareButtons.js'></script>
+
+
+	</div>
+
+	<footer class='footer'>
+		<span>Copyright 2015-2017, Wenwei Weng</span>
+	</footer>
+</div>
+</div>
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-62997612-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+
+
+<script type="text/javascript">
+// Open external links in new tab
+(window.onload = function(){
+	var links = document.links;
+
+	for(i=0; i<=links.length -1; i++){
+		if(links[i].hostname != window.location.hostname){
+			links[i].target = '_blank';
+		}
+	}
+})();
+</script>
+</body>
+</html>

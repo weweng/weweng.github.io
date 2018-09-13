@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset='UTF-8'>
+	<title>ARM Tech Conference 2016 - Santa Clara Conention Center | Wenwei's tech Blog</title>
+	<link rel='alternate' type='application/rss+xml' title='Wenwei Feed' href='http://weweng.github.io/atom.xml'>
+	<meta name='description' content=''/>
+	<meta name='keywords' content='ARM TechConf'/>
+	<meta name='viewport' content='width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no'>
+	<meta name='theme-color' content='#655B54'>
+	<link rel='shortcut icon' href='/assets/favicon.ico' type='image/x-icon'> 
+	<!--- <link rel='icon' href='/assets/favicon.ico' type='image/x-icon'> --->
+<link rel='icon' href='/assets/blogger.png' type='image/x-png'>
+
+	<link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro:400,700' rel='stylesheet' type='text/css'>
+	<link rel='stylesheet' type='text/css' href='/assets/css/code-highlighter.css' />
+<link rel='stylesheet' type='text/css' href='/assets/css/default.min.css' />
+<link rel='stylesheet' type='text/css' href='/assets/css/github.css' />
+<link rel='stylesheet' type='text/css' href='/assets/css/pure-base-min.css' />
+<link rel='stylesheet' type='text/css' href='/assets/css/pure-grids-responsive-min.css' />
+<link rel='stylesheet' type='text/css' href='/assets/css/pure-menus-min.css' />
+<link rel='stylesheet' type='text/css' href='/assets/css/pure-tables-min.css' />
+<link rel='stylesheet' type='text/css' href='/assets/css/social-buttons.css' />
+<link rel='stylesheet' type='text/css' href='/assets/css/weweng.css' />
+
+
+	
+</head>
+<body>
+
+<div class='pure-g' id='layout'>
+    <div class='sidebar pure-u-1 pure-u-md-1-4'>
+      <div class='header'>
+	<nav class='nav'>
+	  <ul class='nav-list'>
+	    <li class='nav-item'>
+	      <strong> <a href='/workblog.html'>Blog</a> </strong>
+	    </li>
+<!--
+	    <li class='nav-item'>
+	      <strong> <a href='/study/index.html'>Study</a> </strong>
+	    </li>
+	    <li class='nav-item'>
+	      <strong> <a href='/projects/index.html'>Projects</a> </strong>
+	    </li>
+-->
+<!--
+            <li class='nav-item'>
+              <strong> <a href='/services/index.html'>读书笔记</a> </strong>
+            </li>
+-->
+	    <li class='nav-item'>
+	      <strong><a href='/aboutme.html'>About Me</a></strong>
+	    </li>
+	</ul>
+	</nav>
+	<br> 
+	<h1 class='brand-title'>
+	  <a href='/index.html'>
+		<img src='/assets/img/avatar.png' height='100'/>
+	  </a>
+	</h1>
+      </div>
+</div>
+
+<div class='pure-u-1'>
+	<div class='content'>
+		<section class='post'>
+	<header class='post-header'>
+		<h2 class='post-title'> ARM Tech Conference 2016 - Santa Clara Conention Center </h2>
+		<p class='post-meta'>
+			Posted on <time class='date' datetime='2016-10-27T00:00:00+01:00'>27 Oct 2016</time>
+		</p>
+	</header>
+
+	<div class='post-description'>
+		<p>The biggest ARM event ARM techcon took place Oct 25-27 2016 in Santa Clara convention center. I took half day to attend the exibition on Oct 27th. It is very good learning expereince.</p>
+
+<p><img src="/uploads/armconf/armconf-main.jpg" alt="ARM conf 2016"></p>
+
+<p>In this post, I will share my thoughts and waht are learned.</p>
+
+<!--more-->
+
+<h1>Overall summary</h1>
+
+<ul>
+<li> There are more vendors in exibition than last year. However the scale is smaller than Intel IDF. </li>
+<li> There are three types of vendors: hardware, software, tools, system integrator. </li>
+<li> Most hardware vendors are for embedded systems targeting IOT, networking, automotive. Surprisingly vendors like Qualcomm, Samsung, MediaTek are absent, let alone Apple, Huawei.  Marvell is absent as well. </li>
+<li> In the processor market, main players are Intel and ARM. The vendors are giving up powerpc, mips architecture. </li>
+<li> Nearly every hardware vendor play games by licensing ARM licence or reference implementation, plus its own strength, i.e. FPGA, memory, peripheral controllers etc. </li>
+</ul>
+
+<h1>Vendors</h1>
+
+<h2>applied micro (apm) - ARM chip vendor , http://www.apm.com</h2>
+
+<p>apm is showing its flagship ARM chip X-Gene 2, 64-bit ARMv8-A architecture. It is targeting at server market, which is still pretty tough with limited success so far. Even AMD is exiting this market. </p>
+
+<p><img src="/uploads/armconf/vendor-apm-x-gene2.jpg" alt="ARM conf 2016"></p>
+
+<p>APM is showing ARM based blade vs Intel based blade server above. 
+With Intel dominating the server market, and richness of applications of x86, it is tough for ARM to gain market share. Peopel are not willing to take the risk to migrate. Howerver there is area like in DC, providing IO/not computing, which could fit ARM.</p>
+
+<h2>NXP - ARM chip vendor, http://www.nxp.com</h2>
+
+<p>NXP ARM chip mainly comes from freescale aquization, plus its own ARM MCU. At the day, Qualcomm announces to acquire NXP. With acquization, Qualcomm will have ARM product line for mobile phone (from its own), for networking/embedded (from freescale), and for automotive/consumer electronics (from NXP itsself).</p>
+
+<p><img src="/uploads/armconf/vendor-nxp.jpg" alt="ARM conf 2016"></p>
+
+<p>The competitive advantage from NXP/freeacale is periperals like ethernet controller, SD controller, USB controller, crypto, these are widely used in the industry. E.g. Cisco IOS code has mature driver for ethernet, this makes a natrual choice for Cisco to choose NXP.</p>
+
+<h2>Analog Device - ARM chip vendor, http://www.analog.com</h2>
+
+<p>Analog Device is the leading analog to digital convert chip provider. It takes its advantge and integrate its chip with ARM processor, providing a SOC for that, which makes perfect sense.</p>
+
+<p><img src="/uploads/armconf/vendor-analogdevice.jpg" alt="ARM conf 2016"></p>
+
+<p>It shows a prototype of using its ARM SoC to monitor the enviroment for tomato farming.</p>
+
+<h2>Renesas - ARM chip vendor, http://www.renasas.com, http://www.ittia.com</h2>
+
+<p>Renesas has been doing well in DDR memory. It takes its advantage to integrate memory with ARM processor, providing SoC with borth prcoessor and memory, which makes sense too. </p>
+
+<p><img src="/uploads/armconf/vendor-renesas-synergy-sdk.jpg" alt="ARM conf 2016"></p>
+
+<h2>Xilinx - ARM chip vendor, http://www.xilinx.com</h2>
+
+<p>Xilinx has been doing well in FPGA. It takes its advantage to integrate FPGA with ARM processor, providing SoC with borth prcoessor and FPGA, which makes sense too. </p>
+
+<p><img src="/uploads/armconf/vendor-xilinx.jpg" alt="ARM conf 2016"></p>
+
+<p>Renesas also provides in memory Database software, which is interesting too.
+Sasan Montaseri showed me the product with great passion.</p>
+
+<h2>Segger - embedded software vendor, http://www.segger.com</h2>
+
+<p>Segger is a German company, which provides a smakk foot print embedded OS, which allows the applications to host in secure/trusted zone and no-trusted zone.</p>
+
+<p><img src="/uploads/armconf/sw-os-segger.jpg" alt="ARM conf 2016"></p>
+
+<h2>Skkynet - application software, http://www.skkynet.com</h2>
+
+<p>This is a small Candaian company based in Ontario, which provides software running in redline box, and can stream data to cloud, which has service hosted. The service can be accessed from mobile phone. </p>
+
+<p><img src="/uploads/armconf/sw-app-skkynet.jpg" alt="ARM conf 2016"></p>
+
+<p>I suggest the vendor to integrate with cisco IR800, which is a perfect platform for them to be in.</p>
+
+<h2>OEM production -- system integrator , http://www.oemproduction.com</h2>
+
+<p>It provides very cute ARM based boxes with very low price and many interfaces, including 3G/4G, Wifi, USB, HDMI. The brand name is minix.</p>
+
+<p><img src="/uploads/armconf/hw-sys-oem-product.jpg" alt="ARM conf 2016"></p>
+
+<p>e.g. $49 for A2, $99 for X9-LX. It provides Linux or Android OS.</p>
+
+<h2>Mentor Graphics -- Software vendor, http://www.mentorgraphics.com</h2>
+
+<p>Mentor Graphics has been in software business for long time with focus in automotive, embedded system. It acquired MontaVista (except the networking software CGE, which is still with Cavium Networks). I was given the demo of their fast boot system, which is deployed in automotive industry. The box can boot with almost a blink of eye. They customize u-boot, and also trim down OS as minimum as possible.</p>
+
+<p><img src="/uploads/armconf/sw-mentorgraphics-fastboot.jpg" alt="ARM conf 2016"></p>
+
+<p>Mentor Graphics also provides embedded hypervisor like the one from Lynx software. However its dom0 is implemented using its properiety OS, which is could be a disadvantage.</p>
+
+<h2>AdaCore -- software, http://www.adacore.com</h2>
+
+<p>This is a company providing Ada software development tool kits. It is widely used in embedded system like aircraft, fightjet, which needs high reliability.
+Its langauage syntax is much like Pascal.</p>
+
+<p><img src="/uploads/armconf/sw-tool-adaCore.jpg" alt="ARM conf 2016"></p>
+
+<h2>Imperas -- software, http://www.imperas.com</h2>
+
+<p>This is a company providing hareware/platform simulation for ARM based system. It can be used to debug some really hard software problem, or do software development before hardware is available. It is like simcs from WindRiver.</p>
+
+<p><img src="/uploads/armconf/sw-tool-imperas.jpg" alt="ARM conf 2016"></p>
+
+<h2>Aldec -- ASIC design tool, http://www.aldec.com</h2>
+
+<p>This is a company providing ASIC design tool. </p>
+
+<p><img src="/uploads/armconf/hw-asic-design-aldec.jpg" alt="ARM conf 2016"></p>
+
+<h2>Allegro -- IP vendor http://www.allegrodvt.com</h2>
+
+<p>This is a company provide ASIC IP, which does video encoder/decoder H.264/AVC H.265/HEVC up to 4K resolution. This is required fro video game, AI application, which requires large amount packets, idealy to be trasmitted in raw form, but too much bandwidth required. With their solution, it can be encoded/decoded and introduced delay will be less than 20ms over 802.11ad.</p>
+
+<p>Below are collected business card during conference:
+<img src="/uploads/armconf/ARM-conf-business-cards-oct26-2016.jpg" alt="ARM conf 2016 business card"></p>
+
+	</div>
+
+<!--	
+	<div class='share-button-container'>
+		<p>Like it? Share it!</p>
+		<div class='share-button share-button-twitter' data-share-url="http://weweng.github.io/2016/10/arch-techconf/">
+			<div clas='box'>
+				<a href="https://twitter.com/share?url=http://weweng.github.io%2F2016%2F10%2Farch-techconf%2F&text=ARM Tech Conference 2016 - Santa Clara Conention Center&via=weweng" target='_blank'>
+					<span class='share'>Tweet</span>
+					<span class='count'>0</span>
+				</a>
+			</div>
+		</div>
+
+		<div class="share-button share-button-facebook" data-share-url="http://weweng.github.io/2016/10/arch-techconf/">
+			<div class="box">
+				<a href="https://www.facebook.com/sharer/sharer.php?u=http://weweng.github.io%2F2016%2F10%2Farch-techconf%2F">
+					<span class='share'>Share</span>
+					<span class='count'>0</span>
+				</a>
+			</div>
+		</div>
+	</div>
+-->
+
+</section>
+
+<div id='comments'>
+	<div id='disqus_thread'></div>
+	<script type='text/javascript'>
+		var disqus_shortname = 'wewenggithubio';
+		(function() {
+			var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+			dsq.src = 'http://' + disqus_shortname + '.disqus.com/embed.js';
+			(document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+		})();
+	</script>
+
+	<noscript>Please enable JavaScript to view the comments</noscript>
+</div>
+<script type='text/javascript' src='/assets/js/StaticShareButtons.js'></script>
+
+
+	</div>
+
+	<footer class='footer'>
+		<span>Copyright 2015-2017, Wenwei Weng</span>
+	</footer>
+</div>
+</div>
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-62997612-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+
+
+<script type="text/javascript">
+// Open external links in new tab
+(window.onload = function(){
+	var links = document.links;
+
+	for(i=0; i<=links.length -1; i++){
+		if(links[i].hostname != window.location.hostname){
+			links[i].target = '_blank';
+		}
+	}
+})();
+</script>
+</body>
+</html>

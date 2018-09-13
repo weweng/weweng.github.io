@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset='UTF-8'>
+	<title>Home | Wenwei's tech Blog</title>
+	<link rel='alternate' type='application/rss+xml' title='Wenwei Feed' href='http://weweng.github.io/atom.xml'>
+	<meta name='description' content=''/>
+	<meta name='keywords' content=''/>
+	<meta name='viewport' content='width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no'>
+	<meta name='theme-color' content='#655B54'>
+	<link rel='shortcut icon' href='/assets/favicon.ico' type='image/x-icon'> 
+	<!--- <link rel='icon' href='/assets/favicon.ico' type='image/x-icon'> --->
+<link rel='icon' href='/assets/blogger.png' type='image/x-png'>
+
+	<link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro:400,700' rel='stylesheet' type='text/css'>
+	<link rel='stylesheet' type='text/css' href='/assets/css/code-highlighter.css' />
+<link rel='stylesheet' type='text/css' href='/assets/css/default.min.css' />
+<link rel='stylesheet' type='text/css' href='/assets/css/github.css' />
+<link rel='stylesheet' type='text/css' href='/assets/css/pure-base-min.css' />
+<link rel='stylesheet' type='text/css' href='/assets/css/pure-grids-responsive-min.css' />
+<link rel='stylesheet' type='text/css' href='/assets/css/pure-menus-min.css' />
+<link rel='stylesheet' type='text/css' href='/assets/css/pure-tables-min.css' />
+<link rel='stylesheet' type='text/css' href='/assets/css/social-buttons.css' />
+<link rel='stylesheet' type='text/css' href='/assets/css/weweng.css' />
+
+
+	
+</head>
+<body>
+
+<div class='pure-g' id='layout'>
+    <div class='sidebar pure-u-1 pure-u-md-1-4'>
+      <div class='header'>
+	<nav class='nav'>
+	  <ul class='nav-list'>
+	    <li class='nav-item'>
+	      <strong> <a href='/workblog.html'>Blog</a> </strong>
+	    </li>
+<!--
+	    <li class='nav-item'>
+	      <strong> <a href='/study/index.html'>Study</a> </strong>
+	    </li>
+	    <li class='nav-item'>
+	      <strong> <a href='/projects/index.html'>Projects</a> </strong>
+	    </li>
+-->
+<!--
+            <li class='nav-item'>
+              <strong> <a href='/services/index.html'>读书笔记</a> </strong>
+            </li>
+-->
+	    <li class='nav-item'>
+	      <strong><a href='/aboutme.html'>About Me</a></strong>
+	    </li>
+	</ul>
+	</nav>
+	<br> 
+	<h1 class='brand-title'>
+	  <a href='/index.html'>
+		<img src='/assets/img/avatar.png' height='100'/>
+	  </a>
+	</h1>
+      </div>
+</div>
+
+<div class='pure-u-1'>
+	<div class='content'>
+		
+	<h1 class='content-subhead'>Page 7</h1>
+
+
+
+<section class='post'>
+	<header class='post-header'>
+		<h2 class='post-title'>
+			<a href="/2016/10/linux-bootup-process-upstart/">Linux boot up process - Upstart</a>
+		</h2>
+
+		<p class='post-meta'>
+			Posted on 31 Oct 2016
+		</p>
+	</header>
+
+	<div class='post-description'>
+		<p>Booting a Linux installation involves multiple stages and software components, 
+including firmware initialization, execution of a boot loader, loading and startup of a Linux kernel image, and execution of various startup scripts and daemons. In the previous post, sysvinit is discussed. Now we look into upstart.</p>
+
+<p><img src="/uploads/linux/linux-boot-process-upstart.png" alt="Linux upstart"></p>
+
+<p>Upstart is an event-based replacement for the /sbin/init daemon which handles starting of tasks and services during boot, stopping them during shutdown and supervising them while the system is running.</p>
+
+<p>It was originally developed for the Ubuntu distribution, but is intended to be suitable for deployment in all Linux distributions as a replacement for the venerable System-V init.</p>
+
+
+
+		<p><a href='/2016/10/linux-bootup-process-upstart/'>Continue reading &rarr;</a></p>
+	</div>
+</section>
+
+<section class='post'>
+	<header class='post-header'>
+		<h2 class='post-title'>
+			<a href="/2016/10/Cisco-IRB/">VLAN Routing and Bridging on a Cisco Router Using the IRB</a>
+		</h2>
+
+		<p class='post-meta'>
+			Posted on 29 Oct 2016
+		</p>
+	</header>
+
+	<div class='post-description'>
+		<p>In order for a VLAN to span a router, the router must be capable of forwarding frames from one interface to another, while maintaining the VLAN header. If the router is configured for routing a Layer 3 (network layer) protocol, it will terminate the VLAN and MAC layers at the interface a frame arrives on. The MAC layer header can be maintained if the router is bridging the network layer protocol. However, regular bridging still terminates the VLAN header. Using the IRB feature in Cisco IOS® Release 11.2 or greater, a router can be configured for routing and bridging the same network layer protocol on the same interface. This allows the VLAN header to be maintained on a frame while it transits a router from one interface to another. IRB provides the ability to route between a bridged domain and a routed domain with Bridge Group Virtual Interface (BVI). The BVI is a virtual interface within the router that acts like a normal routed interface that does not support bridging, but represents the comparable bridge group to routed interfaces within the router. The interface number of the BVI is the number of the bridge group that the virtual interface represents. The number is the link between the BVI and the bridge group.</p>
+
+<p><img src="/uploads/cisco/IRB.jpg" alt="Cisco"></p>
+
+
+
+		<p><a href='/2016/10/Cisco-IRB/'>Continue reading &rarr;</a></p>
+	</div>
+</section>
+
+<section class='post'>
+	<header class='post-header'>
+		<h2 class='post-title'>
+			<a href="/2016/10/IOL-setup/">Cisco IOL Setup in ubuntu 16.04</a>
+		</h2>
+
+		<p class='post-meta'>
+			Posted on 28 Oct 2016
+		</p>
+	</header>
+
+	<div class='post-description'>
+		<p>Cisco has internal testing tool, initialy it is named as IOU (IOS running on Unix, specificaly Solaris). Since Solaris has gone, IOU is ported to run on Intel x86 Linux, so it is called IOL now. It is a very light weight, and it is excellent tool for learning networking protocol. </p>
+
+<p>Since Ubuntu distribution is keeping updated, so it is needed from time to time move IOL to new version of ubuntu. </p>
+
+<p><img src="/uploads/linux/cisco-iou-ubuntu.jpg" alt="ARM conf 2016"></p>
+
+<p>In this post, I share steps to do to make IOL work under Ubuntu 16.04.</p>
+
+
+
+		<p><a href='/2016/10/IOL-setup/'>Continue reading &rarr;</a></p>
+	</div>
+</section>
+
+
+
+
+<p style='text-align:center; margin-top: 30px;'>
+	
+		
+			<a href='/page6/'>&larr; Previous page</a>
+		
+	
+
+	
+		|
+	
+
+	
+		<a href='/page8/'>Next page &rarr;</a>
+	
+</p>
+	</div>
+
+	<footer class='footer'>
+		<span>Copyright 2015-2017, Wenwei Weng</span>
+	</footer>
+</div>
+</div>
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-62997612-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+
+
+<script type="text/javascript">
+// Open external links in new tab
+(window.onload = function(){
+	var links = document.links;
+
+	for(i=0; i<=links.length -1; i++){
+		if(links[i].hostname != window.location.hostname){
+			links[i].target = '_blank';
+		}
+	}
+})();
+</script>
+</body>
+</html>
