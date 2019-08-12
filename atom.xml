@@ -3,7 +3,7 @@
 	<title>weweng.github.io</title>
 	<link href='http://weweng.github.io/'/>
 	<link type='application/atom+xml' rel='self' href='http://weweng.github.io/atom.xml'/>
-	<updated>2019-08-12T14:20:02-07:00</updated>
+	<updated>2019-08-12T15:56:41-07:00</updated>
 	<id>http://weweng.github.io/</id>
 
 	<author>
@@ -12,6 +12,23 @@
 	</author>
 
 	
+	<entry>
+		<title>Jekyll update for my blog site</title>
+		<link type='text/html' href='http://weweng.github.io/2019/08/12/Jekyll-Update-blog-site.html'/>
+		<id>http://weweng.github.io/2019/08/12/Jekyll-Update-blog-site.html</id>
+		<updated>2019-08-12T00:00:00-07:00</updated>
+
+		<author>
+			<name>Wenwei Weng</name>
+			<uri>http://weweng.github.io/</uri>
+		</author>
+
+		<content type='html'>&lt;p&gt;My blog site was shutdown for quite a while for certain reasons. However I strongly feel this is a good way for me to capture what I learned along the way and share with anyone who might feel helpful for them. Thanks to all people who provided postivie feedback. After clearup the issue and I finally decide to continue working on my blog site. First thing I do is to update my blog development enviroment which is Jekyll, installed in ubuntu 16.04 VM.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/uploads/jekyll.jpg&quot; alt=&quot;Jekyll on Ubuntu&quot; /&gt; 
+</content>
+	</entry>
+  
 	<entry>
 		<title>SPI flash support in embedded Linux box</title>
 		<link type='text/html' href='http://weweng.github.io/2017/08/05/SPI-Support-embedded-box.html'/>
@@ -268,24 +285,6 @@ Docker has done great job to manage the container image to make it to be in laye
 
 &lt;p&gt;I’m impressed with xilinx’s rich document for software developers to reference.
 In this post I share what I have done in order to boot linux in QEMU which simulates xilinx ARM MPSoC+ultrascale.&lt;/p&gt;
-
-</content>
-	</entry>
-  
-	<entry>
-		<title>GIT shared remote repository setup</title>
-		<link type='text/html' href='http://weweng.github.io/2016/12/17/git-shared-repository.html'/>
-		<id>http://weweng.github.io/2016/12/17/git-shared-repository.html</id>
-		<updated>2016-12-17T00:00:00-08:00</updated>
-
-		<author>
-			<name>Wenwei Weng</name>
-			<uri>http://weweng.github.io/</uri>
-		</author>
-
-		<content type='html'>&lt;p&gt;GIT is becoming very popular. It is an excellent SCM tool. I really like it because it is easy to use, designed with distributed architecture, with a local repository available. It is also flexible that you can simply use it without central repository. However for big projects, it always has central repository which is hosted in server, and allows many developers to work in the same time.&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;/uploads/git/git-remote-repo1.jpg&quot; alt=&quot;GIT remote repo model&quot; /&gt;&lt;/p&gt;
 
 </content>
 	</entry>

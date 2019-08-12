@@ -1,4 +1,108 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.8.5">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2019-08-12T14:20:02-07:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Your awesome title</title><subtitle>Write an awesome description for your new site here. You can edit this line in _config.yml. It will appear in your document head meta (for Google search results) and in your feed.xml site description.</subtitle><entry><title type="html">SPI flash support in embedded Linux box</title><link href="http://localhost:4000/2017/08/05/SPI-Support-embedded-box.html" rel="alternate" type="text/html" title="SPI flash support in embedded Linux box" /><published>2017-08-05T00:00:00-07:00</published><updated>2017-08-05T00:00:00-07:00</updated><id>http://localhost:4000/2017/08/05/SPI-Support-embedded-box</id><content type="html" xml:base="http://localhost:4000/2017/08/05/SPI-Support-embedded-box.html">&lt;p&gt;Serial Peripheral Interface (SPI) flash memory is often used in an embedded Linux box to hold bootloader. During very initial board bringup, SPI flash memory needs to be programmed properly using device like Dediprog, otherwise the box won’t boot. After the box is up running linux, often there is need to access SPI flash, e.g. upgrade new version of bootloader from linux. I will share what needs to be done for that.&lt;/p&gt;
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.8.5">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2019-08-12T15:56:41-07:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Your awesome title</title><subtitle>Write an awesome description for your new site here. You can edit this line in _config.yml. It will appear in your document head meta (for Google search results) and in your feed.xml site description.</subtitle><entry><title type="html">Jekyll update for my blog site</title><link href="http://localhost:4000/2019/08/12/Jekyll-Update-blog-site.html" rel="alternate" type="text/html" title="Jekyll update for my blog site" /><published>2019-08-12T00:00:00-07:00</published><updated>2019-08-12T00:00:00-07:00</updated><id>http://localhost:4000/2019/08/12/Jekyll-Update-blog-site</id><content type="html" xml:base="http://localhost:4000/2019/08/12/Jekyll-Update-blog-site.html">&lt;p&gt;My blog site was shutdown for quite a while for certain reasons. However I strongly feel this is a good way for me to capture what I learned along the way and share with anyone who might feel helpful for them. Thanks to all people who provided postivie feedback. After clearup the issue and I finally decide to continue working on my blog site. First thing I do is to update my blog development enviroment which is Jekyll, installed in ubuntu 16.04 VM.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/uploads/jekyll.jpg&quot; alt=&quot;Jekyll on Ubuntu&quot; /&gt; 
+&lt;!--more--&gt;&lt;/p&gt;
+&lt;h2 id=&quot;what-is-jekyll&quot;&gt;What is Jekyll?&lt;/h2&gt;
+
+&lt;p&gt;Jekyll is a very popular tool to build/generate a static web/blog site. It is based on Ruby, which is a script programming language. Ruby library is packaged and distributed as “gem”. Jekyll is one of Ruby’s gem.&lt;/p&gt;
+
+&lt;p&gt;If you do a google search “ubuntu 16.04 install jekyll”, you will find a number of links, which have detailed steps, e.g.&lt;/p&gt;
+&lt;ul&gt;
+  &lt;li&gt;https://www.digitalocean.com/community/tutorials/how-to-set-up-a-jekyll-development-site-on-ubuntu-16-04&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Essentially two steps:&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;sudo apt-get install ruby ruby-dev make gcc&lt;/li&gt;
+  &lt;li&gt;sudo gem install jekyll bundler&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h2 id=&quot;issues-encountered&quot;&gt;Issues encountered:&lt;/h2&gt;
+
+&lt;h4 id=&quot;after-upgrade-jekyll-is-running-version-386&quot;&gt;After upgrade, jekyll is running version 3.8.6.&lt;/h4&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;weng@weng-u1604:/mnt/vb-win7-share/github/blog&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;gem info jekyll
+
+&lt;span class=&quot;k&quot;&gt;***&lt;/span&gt; LOCAL GEMS &lt;span class=&quot;k&quot;&gt;***&lt;/span&gt;
+
+jekyll &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;3.8.6, 3.8.5&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+    Author: Tom Preston-Werner
+    Homepage: https://github.com/jekyll/jekyll
+    License: MIT
+    Installed at &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;3.8.6&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;: /home/weng/.rvm/gems/ruby-2.6.3
+                 &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;3.8.5&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;: /home/weng/.rvm/gems/ruby-2.6.3
+
+    A simple, blog aware, static site generator.
+weng@weng-u1604:/mnt/vb-win7-share/github/blog&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;The new version jekyll deprectes markdown “redcarpet”, so I have to change my _config.yml to below:&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt; 
+weng@weng-u1604:/mnt/vb-win7-share/github/blog&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;cat &lt;/span&gt;_config.yml
+...
+&lt;span class=&quot;c&quot;&gt;# Build settings&lt;/span&gt;
+markdown: kramdown
+theme: minima
+plugins:
+  - jekyll-feed&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;h4 id=&quot;image-link-rendering-issue&quot;&gt;Image link rendering issue&lt;/h4&gt;
+&lt;p&gt;With _config.yml change, Jekyll is able to rebuild my blog, but failed to render image link like below:&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt; 
+&lt;span class=&quot;o&quot;&gt;![&lt;/span&gt;image alt text] &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;/path/to/image/filename.jpg&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;I look around net, couldn’t find any solution, except that I change to html format :&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt; 
+&amp;lt;img &lt;span class=&quot;nv&quot;&gt;src&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;/pathto/image/filename.jpg&quot;&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;alt&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;alt text&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;Since I have many existing MD files, which have image links, I ended up to wrote the below small bash script to do the work:&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt; 
+&lt;span class=&quot;c&quot;&gt;#!/bin/bash &lt;/span&gt;
+
+&lt;span class=&quot;nv&quot;&gt;files&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;sb&quot;&gt;`&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;ls&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;*&lt;/span&gt;.md&lt;span class=&quot;sb&quot;&gt;`&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;for &lt;/span&gt;f &lt;span class=&quot;k&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;$files&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;do
+    &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;echo&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;=============================&quot;&lt;/span&gt;
+    &lt;span class=&quot;nb&quot;&gt;echo&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;Processing file : &lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$f&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt; &quot;&lt;/span&gt;
+
+    &lt;span class=&quot;k&quot;&gt;while&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt; 1 &lt;span class=&quot;o&quot;&gt;]&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;do 
+        &lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;todo&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;sb&quot;&gt;`&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;grep&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;-n&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'\!\['&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;$f&lt;/span&gt; | head &lt;span class=&quot;nt&quot;&gt;-1&lt;/span&gt; | wc &lt;span class=&quot;nt&quot;&gt;-l&lt;/span&gt;&lt;span class=&quot;sb&quot;&gt;`&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;$todo&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;-eq&lt;/span&gt; 1 &lt;span class=&quot;o&quot;&gt;]&lt;/span&gt;
+	&lt;span class=&quot;k&quot;&gt;then
+	   &lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;linenum&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;sb&quot;&gt;`&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;grep&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;-n&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'\!\['&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;$f&lt;/span&gt; | head &lt;span class=&quot;nt&quot;&gt;-1&lt;/span&gt; | awk &lt;span class=&quot;nt&quot;&gt;-F&lt;/span&gt;: &lt;span class=&quot;s1&quot;&gt;'{print $1}'&lt;/span&gt; &lt;span class=&quot;sb&quot;&gt;`&lt;/span&gt;
+	   &lt;span class=&quot;nv&quot;&gt;line&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;sb&quot;&gt;`&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;grep&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'\!\['&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;$f&lt;/span&gt; | head &lt;span class=&quot;nt&quot;&gt;-1&lt;/span&gt; &lt;span class=&quot;sb&quot;&gt;`&lt;/span&gt;
+	   &lt;span class=&quot;c&quot;&gt;# process one line&lt;/span&gt;
+	   &lt;span class=&quot;nb&quot;&gt;echo&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;Process one line : &lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$line&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;, replacing with &quot;&lt;/span&gt;
+	   &lt;span class=&quot;nv&quot;&gt;alt_text&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;sb&quot;&gt;`&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;echo&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;$line&lt;/span&gt; | awk &lt;span class=&quot;nt&quot;&gt;-F&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;'] '&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'{print $1}'&lt;/span&gt; | sed &lt;span class=&quot;s1&quot;&gt;'s/\!\[//g '&lt;/span&gt; &lt;span class=&quot;sb&quot;&gt;`&lt;/span&gt;
+	   &lt;span class=&quot;nv&quot;&gt;img_file&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;sb&quot;&gt;`&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;echo&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;$line&lt;/span&gt; | awk &lt;span class=&quot;nt&quot;&gt;-F&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;'] '&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'{print $2}'&lt;/span&gt; | sed &lt;span class=&quot;s1&quot;&gt;'s/(//g'&lt;/span&gt; | sed &lt;span class=&quot;s1&quot;&gt;'s/)//g'&lt;/span&gt; &lt;span class=&quot;sb&quot;&gt;`&lt;/span&gt;
+
+	   &lt;span class=&quot;c&quot;&gt;# new line format is like &amp;lt;img src=&quot;/pathto/image/filename.jpg&quot; alt=&quot; alt text&quot;&amp;gt; &lt;/span&gt;
+	   &lt;span class=&quot;nv&quot;&gt;newline&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;sb&quot;&gt;`&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;echo&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;&amp;lt;img src=&lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\&quot;&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$img_file&lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\&quot;&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt; alt=&lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\&quot;&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$alt_text&lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\&quot;&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&amp;gt; &quot;&lt;/span&gt;&lt;span class=&quot;sb&quot;&gt;`&lt;/span&gt;
+	   &lt;span class=&quot;nb&quot;&gt;echo&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;$newline&lt;/span&gt;
+	   &lt;span class=&quot;c&quot;&gt;#insert line line after current line&lt;/span&gt;
+	   &lt;span class=&quot;nv&quot;&gt;cmd&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;sb&quot;&gt;`&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;echo&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;sed -i '&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$linenum&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt; a &lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$newline&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt; ' &lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$f&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt; &quot;&lt;/span&gt; &lt;span class=&quot;sb&quot;&gt;`&lt;/span&gt;
+	   &lt;span class=&quot;nb&quot;&gt;eval&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;$cmd&lt;/span&gt;
+	   &lt;span class=&quot;nb&quot;&gt;echo&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;..........&quot;&lt;/span&gt;
+	   &lt;span class=&quot;c&quot;&gt;#delete old line&lt;/span&gt;
+	   &lt;span class=&quot;nv&quot;&gt;cmd&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;sb&quot;&gt;`&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;echo &lt;/span&gt;sed &lt;span class=&quot;nt&quot;&gt;-i&lt;/span&gt; &lt;span class=&quot;se&quot;&gt;\'&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;${&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;linenum&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;}&lt;/span&gt;d&lt;span class=&quot;se&quot;&gt;\'&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;$f&lt;/span&gt; &lt;span class=&quot;sb&quot;&gt;`&lt;/span&gt;
+	   &lt;span class=&quot;nb&quot;&gt;eval&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;$cmd&lt;/span&gt;
+	   sync
+         &lt;span class=&quot;k&quot;&gt;else
+	   &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;echo&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot; done!&quot;&lt;/span&gt;    
+	   &lt;span class=&quot;nb&quot;&gt;echo&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;=============================&quot;&lt;/span&gt;
+           &lt;span class=&quot;nb&quot;&gt;break	   
+         &lt;/span&gt;&lt;span class=&quot;k&quot;&gt;fi
+    done
+done&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;h4 id=&quot;main-page-recent-posts&quot;&gt;Main page recent posts&lt;/h4&gt;
+
+&lt;p&gt;The main page most recent posts are not shown, which I haven’t fixed it. Now I simply change to show all posts sorted by date.&lt;/p&gt;</content><author><name></name></author><summary type="html">My blog site was shutdown for quite a while for certain reasons. However I strongly feel this is a good way for me to capture what I learned along the way and share with anyone who might feel helpful for them. Thanks to all people who provided postivie feedback. After clearup the issue and I finally decide to continue working on my blog site. First thing I do is to update my blog development enviroment which is Jekyll, installed in ubuntu 16.04 VM.</summary></entry><entry><title type="html">SPI flash support in embedded Linux box</title><link href="http://localhost:4000/2017/08/05/SPI-Support-embedded-box.html" rel="alternate" type="text/html" title="SPI flash support in embedded Linux box" /><published>2017-08-05T00:00:00-07:00</published><updated>2017-08-05T00:00:00-07:00</updated><id>http://localhost:4000/2017/08/05/SPI-Support-embedded-box</id><content type="html" xml:base="http://localhost:4000/2017/08/05/SPI-Support-embedded-box.html">&lt;p&gt;Serial Peripheral Interface (SPI) flash memory is often used in an embedded Linux box to hold bootloader. During very initial board bringup, SPI flash memory needs to be programmed properly using device like Dediprog, otherwise the box won’t boot. After the box is up running linux, often there is need to access SPI flash, e.g. upgrade new version of bootloader from linux. I will share what needs to be done for that.&lt;/p&gt;
 
 &lt;p&gt;&lt;img src=&quot;/uploads/linux/linux-spi.jpg&quot; alt=&quot;Linux SPI&quot; /&gt;&lt;/p&gt;
 
@@ -1599,249 +1703,4 @@ iot@sg-ucs-1:~/temp-docker/alpine-weng&lt;span class=&quot;err&quot;&gt;$&lt;/sp
 
 &lt;h1 id=&quot;reference&quot;&gt;Reference&lt;/h1&gt;
 
-&lt;p&gt;For more details, check &lt;a href=&quot;https://docs.docker.com/engine/userguide/eng-image/baseimages/&quot;&gt;docker docs&lt;/a&gt;.&lt;/p&gt;</content><author><name></name></author><summary type="html">Docker is growing with amazing features, and it becomes a platform to deploy services even in embedded linux enviroment. The container image creation is an important part of process. Docker has done great job to manage the container image to make it to be in layer fashion, this is especially important for storage efficiency.</summary></entry><entry><title type="html">Install docker from binary distribution</title><link href="http://localhost:4000/2017/02/27/docker-binary-install.html" rel="alternate" type="text/html" title="Install docker from binary distribution" /><published>2017-02-27T00:00:00-08:00</published><updated>2017-02-27T00:00:00-08:00</updated><id>http://localhost:4000/2017/02/27/docker-binary-install</id><content type="html" xml:base="http://localhost:4000/2017/02/27/docker-binary-install.html">&lt;p&gt;Docker is growing with amazing features, and it becomes a platform to deploy services even in embedded linux enviroment. There are different ways to install docker, one approach is to install using the pre-built binary distribution.&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;/uploads/linux/install-docker-binary.jpg&quot; alt=&quot;docker install&quot; /&gt;&lt;/p&gt;
-
-&lt;p&gt;The following post shows what I did under ubuntu 16.04.&lt;/p&gt;
-
-&lt;!--more--&gt;
-&lt;p&gt;Let’s go through some basic steps:&lt;/p&gt;
-
-&lt;h1 id=&quot;prerequistes&quot;&gt;Prerequistes&lt;/h1&gt;
-&lt;ul&gt;
-&lt;li&gt;A 64-bit installation &lt;/li&gt;
-&lt;li&gt;Version 3.10 or higher of the Linux kernel. The latest version of the kernel available for you platform is recommended. &lt;/li&gt;
-&lt;li&gt;iptables version 1.4 or higher.&lt;/li&gt;
-&lt;li&gt;git version 1.7 or higher. &lt;/li&gt;
-&lt;li&gt;A ps executable, usually provided by procps or a similar package.&lt;/li&gt;
-&lt;li&gt;XZ Utils 4.9 or higher. &lt;/li&gt;
-&lt;li&gt;a properly mounted cgroupfs hierarchy; a single, all-encompassing cgroup mount point is not sufficient. See Github issues #2683, #3485, #4568).&lt;/li&gt;
-
-
-
-&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;iot@sgbu-ucs-11:/nobackup/docker/docker-1.13.1&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;uname &lt;span class=&quot;nt&quot;&gt;-a&lt;/span&gt;
-Linux sgbu-ucs-11 4.4.0-53-generic &lt;span class=&quot;c&quot;&gt;#74-Ubuntu SMP Fri Dec 2 15:59:10 UTC 2016 x86_64 x86_64 x86_64 GNU/Linux&lt;/span&gt;
-iot@sgbu-ucs-11:/nobackup/docker/docker-1.13.1&lt;span class=&quot;nv&quot;&gt;$iptables&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;--version&lt;/span&gt;
-iptables v1.6.0
-iot@sgbu-ucs-11:/nobackup/docker/docker-1.13.1&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;git &lt;span class=&quot;nt&quot;&gt;--version&lt;/span&gt;
-git version 2.7.4
-iot@sgbu-ucs-11:/nobackup/docker/docker-1.13.1&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;which ps
-/bin/ps
-iot@sgbu-ucs-11:/nobackup/docker/docker-1.13.1&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;which xz
-/usr/bin/xz
-iot@sgbu-ucs-11:/nobackup/docker/docker-1.13.1&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;xz &lt;span class=&quot;nt&quot;&gt;--version&lt;/span&gt;
-xz &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;XZ Utils&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; 5.1.0alpha
-liblzma 5.1.0alpha
-iot@sgbu-ucs-11:/nobackup/docker/docker-1.13.1&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;cat&lt;/span&gt; /proc/filesystems | &lt;span class=&quot;nb&quot;&gt;grep &lt;/span&gt;cgroup
-nodev	cgroup&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
-
-
-# Download docker binary distribution
-
-Check [GITHUB docker release site](https://github.com/docker/docker/releases) to pick a version you want, I pick version 1.13.1.
-
-
-&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;iot@sgbu-ucs-11:/nobackup/docker&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;wget  https://get.docker.com/builds/Linux/x86_64/docker-1.13.1.tgz
-&lt;span class=&quot;nt&quot;&gt;--2017-03-04&lt;/span&gt; 15:56:54--  https://get.docker.com/builds/Linux/x86_64/docker-1.13.1.tgz
-Resolving proxy.esl.cisco.com &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;proxy.esl.cisco.com&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;... 173.36.224.109, 2001:420:620::4
-Connecting to proxy.esl.cisco.com &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;proxy.esl.cisco.com&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;|173.36.224.109|:8080... connected.
-Proxy request sent, awaiting response... 200 OK
-Length: 27851024 &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;27M&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;application/x-tar]
-Saving to: docker-1.13.1.tgz
-
-docker-1.13.1.tgz                100%[&lt;span class=&quot;o&quot;&gt;=========================================================&amp;gt;]&lt;/span&gt;  26.56M  26.5MB/s    &lt;span class=&quot;k&quot;&gt;in &lt;/span&gt;1.0s
-
-2017-03-04 15:56:55 &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;26.5 MB/s&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; - docker-1.13.1.tgz saved &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;27851024/27851024]
-
-iot@sgbu-ucs-11:/nobackup/docker&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;ls&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;-l&lt;/span&gt; docker-1.13.1.tgz
-&lt;span class=&quot;nt&quot;&gt;-rw-rw-r--&lt;/span&gt; 1 iot iot 27851024 Feb  8 00:52 docker-1.13.1.tgz
-iot@sgbu-ucs-11:/nobackup/docker&lt;span class=&quot;err&quot;&gt;$&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
-
-
-# Installation
-
-Installation is straightforward by extracting tarball, and copy the binary into a directory like &quot;usr/bin&quot;, any directory which is part of your existing $PATH is fine.
-
-
-&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;iot@sgbu-ucs-11:/nobackup/docker&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;tar &lt;/span&gt;xvf docker-1.13.1.tgz &lt;span class=&quot;o&quot;&gt;&amp;amp;&amp;amp;&lt;/span&gt; mv docker docker-1.13.1
-iot@sgbu-ucs-11:/nobackup/docker&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;ls&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;-l&lt;/span&gt;
-total 866320
-drwxr-xr-x  3 iot iot      4096 Feb  8 00:51 docker-1.13.1
-&lt;span class=&quot;nt&quot;&gt;-rw-rw-r--&lt;/span&gt;  1 iot iot  27851024 Feb  8 00:52 docker-1.13.1.tgz
-iot@sgbu-ucs-11:/nobackup/docker&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;ls&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;-l&lt;/span&gt; docker-1.13.1
-total 82856
-drwxr-xr-x 5 iot iot     4096 Feb  8 00:51 completion
-&lt;span class=&quot;nt&quot;&gt;-rwxr-xr-x&lt;/span&gt; 1 iot iot 14125488 Feb  8 00:51 docker
-&lt;span class=&quot;nt&quot;&gt;-rwxr-xr-x&lt;/span&gt; 1 iot iot  8932648 Feb  8 00:51 docker-containerd
-&lt;span class=&quot;nt&quot;&gt;-rwxr-xr-x&lt;/span&gt; 1 iot iot  8381448 Feb  8 00:51 docker-containerd-ctr
-&lt;span class=&quot;nt&quot;&gt;-rwxr-xr-x&lt;/span&gt; 1 iot iot  3047368 Feb  8 00:51 docker-containerd-shim
-&lt;span class=&quot;nt&quot;&gt;-rwxr-xr-x&lt;/span&gt; 1 iot iot 39941680 Feb  8 00:51 dockerd
-&lt;span class=&quot;nt&quot;&gt;-rwxr-xr-x&lt;/span&gt; 1 iot iot   772400 Feb  8 00:51 docker-init
-&lt;span class=&quot;nt&quot;&gt;-rwxr-xr-x&lt;/span&gt; 1 iot iot  2534781 Feb  8 00:51 docker-proxy
-&lt;span class=&quot;nt&quot;&gt;-rwxr-xr-x&lt;/span&gt; 1 iot iot  7092736 Feb  8 00:51 docker-runc
-iot@sgbu-ucs-11:/nobackup/docker&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;sudo &lt;/span&gt;cp docker-1.13.1/&lt;span class=&quot;k&quot;&gt;*&lt;/span&gt; /usr/bin&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
-
-
-# Run
-
-It is important to know that docker is running in a client server mode, it means that &quot;dockerd&quot; runs as a daemon, which is server and does all the heavy lifting work; &quot;docker&quot; is client tool, which used to send command to dockerd to do actual work.
-
-Here I show to run docker manually. Since my box is running inside Cisco lab, which sits behind proxy, I pass the proxy setting to dockerd directly, this works well. I ecountered erros in a apt-get docker set up case, even after I configured docker proxy under /etc/default/docker. Another thing to be aware, you need to know that docker needs storage space to store all containers, which could grow significantly depending on what you do.
-In my case, I create a directory &quot;/nobackup/docker/workspace1.13.1/&quot; as storage area.
-
-
-&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;iot@sgbu-ucs-11:/nobackup/docker&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;mkdir workspace1.13.1
-iot@sgbu-ucs-11:/nobackup/docker&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;sudo &lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;https_proxy&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;https://proxy.esl.cisco.com:8080&quot;&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;http_proxy&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;http://proxy.esl.cisco.com:8080&quot;&lt;/span&gt; dockerd &lt;span class=&quot;nt&quot;&gt;-g&lt;/span&gt; /nobackup/docker/workspace1.13.1/ &amp;amp;
-&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;1] 10038
-iot@sgbu-ucs-11:/nobackup/docker&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;INFO[0000] libcontainerd: new containerd process, pid: 10050 
-WARN[0000] containerd: low RLIMIT_NOFILE changing to max  &lt;span class=&quot;nv&quot;&gt;current&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;1024 &lt;span class=&quot;nv&quot;&gt;max&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;65536
-INFO[0001] &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;graphdriver] using prior storage driver: aufs 
-INFO[0001] Graph migration to content-addressability took 0.00 seconds 
-WARN[0001] Your kernel does not support swap memory limit 
-WARN[0001] Your kernel does not support cgroup rt period 
-WARN[0001] Your kernel does not support cgroup rt runtime 
-INFO[0001] Loading containers: start.                   
-INFO[0001] Firewalld running: &lt;span class=&quot;nb&quot;&gt;false                     
-&lt;/span&gt;INFO[0001] Default bridge &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;docker0&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; is assigned with an IP address 172.17.0.0/16. Daemon option &lt;span class=&quot;nt&quot;&gt;--bip&lt;/span&gt; can be used to &lt;span class=&quot;nb&quot;&gt;set &lt;/span&gt;a preferred IP address 
-INFO[0001] Loading containers: &lt;span class=&quot;k&quot;&gt;done&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;.&lt;/span&gt;                    
-WARN[0001] Couldn&lt;span class=&quot;s1&quot;&gt;'t run auplink before unmount /nobackup/docker/workspace1.13.1/tmp/docker-aufs-union687449707: exec: &quot;auplink&quot;: executable file not found in $PATH 
-INFO[0001] Daemon has completed initialization          
-INFO[0001] Docker daemon                                 commit=092cba3 graphdriver=aufs version=1.13.1
-INFO[0001] API listen on /var/run/docker.sock           
-
-iot@sgbu-ucs-11:/nobackup/docker$
-iot@sgbu-ucs-11:/nobackup/docker$ ps -ef | grep docker
-root     10038  8482  0 16:18 pts/16   00:00:00 sudo https_proxy=https://proxy.esl.cisco.com:8080 http_proxy=http://proxy.esl.cisco.com:8080 dockerd -g /nobackup/docker/workspace1.13.1/
-root     10039 10038  0 16:18 pts/16   00:00:01 dockerd -g /nobackup/docker/workspace1.13.1/
-root     10050 10039  0 16:18 ?        00:00:00 docker-containerd -l unix:///var/run/docker/libcontainerd/docker-containerd.sock --metrics-interval=0 --start-timeout 2m --state-dir /var/run/docker/libcontainerd/containerd --shim docker-containerd-shim --runtime docker-runc
-iot      10248  8482  0 16:22 pts/16   00:00:00 grep --color=auto docker
-iot@sgbu-ucs-11:/nobackup/docker$ 
-
-As it is shwoing, docker is running nicely.&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
-
-
-# Deploy containers
-
-First we make sure there is no docker images there:
-
-
-&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;iot@sgbu-ucs-11:/nobackup/docker&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;sudo &lt;/span&gt;docker images
-REPOSITORY          TAG                 IMAGE ID            CREATED             SIZE
-iot@sgbu-ucs-11:/nobackup/docker&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
-
-
-As a sanity testing, we install &quot;hello-world&quot; from docker hub to make sure it is working well:
-
-
-&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;iot@sgbu-ucs-11:/nobackup/docker&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;sudo &lt;/span&gt;docker pull hello-world
-Using default tag: latest
-latest: Pulling from library/hello-world
-78445dd45222: Already exists 
-Digest: sha256:c5515758d4c5e1e838e9cd307f6c6a0d620b5e07e6f927b07d05f6d12a1ac8d7
-Status: Downloaded newer image &lt;span class=&quot;k&quot;&gt;for &lt;/span&gt;hello-world:latest
-iot@sgbu-ucs-11:/nobackup/docker&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;sudo &lt;/span&gt;docker images
-REPOSITORY          TAG                 IMAGE ID            CREATED             SIZE
-hello-world         latest              48b5124b2768        7 weeks ago         1.84 kB
-iot@sgbu-ucs-11:/nobackup/docker&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
-
-
-Second we can install a &quot;fedora&quot; image and &quot;nginx&quot; image.
-
-
-&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;iot@sgbu-ucs-11:/nobackup/docker&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;sudo &lt;/span&gt;docker pull fedora
-Using default tag: latest
-latest: Pulling from library/fedora
-1b39978eabd9: Pull &lt;span class=&quot;nb&quot;&gt;complete 
-&lt;/span&gt;Digest: sha256:8d3f642aa4d3fa8f9dc52ab0e3bbbe8bc2494843dc6ebb26c4a6958db888e5a2
-Status: Downloaded newer image &lt;span class=&quot;k&quot;&gt;for &lt;/span&gt;fedora:latest
-iot@sgbu-ucs-11:/nobackup/docker&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;sudo &lt;/span&gt;docker pull nginx
-Using default tag: latest
-latest: Pulling from library/nginx
-693502eb7dfb: Pull &lt;span class=&quot;nb&quot;&gt;complete 
-&lt;/span&gt;6decb850d2bc: Pull &lt;span class=&quot;nb&quot;&gt;complete 
-&lt;/span&gt;c3e19f087ed6: Pull &lt;span class=&quot;nb&quot;&gt;complete 
-&lt;/span&gt;Digest: sha256:52a189e49c0c797cfc5cbfe578c68c225d160fb13a42954144b29af3fe4fe335
-Status: Downloaded newer image &lt;span class=&quot;k&quot;&gt;for &lt;/span&gt;nginx:latest
-iot@sgbu-ucs-11:/nobackup/docker&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;sudo &lt;/span&gt;docker images
-REPOSITORY          TAG                 IMAGE ID            CREATED             SIZE
-nginx               latest              6b914bbcb89e        4 days ago          182 MB
-fedora              latest              1f8ec1108a3f        2 weeks ago         230 MB
-hello-world         latest              48b5124b2768        7 weeks ago         1.84 kB
-iot@sgbu-ucs-11:/nobackup/docker&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
-
-
-Third, let run fedora interactive through bash: it shows it is fedora 25, however you can see it is actually has ubuntu kernel since container is a user space virtualization technology.
-
-
-&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;iot@sgbu-ucs-11:/nobackup/docker&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;sudo &lt;/span&gt;docker run &lt;span class=&quot;nt&quot;&gt;-it&lt;/span&gt; fedora /bin/bash
-WARN[0699] Couldn&lt;span class=&quot;s1&quot;&gt;'t run auplink before unmount /nobackup/docker/workspace1.13.1/aufs/mnt/f7babbdcde18ee51bc5efffbe67aff8edc734753624c91f0bfb8702ef4922d93-init: exec: &quot;auplink&quot;: executable file not found in $PATH 
-WARN[0699] Couldn'&lt;/span&gt;t run auplink before unmount /nobackup/docker/workspace1.13.1/aufs/mnt/f7babbdcde18ee51bc5efffbe67aff8edc734753624c91f0bfb8702ef4922d93: &lt;span class=&quot;nb&quot;&gt;exec&lt;/span&gt;: &lt;span class=&quot;s2&quot;&gt;&quot;auplink&quot;&lt;/span&gt;: executable file not found &lt;span class=&quot;k&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;$PATH&lt;/span&gt; 
-INFO[0700] No non-localhost DNS nameservers are left &lt;span class=&quot;k&quot;&gt;in &lt;/span&gt;resolv.conf. Using default external servers: &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;nameserver 8.8.8.8 nameserver 8.8.4.4] 
-          INFO[0700] IPv6 enabled&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt; Adding default IPv6 external servers: &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;nameserver 2001:4860:4860::8888 nameserver 2001:4860:4860::8844] 
-&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;root@18ca8d8ced5b /]# &lt;span class=&quot;nb&quot;&gt;cat&lt;/span&gt; /etc/fedora-release 
-Fedora release 25 &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;Twenty Five&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
-&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;root@18ca8d8ced5b /]# uname &lt;span class=&quot;nt&quot;&gt;-a&lt;/span&gt;
-Linux 18ca8d8ced5b 4.4.0-53-generic &lt;span class=&quot;c&quot;&gt;#74-Ubuntu SMP Fri Dec 2 15:59:10 UTC 2016 x86_64 x86_64 x86_64 GNU/Linux&lt;/span&gt;
-&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;root@18ca8d8ced5b /]# 
-&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;root@18ca8d8ced5b /]# df &lt;span class=&quot;nt&quot;&gt;-h&lt;/span&gt;
-Filesystem      Size  Used Avail Use% Mounted on
-none            823G   49G  733G   7% /
-tmpfs            48G     0   48G   0% /dev
-tmpfs            48G     0   48G   0% /sys/fs/cgroup
-/dev/sda1       823G   49G  733G   7% /etc/hosts
-shm              64M     0   64M   0% /dev/shm
-tmpfs            48G     0   48G   0% /sys/firmware
-&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;root@18ca8d8ced5b /]# &lt;span class=&quot;nb&quot;&gt;exit
-exit
-&lt;/span&gt;iot@sgbu-ucs-11:/nobackup/docker&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;WARN[0988] Couldn&lt;span class=&quot;s1&quot;&gt;'t run auplink before unmount /nobackup/docker/workspace1.13.1/aufs/mnt/f7babbdcde18ee51bc5efffbe67aff8edc734753624c91f0bfb8702ef4922d93: exec: &quot;auplink&quot;: executable file not found in $PATH 
-
-iot@sgbu-ucs-11:/nobackup/docker$ sudo docker ps -a
-CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS                         PORTS               NAMES
-18ca8d8ced5b        fedora              &quot;/bin/bash&quot;         5 minutes ago       Exited (0) 12 seconds ago                          romantic_einstein
-81b59ab256b3        hello-world         &quot;/hello&quot;            About an hour ago   Exited (0) About an hour ago                       keen_mestorf
-iot@sgbu-ucs-11:/nobackup/docker$ &lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
-
-
-There is another way to load docker image by reading a prepared and downloaded binary of docker image:
-
-
-&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;iot@sgbu-ucs-11:/nobackup/docker&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;sudo &lt;/span&gt;docker load &lt;span class=&quot;nt&quot;&gt;--input&lt;/span&gt; widevine-api.tar 
-e7ebc6e16708: Loading layer &lt;span class=&quot;o&quot;&gt;[==================================================&amp;gt;]&lt;/span&gt; 133.8 MB/133.8 MB
-f934e33a54a6: Loading layer &lt;span class=&quot;o&quot;&gt;[==================================================&amp;gt;]&lt;/span&gt; 15.87 kB/15.87 kB
-bf6751561805: Loading layer &lt;span class=&quot;o&quot;&gt;[==================================================&amp;gt;]&lt;/span&gt; 11.78 kB/11.78 kB
-943edb549a83: Loading layer &lt;span class=&quot;o&quot;&gt;[==================================================&amp;gt;]&lt;/span&gt; 4.608 kB/4.608 kB
-c1bd37d01c89: Loading layer &lt;span class=&quot;o&quot;&gt;[==================================================&amp;gt;]&lt;/span&gt; 3.072 kB/3.072 kB
-a95df000892a: Loading layer &lt;span class=&quot;o&quot;&gt;[==================================================&amp;gt;]&lt;/span&gt; 31.23 kB/31.23 kB
-87a8db33c00a: Loading layer &lt;span class=&quot;o&quot;&gt;[==================================================&amp;gt;]&lt;/span&gt; 680.7 MB/680.7 MB
-3eb94c8c4801: Loading layer &lt;span class=&quot;o&quot;&gt;[==================================================&amp;gt;]&lt;/span&gt; 1.536 kB/1.536 kB
-ae09daac5f09: Loading layer &lt;span class=&quot;o&quot;&gt;[==================================================&amp;gt;]&lt;/span&gt; 10.37 MB/10.37 MB
-7515649c4f96: Loading layer &lt;span class=&quot;o&quot;&gt;[==================================================&amp;gt;]&lt;/span&gt; 34.23 MB/34.23 MB
-3df54ddc927e: Loading layer &lt;span class=&quot;o&quot;&gt;[==================================================&amp;gt;]&lt;/span&gt; 3.584 kB/3.584 kB
-afaa58df73a7: Loading layer &lt;span class=&quot;o&quot;&gt;[==================================================&amp;gt;]&lt;/span&gt; 3.584 kB/3.584 kB
-54f82330fe32: Loading layer &lt;span class=&quot;o&quot;&gt;[==================================================&amp;gt;]&lt;/span&gt; 4.608 kB/4.608 kB
-cce3f38770a6: Loading layer &lt;span class=&quot;o&quot;&gt;[==================================================&amp;gt;]&lt;/span&gt; 3.072 kB/3.072 kB
-f157603ca1b0: Loading layer &lt;span class=&quot;o&quot;&gt;[==================================================&amp;gt;]&lt;/span&gt; 2.048 kB/2.048 kB
-14f338761f7e: Loading layer &lt;span class=&quot;o&quot;&gt;[==================================================&amp;gt;]&lt;/span&gt; 2.048 kB/2.048 kB
-Loaded image: registry.axinom.com/widevine-api/app:latest
-iot@sgbu-ucs-11:/nobackup/docker&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;sudo &lt;/span&gt;docker images
-REPOSITORY                             TAG                 IMAGE ID            CREATED             SIZE
-nginx                                  latest              6b914bbcb89e        4 days ago          182 MB
-fedora                                 latest              1f8ec1108a3f        2 weeks ago         230 MB
-hello-world                            latest              48b5124b2768        7 weeks ago         1.84 kB
-registry.axinom.com/widevine-api/app   latest              a8c197b7a44b        3 months ago        840 MB
-iot@sgbu-ucs-11:/nobackup/docker&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;iot@sgbu-ucs-11:/nobackup/docker&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;sudo &lt;/span&gt;docker run registry.axinom.com/widevine-api/app &lt;span class=&quot;nt&quot;&gt;-it&lt;/span&gt;
-WARN[1873] Couldn&lt;span class=&quot;s1&quot;&gt;'t run auplink before unmount /nobackup/docker/workspace1.13.1/aufs/mnt/f17847c68b04f64b687f745fb49abf82cde3fcb4ba38cbdb94748862e69c4d2b-init: exec: &quot;auplink&quot;: executable file not found in $PATH 
-WARN[1873] Couldn'&lt;/span&gt;t run auplink before unmount /nobackup/docker/workspace1.13.1/aufs/mnt/f17847c68b04f64b687f745fb49abf82cde3fcb4ba38cbdb94748862e69c4d2b: &lt;span class=&quot;nb&quot;&gt;exec&lt;/span&gt;: &lt;span class=&quot;s2&quot;&gt;&quot;auplink&quot;&lt;/span&gt;: executable file not found &lt;span class=&quot;k&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;$PATH&lt;/span&gt; 
-INFO[1874] No non-localhost DNS nameservers are left &lt;span class=&quot;k&quot;&gt;in &lt;/span&gt;resolv.conf. Using default external servers: &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;nameserver 8.8.8.8 nameserver 8.8.4.4] 
-INFO[1874] IPv6 enabled&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt; Adding default IPv6 external servers: &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;nameserver 2001:4860:4860::8888 nameserver 2001:4860:4860::8844] 
-The setup has been successfully completed.
-..........&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
-
-
-# Reference
-
-For more details, check [docker docs](https://docs.docker.com/engine/installation/binaries/#install-daemon-and-client-binaries-on-linux).
-
-
-&lt;/ul&gt;</content><author><name></name></author><summary type="html">Docker is growing with amazing features, and it becomes a platform to deploy services even in embedded linux enviroment. There are different ways to install docker, one approach is to install using the pre-built binary distribution.</summary></entry></feed>
+&lt;p&gt;For more details, check &lt;a href=&quot;https://docs.docker.com/engine/userguide/eng-image/baseimages/&quot;&gt;docker docs&lt;/a&gt;.&lt;/p&gt;</content><author><name></name></author><summary type="html">Docker is growing with amazing features, and it becomes a platform to deploy services even in embedded linux enviroment. The container image creation is an important part of process. Docker has done great job to manage the container image to make it to be in layer fashion, this is especially important for storage efficiency.</summary></entry></feed>
