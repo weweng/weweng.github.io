@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset='UTF-8'>
+	<title>Linux SWIG - A little nice glue tool | Wenwei's tech Blog</title>
+	<link rel='alternate' type='application/rss+xml' title='Wenwei Feed' href='http://weweng.github.io/atom.xml'>
+	<meta name='description' content=''/>
+	<meta name='keywords' content='Linux SWIG'/>
+	<meta name='viewport' content='width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no'>
+	<meta name='theme-color' content='#655B54'>
+	<link rel='shortcut icon' href='/assets/favicon.ico' type='image/x-icon'> 
+	<!--- <link rel='icon' href='/assets/favicon.ico' type='image/x-icon'> --->
+<link rel='icon' href='/assets/blogger.png' type='image/x-png'>
+
+	<link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro:400,700' rel='stylesheet' type='text/css'>
+	<link rel='stylesheet' type='text/css' href='/assets/css/code-highlighter.css' />
+<link rel='stylesheet' type='text/css' href='/assets/css/default.min.css' />
+<link rel='stylesheet' type='text/css' href='/assets/css/github.css' />
+<link rel='stylesheet' type='text/css' href='/assets/css/pure-base-min.css' />
+<link rel='stylesheet' type='text/css' href='/assets/css/pure-grids-responsive-min.css' />
+<link rel='stylesheet' type='text/css' href='/assets/css/pure-menus-min.css' />
+<link rel='stylesheet' type='text/css' href='/assets/css/pure-tables-min.css' />
+<link rel='stylesheet' type='text/css' href='/assets/css/social-buttons.css' />
+<link rel='stylesheet' type='text/css' href='/assets/css/weweng.css' />
+
+
+	
+</head>
+<body>
+
+<div class='pure-g' id='layout'>
+    <div class='sidebar pure-u-1 pure-u-md-1-4'>
+      <div class='header'>
+	<nav class='nav'>
+	  <ul class='nav-list'>
+	    <li class='nav-item'>
+	      <strong> <a href='/workblog.html'>Blog</a> </strong>
+	    </li>
+<!--
+	    <li class='nav-item'>
+	      <strong> <a href='/study/index.html'>Study</a> </strong>
+	    </li>
+	    <li class='nav-item'>
+	      <strong> <a href='/projects/index.html'>Projects</a> </strong>
+	    </li>
+-->
+<!--
+            <li class='nav-item'>
+              <strong> <a href='/services/index.html'>读书笔记</a> </strong>
+            </li>
+-->
+	    <li class='nav-item'>
+	      <strong><a href='/aboutme.html'>About Me</a></strong>
+	    </li>
+	</ul>
+	</nav>
+	<br> 
+	<h1 class='brand-title'>
+	  <a href='/index.html'>
+		<img src='/assets/img/avatar.png' height='100'/>
+	  </a>
+	</h1>
+      </div>
+</div>
+
+<div class='pure-u-1'>
+	<div class='content'>
+		<section class='post'>
+	<header class='post-header'>
+		<h2 class='post-title'> Linux SWIG - A little nice glue tool </h2>
+		<p class='post-meta'>
+			Posted on <time class='date' datetime='2016-08-06T00:00:00+01:00'>06 Aug 2016</time>
+		</p>
+	</header>
+
+	<div class='post-description'>
+		<p><a href="http://www.swig.org">SWIG</a> is a little nice glue tool that connects programs written in C and C++ with a variety of high-level programming languages like Javascript, Perl, PHP, Python, Tcl, Ruby, Java etc… It is similar to JNI in Java world.</p>
+
+<p><img src="/uploads/linux/swig.jpg" alt="Linux SWIG" /></p>
+
+<p>It is available in most linux distribution. In ubuntu, it can be installed using “ sudo apt-get install swig”.</p>
+
+<p>By looking the following example, you will see it is pretty straightford to make the service implemented in C, C++ available to TCL, Python, Java.</p>
+
+<!--more-->
+
+<h1 id="assume-you-have-services-implemented-in-the-following-c-file">Assume you have services implemented in the following C file</h1>
+
+<p>See below <b>services.c</b>:</p>
+
+<figure class="highlight"><pre><code class="language-c" data-lang="c"><span class="cm">/* File services.c */</span>
+<span class="cp">#include &lt;time.h&gt;
+#include &lt;math.h&gt;
+</span>
+<span class="kt">double</span> <span class="n">temperature</span> <span class="o">=</span> <span class="mi">27</span><span class="p">.</span><span class="mi">5</span><span class="p">;</span> <span class="cm">/* Celcius */</span>
+
+<span class="cm">/* Find the current time and return as ASCII text */</span>
+<span class="kt">char</span> <span class="o">*</span><span class="nf">get_time</span><span class="p">()</span> <span class="p">{</span>
+    <span class="kt">time_t</span> <span class="n">localTime</span><span class="p">;</span>
+
+    <span class="n">time</span><span class="p">(</span><span class="o">&amp;</span><span class="n">localTime</span><span class="p">);</span>
+
+    <span class="k">return</span> <span class="n">ctime</span><span class="p">(</span><span class="o">&amp;</span><span class="n">localTime</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="kt">double</span> <span class="nf">square_root</span><span class="p">(</span> <span class="kt">double</span> <span class="n">a</span><span class="p">)</span> <span class="p">{</span>
+
+    <span class="k">return</span> <span class="n">sqrt</span><span class="p">(</span><span class="n">a</span><span class="p">);</span>
+
+<span class="p">}</span></code></pre></figure>
+
+<p>Define the services interface in SWIG way: <b>services.i</b></p>
+
+<figure class="highlight"><pre><code class="language-c" data-lang="c"><span class="cm">/* services.i */</span>
+<span class="o">%</span><span class="n">module</span> <span class="n">services</span>
+<span class="o">%</span><span class="p">{</span>
+  <span class="cm">/* Put header files here */</span>
+  <span class="k">extern</span> <span class="kt">double</span> <span class="n">temperature</span><span class="p">;</span>
+  <span class="k">extern</span> <span class="kt">char</span> <span class="o">*</span><span class="n">get_time</span><span class="p">();</span>
+  <span class="k">extern</span> <span class="kt">double</span> <span class="n">square_root</span><span class="p">(</span><span class="kt">double</span> <span class="n">a</span><span class="p">);</span>
+<span class="o">%</span><span class="p">}</span>
+
+<span class="k">extern</span> <span class="kt">double</span> <span class="n">temperature</span><span class="p">;</span>
+<span class="k">extern</span> <span class="kt">char</span> <span class="o">*</span><span class="n">get_time</span><span class="p">();</span>
+<span class="k">extern</span> <span class="kt">double</span> <span class="n">square_root</span><span class="p">(</span><span class="kt">double</span> <span class="n">a</span><span class="p">);</span></code></pre></figure>
+
+<p>Now we have the following:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">weng@weng-u1604:~/swig/python<span class="nv">$ </span><span class="nb">ls</span> <span class="nt">-l</span>
+total 8
+<span class="nt">-rw-rw-r--</span> 1 weng weng 308 Aug  6 16:57 services.c
+<span class="nt">-rw-rw-r--</span> 1 weng weng 256 Aug  6 16:57 services.i
+weng@weng-u1604:~/swig/python<span class="nv">$ </span></code></pre></figure>
+
+<h2 id="1-access-the-services-from-python">1. Access the services from Python</h2>
+
+<p>First make sure you have python-dev package installed (<b>sudo apt-get install python-dev</b>)</p>
+
+<h3 id="11-compiling-the-interface-to-generate-the-stub-for-python">1.1 Compiling the interface to generate the stub for python:</h3>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">weng@weng-u1604:~/swig/python<span class="nv">$ </span>swig <span class="nt">-python</span> services.i
+weng@weng-u1604:~/swig/python<span class="nv">$ </span><span class="nb">ls</span> <span class="nt">-l</span>
+total 128
+<span class="nt">-rw-rw-r--</span> 1 weng weng    308 Aug  6 16:57 services.c
+<span class="nt">-rw-rw-r--</span> 1 weng weng    256 Aug  6 16:57 services.i
+<span class="nt">-rw-rw-r--</span> 1 weng weng   2746 Aug  6 17:13 services.py
+<span class="nt">-rw-rw-r--</span> 1 weng weng 114799 Aug  6 17:13 services_wrap.c
+weng@weng-u1604:~/swig/python<span class="err">$</span></code></pre></figure>
+
+<p>After compilation of interface file, a file named “services_wrap.c” and “services.py” are generated.</p>
+
+<h3 id="12-build-into-object-files-to-create-shareable-library">1.2 Build into object files to create shareable library</h3>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">weng@weng-u1604:~/swig/python<span class="nv">$ </span>gcc <span class="nt">-fPIC</span> <span class="nt">-c</span> services.c services_wrap.c <span class="nt">-I</span>/usr/include/python2.7
+weng@weng-u1604:~/swig/python<span class="nv">$ </span>ld <span class="nt">-shared</span> services.o services_wrap.o <span class="nt">-o</span> _services.so
+weng@weng-u1604:~/swig/python<span class="nv">$ </span><span class="nb">ls</span> <span class="nt">-l</span>
+total 232
+<span class="nt">-rw-rw-r--</span> 1 weng weng    308 Aug  6 16:57 services.c
+<span class="nt">-rw-rw-r--</span> 1 weng weng    256 Aug  6 16:57 services.i
+<span class="nt">-rw-rw-r--</span> 1 weng weng   1824 Aug  6 17:20 services.o
+<span class="nt">-rw-rw-r--</span> 1 weng weng   2746 Aug  6 17:13 services.py
+<span class="nt">-rwxrwxr-x</span> 1 weng weng  48968 Aug  6 17:20 _services.so
+<span class="nt">-rw-rw-r--</span> 1 weng weng 114799 Aug  6 17:13 services_wrap.c
+<span class="nt">-rw-rw-r--</span> 1 weng weng  51544 Aug  6 17:20 services_wrap.o
+weng@weng-u1604:~/swig/python<span class="nv">$ </span></code></pre></figure>
+
+<p>Now “_services.so” is available to be used for Python. It is loaded by services.py file, and it is assumed to be in the same directory as services.py file for it to be loaded properly.</p>
+
+<p>We can test it.</p>
+
+<h3 id="13-testing">1.3 Testing</h3>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">eng@weng-u1604:~/swig/python<span class="nv">$ </span>python
+Python 2.7.12 <span class="o">(</span>default, Jul  1 2016, 15:12:24<span class="o">)</span> 
+<span class="o">[</span>GCC 5.4.0 20160609] on linux2
+Type <span class="s2">"help"</span>, <span class="s2">"copyright"</span>, <span class="s2">"credits"</span> or <span class="s2">"license"</span> <span class="k">for </span>more information.
+<span class="o">&gt;&gt;&gt;</span> import services
+<span class="o">&gt;&gt;&gt;</span> services.get_time<span class="o">()</span>
+<span class="s1">'Sat Aug  6 17:25:11 2016\n'</span>
+<span class="o">&gt;&gt;&gt;</span> services.square_root<span class="o">(</span>4<span class="o">)</span>
+2.0
+<span class="o">&gt;&gt;&gt;</span> services.square_root<span class="o">(</span>100.1<span class="o">)</span>
+10.00499875062461
+<span class="o">&gt;&gt;&gt;</span></code></pre></figure>
+
+<h2 id="2-access-the-services-from-tcl">2. Access the services from TCL</h2>
+
+<p>First make sure you have python-dev package installed (sudo apt-get install tcl-dev)</p>
+
+<h3 id="21-compiling-the-interface-to-generate-the-stub-for-tcl">2.1 Compiling the interface to generate the stub for TCL:</h3>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">weng@weng-u1604:~/swig/tcl<span class="nv">$ </span><span class="nb">ls</span> <span class="nt">-l</span>
+total 8
+<span class="nt">-rw-rw-r--</span> 1 weng weng 308 Aug  6 17:34 services.c
+<span class="nt">-rw-rw-r--</span> 1 weng weng 256 Aug  6 17:34 services.i
+weng@weng-u1604:~/swig/tcl<span class="nv">$ </span>swig <span class="nt">-tcl</span> services.i
+weng@weng-u1604:~/swig/tcl<span class="nv">$ </span><span class="nb">ls</span> <span class="nt">-l</span>
+total 72
+<span class="nt">-rw-rw-r--</span> 1 weng weng   308 Aug  6 17:34 services.c
+<span class="nt">-rw-rw-r--</span> 1 weng weng   256 Aug  6 17:34 services.i
+<span class="nt">-rw-rw-r--</span> 1 weng weng 65520 Aug  6 17:35 services_wrap.c
+weng@weng-u1604:~/swig/tcl<span class="nv">$ </span></code></pre></figure>
+
+<h3 id="22-build-into-object-files-to-create-shareable-library">2.2 Build into object files to create shareable library</h3>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">weng@weng-u1604:~/swig/tcl<span class="nv">$ </span>gcc <span class="nt">-fPIC</span> <span class="nt">-c</span> services.c services_wrap.c <span class="nt">-I</span>/usr/include/tcl
+weng@weng-u1604:~/swig/tcl<span class="nv">$ </span>ld <span class="nt">-shared</span> services.o services_wrap.o <span class="nt">-o</span> services.so
+
+weng@weng-u1604:~/swig/tcl<span class="nv">$ </span><span class="nb">ls</span> <span class="nt">-l</span>
+total 144
+<span class="nt">-rw-rw-r--</span> 1 weng weng   308 Aug  6 17:34 services.c
+<span class="nt">-rw-rw-r--</span> 1 weng weng   256 Aug  6 17:34 services.i
+<span class="nt">-rw-rw-r--</span> 1 weng weng  1824 Aug  6 17:39 services.o
+<span class="nt">-rwxrwxr-x</span> 1 weng weng 30864 Aug  6 17:39 services.so
+<span class="nt">-rw-rw-r--</span> 1 weng weng 65520 Aug  6 17:35 services_wrap.c
+<span class="nt">-rw-rw-r--</span> 1 weng weng 34280 Aug  6 17:39 services_wrap.o
+weng@weng-u1604:~/swig/tcl<span class="nv">$ </span></code></pre></figure>
+
+<p>Now “services.so” is available to be used for TCL. We can test it.</p>
+
+<h3 id="23-testing">2.3 Testing</h3>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">weng@weng-u1604:~/swig/tcl<span class="nv">$ </span>tclsh
+% load ./services.so services     
+% puts <span class="nv">$temperature</span>
+27.5
+% get_time
+Sat Aug  6 17:46:11 2016
+
+% square_root 10.1
+3.1780497164141406
+% weng@weng-u1604:~/swig/tcl<span class="nv">$ </span></code></pre></figure>
+
+<h2 id="3-access-the-services-from-java">3. Access the services from Java</h2>
+
+<p>First make sure you have JDK package installed.</p>
+
+<h3 id="31-compiling-the-interface-to-generate-the-stub-for-java">3.1 Compiling the interface to generate the stub for Java:</h3>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">weng@weng-u1604:~/swig/java<span class="nv">$ </span><span class="nb">ls</span> <span class="nt">-l</span>
+total 8
+<span class="nt">-rw-rw-r--</span> 1 weng weng 308 Aug  6 17:50 services.c
+<span class="nt">-rw-rw-r--</span> 1 weng weng 256 Aug  6 17:50 services.i
+weng@weng-u1604:~/swig/java<span class="nv">$ </span>swig <span class="nt">-java</span> services.i
+weng@weng-u1604:~/swig/java<span class="nv">$ </span>l s-l
+<span class="nb">ls</span>: cannot access s-l: No such file or directory
+weng@weng-u1604:~/swig/java<span class="nv">$ </span><span class="nb">ls</span> <span class="nt">-l</span>
+total 24
+<span class="nt">-rw-rw-r--</span> 1 weng weng  308 Aug  6 17:50 services.c
+<span class="nt">-rw-rw-r--</span> 1 weng weng  256 Aug  6 17:50 services.i
+<span class="nt">-rw-rw-r--</span> 1 weng weng  752 Aug  6 17:50 services.java
+<span class="nt">-rw-rw-r--</span> 1 weng weng  633 Aug  6 17:50 servicesJNI.java
+<span class="nt">-rw-rw-r--</span> 1 weng weng 7697 Aug  6 17:50 services_wrap.c
+weng@weng-u1604:~/swig/java<span class="nv">$ </span></code></pre></figure>
+
+<h3 id="32-build-into-object-files-to-create-shareable-library">3.2 Build into object files to create shareable library</h3>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">weng@weng-u1604:~/swig/java<span class="nv">$ </span>gcc <span class="nt">-fPIC</span> <span class="nt">-c</span> services.c services_wrap.c <span class="nt">-I</span> /opt/jdk18/include/ <span class="nt">-I</span> /opt/jdk18/include/linux/
+weng@weng-u1604:~/swig/java<span class="nv">$ </span><span class="nb">ls</span> <span class="nt">-l</span>
+total 32
+<span class="nt">-rw-rw-r--</span> 1 weng weng  308 Aug  6 17:50 services.c
+<span class="nt">-rw-rw-r--</span> 1 weng weng  256 Aug  6 17:50 services.i
+<span class="nt">-rw-rw-r--</span> 1 weng weng  752 Aug  6 17:50 services.java
+<span class="nt">-rw-rw-r--</span> 1 weng weng  633 Aug  6 17:50 servicesJNI.java
+<span class="nt">-rw-rw-r--</span> 1 weng weng 1824 Aug  6 17:52 services.o
+<span class="nt">-rw-rw-r--</span> 1 weng weng 7697 Aug  6 17:50 services_wrap.c
+<span class="nt">-rw-rw-r--</span> 1 weng weng 3464 Aug  6 17:52 services_wrap.o
+weng@weng-u1604:~/swig/java<span class="nv">$ </span>gcc <span class="nt">-shared</span> services.o services_wrap.o <span class="nt">-o</span> services.so
+weng@weng-u1604:~/swig/java<span class="nv">$ </span><span class="nb">ls</span> <span class="nt">-l</span>
+total 48
+<span class="nt">-rw-rw-r--</span> 1 weng weng   308 Aug  6 17:50 services.c
+<span class="nt">-rw-rw-r--</span> 1 weng weng   256 Aug  6 17:50 services.i
+<span class="nt">-rw-rw-r--</span> 1 weng weng   752 Aug  6 17:50 services.java
+<span class="nt">-rw-rw-r--</span> 1 weng weng   633 Aug  6 17:50 servicesJNI.java
+<span class="nt">-rw-rw-r--</span> 1 weng weng  1824 Aug  6 17:52 services.o
+<span class="nt">-rwxrwxr-x</span> 1 weng weng 12896 Aug  6 17:52 services.so
+<span class="nt">-rw-rw-r--</span> 1 weng weng  7697 Aug  6 17:50 services_wrap.c
+<span class="nt">-rw-rw-r--</span> 1 weng weng  3464 Aug  6 17:52 services_wrap.o
+weng@weng-u1604:~/swig/java<span class="nv">$ </span><span class="nb">pwd</span>
+/home/weng/swig/java
+weng@weng-u1604:~/swig/java<span class="err">$</span></code></pre></figure>
+
+<h3 id="33-testing">3.3. Testing</h3>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">weng@weng-u1604:~/swig/java<span class="nv">$ </span><span class="nb">cat </span>Main.java 
+public class Main <span class="o">{</span>
+   public static void main<span class="o">(</span>String argv[]<span class="o">)</span> <span class="o">{</span>
+     String <span class="nv">p</span><span class="o">=</span> System.getProperty<span class="o">(</span><span class="s2">"java.library.path"</span><span class="o">)</span><span class="p">;</span>
+     System.out.println<span class="o">(</span>p<span class="o">)</span><span class="p">;</span>
+     System.load<span class="o">(</span><span class="s2">"/home/weng/swig/java/services.so"</span><span class="o">)</span><span class="p">;</span>
+     System.out.println<span class="o">(</span>services.square_root<span class="o">(</span>9<span class="o">))</span><span class="p">;</span>
+     System.out.println<span class="o">(</span>services.get_time<span class="o">())</span><span class="p">;</span>
+   <span class="o">}</span>
+ <span class="o">}</span>
+weng@weng-u1604:~/swig/java<span class="nv">$ </span>javac Main.java 
+weng@weng-u1604:~/swig/java<span class="nv">$ </span>java Main
+:/usr/java/packages/lib/amd64:/usr/lib64:/lib64:/lib:/usr/lib
+3.0
+Sat Aug  6 18:09:01 2016
+
+weng@weng-u1604:~/swig/java<span class="nv">$ </span></code></pre></figure>
+
+
+	</div>
+
+<!--	
+	<div class='share-button-container'>
+		<p>Like it? Share it!</p>
+		<div class='share-button share-button-twitter' data-share-url="http://weweng.github.io/2016/08/06/linux-swig.html">
+			<div clas='box'>
+				<a href="https://twitter.com/share?url=http://weweng.github.io%2F2016%2F08%2F06%2Flinux-swig.html&text=Linux SWIG - A little nice glue tool&via=weweng" target='_blank'>
+					<span class='share'>Tweet</span>
+					<span class='count'>0</span>
+				</a>
+			</div>
+		</div>
+
+		<div class="share-button share-button-facebook" data-share-url="http://weweng.github.io/2016/08/06/linux-swig.html">
+			<div class="box">
+				<a href="https://www.facebook.com/sharer/sharer.php?u=http://weweng.github.io%2F2016%2F08%2F06%2Flinux-swig.html">
+					<span class='share'>Share</span>
+					<span class='count'>0</span>
+				</a>
+			</div>
+		</div>
+	</div>
+-->
+
+</section>
+
+<div id='comments'>
+	<div id='disqus_thread'></div>
+	<script type='text/javascript'>
+		var disqus_shortname = 'wewenggithubio';
+		(function() {
+			var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+			dsq.src = 'http://' + disqus_shortname + '.disqus.com/embed.js';
+			(document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+		})();
+	</script>
+
+	<noscript>Please enable JavaScript to view the comments</noscript>
+</div>
+<script type='text/javascript' src='/assets/js/StaticShareButtons.js'></script>
+
+
+	</div>
+
+	<footer class='footer'>
+		<span>Copyright 2015-2017, Wenwei Weng</span>
+	</footer>
+</div>
+</div>
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-62997612-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+
+
+<script type="text/javascript">
+// Open external links in new tab
+(window.onload = function(){
+	var links = document.links;
+
+	for(i=0; i<=links.length -1; i++){
+		if(links[i].hostname != window.location.hostname){
+			links[i].target = '_blank';
+		}
+	}
+})();
+</script>
+</body>
+</html>

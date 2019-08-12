@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset='UTF-8'>
+	<title>Scapy tool for network packet manipulation | Wenwei's tech Blog</title>
+	<link rel='alternate' type='application/rss+xml' title='Wenwei Feed' href='http://weweng.github.io/atom.xml'>
+	<meta name='description' content=''/>
+	<meta name='keywords' content='network packet manipulation tool'/>
+	<meta name='viewport' content='width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no'>
+	<meta name='theme-color' content='#655B54'>
+	<link rel='shortcut icon' href='/assets/favicon.ico' type='image/x-icon'> 
+	<!--- <link rel='icon' href='/assets/favicon.ico' type='image/x-icon'> --->
+<link rel='icon' href='/assets/blogger.png' type='image/x-png'>
+
+	<link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro:400,700' rel='stylesheet' type='text/css'>
+	<link rel='stylesheet' type='text/css' href='/assets/css/code-highlighter.css' />
+<link rel='stylesheet' type='text/css' href='/assets/css/default.min.css' />
+<link rel='stylesheet' type='text/css' href='/assets/css/github.css' />
+<link rel='stylesheet' type='text/css' href='/assets/css/pure-base-min.css' />
+<link rel='stylesheet' type='text/css' href='/assets/css/pure-grids-responsive-min.css' />
+<link rel='stylesheet' type='text/css' href='/assets/css/pure-menus-min.css' />
+<link rel='stylesheet' type='text/css' href='/assets/css/pure-tables-min.css' />
+<link rel='stylesheet' type='text/css' href='/assets/css/social-buttons.css' />
+<link rel='stylesheet' type='text/css' href='/assets/css/weweng.css' />
+
+
+	
+</head>
+<body>
+
+<div class='pure-g' id='layout'>
+    <div class='sidebar pure-u-1 pure-u-md-1-4'>
+      <div class='header'>
+	<nav class='nav'>
+	  <ul class='nav-list'>
+	    <li class='nav-item'>
+	      <strong> <a href='/workblog.html'>Blog</a> </strong>
+	    </li>
+<!--
+	    <li class='nav-item'>
+	      <strong> <a href='/study/index.html'>Study</a> </strong>
+	    </li>
+	    <li class='nav-item'>
+	      <strong> <a href='/projects/index.html'>Projects</a> </strong>
+	    </li>
+-->
+<!--
+            <li class='nav-item'>
+              <strong> <a href='/services/index.html'>读书笔记</a> </strong>
+            </li>
+-->
+	    <li class='nav-item'>
+	      <strong><a href='/aboutme.html'>About Me</a></strong>
+	    </li>
+	</ul>
+	</nav>
+	<br> 
+	<h1 class='brand-title'>
+	  <a href='/index.html'>
+		<img src='/assets/img/avatar.png' height='100'/>
+	  </a>
+	</h1>
+      </div>
+</div>
+
+<div class='pure-u-1'>
+	<div class='content'>
+		<section class='post'>
+	<header class='post-header'>
+		<h2 class='post-title'> Scapy tool for network packet manipulation </h2>
+		<p class='post-meta'>
+			Posted on <time class='date' datetime='2017-02-07T00:00:00+01:00'>07 Feb 2017</time>
+		</p>
+	</header>
+
+	<div class='post-description'>
+		<p>Scapy is a powerful interactive packet manipulation program. It is able to forge or decode packets of a wide number of protocols, send them on the wire, capture them, match requests and replies, and much more.</p>
+
+<p><img src="/uploads/networking/scapy-tool.jpg" alt="Scapy Tool" /></p>
+
+<!--more-->
+<p>scapy is built using Python, it can run in interactive mode or write in python script to automate tasks.</p>
+
+<p>Let’s go through some basic tasks to get started:</p>
+
+<h1 id="installation">Installation</h1>
+
+<p>You can go to <a href="http://www.secdev.org/projects/scapy/">scapy home page</a> to download the package to install. In my case, I run scapy in ubuntu 16.04, it is an easy step as below:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">weng@weng-u1604:~<span class="nv">$ </span><span class="nb">sudo </span>apt-get install python-scapy
+<span class="o">[</span><span class="nb">sudo</span><span class="o">]</span> password <span class="k">for </span>weng: 
+Reading package lists... Done
+Building dependency tree       
+Reading state information... Done
+Suggested packages:
+  tcpreplay wireshark graphviz imagemagick python-gnuplot python-crypto
+  python-pyx ebtables python-visual sox gv hexer librsvg2-bin python-pcapy
+The following NEW packages will be installed:
+  python-scapy
+0 upgraded, 1 newly installed, 0 to remove and 1143 not upgraded.
+Need to get 236 kB of archives.
+After this operation, 1,122 kB of additional disk space will be used.
+Get:1 http://us.archive.ubuntu.com/ubuntu xenial/universe amd64 python-scapy all 2.2.0-1 <span class="o">[</span>236 kB]
+Fetched 236 kB <span class="k">in </span>5s <span class="o">(</span>41.4 kB/s<span class="o">)</span>     
+Selecting previously unselected package python-scapy.
+<span class="o">(</span>Reading database ... 222945 files and directories currently installed.<span class="o">)</span>
+Preparing to unpack .../python-scapy_2.2.0-1_all.deb ...
+Unpacking python-scapy <span class="o">(</span>2.2.0-1<span class="o">)</span> ...
+Processing triggers <span class="k">for </span>man-db <span class="o">(</span>2.7.5-1<span class="o">)</span> ...
+Setting up python-scapy <span class="o">(</span>2.2.0-1<span class="o">)</span> ...
+weng@weng-u1604:~<span class="nv">$ </span>which scapy
+/usr/bin/scapy
+weng@weng-u1604:~<span class="nv">$ </span></code></pre></figure>
+
+<h1 id="start-scapy-in-interactive-mode">Start scapy in interactive mode</h1>
+
+<p>Simply type “sudo scapy”, it will bring you to interactive mode:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">weng@weng-u1604:~<span class="nv">$ </span><span class="nb">sudo </span>scapy
+INFO: Can<span class="s1">'t import python gnuplot wrapper . Won'</span>t be able to plot.
+INFO: Can<span class="s1">'t import PyX. Won'</span>t be able to use psdump<span class="o">()</span> or pdfdump<span class="o">()</span><span class="nb">.</span>
+WARNING: No route found <span class="k">for </span>IPv6 destination :: <span class="o">(</span>no default route?<span class="o">)</span>
+INFO: Can<span class="s1">'t import python Crypto lib. Won'</span>t be able to decrypt WEP.
+INFO: Can<span class="s1">'t import python Crypto lib. Disabled certificate manipulation tools
+Welcome to Scapy (2.2.0)
+&gt;&gt;&gt; </span></code></pre></figure>
+
+<p>To see what you can do under interactive mode, type “lsc()” tells what are available commands:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="o">&gt;&gt;&gt;</span> lsc<span class="o">()</span>
+arpcachepoison      : Poison target<span class="s1">'s cache with (your MAC,victim'</span>s IP<span class="o">)</span> couple
+arping              : Send ARP who-has requests to determine which hosts are up
+bind_layers         : Bind 2 layers on some specific fields<span class="s1">' values
+corrupt_bits        : Flip a given percentage or number of bits from a string
+corrupt_bytes       : Corrupt a given percentage or number of bytes from a string
+defrag              : defrag(plist) -&gt; ([not fragmented], [defragmented],
+defragment          : defrag(plist) -&gt; plist defragmented as much as possible 
+dyndns_add          : Send a DNS add message to a nameserver for "name" to have a new "rdata"
+dyndns_del          : Send a DNS delete message to a nameserver for "name"
+etherleak           : Exploit Etherleak flaw
+fragment            : Fragment a big IP datagram
+fuzz                : Transform a layer into a fuzzy layer by replacing some default values by random objects
+getmacbyip          : Return MAC address corresponding to a given IP address
+hexdiff             : Show differences between 2 binary strings
+hexdump             : --
+hexedit             : --
+is_promisc          : Try to guess if target is in Promisc mode. The target is provided by its ip.
+linehexdump         : --
+ls                  : List  available layers, or infos on a given layer
+promiscping         : Send ARP who-has requests to determine which hosts are in promiscuous mode
+rdpcap              : Read a pcap file and return a packet list
+send                : Send packets at layer 3
+sendp               : Send packets at layer 2
+sendpfast           : Send packets at layer 2 using tcpreplay for performance
+sniff               : Sniff packets
+split_layers        : Split 2 layers previously bound
+sr                  : Send and receive packets at layer 3
+sr1                 : Send packets at layer 3 and return only the first answer
+srbt                : send and receive using a bluetooth socket
+srbt1               : send and receive 1 packet using a bluetooth socket
+srflood             : Flood and receive packets at layer 3
+srloop              : Send a packet at layer 3 in loop and print the answer each time
+srp                 : Send and receive packets at layer 2
+srp1                : Send and receive packets at layer 2 and return only the first answer
+srpflood            : Flood and receive packets at layer 2
+srploop             : Send a packet at layer 2 in loop and print the answer each time
+traceroute          : Instant TCP traceroute
+tshark              : Sniff packets and print them calling pkt.show(), a bit like text wireshark
+wireshark           : Run wireshark on a list of packets
+wrpcap              : Write a list of packets to a pcap file
+&gt;&gt;&gt;</span></code></pre></figure>
+
+<p>As it is shown, there are many commands, let’s pick a few commands to play around.</p>
+
+<h2 id="sniff-packets">sniff packets</h2>
+<p>The below shows the example to sniff 7 packets from interface “enp0s3”. While it is sniffing, I have web browser pointing to “www.google.com”.</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="o">&gt;&gt;&gt;</span> conf.route
+Network         Netmask         Gateway         Iface           Output IP
+127.0.0.0       255.0.0.0       0.0.0.0         lo              127.0.0.1      
+0.0.0.0         0.0.0.0         10.0.2.2        enp0s3          10.0.2.15      
+10.0.2.0        255.255.255.0   0.0.0.0         enp0s3          10.0.2.15      
+169.254.0.0     255.255.0.0     0.0.0.0         enp0s3          10.0.2.15      
+
+<span class="o">&gt;&gt;&gt;</span> <span class="nv">pkts</span><span class="o">=</span>sniff<span class="o">(</span><span class="nv">iface</span><span class="o">=</span><span class="s2">"enp0s3"</span>,count<span class="o">=</span>7<span class="o">)</span>
+<span class="o">&gt;&gt;&gt;</span> pkts.summary<span class="o">()</span>
+Ether / IP / UDP / DNS Qry <span class="s2">"www.google.com."</span> 
+Ether / IP / UDP / DNS Qry <span class="s2">"www.google.com."</span> 
+Ether / IP / TCP 10.0.2.15:57696 <span class="o">&gt;</span> 216.58.195.68:https PA / Raw
+Ether / IP / TCP 216.58.195.68:https <span class="o">&gt;</span> 10.0.2.15:57696 A / Padding
+Ether / IP / UDP / DNS Ans <span class="s2">"216.58.195.68"</span> 
+Ether / IP / UDP / DNS Ans <span class="s2">"2607:f8b0:4005:807::2004"</span> 
+Ether / IP / TCP 216.58.195.68:https <span class="o">&gt;</span> 10.0.2.15:57696 PA / Raw
+<span class="o">&gt;&gt;&gt;</span> </code></pre></figure>
+
+<p>We can see that the first packet is a DNS query packet, we can dig into deeper:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="o">&gt;&gt;&gt;</span> pkts[0].show<span class="o">()</span>
+<span class="c">###[ Ethernet ]###</span>
+  <span class="nv">dst</span><span class="o">=</span> 52:54:00:12:35:02
+  <span class="nv">src</span><span class="o">=</span> 08:00:27:62:e8:1d
+  <span class="nb">type</span><span class="o">=</span> 0x800
+<span class="c">###[ IP ]###</span>
+     <span class="nv">version</span><span class="o">=</span> 4L
+     <span class="nv">ihl</span><span class="o">=</span> 5L
+     <span class="nv">tos</span><span class="o">=</span> 0x0
+     <span class="nv">len</span><span class="o">=</span> 60
+     <span class="nv">id</span><span class="o">=</span> 42461
+     <span class="nv">flags</span><span class="o">=</span> DF
+     <span class="nv">frag</span><span class="o">=</span> 0L
+     <span class="nv">ttl</span><span class="o">=</span> 64
+     <span class="nv">proto</span><span class="o">=</span> udp
+     <span class="nv">chksum</span><span class="o">=</span> 0xc71b
+     <span class="nv">src</span><span class="o">=</span> 10.0.2.15
+     <span class="nv">dst</span><span class="o">=</span> 192.168.1.1
+     <span class="se">\o</span>ptions<span class="se">\</span>
+<span class="c">###[ UDP ]###</span>
+        <span class="nv">sport</span><span class="o">=</span> 50427
+        <span class="nv">dport</span><span class="o">=</span> domain
+        <span class="nv">len</span><span class="o">=</span> 40
+        <span class="nv">chksum</span><span class="o">=</span> 0xcdf1
+<span class="c">###[ DNS ]###</span>
+           <span class="nv">id</span><span class="o">=</span> 14338
+           <span class="nv">qr</span><span class="o">=</span> 0L
+           <span class="nv">opcode</span><span class="o">=</span> QUERY
+           <span class="nv">aa</span><span class="o">=</span> 0L
+           <span class="nv">tc</span><span class="o">=</span> 0L
+           <span class="nv">rd</span><span class="o">=</span> 1L
+           <span class="nv">ra</span><span class="o">=</span> 0L
+           <span class="nv">z</span><span class="o">=</span> 0L
+           <span class="nv">rcode</span><span class="o">=</span> ok
+           <span class="nv">qdcount</span><span class="o">=</span> 1
+           <span class="nv">ancount</span><span class="o">=</span> 0
+           <span class="nv">nscount</span><span class="o">=</span> 0
+           <span class="nv">arcount</span><span class="o">=</span> 0
+           <span class="se">\q</span>d<span class="se">\</span>
+            |###[ DNS Question Record <span class="o">]</span><span class="c">###</span>
+            |  <span class="nv">qname</span><span class="o">=</span> <span class="s1">'www.google.com.'</span>
+            |  <span class="nv">qtype</span><span class="o">=</span> A
+            |  <span class="nv">qclass</span><span class="o">=</span> IN
+           <span class="nv">an</span><span class="o">=</span> None
+           <span class="nv">ns</span><span class="o">=</span> None
+           <span class="nv">ar</span><span class="o">=</span> None
+<span class="o">&gt;&gt;&gt;</span> </code></pre></figure>
+
+<h2 id="create-packet-and-send-packet">Create packet and send packet</h2>
+
+<p>If we already have a packet, and want to send that the same packet, see below example:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="o">&gt;&gt;&gt;</span> pkts[0].command<span class="o">()</span>
+<span class="s2">"Ether(src='08:00:27:62:e8:1d', dst='52:54:00:12:35:02', type=2048)/IP(frag=0L, src='10.0.2.15', proto=17, tos=0, dst='192.168.1.1', chksum=50971, len=60, options=[], version=4L, flags=2L, ihl=5L, ttl=64, id=42461)/UDP(dport=53, sport=50427, len=40, chksum=52721)/DNS(aa=0L, qr=0L, an=None, nscount=0, qdcount=1, ns=None, tc=0L, rd=1L, arcount=0, ar=None, opcode=0L, ra=0L, z=0L, rcode=0L, id=14338, ancount=0, qd=DNSQR(qclass=1, qtype=1, qname='www.google.com.'))"</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="nb">eval</span><span class="o">(</span>pkts[0].command<span class="o">())</span>
+&lt;Ether  <span class="nv">dst</span><span class="o">=</span>52:54:00:12:35:02 <span class="nv">src</span><span class="o">=</span>08:00:27:62:e8:1d <span class="nb">type</span><span class="o">=</span>0x800 |&lt;IP  <span class="nv">version</span><span class="o">=</span>4L <span class="nv">ihl</span><span class="o">=</span>5L <span class="nv">tos</span><span class="o">=</span>0x0 <span class="nv">len</span><span class="o">=</span>60 <span class="nv">id</span><span class="o">=</span>42461 <span class="nv">flags</span><span class="o">=</span>DF <span class="nv">frag</span><span class="o">=</span>0L <span class="nv">ttl</span><span class="o">=</span>64 <span class="nv">proto</span><span class="o">=</span>udp <span class="nv">chksum</span><span class="o">=</span>0xc71b <span class="nv">src</span><span class="o">=</span>10.0.2.15 <span class="nv">dst</span><span class="o">=</span>192.168.1.1 <span class="nv">options</span><span class="o">=[]</span> |&lt;UDP  <span class="nv">sport</span><span class="o">=</span>50427 <span class="nv">dport</span><span class="o">=</span>domain <span class="nv">len</span><span class="o">=</span>40 <span class="nv">chksum</span><span class="o">=</span>0xcdf1 |&lt;DNS  <span class="nv">id</span><span class="o">=</span>14338 <span class="nv">qr</span><span class="o">=</span>0L <span class="nv">opcode</span><span class="o">=</span>QUERY <span class="nv">aa</span><span class="o">=</span>0L <span class="nv">tc</span><span class="o">=</span>0L <span class="nv">rd</span><span class="o">=</span>1L <span class="nv">ra</span><span class="o">=</span>0L <span class="nv">z</span><span class="o">=</span>0L <span class="nv">rcode</span><span class="o">=</span>ok <span class="nv">qdcount</span><span class="o">=</span>1 <span class="nv">ancount</span><span class="o">=</span>0 <span class="nv">nscount</span><span class="o">=</span>0 <span class="nv">arcount</span><span class="o">=</span>0 <span class="nv">qd</span><span class="o">=</span>&lt;DNSQR  <span class="nv">qname</span><span class="o">=</span><span class="s1">'www.google.com.'</span> <span class="nv">qtype</span><span class="o">=</span>A <span class="nv">qclass</span><span class="o">=</span>IN |&gt; <span class="nv">an</span><span class="o">=</span>None <span class="nv">ns</span><span class="o">=</span>None <span class="nv">ar</span><span class="o">=</span>None |&gt;&gt;&gt;&gt;
+<span class="o">&gt;&gt;&gt;</span> sendp<span class="o">(</span><span class="nb">eval</span><span class="o">(</span>pkts[0].command<span class="o">()))</span>
+<span class="nb">.</span>
+Sent 1 packets.
+<span class="o">&gt;&gt;&gt;</span></code></pre></figure>
+
+<p>There is send() command to send L3/IP packet, and sendp() command to send L2 frame. E.g. to send a ping command to www.google.com, the following commands will do:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="o">&gt;&gt;&gt;</span> send<span class="o">(</span>IP<span class="o">(</span><span class="nv">dst</span><span class="o">=</span><span class="s2">"www.google.com"</span><span class="o">)</span>/ICMP<span class="o">())</span>
+<span class="nb">.</span>
+Sent 1 packets.
+<span class="o">&gt;&gt;&gt;</span> sendp<span class="o">(</span>Ether<span class="o">()</span>/IP<span class="o">(</span><span class="nv">dst</span><span class="o">=</span><span class="s2">"www.google.com"</span><span class="o">)</span>/ICMP<span class="o">())</span>
+<span class="nb">.</span>
+Sent 1 packets.
+<span class="o">&gt;&gt;&gt;</span> <span class="nb">ls</span><span class="o">(</span>Ether<span class="o">)</span>
+dst        : DestMACField         <span class="o">=</span> <span class="o">(</span>None<span class="o">)</span>
+src        : SourceMACField       <span class="o">=</span> <span class="o">(</span>None<span class="o">)</span>
+<span class="nb">type</span>       : XShortEnumField      <span class="o">=</span> <span class="o">(</span>0<span class="o">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="nb">ls</span><span class="o">(</span>IP<span class="o">)</span>
+version    : BitField             <span class="o">=</span> <span class="o">(</span>4<span class="o">)</span>
+ihl        : BitField             <span class="o">=</span> <span class="o">(</span>None<span class="o">)</span>
+tos        : XByteField           <span class="o">=</span> <span class="o">(</span>0<span class="o">)</span>
+len        : ShortField           <span class="o">=</span> <span class="o">(</span>None<span class="o">)</span>
+id         : ShortField           <span class="o">=</span> <span class="o">(</span>1<span class="o">)</span>
+flags      : FlagsField           <span class="o">=</span> <span class="o">(</span>0<span class="o">)</span>
+frag       : BitField             <span class="o">=</span> <span class="o">(</span>0<span class="o">)</span>
+ttl        : ByteField            <span class="o">=</span> <span class="o">(</span>64<span class="o">)</span>
+proto      : ByteEnumField        <span class="o">=</span> <span class="o">(</span>0<span class="o">)</span>
+chksum     : XShortField          <span class="o">=</span> <span class="o">(</span>None<span class="o">)</span>
+src        : Emph                 <span class="o">=</span> <span class="o">(</span>None<span class="o">)</span>
+dst        : Emph                 <span class="o">=</span> <span class="o">(</span><span class="s1">'127.0.0.1'</span><span class="o">)</span>
+options    : PacketListField      <span class="o">=</span> <span class="o">([])</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="nb">ls</span><span class="o">(</span>ICMP<span class="o">)</span>
+<span class="nb">type</span>       : ByteEnumField        <span class="o">=</span> <span class="o">(</span>8<span class="o">)</span>
+code       : MultiEnumField       <span class="o">=</span> <span class="o">(</span>0<span class="o">)</span>
+chksum     : XShortField          <span class="o">=</span> <span class="o">(</span>None<span class="o">)</span>
+id         : ConditionalField     <span class="o">=</span> <span class="o">(</span>0<span class="o">)</span>
+seq        : ConditionalField     <span class="o">=</span> <span class="o">(</span>0<span class="o">)</span>
+ts_ori     : ConditionalField     <span class="o">=</span> <span class="o">(</span>24189224<span class="o">)</span>
+ts_rx      : ConditionalField     <span class="o">=</span> <span class="o">(</span>24189224<span class="o">)</span>
+ts_tx      : ConditionalField     <span class="o">=</span> <span class="o">(</span>24189224<span class="o">)</span>
+gw         : ConditionalField     <span class="o">=</span> <span class="o">(</span><span class="s1">'0.0.0.0'</span><span class="o">)</span>
+ptr        : ConditionalField     <span class="o">=</span> <span class="o">(</span>0<span class="o">)</span>
+reserved   : ConditionalField     <span class="o">=</span> <span class="o">(</span>0<span class="o">)</span>
+addr_mask  : ConditionalField     <span class="o">=</span> <span class="o">(</span><span class="s1">'0.0.0.0'</span><span class="o">)</span>
+unused     : ConditionalField     <span class="o">=</span> <span class="o">(</span>0<span class="o">)</span>
+<span class="o">&gt;&gt;&gt;</span></code></pre></figure>
+
+<p>In the above example, “Ether”, “IP”, “ICMP” are protocols/layers’ name supported by scapy. If you type command ls(), it will tell all layers/protocols.</p>
+
+<p>More, scapy has command like below commands to send and receive response packet:</p>
+<ul>
+  <li>sr(): Send and receive packets at layer 3</li>
+  <li>sr1(): Send packets at layer 3 and return only the first answer</li>
+  <li>srp(): Send and receive packets at layer 2</li>
+  <li>srp1(): Send and receive packets at layer 2 and return only the first answer</li>
+</ul>
+
+<p>see example below: it use sr1() and srp1() to send a ping packet to www.cisco.com, and receives back response successfully.</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="o">&gt;&gt;&gt;</span> <span class="nv">p</span><span class="o">=</span>sr1<span class="o">(</span>IP<span class="o">(</span><span class="nv">dst</span><span class="o">=</span><span class="s2">"www.cisco.com"</span><span class="o">)</span>/ICMP<span class="o">())</span>
+Begin emission:
+.Finished to send 1 packets.
+<span class="k">*</span>
+Received 2 packets, got 1 answers, remaining 0 packets
+<span class="o">&gt;&gt;&gt;</span> p.summary<span class="o">()</span>
+<span class="s1">'IP / ICMP 23.56.123.188 &gt; 10.0.2.15 echo-reply 0 / Padding'</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="nv">p2</span><span class="o">=</span>srp1<span class="o">(</span>Ether<span class="o">()</span>/IP<span class="o">(</span><span class="nv">dst</span><span class="o">=</span><span class="s2">"www.cisco.com"</span><span class="o">)</span>/ICMP<span class="o">())</span>
+Begin emission:
+Finished to send 1 packets.
+<span class="k">*</span>
+Received 1 packets, got 1 answers, remaining 0 packets
+<span class="o">&gt;&gt;&gt;</span> p2.summary<span class="o">()</span>
+<span class="s1">'Ether / IP / ICMP 23.56.123.188 &gt; 10.0.2.15 echo-reply 0 / Padding'</span>
+<span class="o">&gt;&gt;&gt;</span></code></pre></figure>
+
+<h1 id="running-scapy-in-a-python-script">running Scapy in a Python Script</h1>
+
+<p>see example below to do the exact same as above to ping www.cisco.com</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">weng@weng-u1604:~<span class="nv">$ </span><span class="nb">cat </span>test-scapy.py 
+from scapy.all import <span class="k">*</span>
+ 
+print sr1<span class="o">(</span>IP<span class="o">(</span><span class="nv">dst</span><span class="o">=</span><span class="s2">"www.cisco.com"</span><span class="o">)</span>/ICMP<span class="o">())</span>.summary<span class="o">()</span>
+
+weng@weng-u1604:~<span class="nv">$ </span><span class="nb">sudo </span>python test-scapy.py 
+WARNING: No route found <span class="k">for </span>IPv6 destination :: <span class="o">(</span>no default route?<span class="o">)</span>
+Begin emission:
+.Finished to send 1 packets.
+<span class="k">*</span>
+Received 2 packets, got 1 answers, remaining 0 packets
+IP / ICMP 23.56.123.188 <span class="o">&gt;</span> 10.0.2.15 echo-reply 0 / Padding
+weng@weng-u1604:~<span class="nv">$ </span>
+
+For more details, check http://www.secdev.org/projects/scapy/doc/usage.html.</code></pre></figure>
+
+
+	</div>
+
+<!--	
+	<div class='share-button-container'>
+		<p>Like it? Share it!</p>
+		<div class='share-button share-button-twitter' data-share-url="http://weweng.github.io/2017/02/07/scapy-tool.html">
+			<div clas='box'>
+				<a href="https://twitter.com/share?url=http://weweng.github.io%2F2017%2F02%2F07%2Fscapy-tool.html&text=Scapy tool for network packet manipulation&via=weweng" target='_blank'>
+					<span class='share'>Tweet</span>
+					<span class='count'>0</span>
+				</a>
+			</div>
+		</div>
+
+		<div class="share-button share-button-facebook" data-share-url="http://weweng.github.io/2017/02/07/scapy-tool.html">
+			<div class="box">
+				<a href="https://www.facebook.com/sharer/sharer.php?u=http://weweng.github.io%2F2017%2F02%2F07%2Fscapy-tool.html">
+					<span class='share'>Share</span>
+					<span class='count'>0</span>
+				</a>
+			</div>
+		</div>
+	</div>
+-->
+
+</section>
+
+<div id='comments'>
+	<div id='disqus_thread'></div>
+	<script type='text/javascript'>
+		var disqus_shortname = 'wewenggithubio';
+		(function() {
+			var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+			dsq.src = 'http://' + disqus_shortname + '.disqus.com/embed.js';
+			(document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+		})();
+	</script>
+
+	<noscript>Please enable JavaScript to view the comments</noscript>
+</div>
+<script type='text/javascript' src='/assets/js/StaticShareButtons.js'></script>
+
+
+	</div>
+
+	<footer class='footer'>
+		<span>Copyright 2015-2017, Wenwei Weng</span>
+	</footer>
+</div>
+</div>
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-62997612-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+
+
+<script type="text/javascript">
+// Open external links in new tab
+(window.onload = function(){
+	var links = document.links;
+
+	for(i=0; i<=links.length -1; i++){
+		if(links[i].hostname != window.location.hostname){
+			links[i].target = '_blank';
+		}
+	}
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset='UTF-8'>
+	<title>ARM CPU overview | Wenwei's tech Blog</title>
+	<link rel='alternate' type='application/rss+xml' title='Wenwei Feed' href='http://weweng.github.io/atom.xml'>
+	<meta name='description' content=''/>
+	<meta name='keywords' content='ARM CPU'/>
+	<meta name='viewport' content='width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no'>
+	<meta name='theme-color' content='#655B54'>
+	<link rel='shortcut icon' href='/assets/favicon.ico' type='image/x-icon'> 
+	<!--- <link rel='icon' href='/assets/favicon.ico' type='image/x-icon'> --->
+<link rel='icon' href='/assets/blogger.png' type='image/x-png'>
+
+	<link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro:400,700' rel='stylesheet' type='text/css'>
+	<link rel='stylesheet' type='text/css' href='/assets/css/code-highlighter.css' />
+<link rel='stylesheet' type='text/css' href='/assets/css/default.min.css' />
+<link rel='stylesheet' type='text/css' href='/assets/css/github.css' />
+<link rel='stylesheet' type='text/css' href='/assets/css/pure-base-min.css' />
+<link rel='stylesheet' type='text/css' href='/assets/css/pure-grids-responsive-min.css' />
+<link rel='stylesheet' type='text/css' href='/assets/css/pure-menus-min.css' />
+<link rel='stylesheet' type='text/css' href='/assets/css/pure-tables-min.css' />
+<link rel='stylesheet' type='text/css' href='/assets/css/social-buttons.css' />
+<link rel='stylesheet' type='text/css' href='/assets/css/weweng.css' />
+
+
+	
+</head>
+<body>
+
+<div class='pure-g' id='layout'>
+    <div class='sidebar pure-u-1 pure-u-md-1-4'>
+      <div class='header'>
+	<nav class='nav'>
+	  <ul class='nav-list'>
+	    <li class='nav-item'>
+	      <strong> <a href='/workblog.html'>Blog</a> </strong>
+	    </li>
+<!--
+	    <li class='nav-item'>
+	      <strong> <a href='/study/index.html'>Study</a> </strong>
+	    </li>
+	    <li class='nav-item'>
+	      <strong> <a href='/projects/index.html'>Projects</a> </strong>
+	    </li>
+-->
+<!--
+            <li class='nav-item'>
+              <strong> <a href='/services/index.html'>读书笔记</a> </strong>
+            </li>
+-->
+	    <li class='nav-item'>
+	      <strong><a href='/aboutme.html'>About Me</a></strong>
+	    </li>
+	</ul>
+	</nav>
+	<br> 
+	<h1 class='brand-title'>
+	  <a href='/index.html'>
+		<img src='/assets/img/avatar.png' height='100'/>
+	  </a>
+	</h1>
+      </div>
+</div>
+
+<div class='pure-u-1'>
+	<div class='content'>
+		<section class='post'>
+	<header class='post-header'>
+		<h2 class='post-title'> ARM CPU overview </h2>
+		<p class='post-meta'>
+			Posted on <time class='date' datetime='2015-05-21T00:00:00+01:00'>21 May 2015</time>
+		</p>
+	</header>
+
+	<div class='post-description'>
+		<p>ARM is coming very strong and making dramtic change to the landscape of computing industry.
+It is impacting to various fields like microcontroller, embedded system, mobile internet, server market.</p>
+
+<p><img src="" alt="ARM CPU](/uploads/ARM-CPU-1.jpg) " /></p>
+
+<p>In this post, I will share what I learned about ARM CPU.</p>
+
+<!--more-->
+
+<p>ARM is a family of instruction set architectures for computer processors developed by British company ARM Holdings, based on a reduced instruction set computing (RISC) architecture.<br />
+A RISC-based computer design approach means ARM processors require significantly fewer transistors than typical CISC Intel/AMD x86 processors in most personal computers.
+This approach reduces costs, heat and power use. There are other RISC processors like MIPS from Cavium, PowerPC from freescale. They have been in the market for long time. Why ARM stands out from compitetion?<br />
+My personal understanding is:</p>
+
+<ul>
+  <li>the business model ARM adopts: licence ARM design Intellecture Property (IP) to third parties.</li>
+  <li>It catches really well with the coming wave of mobile internet, i.e. flooding of mobile computing device like tablet, smart phones.</li>
+</ul>
+
+<p>When we talk about ARM CPU terminology, it is critical to make it clear what is ARM Architecture, what is ARM Core design, and what is third party vendor design.<br />
+The following table shows the difference.</p>
+
+<p><img src="" alt="ARM CPU](/uploads/ARM-CPU-2.jpg) " /></p>
+
+<ul>
+  <li>ARM Architecture: ARMv1, ARMv2, ARMv3, ARMv4, ARMv5, ARMv6, ARMv6-M, ARMv7-M, ARMv7-R, ARMv7-A, ARMv8-A, these are for ARM achitecture. It defines instruction set. 
+The suffix “-M” means for microcontroller; “-R” for real time processor; “-A” for application processor.
+Companies (like Apple, Nvidian, Qualcomm) can obtain an ARM architectural licence for designing their own CPU cores using the ARM instruction sets.<br />
+It is like Java language specification produced by Sun Microsystem.</li>
+  <li>ARM Core design: ARM makes Core design based on ARM arhcitecture specification, e.g. ARM Cortex-A5, ARM Cortex-A7, ARM Cortex-A8, ARM Cortex-A9, ARM Cortex-A12, ARM Cortex-A17, 
+these are ARM designed core based on ARM architecture ARMv7-A. ARM can license these IP to third vendor like Texas Instrument to make the actual chip; e.g. beagleboard uses chips from TI.
+It is like Sun microsystem designs Java Virtual Machine (JVM) reference implementation based on Java lanaguage specification. This opens a wide door to many small companies to produce ARM based chip.
+I feel this is one of key factors made ARM so successful. Even big company like Freescale, it licenses ARM Core design.</li>
+  <li>Third party vendor Core design: companies like Apple, Nvidia, Qualcomm have very strong design skills, they licence ARM architecture and design core for themselves and make chip.
+This is like a third party company takes Java language specification and implement a itsown Java Virtual Machine.</li>
+</ul>
+
+<p>Take a few examples:</p>
+<ol>   
+<li> Beagleboard-XM (my toy): it uses ARM SoC from Texas Instrument, which is licensed ARM Core design Cortex-A8 from ARM holding.</li>
+<li> Raspberry PI 2 model B (used in my lab): it uses ARM SoC from Broadcom BCM2836 quad-core ARM Cortex-A7, which is licensed ARM Core design Cortex-A7 from ARM holding.</li>
+<li> Galaxy S3 (my old previous phone): It uses Samsung Exynos 4, which licenses ARM Core design ARM Cortex-A9, quad-core processor.</li>
+<li> LG G2 phone (my current phone): it uses Qualcomm Snapdragon 800 MSM8974, which licenses ARM architecture ARMv7-A, and create Qualcomm's Krait series. Its performance is
+somehwere between ARM Cortex-A9 and Cortex-A15.</li>
+<li> Iphone 5S (my wife's phone): It uses Apple A7, which licenses ARM architecture ARMv8-A, dual core processor.</li>
+<li> Iphone 6 (my daughter's phone): It uses Apple A8, which also licenses ARM architecture ARMv8-A, dual core processor, but with more performance and consume less power (20nm). </li>
+<li> Ipad Air (my son's toy): It uses Apple A7, which licenses ARM architecture ARMv8-A, dual core processor. </li>
+</ol>
+
+<p>ARM processors are being used in the following markets:</p>
+
+<h1 id="microcontroller-mcu">Microcontroller (MCU)</h1>
+<p>This is very low end market, there are players like Atmel, NXP. The lowest price could go down to $0.65/unit, even cheaper than a toothpaste. 
+This is a booming market.</p>
+
+<h1 id="mobile-computing-device">Mobile computing device</h1>
+<p>This is most exciting market right now as mobile internet is taking off, most tablets, smartphones are running ARM chip. Many players like Samsung, Qualcomm, Apple, Nvidia etc.</p>
+
+<h1 id="embedded-systems">Embedded Systems</h1>
+<p>The change is happenning now in this market. The vendors like Freescale is coming on board, license ARM Core design, add itsown peripheral devices around core.
+There are players like Freescale, Marvell, Broadcom, Applied Micro.</p>
+
+<h1 id="desktop-system">Desktop system</h1>
+<p>I don’t think there is much happenning in this area. Microsoft released ARM based Windows, it seems not going anywhere.</p>
+
+<h1 id="server">Server</h1>
+<p>There is an attempt to introduce ARM into server market, AMD is spending effort right now. 
+But I’m not sure how far it can go. I feel for server market, the available applications might be the key.</p>
+
+	</div>
+
+<!--	
+	<div class='share-button-container'>
+		<p>Like it? Share it!</p>
+		<div class='share-button share-button-twitter' data-share-url="http://weweng.github.io/2015/05/21/ARM-CPU-Overview.html">
+			<div clas='box'>
+				<a href="https://twitter.com/share?url=http://weweng.github.io%2F2015%2F05%2F21%2FARM-CPU-Overview.html&text=ARM CPU overview&via=weweng" target='_blank'>
+					<span class='share'>Tweet</span>
+					<span class='count'>0</span>
+				</a>
+			</div>
+		</div>
+
+		<div class="share-button share-button-facebook" data-share-url="http://weweng.github.io/2015/05/21/ARM-CPU-Overview.html">
+			<div class="box">
+				<a href="https://www.facebook.com/sharer/sharer.php?u=http://weweng.github.io%2F2015%2F05%2F21%2FARM-CPU-Overview.html">
+					<span class='share'>Share</span>
+					<span class='count'>0</span>
+				</a>
+			</div>
+		</div>
+	</div>
+-->
+
+</section>
+
+<div id='comments'>
+	<div id='disqus_thread'></div>
+	<script type='text/javascript'>
+		var disqus_shortname = 'wewenggithubio';
+		(function() {
+			var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+			dsq.src = 'http://' + disqus_shortname + '.disqus.com/embed.js';
+			(document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+		})();
+	</script>
+
+	<noscript>Please enable JavaScript to view the comments</noscript>
+</div>
+<script type='text/javascript' src='/assets/js/StaticShareButtons.js'></script>
+
+
+	</div>
+
+	<footer class='footer'>
+		<span>Copyright 2015-2017, Wenwei Weng</span>
+	</footer>
+</div>
+</div>
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-62997612-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+
+
+<script type="text/javascript">
+// Open external links in new tab
+(window.onload = function(){
+	var links = document.links;
+
+	for(i=0; i<=links.length -1; i++){
+		if(links[i].hostname != window.location.hostname){
+			links[i].target = '_blank';
+		}
+	}
+})();
+</script>
+</body>
+</html>

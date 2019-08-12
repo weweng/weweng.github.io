@@ -3,7 +3,7 @@
 	<title>weweng.github.io</title>
 	<link href='http://weweng.github.io/'/>
 	<link type='application/atom+xml' rel='self' href='http://weweng.github.io/atom.xml'/>
-	<updated>2018-09-12T17:45:14-07:00</updated>
+	<updated>2019-08-12T14:20:02-07:00</updated>
 	<id>http://weweng.github.io/</id>
 
 	<author>
@@ -14,8 +14,8 @@
 	
 	<entry>
 		<title>SPI flash support in embedded Linux box</title>
-		<link type='text/html' href='http://weweng.github.io/2017/08/SPI-Support-embedded-box/'/>
-		<id>http://weweng.github.io/2017/08/SPI-Support-embedded-box/</id>
+		<link type='text/html' href='http://weweng.github.io/2017/08/05/SPI-Support-embedded-box.html'/>
+		<id>http://weweng.github.io/2017/08/05/SPI-Support-embedded-box.html</id>
 		<updated>2017-08-05T00:00:00-07:00</updated>
 
 		<author>
@@ -23,17 +23,17 @@
 			<uri>http://weweng.github.io/</uri>
 		</author>
 
-		<content type='html'>&lt;p&gt;Serial Peripheral Interface (SPI) flash memory is often used in an embedded Linux box to hold bootloader. During very initial board bringup, SPI flash memory needs to be programmed properly using device like Dediprog, otherwise the box won&amp;#39;t boot. After the box is up running linux, often there is need to access SPI flash, e.g. upgrade new version of bootloader from linux. I will share what needs to be done for that.&lt;/p&gt;
+		<content type='html'>&lt;p&gt;Serial Peripheral Interface (SPI) flash memory is often used in an embedded Linux box to hold bootloader. During very initial board bringup, SPI flash memory needs to be programmed properly using device like Dediprog, otherwise the box won’t boot. After the box is up running linux, often there is need to access SPI flash, e.g. upgrade new version of bootloader from linux. I will share what needs to be done for that.&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&quot;/uploads/linux/linux-spi.jpg&quot; alt=&quot;Linux SPI&quot;&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;/uploads/linux/linux-spi.jpg&quot; alt=&quot;Linux SPI&quot; /&gt;&lt;/p&gt;
 
 </content>
 	</entry>
   
 	<entry>
 		<title>RTC support in embedded Linux box</title>
-		<link type='text/html' href='http://weweng.github.io/2017/08/RTC-Support-embedded-box/'/>
-		<id>http://weweng.github.io/2017/08/RTC-Support-embedded-box/</id>
+		<link type='text/html' href='http://weweng.github.io/2017/08/02/RTC-Support-embedded-box.html'/>
+		<id>http://weweng.github.io/2017/08/02/RTC-Support-embedded-box.html</id>
 		<updated>2017-08-02T00:00:00-07:00</updated>
 
 		<author>
@@ -43,15 +43,15 @@
 
 		<content type='html'>&lt;p&gt;Real Time Clock (RTC) is a small but important piece of hardware in an embedded Linux box. It saves time and keep time valid while box is in shutdown state. When the box boots again next time, it will provide a valid time to Linux system.&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&quot;/uploads/linux/linux-rtc.jpg&quot; alt=&quot;Linux RTC&quot;&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;/uploads/linux/linux-rtc.jpg&quot; alt=&quot;Linux RTC&quot; /&gt;&lt;/p&gt;
 
 </content>
 	</entry>
   
 	<entry>
 		<title>UEFI ARM Linux boot</title>
-		<link type='text/html' href='http://weweng.github.io/2017/07/ARMv8-UEFI-manual-boot/'/>
-		<id>http://weweng.github.io/2017/07/ARMv8-UEFI-manual-boot/</id>
+		<link type='text/html' href='http://weweng.github.io/2017/07/21/ARMv8-UEFI-manual-boot.html'/>
+		<id>http://weweng.github.io/2017/07/21/ARMv8-UEFI-manual-boot.html</id>
 		<updated>2017-07-21T00:00:00-07:00</updated>
 
 		<author>
@@ -59,17 +59,17 @@
 			<uri>http://weweng.github.io/</uri>
 		</author>
 
-		<content type='html'>&lt;p&gt;For the last few days, I have been working on switching u-boot based bootloader to UEFI based boot loader for a new platform at work. I found out it is useful to able to boot manually with kernel, dtb, initramfs. By doing this, if the thing doesn&amp;#39;t work, we can change any one of them to identify which one has issue.&lt;/p&gt;
+		<content type='html'>&lt;p&gt;For the last few days, I have been working on switching u-boot based bootloader to UEFI based boot loader for a new platform at work. I found out it is useful to able to boot manually with kernel, dtb, initramfs. By doing this, if the thing doesn’t work, we can change any one of them to identify which one has issue.&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&quot;/uploads/linux/uefi-shell-boot-linux.jpg&quot; alt=&quot;armada7k boot manually&quot;&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;/uploads/linux/uefi-shell-boot-linux.jpg&quot; alt=&quot;armada7k boot manually&quot; /&gt;&lt;/p&gt;
 
 </content>
 	</entry>
   
 	<entry>
 		<title>Linux udev rule to create persistent device name</title>
-		<link type='text/html' href='http://weweng.github.io/2017/05/udev-rule/'/>
-		<id>http://weweng.github.io/2017/05/udev-rule/</id>
+		<link type='text/html' href='http://weweng.github.io/2017/05/21/udev-rule.html'/>
+		<id>http://weweng.github.io/2017/05/21/udev-rule.html</id>
 		<updated>2017-05-21T00:00:00-07:00</updated>
 
 		<author>
@@ -79,15 +79,15 @@
 
 		<content type='html'>&lt;p&gt;udev is targeted at Linux kernels 2.6 and beyond to provide a userspace solution for a dynamic /dev directory, with persistent device naming. The previous /dev implementation, devfs, is now deprecated, and udev is seen as the successor.&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&quot;/uploads/linux/linux-udev-rule.jpg&quot; alt=&quot;linux udev rule&quot;&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;/uploads/linux/linux-udev-rule.jpg&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
 
 </content>
 	</entry>
   
 	<entry>
 		<title>Make a high end UCS Server for fast build</title>
-		<link type='text/html' href='http://weweng.github.io/2017/04/UCS-install/'/>
-		<id>http://weweng.github.io/2017/04/UCS-install/</id>
+		<link type='text/html' href='http://weweng.github.io/2017/04/27/UCS-install.html'/>
+		<id>http://weweng.github.io/2017/04/27/UCS-install.html</id>
 		<updated>2017-04-27T00:00:00-07:00</updated>
 
 		<author>
@@ -97,15 +97,15 @@
 
 		<content type='html'>&lt;p&gt;Cisco IOS has been growing significantly over the last ten years. The source code is reaching 10GB, and build time is taking long depending on the build machine capacity. To make development time efficient, it is critical to cut down the image build time. This week, I spent some time to make a high end of UCS server for IOS image build.&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&quot;/uploads/ucs/ddr-cpu-hs.jpg&quot; alt=&quot;High End UCS Server&quot;&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;/uploads/ucs/ddr-cpu-hs.jpg&quot; alt=&quot;High End UCS Server&quot; /&gt;&lt;/p&gt;
 
 </content>
 	</entry>
   
 	<entry>
 		<title>Marvell ARMADA 7K Linux boot using u-boot</title>
-		<link type='text/html' href='http://weweng.github.io/2017/03/ARMv8-manual-boot/'/>
-		<id>http://weweng.github.io/2017/03/ARMv8-manual-boot/</id>
+		<link type='text/html' href='http://weweng.github.io/2017/03/24/ARMv8-manual-boot.html'/>
+		<id>http://weweng.github.io/2017/03/24/ARMv8-manual-boot.html</id>
 		<updated>2017-03-24T00:00:00-07:00</updated>
 
 		<author>
@@ -113,17 +113,17 @@
 			<uri>http://weweng.github.io/</uri>
 		</author>
 
-		<content type='html'>&lt;p&gt;For the last few days, I have been working on build new image for a new platform at work. I found out it is useful to able to boot manually with kernel, dtb, initramfs from u-boot. By doing this, if the thing doesn&amp;#39;t work, we can change any one of them to identify which one has issue.&lt;/p&gt;
+		<content type='html'>&lt;p&gt;For the last few days, I have been working on build new image for a new platform at work. I found out it is useful to able to boot manually with kernel, dtb, initramfs from u-boot. By doing this, if the thing doesn’t work, we can change any one of them to identify which one has issue.&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&quot;/uploads/linux/armada7k-boot-linux-steps.jpg&quot; alt=&quot;armada7k boot manually&quot;&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;/uploads/linux/armada7k-boot-linux-steps.jpg&quot; alt=&quot;armada7k boot manually&quot; /&gt;&lt;/p&gt;
 
 </content>
 	</entry>
   
 	<entry>
 		<title>Linux initrd and initramfs</title>
-		<link type='text/html' href='http://weweng.github.io/2017/03/linux-initrd-initramfs/'/>
-		<id>http://weweng.github.io/2017/03/linux-initrd-initramfs/</id>
+		<link type='text/html' href='http://weweng.github.io/2017/03/20/linux-initrd-initramfs.html'/>
+		<id>http://weweng.github.io/2017/03/20/linux-initrd-initramfs.html</id>
 		<updated>2017-03-20T00:00:00-07:00</updated>
 
 		<author>
@@ -133,15 +133,15 @@
 
 		<content type='html'>&lt;p&gt;After Linux kernel boots, it looks for root file system, which can be initrd or initramfs. They are two different ways.&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&quot;/uploads/linux/linux-initrd-initramfs-comp.jpg&quot; alt=&quot;linux init rootfs&quot;&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;/uploads/linux/linux-initrd-initramfs-comp.jpg&quot; alt=&quot;linux init rootfs&quot; /&gt;&lt;/p&gt;
 
 </content>
 	</entry>
   
 	<entry>
 		<title>Linux Kernel image in different forms</title>
-		<link type='text/html' href='http://weweng.github.io/2017/03/linux-kernel-image/'/>
-		<id>http://weweng.github.io/2017/03/linux-kernel-image/</id>
+		<link type='text/html' href='http://weweng.github.io/2017/03/17/linux-kernel-image.html'/>
+		<id>http://weweng.github.io/2017/03/17/linux-kernel-image.html</id>
 		<updated>2017-03-17T00:00:00-07:00</updated>
 
 		<author>
@@ -151,15 +151,15 @@
 
 		<content type='html'>&lt;p&gt;Linux kernel presents in different forms depending on the actual context.&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&quot;/uploads/linux/linux-kernel-image.jpg&quot; alt=&quot;linux kernel image&quot;&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;/uploads/linux/linux-kernel-image.jpg&quot; alt=&quot;linux kernel image&quot; /&gt;&lt;/p&gt;
 
 </content>
 	</entry>
   
 	<entry>
 		<title>Create docker container image</title>
-		<link type='text/html' href='http://weweng.github.io/2017/03/docker-container-image-creation/'/>
-		<id>http://weweng.github.io/2017/03/docker-container-image-creation/</id>
+		<link type='text/html' href='http://weweng.github.io/2017/03/04/docker-container-image-creation.html'/>
+		<id>http://weweng.github.io/2017/03/04/docker-container-image-creation.html</id>
 		<updated>2017-03-04T00:00:00-08:00</updated>
 
 		<author>
@@ -170,7 +170,7 @@
 		<content type='html'>&lt;p&gt;Docker is growing with amazing features, and it becomes a platform to deploy services even in embedded linux enviroment. The container image creation is an important part of process.
 Docker has done great job to manage the container image to make it to be in layer fashion, this is especially important for storage efficiency.&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&quot;/uploads/linux/docker_container_image_layers.png&quot; alt=&quot;docker install&quot;&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;/uploads/linux/docker_container_image_layers.png&quot; alt=&quot;docker install&quot; /&gt;&lt;/p&gt;
 
 &lt;p&gt;The following post shows what I did to create a scratch hello image and a minimal linux image based on alpine using Dockerfile.&lt;/p&gt;
 
@@ -179,8 +179,8 @@ Docker has done great job to manage the container image to make it to be in laye
   
 	<entry>
 		<title>Install docker from binary distribution</title>
-		<link type='text/html' href='http://weweng.github.io/2017/02/docker-binary-install/'/>
-		<id>http://weweng.github.io/2017/02/docker-binary-install/</id>
+		<link type='text/html' href='http://weweng.github.io/2017/02/27/docker-binary-install.html'/>
+		<id>http://weweng.github.io/2017/02/27/docker-binary-install.html</id>
 		<updated>2017-02-27T00:00:00-08:00</updated>
 
 		<author>
@@ -190,7 +190,7 @@ Docker has done great job to manage the container image to make it to be in laye
 
 		<content type='html'>&lt;p&gt;Docker is growing with amazing features, and it becomes a platform to deploy services even in embedded linux enviroment. There are different ways to install docker, one approach is to install using the pre-built binary distribution.&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&quot;/uploads/linux/install-docker-binary.jpg&quot; alt=&quot;docker install&quot;&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;/uploads/linux/install-docker-binary.jpg&quot; alt=&quot;docker install&quot; /&gt;&lt;/p&gt;
 
 &lt;p&gt;The following post shows what I did under ubuntu 16.04.&lt;/p&gt;
 
@@ -199,8 +199,8 @@ Docker has done great job to manage the container image to make it to be in laye
   
 	<entry>
 		<title>Scapy tool for network packet manipulation</title>
-		<link type='text/html' href='http://weweng.github.io/2017/02/scapy-tool/'/>
-		<id>http://weweng.github.io/2017/02/scapy-tool/</id>
+		<link type='text/html' href='http://weweng.github.io/2017/02/07/scapy-tool.html'/>
+		<id>http://weweng.github.io/2017/02/07/scapy-tool.html</id>
 		<updated>2017-02-07T00:00:00-08:00</updated>
 
 		<author>
@@ -210,15 +210,15 @@ Docker has done great job to manage the container image to make it to be in laye
 
 		<content type='html'>&lt;p&gt;Scapy is a powerful interactive packet manipulation program. It is able to forge or decode packets of a wide number of protocols, send them on the wire, capture them, match requests and replies, and much more.&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&quot;/uploads/networking/scapy-tool.jpg&quot; alt=&quot;Scapy Tool&quot;&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;/uploads/networking/scapy-tool.jpg&quot; alt=&quot;Scapy Tool&quot; /&gt;&lt;/p&gt;
 
 </content>
 	</entry>
   
 	<entry>
 		<title>Explore GIT Internals</title>
-		<link type='text/html' href='http://weweng.github.io/2017/01/git-internal/'/>
-		<id>http://weweng.github.io/2017/01/git-internal/</id>
+		<link type='text/html' href='http://weweng.github.io/2017/01/16/git-internal.html'/>
+		<id>http://weweng.github.io/2017/01/16/git-internal.html</id>
 		<updated>2017-01-16T00:00:00-08:00</updated>
 
 		<author>
@@ -228,15 +228,15 @@ Docker has done great job to manage the container image to make it to be in laye
 
 		<content type='html'>&lt;p&gt;GIT is becoming widely used as SCM tool. I have been always interested in SCM tools which make me feel good if I know exactly where is my code and in case if I need made some change or track when/how the change is introduced. To get know better, I explored the internals of GIT, which is actaully very interesting.&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&quot;/uploads/git/git-internal-1.jpg&quot; alt=&quot;GIT Internal 1&quot;&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;/uploads/git/git-internal-1.jpg&quot; alt=&quot;GIT Internal 1&quot; /&gt;&lt;/p&gt;
 
 </content>
 	</entry>
   
 	<entry>
 		<title>Ethernet throughput testing using Spirent</title>
-		<link type='text/html' href='http://weweng.github.io/2017/01/spirent-testing/'/>
-		<id>http://weweng.github.io/2017/01/spirent-testing/</id>
+		<link type='text/html' href='http://weweng.github.io/2017/01/12/spirent-testing.html'/>
+		<id>http://weweng.github.io/2017/01/12/spirent-testing.html</id>
 		<updated>2017-01-12T00:00:00-08:00</updated>
 
 		<author>
@@ -244,17 +244,17 @@ Docker has done great job to manage the container image to make it to be in laye
 			<uri>http://weweng.github.io/</uri>
 		</author>
 
-		<content type='html'>&lt;p&gt;There are some Linux open source tools like iperf, netperf can be used to generate ethernet tarrfic for throughput testing. Those tools can get a ballpark number only. There are vendors like IXIA, Spirent, which design the dedicate measurement tools. For the last few days, as I&amp;#39;m evaluating the different software architecture for the next routing platform I&amp;#39;m going to work on this year, I used Spirent SPT-9000A to perform ethernet throughput testing.&lt;/p&gt;
+		<content type='html'>&lt;p&gt;There are some Linux open source tools like iperf, netperf can be used to generate ethernet tarrfic for throughput testing. Those tools can get a ballpark number only. There are vendors like IXIA, Spirent, which design the dedicate measurement tools. For the last few days, as I’m evaluating the different software architecture for the next routing platform I’m going to work on this year, I used Spirent SPT-9000A to perform ethernet throughput testing.&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&quot;/uploads/networking/spirent-testing.jpg&quot; alt=&quot;Spirent Test Center&quot;&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;/uploads/networking/spirent-testing.jpg&quot; alt=&quot;Spirent Test Center&quot; /&gt;&lt;/p&gt;
 
 </content>
 	</entry>
   
 	<entry>
 		<title>xilinx ARM MPSoc+ultrascale software run in QEMU</title>
-		<link type='text/html' href='http://weweng.github.io/2016/12/xilinx-MPSoC-ultrascale-dev/'/>
-		<id>http://weweng.github.io/2016/12/xilinx-MPSoC-ultrascale-dev/</id>
+		<link type='text/html' href='http://weweng.github.io/2016/12/21/xilinx-MPSoC-ultrascale-dev.html'/>
+		<id>http://weweng.github.io/2016/12/21/xilinx-MPSoC-ultrascale-dev.html</id>
 		<updated>2016-12-21T00:00:00-08:00</updated>
 
 		<author>
@@ -264,9 +264,9 @@ Docker has done great job to manage the container image to make it to be in laye
 
 		<content type='html'>&lt;p&gt;Many vendors are shipping ARMv8 SoC including NXP/Freescale, Marvell, Broadcom, xilinx. xilinx MPSoC is one of impressive one, with Cortex-53, integrated with xilinx FPGA.&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&quot;/uploads/linux/linux-arm-xilinx-mpsoc-chip.jpg&quot; alt=&quot;xilinx MPSoC&quot;&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;/uploads/linux/linux-arm-xilinx-mpsoc-chip.jpg&quot; alt=&quot;xilinx MPSoC&quot; /&gt;&lt;/p&gt;
 
-&lt;p&gt;I&amp;#39;m impressed with xilinx&amp;#39;s rich document for software developers to reference.
+&lt;p&gt;I’m impressed with xilinx’s rich document for software developers to reference.
 In this post I share what I have done in order to boot linux in QEMU which simulates xilinx ARM MPSoC+ultrascale.&lt;/p&gt;
 
 </content>
@@ -274,8 +274,8 @@ In this post I share what I have done in order to boot linux in QEMU which simul
   
 	<entry>
 		<title>GIT shared remote repository setup</title>
-		<link type='text/html' href='http://weweng.github.io/2016/12/git-shared-repository/'/>
-		<id>http://weweng.github.io/2016/12/git-shared-repository/</id>
+		<link type='text/html' href='http://weweng.github.io/2016/12/17/git-shared-repository.html'/>
+		<id>http://weweng.github.io/2016/12/17/git-shared-repository.html</id>
 		<updated>2016-12-17T00:00:00-08:00</updated>
 
 		<author>
@@ -285,7 +285,7 @@ In this post I share what I have done in order to boot linux in QEMU which simul
 
 		<content type='html'>&lt;p&gt;GIT is becoming very popular. It is an excellent SCM tool. I really like it because it is easy to use, designed with distributed architecture, with a local repository available. It is also flexible that you can simply use it without central repository. However for big projects, it always has central repository which is hosted in server, and allows many developers to work in the same time.&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&quot;/uploads/git/git-remote-repo1.jpg&quot; alt=&quot;GIT remote repo model&quot;&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;/uploads/git/git-remote-repo1.jpg&quot; alt=&quot;GIT remote repo model&quot; /&gt;&lt;/p&gt;
 
 </content>
 	</entry>

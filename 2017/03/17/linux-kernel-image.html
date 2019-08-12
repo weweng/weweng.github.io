@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset='UTF-8'>
+	<title>Linux Kernel image in different forms | Wenwei's tech Blog</title>
+	<link rel='alternate' type='application/rss+xml' title='Wenwei Feed' href='http://weweng.github.io/atom.xml'>
+	<meta name='description' content=''/>
+	<meta name='keywords' content='linux kernel image'/>
+	<meta name='viewport' content='width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no'>
+	<meta name='theme-color' content='#655B54'>
+	<link rel='shortcut icon' href='/assets/favicon.ico' type='image/x-icon'> 
+	<!--- <link rel='icon' href='/assets/favicon.ico' type='image/x-icon'> --->
+<link rel='icon' href='/assets/blogger.png' type='image/x-png'>
+
+	<link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro:400,700' rel='stylesheet' type='text/css'>
+	<link rel='stylesheet' type='text/css' href='/assets/css/code-highlighter.css' />
+<link rel='stylesheet' type='text/css' href='/assets/css/default.min.css' />
+<link rel='stylesheet' type='text/css' href='/assets/css/github.css' />
+<link rel='stylesheet' type='text/css' href='/assets/css/pure-base-min.css' />
+<link rel='stylesheet' type='text/css' href='/assets/css/pure-grids-responsive-min.css' />
+<link rel='stylesheet' type='text/css' href='/assets/css/pure-menus-min.css' />
+<link rel='stylesheet' type='text/css' href='/assets/css/pure-tables-min.css' />
+<link rel='stylesheet' type='text/css' href='/assets/css/social-buttons.css' />
+<link rel='stylesheet' type='text/css' href='/assets/css/weweng.css' />
+
+
+	
+</head>
+<body>
+
+<div class='pure-g' id='layout'>
+    <div class='sidebar pure-u-1 pure-u-md-1-4'>
+      <div class='header'>
+	<nav class='nav'>
+	  <ul class='nav-list'>
+	    <li class='nav-item'>
+	      <strong> <a href='/workblog.html'>Blog</a> </strong>
+	    </li>
+<!--
+	    <li class='nav-item'>
+	      <strong> <a href='/study/index.html'>Study</a> </strong>
+	    </li>
+	    <li class='nav-item'>
+	      <strong> <a href='/projects/index.html'>Projects</a> </strong>
+	    </li>
+-->
+<!--
+            <li class='nav-item'>
+              <strong> <a href='/services/index.html'>读书笔记</a> </strong>
+            </li>
+-->
+	    <li class='nav-item'>
+	      <strong><a href='/aboutme.html'>About Me</a></strong>
+	    </li>
+	</ul>
+	</nav>
+	<br> 
+	<h1 class='brand-title'>
+	  <a href='/index.html'>
+		<img src='/assets/img/avatar.png' height='100'/>
+	  </a>
+	</h1>
+      </div>
+</div>
+
+<div class='pure-u-1'>
+	<div class='content'>
+		<section class='post'>
+	<header class='post-header'>
+		<h2 class='post-title'> Linux Kernel image in different forms </h2>
+		<p class='post-meta'>
+			Posted on <time class='date' datetime='2017-03-17T00:00:00+01:00'>17 Mar 2017</time>
+		</p>
+	</header>
+
+	<div class='post-description'>
+		<p>Linux kernel presents in different forms depending on the actual context.</p>
+
+<p><img src="/uploads/linux/linux-kernel-image.jpg" alt="linux kernel image" /></p>
+
+<!--more-->
+
+<h1 id="vmlinux">vmlinux</h1>
+
+<p>vmlinux, the name comes from the fact that “linux” supports virtual memory. It is typically in ELF format, created by linker. This file is needed when debugging kernel. In order to boot linux kernel, vmlinux image has to be transformed into different from based on processor type.</p>
+
+<h1 id="vmlinuxbin">vmlinux.bin</h1>
+<p>this is binary form of kernel image, which is created by using objdump from vmlinux image.</p>
+
+<h1 id="bzimage">bzImage</h1>
+<p>This is bootable image for x86 processor. The following picture well describe the actaul content of bzImage.</p>
+
+<p><img src="/uploads/linux/linux-kernel-bzimage.jpg" alt="linux kernel bzImage" /></p>
+
+<p>It contains concatenated bootsect.o + setup.o + misc.o + piggy.o</p>
+
+<h1 id="uimage">uImage</h1>
+<p>This is bootable image for a processor, which uses u-boot as bootloader. THe processors are like ARM (32-bit), PowerPC, MIPS.
+There is a utility tool “mkimage” to transform vmlinux into uImage. The uImage has the following header in the beginning of image.</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">typedef struct uimage_header <span class="o">{</span>
+    uint32_t    ih_magic<span class="p">;</span>           /<span class="k">*</span> Image Header Magic Number <span class="o">(</span>BE<span class="o">)</span> <span class="k">*</span>/
+    uint32_t    ih_hcrc<span class="p">;</span>            /<span class="k">*</span> Image Header CRC Checksum <span class="o">(</span>BE<span class="o">)</span> <span class="k">*</span>/
+    uint32_t    ih_time<span class="p">;</span>            /<span class="k">*</span> Image Creation Timestamp <span class="o">(</span>BE<span class="o">)</span> <span class="k">*</span>/
+    uint32_t    ih_size<span class="p">;</span>            /<span class="k">*</span> Image Data Size <span class="o">(</span>BE<span class="o">)</span> <span class="k">*</span>/
+    uint32_t    ih_load<span class="p">;</span>            /<span class="k">*</span> Data  Load  Address <span class="o">(</span>BE<span class="o">)</span> <span class="k">*</span>/
+    uint32_t    ih_ep<span class="p">;</span>              /<span class="k">*</span> Entry Point Address <span class="o">(</span>BE<span class="o">)</span> <span class="k">*</span>/
+    uint32_t    ih_dcrc<span class="p">;</span>            /<span class="k">*</span> Image Data CRC Checksum <span class="o">(</span>BE<span class="o">)</span> <span class="k">*</span>/
+    uint8_t     ih_os<span class="p">;</span>              /<span class="k">*</span> Operating System     <span class="k">*</span>/
+    uint8_t     ih_arch<span class="p">;</span>            /<span class="k">*</span> CPU architecture     <span class="k">*</span>/
+    uint8_t     ih_type<span class="p">;</span>            /<span class="k">*</span> Image Type           <span class="k">*</span>/
+    uint8_t     ih_comp<span class="p">;</span>            /<span class="k">*</span> Compression Type     <span class="k">*</span>/
+    uint8_t     ih_name[IH_NMLEN]<span class="p">;</span>  /<span class="k">*</span> Image Name       <span class="k">*</span>/
+<span class="o">}</span> uimage_header_t<span class="p">;</span></code></pre></figure>
+
+<h1 id="image">Image</h1>
+<p>This a relatively new format for ARMV8 64-bit processor. It can also created by using “mkimage” tool.</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">typedef struct arm64_image_header <span class="o">{</span>
+    uint32_t ih_code0<span class="p">;</span>			/<span class="k">*</span> Executable code <span class="k">*</span>/
+    uint32_t ih_code1<span class="p">;</span>			/<span class="k">*</span> Executable code <span class="k">*</span>/
+    uint64_t ih_text_offset<span class="p">;</span>		/<span class="k">*</span> Image load offset, little endian <span class="k">*</span>/
+    uint64_t ih_image_size<span class="p">;</span>		/<span class="k">*</span> Effective Image size, little endian <span class="k">*</span>/
+    uint64_t ih_flags<span class="p">;</span>			/<span class="k">*</span> kernel flags, little endian <span class="k">*</span>/
+    uint64_t res2<span class="p">;</span>		        /<span class="k">*</span> reserved <span class="k">*</span>/
+    uint64_t res3<span class="p">;</span>		        /<span class="k">*</span> reserved <span class="k">*</span>/
+    uint64_t res4<span class="p">;</span>		        /<span class="k">*</span> reserved <span class="k">*</span>/
+    uint32_t ih_magic<span class="p">;</span>	                /<span class="k">*</span> 0x644d5241 Magic number, little endian, <span class="s2">"ARM</span><span class="se">\x</span><span class="s2">64"</span> <span class="k">*</span>/
+    uint32_t res5<span class="p">;</span>			/<span class="k">*</span> reserved <span class="o">(</span>used <span class="k">for </span>PE COFF offset<span class="o">)</span> <span class="k">*</span>/
+<span class="o">}</span> arm64_image_header_t<span class="p">;</span></code></pre></figure>
+
+
+	</div>
+
+<!--	
+	<div class='share-button-container'>
+		<p>Like it? Share it!</p>
+		<div class='share-button share-button-twitter' data-share-url="http://weweng.github.io/2017/03/17/linux-kernel-image.html">
+			<div clas='box'>
+				<a href="https://twitter.com/share?url=http://weweng.github.io%2F2017%2F03%2F17%2Flinux-kernel-image.html&text=Linux Kernel image in different forms&via=weweng" target='_blank'>
+					<span class='share'>Tweet</span>
+					<span class='count'>0</span>
+				</a>
+			</div>
+		</div>
+
+		<div class="share-button share-button-facebook" data-share-url="http://weweng.github.io/2017/03/17/linux-kernel-image.html">
+			<div class="box">
+				<a href="https://www.facebook.com/sharer/sharer.php?u=http://weweng.github.io%2F2017%2F03%2F17%2Flinux-kernel-image.html">
+					<span class='share'>Share</span>
+					<span class='count'>0</span>
+				</a>
+			</div>
+		</div>
+	</div>
+-->
+
+</section>
+
+<div id='comments'>
+	<div id='disqus_thread'></div>
+	<script type='text/javascript'>
+		var disqus_shortname = 'wewenggithubio';
+		(function() {
+			var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+			dsq.src = 'http://' + disqus_shortname + '.disqus.com/embed.js';
+			(document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+		})();
+	</script>
+
+	<noscript>Please enable JavaScript to view the comments</noscript>
+</div>
+<script type='text/javascript' src='/assets/js/StaticShareButtons.js'></script>
+
+
+	</div>
+
+	<footer class='footer'>
+		<span>Copyright 2015-2017, Wenwei Weng</span>
+	</footer>
+</div>
+</div>
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-62997612-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+
+
+<script type="text/javascript">
+// Open external links in new tab
+(window.onload = function(){
+	var links = document.links;
+
+	for(i=0; i<=links.length -1; i++){
+		if(links[i].hostname != window.location.hostname){
+			links[i].target = '_blank';
+		}
+	}
+})();
+</script>
+</body>
+</html>

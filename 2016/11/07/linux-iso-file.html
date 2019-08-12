@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset='UTF-8'>
+	<title>Linux ISO file - View, modify and Create... | Wenwei's tech Blog</title>
+	<link rel='alternate' type='application/rss+xml' title='Wenwei Feed' href='http://weweng.github.io/atom.xml'>
+	<meta name='description' content=''/>
+	<meta name='keywords' content='Linux ISO'/>
+	<meta name='viewport' content='width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no'>
+	<meta name='theme-color' content='#655B54'>
+	<link rel='shortcut icon' href='/assets/favicon.ico' type='image/x-icon'> 
+	<!--- <link rel='icon' href='/assets/favicon.ico' type='image/x-icon'> --->
+<link rel='icon' href='/assets/blogger.png' type='image/x-png'>
+
+	<link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro:400,700' rel='stylesheet' type='text/css'>
+	<link rel='stylesheet' type='text/css' href='/assets/css/code-highlighter.css' />
+<link rel='stylesheet' type='text/css' href='/assets/css/default.min.css' />
+<link rel='stylesheet' type='text/css' href='/assets/css/github.css' />
+<link rel='stylesheet' type='text/css' href='/assets/css/pure-base-min.css' />
+<link rel='stylesheet' type='text/css' href='/assets/css/pure-grids-responsive-min.css' />
+<link rel='stylesheet' type='text/css' href='/assets/css/pure-menus-min.css' />
+<link rel='stylesheet' type='text/css' href='/assets/css/pure-tables-min.css' />
+<link rel='stylesheet' type='text/css' href='/assets/css/social-buttons.css' />
+<link rel='stylesheet' type='text/css' href='/assets/css/weweng.css' />
+
+
+	
+</head>
+<body>
+
+<div class='pure-g' id='layout'>
+    <div class='sidebar pure-u-1 pure-u-md-1-4'>
+      <div class='header'>
+	<nav class='nav'>
+	  <ul class='nav-list'>
+	    <li class='nav-item'>
+	      <strong> <a href='/workblog.html'>Blog</a> </strong>
+	    </li>
+<!--
+	    <li class='nav-item'>
+	      <strong> <a href='/study/index.html'>Study</a> </strong>
+	    </li>
+	    <li class='nav-item'>
+	      <strong> <a href='/projects/index.html'>Projects</a> </strong>
+	    </li>
+-->
+<!--
+            <li class='nav-item'>
+              <strong> <a href='/services/index.html'>读书笔记</a> </strong>
+            </li>
+-->
+	    <li class='nav-item'>
+	      <strong><a href='/aboutme.html'>About Me</a></strong>
+	    </li>
+	</ul>
+	</nav>
+	<br> 
+	<h1 class='brand-title'>
+	  <a href='/index.html'>
+		<img src='/assets/img/avatar.png' height='100'/>
+	  </a>
+	</h1>
+      </div>
+</div>
+
+<div class='pure-u-1'>
+	<div class='content'>
+		<section class='post'>
+	<header class='post-header'>
+		<h2 class='post-title'> Linux ISO file - View, modify and Create... </h2>
+		<p class='post-meta'>
+			Posted on <time class='date' datetime='2016-11-07T00:00:00+01:00'>07 Nov 2016</time>
+		</p>
+	</header>
+
+	<div class='post-description'>
+		<p>The .ISO file format simply archives the contents of an optical media disc using the ISO 9660 file system. Typically it burns into CD/DVD, which serves as media to transfer the information.</p>
+
+<p><img src="/uploads/linux/linux-iso-file.jpg" alt="Linux ISO" /></p>
+
+<p>Under linux, actually there are a few things you can do to manipulate ISO file.</p>
+
+<!--more-->
+
+<h1 id="create-iso-file-from-cddvd">Create ISO file from CD/DVD</h1>
+<p>If you have a CD/DVD which has either files or media (audio/video), you can create a ISO file to archive the content, or share ISO file with your friends. Simply insert CD/DVD into CD/DVD drive, Linux typically will detect it as device “/dev/cdrom”, then you can do:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">weng@weng-u1604:~<span class="nv">$ </span><span class="nb">sudo </span>dd <span class="k">if</span><span class="o">=</span>/dev/cdrom <span class="nv">of</span><span class="o">=</span>~/myDVD.iso <span class="nv">bs</span><span class="o">=</span>10M<span class="p">;</span> sync</code></pre></figure>
+
+<p>The above command will copy the entire CD/DVD into myDVD.iso file. “sync” command is used simply to make sure linux flush cache into myDVD.iso in disk.</p>
+
+<h1 id="view-the-content-of-iso-file">View the content of ISO file</h1>
+<p>If you got a ISO file (e.g. downloaded an ubuntu distribution), you are curious to know what is inside.</p>
+
+<p>The following commands show how to create a mount directory “/mnt/iso”, and use loop mount option “-o loop” to mount ISO file to mounted directory. Once it is mounted, you can get into mounted directory to see the files. Note that the mounted directory is read only.</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">weng@weng-u1604:/mnt/vb-win7-share<span class="nv">$ </span><span class="nb">sudo </span>mkdir /mnt/iso
+<span class="o">[</span><span class="nb">sudo</span><span class="o">]</span> password <span class="k">for </span>weng: 
+weng@weng-u1604:/mnt/vb-win7-share<span class="nv">$ </span><span class="nb">sudo </span>mount <span class="nt">-o</span> loop ubuntu-14.04.3-desktop-amd64.iso /mnt/iso
+mount: /dev/loop0 is write-protected, mounting read-only
+weng@weng-u1604:/mnt/vb-win7-share<span class="nv">$ </span>losetup <span class="nt">-a</span>
+/dev/loop0: <span class="o">[]</span>: <span class="o">(</span>/mnt/vb-win7-share/ubuntu-14.04.3-desktop-amd64.iso<span class="o">)</span>
+weng@weng-u1604:/mnt/vb-win7-share<span class="nv">$ </span><span class="nb">ls</span> /mnt/iso
+autorun.inf  casper  EFI      isolinux    pics  preseed             ubuntu
+boot         dists   install  md5sum.txt  pool  README.diskdefines  wubi.exe
+weng@weng-u1604:/mnt/vb-win7-share<span class="nv">$ </span><span class="nb">cat</span> /mnt/iso/md5sum.txt | <span class="nb">grep </span>wubi.exe
+b31731ea6cdbebe1d02f8193db420886  ./wubi.exe
+weng@weng-u1604:/mnt/vb-win7-share<span class="nv">$ </span>md5sum /mnt/iso/wubi.exe 
+b31731ea6cdbebe1d02f8193db420886  /mnt/iso/wubi.exe
+weng@weng-u1604:/mnt/vb-win7-share<span class="nv">$ </span><span class="nb">sudo </span>umount /mnt/iso
+weng@weng-u1604:/mnt/vb-win7-share<span class="nv">$ </span></code></pre></figure>
+
+<h1 id="create-iso-file">Create ISO file</h1>
+<p>In the above example, If you need to modify some files inside ISO file, you need copy all files out from the mouted directoy to new folder, and modify as needed under new folder, and create a new ISO file using mkisofs.</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">weng@weng-u1604:/mnt/vb-win7-share<span class="nv">$ </span><span class="nb">sudo </span>mount <span class="nt">-o</span> loop ubuntu-14.04.3-desktop-amd64.iso /mnt/iso
+weng@weng-u1604:/mnt/vb-win7-share<span class="nv">$ </span>mkdir ~/new-iso
+weng@weng-u1604:/mnt/vb-win7-share<span class="nv">$ </span>cp <span class="nt">-rf</span> /mnt/iso/<span class="k">*</span> ~/new-iso/
+weng@weng-u1604:/mnt/vb-win7-share<span class="nv">$ </span><span class="c">#modify files as needed under ~/new-iso</span>
+weng@weng-u1604:/mnt/vb-win7-share<span class="nv">$ </span><span class="nb">sudo </span>mkisofs <span class="nt">-o</span> ~/ubuntu-1404-rev1.iso ~/new-iso<span class="p">;</span> sync
+weng@weng-u1604:/mnt/vb-win7-share<span class="nv">$ </span></code></pre></figure>
+
+<h1 id="create-a-bootableinstallation-usb-stick-from-bootable-iso-image">Create a bootable/installation USB stick from bootable ISO image</h1>
+<p>If you have a linux distribution in ISO format, and you don’t want to waste a DVD, you can simply write it into USB stick to make it as installation media. Insert USB memory stick into Linux, make sure it is detected properly by linux something like “/dev/sdb”, “/dev/sdc”. (check the output of dmesg at the end once you insert USB memory stick)</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">weng@weng-u1604:/mnt/vb-win7-share<span class="nv">$ </span><span class="nb">sudo </span>dd <span class="k">if</span><span class="o">=</span>ubuntu-14.04.3-desktop-amd64.iso <span class="nv">of</span><span class="o">=</span>/dev/sdb <span class="nv">bs</span><span class="o">=</span>10M<span class="p">;</span> sync<span class="p">;</span> sync
+weng@weng-u1604:/mnt/vb-win7-share<span class="nv">$ </span></code></pre></figure>
+
+<p>After the above command is completed, you can simply unplug, and good to go.</p>
+
+<p>Linux is wonderful that you can do a lot interesting stuff!</p>
+
+
+	</div>
+
+<!--	
+	<div class='share-button-container'>
+		<p>Like it? Share it!</p>
+		<div class='share-button share-button-twitter' data-share-url="http://weweng.github.io/2016/11/07/linux-iso-file.html">
+			<div clas='box'>
+				<a href="https://twitter.com/share?url=http://weweng.github.io%2F2016%2F11%2F07%2Flinux-iso-file.html&text=Linux ISO file - View, modify and Create...&via=weweng" target='_blank'>
+					<span class='share'>Tweet</span>
+					<span class='count'>0</span>
+				</a>
+			</div>
+		</div>
+
+		<div class="share-button share-button-facebook" data-share-url="http://weweng.github.io/2016/11/07/linux-iso-file.html">
+			<div class="box">
+				<a href="https://www.facebook.com/sharer/sharer.php?u=http://weweng.github.io%2F2016%2F11%2F07%2Flinux-iso-file.html">
+					<span class='share'>Share</span>
+					<span class='count'>0</span>
+				</a>
+			</div>
+		</div>
+	</div>
+-->
+
+</section>
+
+<div id='comments'>
+	<div id='disqus_thread'></div>
+	<script type='text/javascript'>
+		var disqus_shortname = 'wewenggithubio';
+		(function() {
+			var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+			dsq.src = 'http://' + disqus_shortname + '.disqus.com/embed.js';
+			(document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+		})();
+	</script>
+
+	<noscript>Please enable JavaScript to view the comments</noscript>
+</div>
+<script type='text/javascript' src='/assets/js/StaticShareButtons.js'></script>
+
+
+	</div>
+
+	<footer class='footer'>
+		<span>Copyright 2015-2017, Wenwei Weng</span>
+	</footer>
+</div>
+</div>
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-62997612-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+
+
+<script type="text/javascript">
+// Open external links in new tab
+(window.onload = function(){
+	var links = document.links;
+
+	for(i=0; i<=links.length -1; i++){
+		if(links[i].hostname != window.location.hostname){
+			links[i].target = '_blank';
+		}
+	}
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset='UTF-8'>
+	<title>Linux Huge Page | Wenwei's tech Blog</title>
+	<link rel='alternate' type='application/rss+xml' title='Wenwei Feed' href='http://weweng.github.io/atom.xml'>
+	<meta name='description' content=''/>
+	<meta name='keywords' content='Linux huge page'/>
+	<meta name='viewport' content='width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no'>
+	<meta name='theme-color' content='#655B54'>
+	<link rel='shortcut icon' href='/assets/favicon.ico' type='image/x-icon'> 
+	<!--- <link rel='icon' href='/assets/favicon.ico' type='image/x-icon'> --->
+<link rel='icon' href='/assets/blogger.png' type='image/x-png'>
+
+	<link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro:400,700' rel='stylesheet' type='text/css'>
+	<link rel='stylesheet' type='text/css' href='/assets/css/code-highlighter.css' />
+<link rel='stylesheet' type='text/css' href='/assets/css/default.min.css' />
+<link rel='stylesheet' type='text/css' href='/assets/css/github.css' />
+<link rel='stylesheet' type='text/css' href='/assets/css/pure-base-min.css' />
+<link rel='stylesheet' type='text/css' href='/assets/css/pure-grids-responsive-min.css' />
+<link rel='stylesheet' type='text/css' href='/assets/css/pure-menus-min.css' />
+<link rel='stylesheet' type='text/css' href='/assets/css/pure-tables-min.css' />
+<link rel='stylesheet' type='text/css' href='/assets/css/social-buttons.css' />
+<link rel='stylesheet' type='text/css' href='/assets/css/weweng.css' />
+
+
+	
+</head>
+<body>
+
+<div class='pure-g' id='layout'>
+    <div class='sidebar pure-u-1 pure-u-md-1-4'>
+      <div class='header'>
+	<nav class='nav'>
+	  <ul class='nav-list'>
+	    <li class='nav-item'>
+	      <strong> <a href='/workblog.html'>Blog</a> </strong>
+	    </li>
+<!--
+	    <li class='nav-item'>
+	      <strong> <a href='/study/index.html'>Study</a> </strong>
+	    </li>
+	    <li class='nav-item'>
+	      <strong> <a href='/projects/index.html'>Projects</a> </strong>
+	    </li>
+-->
+<!--
+            <li class='nav-item'>
+              <strong> <a href='/services/index.html'>读书笔记</a> </strong>
+            </li>
+-->
+	    <li class='nav-item'>
+	      <strong><a href='/aboutme.html'>About Me</a></strong>
+	    </li>
+	</ul>
+	</nav>
+	<br> 
+	<h1 class='brand-title'>
+	  <a href='/index.html'>
+		<img src='/assets/img/avatar.png' height='100'/>
+	  </a>
+	</h1>
+      </div>
+</div>
+
+<div class='pure-u-1'>
+	<div class='content'>
+		<section class='post'>
+	<header class='post-header'>
+		<h2 class='post-title'> Linux Huge Page </h2>
+		<p class='post-meta'>
+			Posted on <time class='date' datetime='2016-07-19T00:00:00+01:00'>19 Jul 2016</time>
+		</p>
+	</header>
+
+	<div class='post-description'>
+		<p>When a process uses some memory, the CPU is marking the RAM as used by that process. For efficiency, the CPU allocate RAM by chunks of 4K bytes (it’s the default value on many platforms). Those chunks are named pages. Those pages can be swapped to disk, etc.</p>
+
+<p>Since the process address space are virtual in Linux, the CPU and the operating system have to remember which page belong to which process, and where it is stored, i.e. translate from virtual to
+physical address. The translation is done through TLB. A TLB is a cache of virtual-to-physical
+translations.  Typically this is a very scarce resource on processor. Operating systems try to make best use of limited number of TLB resources. Huge page is a way to reduce number of pages in the kernel so that less TLB entries are used, translation will be faster.</p>
+
+<p><img src="/uploads/linux/hugepages.jpg" alt="Linux ACPI" /></p>
+
+<!--more-->
+
+<p>#How to check if the running kernel supports huge page ?</p>
+
+<p>By checking the kernel config, we can find if huge pages is supported.</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">weng@weng-u1604:~<span class="nv">$ </span><span class="nb">cat</span> /boot/config-<span class="k">$(</span>uname <span class="nt">-r</span><span class="k">)</span> | <span class="nb">grep </span>HUGETLB
+<span class="nv">CONFIG_ARCH_WANT_GENERAL_HUGETLB</span><span class="o">=</span>y
+<span class="nv">CONFIG_CGROUP_HUGETLB</span><span class="o">=</span>y
+<span class="nv">CONFIG_HUGETLBFS</span><span class="o">=</span>y
+<span class="nv">CONFIG_HUGETLB_PAGE</span><span class="o">=</span>y
+weng@weng-u1604:~<span class="nv">$ </span></code></pre></figure>
+
+<p>#How to check what are supported huge page size using “hugeadm” tool?</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">weng@weng-u1604:~<span class="nv">$ </span>hugeadm <span class="nt">--page-sizes-all</span>
+2097152
+weng@weng-u1604:~<span class="nv">$ </span></code></pre></figure>
+
+<p>The above output shows that the supported huge page size is 2MB.</p>
+
+<p>#How to check the current huge pages status?</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">weng@weng-u1604:~<span class="nv">$ </span><span class="nb">cat</span> /proc/meminfo | <span class="nb">grep </span>HugePages
+AnonHugePages:    425984 kB
+HugePages_Total:       0
+HugePages_Free:        0
+HugePages_Rsvd:        0
+HugePages_Surp:        0
+weng@weng-u1604:~<span class="nv">$ </span></code></pre></figure>
+
+<p>where:
+HugePages_Total is the size of the pool of huge pages.
+HugePages_Free  is the number of huge pages in the pool that are not yet
+                allocated.
+HugePages_Rsvd  is short for “reserved,” and is the number of huge pages for
+                which a commitment to allocate from the pool has been made,
+                but no allocation has yet been made.  Reserved huge pages
+                guarantee that an application will be able to allocate a
+                huge page from the pool of huge pages at fault time.
+HugePages_Surp  is short for “surplus,” and is the number of huge pages in
+                the pool above the value in /proc/sys/vm/nr_hugepages. The
+                maximum number of surplus huge pages is controlled by
+                /proc/sys/vm/nr_overcommit_hugepages.</p>
+
+<p>The above output says there is no huge pages created so far.</p>
+
+<p>#How to create huge pages ?
+There are two ways:</p>
+<ol>
+<li> Add kernell boot parameter, e.g. "hugepagesz=2MB hugepages=16"</li>
+<li> Create on the fly, e.g. 'echo 16 &gt; /sys/devices/system/node/node0/hugepages/hugepages-2048kB/nr_hugepages'</li>
+</ol>
+
+<p>Verify if it is created:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">weng@weng-u1604:~<span class="nv">$ </span><span class="nb">cat</span> /proc/meminfo | <span class="nb">grep </span>Huge
+AnonHugePages:    561152 kB
+HugePages_Total:      16
+HugePages_Free:       16
+HugePages_Rsvd:        0
+HugePages_Surp:        0
+Hugepagesize:       2048 kB
+weng@weng-u1604:~<span class="nv">$ </span>
+weng@weng-u1604:~<span class="nv">$ </span>hugeadm <span class="nt">--pool-list</span>
+      Size  Minimum  Current  Maximum  Default
+   2097152       16       16       16        <span class="k">*</span>
+weng@weng-u1604:~<span class="nv">$ </span></code></pre></figure>
+
+<p>#How to use these huge pages?</p>
+
+<p>First, we need create a directory as mount point, then mount it like below:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">weng@weng-u1604:~<span class="nv">$ </span><span class="nb">sudo </span>mkdir /mnt/huge
+weng@weng-u1604:~<span class="nv">$ </span><span class="nb">sudo </span>mount <span class="nt">-t</span> hugetlbfs nodev /mnt/huge
+weng@weng-u1604:~<span class="nv">$ </span><span class="nb">ls</span> /mnt/huge</code></pre></figure>
+
+<p>Now /mnt/huge/ is ready to be used.</p>
+
+<h1 id="see-examples">See examples:</h1>
+
+<p>1) map_hugetlb: see tools/testing/selftests/vm/map_hugetlb.c</p>
+
+<p>2) hugepage-shm:  see tools/testing/selftests/vm/hugepage-shm.c</p>
+
+<p>3) hugepage-mmap:  see tools/testing/selftests/vm/hugepage-mmap.c</p>
+
+<p>4) The libhugetlbfs (https://github.com/libhugetlbfs/libhugetlbfs) library
+   provides a wide range of userspace tools to help with huge page usability,
+   environment setup, and control.</p>
+
+	</div>
+
+<!--	
+	<div class='share-button-container'>
+		<p>Like it? Share it!</p>
+		<div class='share-button share-button-twitter' data-share-url="http://weweng.github.io/2016/07/19/Linux-hugetlbpage.html">
+			<div clas='box'>
+				<a href="https://twitter.com/share?url=http://weweng.github.io%2F2016%2F07%2F19%2FLinux-hugetlbpage.html&text=Linux Huge Page&via=weweng" target='_blank'>
+					<span class='share'>Tweet</span>
+					<span class='count'>0</span>
+				</a>
+			</div>
+		</div>
+
+		<div class="share-button share-button-facebook" data-share-url="http://weweng.github.io/2016/07/19/Linux-hugetlbpage.html">
+			<div class="box">
+				<a href="https://www.facebook.com/sharer/sharer.php?u=http://weweng.github.io%2F2016%2F07%2F19%2FLinux-hugetlbpage.html">
+					<span class='share'>Share</span>
+					<span class='count'>0</span>
+				</a>
+			</div>
+		</div>
+	</div>
+-->
+
+</section>
+
+<div id='comments'>
+	<div id='disqus_thread'></div>
+	<script type='text/javascript'>
+		var disqus_shortname = 'wewenggithubio';
+		(function() {
+			var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+			dsq.src = 'http://' + disqus_shortname + '.disqus.com/embed.js';
+			(document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+		})();
+	</script>
+
+	<noscript>Please enable JavaScript to view the comments</noscript>
+</div>
+<script type='text/javascript' src='/assets/js/StaticShareButtons.js'></script>
+
+
+	</div>
+
+	<footer class='footer'>
+		<span>Copyright 2015-2017, Wenwei Weng</span>
+	</footer>
+</div>
+</div>
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-62997612-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+
+
+<script type="text/javascript">
+// Open external links in new tab
+(window.onload = function(){
+	var links = document.links;
+
+	for(i=0; i<=links.length -1; i++){
+		if(links[i].hostname != window.location.hostname){
+			links[i].target = '_blank';
+		}
+	}
+})();
+</script>
+</body>
+</html>

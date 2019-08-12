@@ -1,0 +1,1847 @@
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.8.5">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2019-08-12T14:20:02-07:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Your awesome title</title><subtitle>Write an awesome description for your new site here. You can edit this line in _config.yml. It will appear in your document head meta (for Google search results) and in your feed.xml site description.</subtitle><entry><title type="html">SPI flash support in embedded Linux box</title><link href="http://localhost:4000/2017/08/05/SPI-Support-embedded-box.html" rel="alternate" type="text/html" title="SPI flash support in embedded Linux box" /><published>2017-08-05T00:00:00-07:00</published><updated>2017-08-05T00:00:00-07:00</updated><id>http://localhost:4000/2017/08/05/SPI-Support-embedded-box</id><content type="html" xml:base="http://localhost:4000/2017/08/05/SPI-Support-embedded-box.html">&lt;p&gt;Serial Peripheral Interface (SPI) flash memory is often used in an embedded Linux box to hold bootloader. During very initial board bringup, SPI flash memory needs to be programmed properly using device like Dediprog, otherwise the box won’t boot. After the box is up running linux, often there is need to access SPI flash, e.g. upgrade new version of bootloader from linux. I will share what needs to be done for that.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/uploads/linux/linux-spi.jpg&quot; alt=&quot;Linux SPI&quot; /&gt;&lt;/p&gt;
+
+&lt;!--more--&gt;
+&lt;h2 id=&quot;spi-flash-hardware-overview&quot;&gt;SPI Flash: hardware overview&lt;/h2&gt;
+&lt;p&gt;There are many flash memory devices in the market, often people see USB flash memory, SD card. Those flash memory are parallel flash, eithe NOR or NAND flash. With parell access, the throughput is a lot higher. SPI flash is accessed in a serial way, so it is much slower.&lt;/p&gt;
+
+&lt;p&gt;SPI devices communicate in full duplex mode using a master-slave architecture with a single master. The master device originates the frame for reading and writing. Multiple slave devices are supported through selection with individual slave select (SS) lines.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/uploads/linux/spi-master-slave.png&quot; alt=&quot;SPI Master Slaves&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;SCK: Serial Clock  MOSI: Master Output Slave Input   MISO: Master Input Slave Output  SS: Slave Select&lt;/p&gt;
+
+&lt;p&gt;SPI Master often is provided by SoC, SPI flash device serves as SPI slave.&lt;/p&gt;
+
+&lt;h2 id=&quot;what-are-needed-to-enable-spi-flash-access-from-linux-&quot;&gt;What are needed to enable SPI flash access from Linux ?&lt;/h2&gt;
+&lt;p&gt;There are three areas to do in order to enable SPI flash access from Linux user space.&lt;/p&gt;
+
+&lt;h3 id=&quot;enable-spi-controller-in-device-tree&quot;&gt;Enable SPI controller in device tree.&lt;/h3&gt;
+
+&lt;p&gt;In my case, Marvell ARMADA 7040 SoC has SPI controller provided, I need do the following:&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;bash-4.3# &lt;span class=&quot;nb&quot;&gt;cat &lt;/span&gt;armada-7040-db.dts
+...
+                        spi@700680 &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+                                compatible &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;marvell,armada-380-spi&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+                                reg &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &amp;lt;0x700680 0x50&amp;gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+                                &lt;span class=&quot;c&quot;&gt;#address-cells = &amp;lt;0x1&amp;gt;;&lt;/span&gt;
+                                &lt;span class=&quot;c&quot;&gt;#size-cells = &amp;lt;0x0&amp;gt;;&lt;/span&gt;
+                                cell-index &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &amp;lt;0x2&amp;gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+                                clocks &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &amp;lt;0x26 0x1 0x15&amp;gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+                                status &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; “okay&lt;span class=&quot;s2&quot;&gt;&quot;;
+
+                                spi-flash@0 {
+                                        #address-cells = &amp;lt;0x1&amp;gt;;
+                                        #size-cells = &amp;lt;0x1&amp;gt;;
+                                        compatible = &quot;&lt;/span&gt;jedec,spi-nor&lt;span class=&quot;s2&quot;&gt;&quot;;
+                                        reg = &amp;lt;0x0&amp;gt;;
+                                        spi-max-frequency = &amp;lt;0x1312d00&amp;gt;;
+
+                                        partition@0 {
+                                                label = &quot;&lt;/span&gt;boot&lt;span class=&quot;s2&quot;&gt;&quot;;
+                                                reg = &amp;lt;0x0 0x200000&amp;gt;;
+                                        };
+
+                                        partition@200000 {
+                                                label = &quot;&lt;/span&gt;Filesystem&lt;span class=&quot;s2&quot;&gt;&quot;;
+                                                reg = &amp;lt;0x200000 0xd00000&amp;gt;;
+                                        };
+
+                                        partition@d00000 {
+                                                label = &quot;&lt;/span&gt;boot_2nd&lt;span class=&quot;s2&quot;&gt;&quot;;
+                                                reg = &amp;lt;0xf00000 0x100000&amp;gt;;
+                                        };
+                                };
+                        };
+...&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;From the above, DTS defined the SPI flash to have three partitions: “boot”, “Filesystem” and “boot_2nd”. We will see how this definition is manifested in linux system.&lt;/p&gt;
+
+&lt;p&gt;Integrate the dtb file into linux boot in a proper way depending your situation.&lt;/p&gt;
+
+&lt;h3 id=&quot;enable-proper-kernel-drivers-for-spi&quot;&gt;Enable proper kernel drivers for SPI&lt;/h3&gt;
+
+&lt;p&gt;Linux kernel has done a lot work to support SPI flash so that user space can access SPI flash easily. It has following architecture:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/uploads/linux/linux-spi-mtd-fs.jpg&quot; alt=&quot;Linux SPI SW arch&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;To enable SPI access, the following kernel configurations are required:&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;bash-4.3# &lt;span class=&quot;nb&quot;&gt;cat&lt;/span&gt; .config
+...
+&lt;span class=&quot;nv&quot;&gt;CONFIG_MTD&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;y
+&lt;span class=&quot;nv&quot;&gt;CONFIG_MTD_BLKDEVS&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;y
+&lt;span class=&quot;nv&quot;&gt;CONFIG_MTD_BLOCK&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;y
+&lt;span class=&quot;nv&quot;&gt;CONFIG_MTD_M25P80&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;y
+&lt;span class=&quot;nv&quot;&gt;CONFIG_MTD_SPI_NOR&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;y
+&lt;span class=&quot;nv&quot;&gt;CONFIG_MTD_SPI_NOR_USE_4K_SECTORS&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;y
+...
+&lt;span class=&quot;nv&quot;&gt;CONFIG_SPI&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;y
+&lt;span class=&quot;nv&quot;&gt;CONFIG_SPI_MASTER&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;y
+&lt;span class=&quot;nv&quot;&gt;CONFIG_SPI_ARMADA_3700&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;y
+...&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;h3 id=&quot;access-from-user-space&quot;&gt;Access from user space&lt;/h3&gt;
+&lt;p&gt;With the changes in DTS and kernel, after linux boots, the below will be observed in kernel space:&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt; 
+bash# dmesg
+.......
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    4.110288] m25p80 spi2.0: n25q128a13 &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;16384 Kbytes&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    4.115301] 3 ofpart partitions found on MTD device spi2.0
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    4.120815] Creating 3 MTD partitions on &lt;span class=&quot;s2&quot;&gt;&quot;spi2.0&quot;&lt;/span&gt;:
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    4.125632] 0x000000000000-0x000000200000 : &lt;span class=&quot;s2&quot;&gt;&quot;boot&quot;&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    4.130895] 0x000000200000-0x000000f00000 : &lt;span class=&quot;s2&quot;&gt;&quot;Filesystem&quot;&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    4.136619] 0x000000f00000-0x000001000000 : &lt;span class=&quot;s2&quot;&gt;&quot;boot_2nd&quot;&lt;/span&gt;
+.......&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;From the user space, the first thing can be seen is the mtd device files:&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt; 
+bash#  &lt;span class=&quot;nb&quot;&gt;ls&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;-l&lt;/span&gt; /dev/mtd&lt;span class=&quot;k&quot;&gt;*&lt;/span&gt;
+crw------- 1 root root 90, 0 Feb  6 08:14 /dev/mtd0
+crw------- 1 root root 90, 1 Feb  6 08:14 /dev/mtd0ro
+crw------- 1 root root 90, 2 Feb  6 08:14 /dev/mtd1
+crw------- 1 root root 90, 3 Feb  6 08:14 /dev/mtd1ro
+crw------- 1 root root 90, 4 Feb  6 08:14 /dev/mtd2
+crw------- 1 root root 90, 5 Feb  6 08:14 /dev/mtd2ro
+brw------- 1 root disk 31, 0 Feb  6 08:14 /dev/mtdblock0
+brw------- 1 root disk 31, 1 Feb  6 08:14 /dev/mtdblock1
+brw------- 1 root disk 31, 2 Feb  6 08:14 /dev/mtdblock2&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;/dev/mtdblock0 is for “boot” (first bootloader) partition; 
+/dev/mtdblock1 is for “FileSystem” partition;
+/dev/mtdblock2 is for “boot_2nd” partition.&lt;/p&gt;
+
+&lt;p&gt;what can we do now? Life is easy with all these infrastructure in place.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt; To program a new version bootloader, simply: dd if=new-bootloader.bin of=/dev/mtdblock0 &lt;/li&gt;
+&lt;li&gt; If we want to use partition as file system, simply: &lt;/li&gt;
+     &lt;ul&gt;
+     &lt;li&gt;mkdir /mnt/spi &lt;/li&gt;
+     &lt;li&gt;mkfs.jffs2 /dev/mtdblock1 &lt;/li&gt;
+     &lt;li&gt;mount -t jfss2 /dev/mtdblock1 /mnt/spi &lt;/li&gt;
+     &lt;/ul&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Life is good!&lt;/p&gt;
+
+&lt;p&gt;References:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt; http://free-electrons.com/blog/managing-flash-storage-with-linux/ &lt;/li&gt;
+&lt;li&gt; http://slideplayer.com/slide/10452504/ &lt;/li&gt;
+&lt;/ul&gt;</content><author><name></name></author><summary type="html">Serial Peripheral Interface (SPI) flash memory is often used in an embedded Linux box to hold bootloader. During very initial board bringup, SPI flash memory needs to be programmed properly using device like Dediprog, otherwise the box won’t boot. After the box is up running linux, often there is need to access SPI flash, e.g. upgrade new version of bootloader from linux. I will share what needs to be done for that.</summary></entry><entry><title type="html">RTC support in embedded Linux box</title><link href="http://localhost:4000/2017/08/02/RTC-Support-embedded-box.html" rel="alternate" type="text/html" title="RTC support in embedded Linux box" /><published>2017-08-02T00:00:00-07:00</published><updated>2017-08-02T00:00:00-07:00</updated><id>http://localhost:4000/2017/08/02/RTC-Support-embedded-box</id><content type="html" xml:base="http://localhost:4000/2017/08/02/RTC-Support-embedded-box.html">&lt;p&gt;Real Time Clock (RTC) is a small but important piece of hardware in an embedded Linux box. It saves time and keep time valid while box is in shutdown state. When the box boots again next time, it will provide a valid time to Linux system.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/uploads/linux/linux-rtc.jpg&quot; alt=&quot;Linux RTC&quot; /&gt;&lt;/p&gt;
+
+&lt;!--more--&gt;
+&lt;h2 id=&quot;real-time-clock-in-linux&quot;&gt;Real Time Clock in Linux&lt;/h2&gt;
+&lt;p&gt;Two clocks are important in Linux system: a ‘hardware clock’, also known as RTC, CMOS or BIOS clock. This is the battery backed clock that keeps time even when the system is shut down. The second clock is called the ‘system clock’ or ‘kernel clock’ and is maintained by Linux OS. At boot time, the hardware clock is read and used to set the system clock. From that point onward the system clock is used to track time. Typically during the linux system shutdown process, Linux will flush its time into RTC to save it.&lt;/p&gt;
+
+&lt;p&gt;For many SoC, it has RTC embedded. However in my platform an external RTC is connected to SoC through I2C bus with typical address 0x68. This external RTC cnsumes less current than embedded one.&lt;/p&gt;
+
+&lt;h2 id=&quot;check-the-two-clocks&quot;&gt;Check the two clocks&lt;/h2&gt;
+&lt;p&gt;The simplest commands to check two clocks are: “date” and “hwclock”&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;bash-4.3# &lt;span class=&quot;c&quot;&gt;# the command date can be used to check the current system time&lt;/span&gt;
+bash-4.3# date
+Wed Aug  2 10:11:35 Universal 2017
+bash-4.3# &lt;span class=&quot;c&quot;&gt;# command hwclock can read clock from RTC device&lt;/span&gt;
+bash-4.3# hwclock &lt;span class=&quot;nt&quot;&gt;-r&lt;/span&gt;
+Fri Jan  1 01:01:49 2010  0.000000 seconds
+bash-4.3#
+bash-4.3# &lt;span class=&quot;c&quot;&gt;# hwclock can push the system into RTC device&lt;/span&gt;
+bash-4.3# hwclock &lt;span class=&quot;nt&quot;&gt;-w&lt;/span&gt;
+bash-4.3#
+bash-4.3# hwclock &lt;span class=&quot;nt&quot;&gt;-r&lt;/span&gt;
+Wed Aug  2 10:13:19 2017  0.000000 seconds
+bash-4.3# date
+Wed Aug  2 10:13:22 Universal 2017
+bash-4.3# &lt;span class=&quot;c&quot;&gt;#Now both times are synced.&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;As shown in the above command, there are two different clocks, and they can be synced using hwclock.&lt;/p&gt;
+
+&lt;h2 id=&quot;what-need-to-be-done-&quot;&gt;What need to be done ?&lt;/h2&gt;
+&lt;p&gt;Linux kernel is able to support mutiple RTC devices in the same time. This can be checked by “ls -l /dev/rtc*” to see how many RTC devices are registered with Linux kernel.&lt;/p&gt;
+
+&lt;p&gt;What takes to make RTC devices work properly?&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt; Make sure hardware setup is in place, either connected through I2C, or SPI bus. &lt;/li&gt;
+&lt;li&gt; Properly configured in device Tree file (DTS) to make it enabled. In my case, I need disable RTC inside SoC, and enable external RTC.&lt;/li&gt;
+
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt; 
+bash# &lt;span class=&quot;nb&quot;&gt;cat &lt;/span&gt;armada-7040-sparrow-v6.dts
+.......
+                        rtc@284000 &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+                                compatible &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;marvell,armada8k-rtc&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+                                reg &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &amp;lt;0x284000 0x20 0x284080 0x24&amp;gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+                                reg-names &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;rtc&quot;&lt;/span&gt;, &lt;span class=&quot;s2&quot;&gt;&quot;rtc-soc&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+                                &lt;span class=&quot;c&quot;&gt;#address-cells = &amp;lt;0x1&amp;gt;;&lt;/span&gt;
+                                &lt;span class=&quot;c&quot;&gt;#size-cells = &amp;lt;0x0&amp;gt;;&lt;/span&gt;
+                                interrupts &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &amp;lt;0x0 0x4d 0x4&amp;gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+                                status &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;disabled&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+                        &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+.......
+                        i2c@701100 &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+                                compatible &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;marvell,mv78230-i2c&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+                                reg &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &amp;lt;0x701100 0x20&amp;gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+                                &lt;span class=&quot;c&quot;&gt;#address-cells = &amp;lt;0x1&amp;gt;;&lt;/span&gt;
+                                &lt;span class=&quot;c&quot;&gt;#size-cells = &amp;lt;0x0&amp;gt;;&lt;/span&gt;
+                                interrupts &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &amp;lt;0x0 0x79 0x4&amp;gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+                                timeout-ms &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &amp;lt;0x3e8&amp;gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+                                clocks &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &amp;lt;0x26 0x1 0x15&amp;gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+                                status &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;okay&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+                                clock-frequency &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &amp;lt;0x186a0&amp;gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+                                rtc@68 &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+                                        compatible &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;dallas,ds1337&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+                                        reg &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &amp;lt;0x68&amp;gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+                                &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+
+                        &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+.......&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+
+&lt;li&gt; Configure Linux kernel with proper driver, and tell linux kernel the correct RTC instance to use in order to save time.&lt;/li&gt;
+
+In the following example, DS1307 driver is enabled in kernel config, which will be the only RTC device rgistered in the system, so &quot;rtc0&quot; is set for system to sync to.
+
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt; 
+
+&lt;span class=&quot;nv&quot;&gt;CONFIG_RTC_LIB&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;y
+&lt;span class=&quot;nv&quot;&gt;CONFIG_RTC_CLASS&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;y
+&lt;span class=&quot;nv&quot;&gt;CONFIG_RTC_HCTOSYS&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;y
+&lt;span class=&quot;nv&quot;&gt;CONFIG_RTC_HCTOSYS_DEVICE&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;rtc0&quot;&lt;/span&gt;
+&lt;span class=&quot;nv&quot;&gt;CONFIG_RTC_SYSTOHC&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;y
+&lt;span class=&quot;nv&quot;&gt;CONFIG_RTC_SYSTOHC_DEVICE&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;rtc0&quot;&lt;/span&gt;
+&lt;span class=&quot;c&quot;&gt;# CONFIG_RTC_DEBUG is not set&lt;/span&gt;
+
+&lt;span class=&quot;c&quot;&gt;#&lt;/span&gt;
+&lt;span class=&quot;c&quot;&gt;# RTC interfaces&lt;/span&gt;
+&lt;span class=&quot;c&quot;&gt;#&lt;/span&gt;
+&lt;span class=&quot;nv&quot;&gt;CONFIG_RTC_INTF_SYSFS&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;y
+&lt;span class=&quot;nv&quot;&gt;CONFIG_RTC_INTF_PROC&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;y
+&lt;span class=&quot;nv&quot;&gt;CONFIG_RTC_INTF_DEV&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;y
+&lt;span class=&quot;c&quot;&gt;# CONFIG_RTC_INTF_DEV_UIE_EMUL is not set&lt;/span&gt;
+&lt;span class=&quot;c&quot;&gt;# CONFIG_RTC_DRV_TEST is not set&lt;/span&gt;
+
+&lt;span class=&quot;c&quot;&gt;#&lt;/span&gt;
+&lt;span class=&quot;c&quot;&gt;# I2C RTC drivers&lt;/span&gt;
+&lt;span class=&quot;c&quot;&gt;#&lt;/span&gt;
+&lt;span class=&quot;c&quot;&gt;# CONFIG_RTC_DRV_ABB5ZES3 is not set&lt;/span&gt;
+&lt;span class=&quot;c&quot;&gt;# CONFIG_RTC_DRV_ABX80X is not set&lt;/span&gt;
+&lt;span class=&quot;nv&quot;&gt;CONFIG_RTC_DRV_DS1307&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;y
+&lt;span class=&quot;c&quot;&gt;# CONFIG_RTC_DRV_DS1374 is not set&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;check-the-box&quot;&gt;Check the box…&lt;/h2&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt; 
+
+bash-4.3#  dmesg | &lt;span class=&quot;nb&quot;&gt;grep &lt;/span&gt;rtc
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    0.000000] Kernel &lt;span class=&quot;nb&quot;&gt;command &lt;/span&gt;line: Image.sparrow.rtc1337 &lt;span class=&quot;nv&quot;&gt;initrd&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;initramfs-0328.cpio.gz &lt;span class=&quot;nv&quot;&gt;dtb&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;armada-7040-sparrow-v6.dtb &lt;span class=&quot;nv&quot;&gt;console&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;ttyS0,115200 emergency &lt;span class=&quot;nv&quot;&gt;init&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;/bin/bash &lt;span class=&quot;nv&quot;&gt;crashkernel&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;64M
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    4.157793] rtc-ds1307 0-0068: rtc core: registered ds1337 as rtc0
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    4.232706] rtc-ds1307 0-0068: setting system clock to 2017-08-02 10:09:01 UTC &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;1501668541&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+bash-4.3# &lt;span class=&quot;nb&quot;&gt;ls&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;-l&lt;/span&gt; /dev/rtc&lt;span class=&quot;k&quot;&gt;*&lt;/span&gt;
+crw------- 1 0 0 253, 0 Jan  1  1970 /dev/rtc0
+bash-4.3# 
+bash-4.3# date &lt;span class=&quot;o&quot;&gt;&amp;amp;&amp;amp;&lt;/span&gt; hwclock &lt;span class=&quot;nt&quot;&gt;-r&lt;/span&gt;
+Wed Aug  2 10:33:25 Universal 2017
+Wed Aug  2 10:33:24 2017  0.000000 seconds
+bash-4.3#&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;As it is shown from dmesg, external RTC is registered as “rtc0”, SoC RTC is not seen by kernel since it is disabled in DTS. Both clocks are synced.&lt;/p&gt;</content><author><name></name></author><summary type="html">Real Time Clock (RTC) is a small but important piece of hardware in an embedded Linux box. It saves time and keep time valid while box is in shutdown state. When the box boots again next time, it will provide a valid time to Linux system.</summary></entry><entry><title type="html">UEFI ARM Linux boot</title><link href="http://localhost:4000/2017/07/21/ARMv8-UEFI-manual-boot.html" rel="alternate" type="text/html" title="UEFI ARM Linux boot" /><published>2017-07-21T00:00:00-07:00</published><updated>2017-07-21T00:00:00-07:00</updated><id>http://localhost:4000/2017/07/21/ARMv8-UEFI-manual-boot</id><content type="html" xml:base="http://localhost:4000/2017/07/21/ARMv8-UEFI-manual-boot.html">&lt;p&gt;For the last few days, I have been working on switching u-boot based bootloader to UEFI based boot loader for a new platform at work. I found out it is useful to able to boot manually with kernel, dtb, initramfs. By doing this, if the thing doesn’t work, we can change any one of them to identify which one has issue.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/uploads/linux/uefi-shell-boot-linux.jpg&quot; alt=&quot;armada7k boot manually&quot; /&gt;&lt;/p&gt;
+
+&lt;!--more--&gt;
+&lt;p&gt;First you need prepare kernel image as “Image” format, device tree blob (dtb file), and initramfs.&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt; Linux kernel image: The Linux Kernel (linux&amp;gt;=3.3) supports EFISTUB (EFI BOOT STUB) booting. This feature allows EFI firmware to load the kernel as an EFI executable from EFI shell. The option is enabled by default on Arch Linux kernels or can be activated by setting CONFIG_EFI_STUB=y in the Kernel configuration. &lt;/li&gt;
+
+&lt;li&gt; Make an initramfs file in cpio.gz format. &lt;/li&gt;
+
+&lt;li&gt; Build a dtb file from DTS file using &quot;dtc&quot;: e.g. dtc -O dtb -I dts -o myboard.dtb myboard.dts &lt;/li&gt;
+
+&lt;/ul&gt;
+
+&lt;p&gt;When all three images are ready, and loaded them into USB pendrive, which needs to be in FAT file system.&lt;/p&gt;
+
+&lt;p&gt;Cautions: The board needs to have UEFI boot loader image flashed in SPI flash.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt; If it is running u-boot, then the bootloader image (ATF + UEFI shell + any UEFI Applications) can be burn into SPI flash using u-boot command &quot;bubt&quot;.
+Typically you want to first verify the new UEFI bootloader is working ok before burn into flash, this can be done by running from DRAM, here is an example: (*.fd file is UEFI binary to run, *.bin is ATF+UEFI binary) &lt;/li&gt;
+
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;Marvell&amp;gt;&amp;gt;  usb start
+...
+Marvell&amp;gt;&amp;gt;  fatls usb 0:1
+06/29/2017  09:38               4,083  armada-7040.dtsi
+06/29/2017  09:37              23,880  armada-7040-sparrow-v1.dtb
+06/29/2017  09:38               5,952  armada-7040-sparrow-v1.dts
+06/29/2017  10:21              23,876  armada-7040-sparrow-v2.dtb
+06/29/2017  09:59          13,362,176  Image.440.eval
+04/14/2017  19:15          13,428,224  Image.anil
+04/19/2017  00:59          13,006,336  image.tsn.weweng
+04/14/2017  19:15          12,651,334  initramfs.anilURam
+04/19/2017  00:43          20,024,514  initramfs0328.uRam
+07/17/2017  15:01          20,024,450  initramfs-0328.cpio.gz
+06/26/2017  12:15           1,403,344  sparrow-u-bootloader-img.bin.S0
+07/19/2017  12:47           1,217,816  flash-image-17.06-u-boot.bin
+07/19/2017  18:14           1,048,576  uefi-img-cisco1.fd
+07/20/2017  09:30           1,048,576  uefi-img-efi-shell.fd
+07/20/2017  10:02           1,606,320  uefi-bootloader-efi-shell.bin
+07/20/2017  13:26           1,048,576  ARMADA_EFI.fd
+07/20/2017  17:27             393,216  CiscoRommon1.efi
+
+&lt;span class=&quot;c&quot;&gt;# load UEFI binary into DRAM at address 0x2000000&lt;/span&gt;
+Marvell&amp;gt;&amp;gt;  fatload usb 0:1 0x2000000 uefi-img-efi-shell.fd
+
+&lt;span class=&quot;c&quot;&gt;# relocate to address 0&lt;/span&gt;
+Marvell&amp;gt;&amp;gt;  cp 0x2000000 0 0x100000
+
+&lt;span class=&quot;c&quot;&gt;# run UEFI bootloader from address 0&lt;/span&gt;
+Marvell&amp;gt;&amp;gt;  go 0
+
+&lt;span class=&quot;c&quot;&gt;# after verify it boots to UEFI shell, then it can be burn into SPI chip:&lt;/span&gt;
+&lt;span class=&quot;c&quot;&gt;# first reboot the box back to u-boot prompt&lt;/span&gt;
+Marvell&amp;gt;&amp;gt; usb start
+Marvell&amp;gt;&amp;gt; fatls usb 0:1
+
+&lt;span class=&quot;c&quot;&gt;# Note this time you use the *.bin image which has ATF + UEFI together.&lt;/span&gt;
+Marvell&amp;gt;&amp;gt; bubt uefi-bootloader-efi-shell.bin spi usb
+
+&lt;span class=&quot;c&quot;&gt;# after completes, it is ready to reboot and get into UEFI shell&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+
+&lt;li&gt; If it is running an old version UEFI boot loader and needs to be upgraded,  using &quot;fupdate&quot; command. &lt;/li&gt;
+
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt; 
+Shell:&lt;span class=&quot;se&quot;&gt;\&amp;gt;&lt;/span&gt; fs0:
+FS0:&lt;span class=&quot;se&quot;&gt;\&amp;gt;&lt;/span&gt; cls
+FS0:&lt;span class=&quot;se&quot;&gt;\&amp;gt;&lt;/span&gt; dir
+Directory of: FS0:&lt;span class=&quot;se&quot;&gt;\&lt;/span&gt;
+07/02/2017  10:49               2,831  linux-login-blogs.txt
+06/28/2017  16:42 &amp;lt;DIR&amp;gt;        32,768  bringup-june26
+06/29/2017  09:38               4,083  armada-7040.dtsi
+06/29/2017  09:37              23,880  armada-7040-sparrow-v1.dtb
+06/29/2017  09:38               5,952  armada-7040-sparrow-v1.dts
+06/29/2017  10:21              23,876  armada-7040-sparrow-v2.dtb
+06/29/2017  09:59          13,362,176  Image.440.eval
+04/14/2017  19:15          13,428,224  Image.anil
+04/19/2017  00:59          13,006,336  image.tsn.weweng
+04/14/2017  19:15          12,651,334  initramfs.anilURam
+04/19/2017  00:43          20,024,514  initramfs0328.uRam
+07/17/2017  15:01          20,024,450  initramfs-0328.cpio.gz
+06/26/2017  12:15           1,403,344  sparrow-u-bootloader-img.bin.S0
+07/19/2017  12:47           1,217,816  flash-image-17.06-u-boot.bin
+07/19/2017  18:14           1,048,576  uefi-img-cisco1.fd
+07/20/2017  09:30           1,048,576  uefi-img-efi-shell.fd
+07/20/2017  10:02           1,606,320  uefi-bootloader-efi-shell.bin
+07/20/2017  13:26           1,048,576  ARMADA_EFI.fd
+07/20/2017  17:27             393,216  CiscoRommon1.efi
+07/20/2017  17:43             393,216  CiscoRommon2.efi
+FS0:&lt;span class=&quot;se&quot;&gt;\&amp;gt;&lt;/span&gt; fupdate file:uefi-bootloader-efi-shell.bin
+...
+&lt;span class=&quot;c&quot;&gt;# After it completes, reboot the box to UEFI shell&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+
+&lt;/ul&gt;
+
+&lt;h1 id=&quot;with-uefi-shell-ready-and-all-images-are-ready--you-can-boot-linux-now&quot;&gt;With UEFI shell ready and all images are ready , you can boot Linux now:&lt;/h1&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt; 
+Shell:&lt;span class=&quot;se&quot;&gt;\&amp;gt;&lt;/span&gt; fs0:
+FS0:&lt;span class=&quot;se&quot;&gt;\&amp;gt;&lt;/span&gt; cls
+FS0:&lt;span class=&quot;se&quot;&gt;\&amp;gt;&lt;/span&gt; dir
+Directory of: FS0:&lt;span class=&quot;se&quot;&gt;\&lt;/span&gt;
+07/02/2017  10:49               2,831  linux-login-blogs.txt
+06/28/2017  16:42 &amp;lt;DIR&amp;gt;        32,768  bringup-june26
+06/29/2017  09:38               4,083  armada-7040.dtsi
+06/29/2017  09:37              23,880  armada-7040-sparrow-v1.dtb
+06/29/2017  09:38               5,952  armada-7040-sparrow-v1.dts
+06/29/2017  10:21              23,876  armada-7040-sparrow-v2.dtb
+06/29/2017  09:59          13,362,176  Image.440.eval
+04/14/2017  19:15          13,428,224  Image.anil
+04/19/2017  00:59          13,006,336  image.tsn.weweng
+04/14/2017  19:15          12,651,334  initramfs.anilURam
+04/19/2017  00:43          20,024,514  initramfs0328.uRam
+07/17/2017  15:01          20,024,450  initramfs-0328.cpio.gz
+06/26/2017  12:15           1,403,344  sparrow-u-bootloader-img.bin.S0
+07/19/2017  12:47           1,217,816  flash-image-17.06-u-boot.bin
+07/19/2017  18:14           1,048,576  uefi-img-cisco1.fd
+07/20/2017  09:30           1,048,576  uefi-img-efi-shell.fd
+07/20/2017  10:02           1,606,320  uefi-bootloader-efi-shell.bin
+07/20/2017  13:26           1,048,576  ARMADA_EFI.fd
+07/20/2017  17:27             393,216  CiscoRommon1.efi
+07/20/2017  17:43             393,216  CiscoRommon2.efi
+FS0:&lt;span class=&quot;se&quot;&gt;\&amp;gt;&lt;/span&gt; Image.440.eval &lt;span class=&quot;nv&quot;&gt;dtb&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;armada-7040-sparrow-v2.dtb &lt;span class=&quot;nv&quot;&gt;initrd&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;initramfs-0328.cpio.gz &lt;span class=&quot;nv&quot;&gt;console&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;ttyS0,115200 emergency &lt;span class=&quot;nv&quot;&gt;init&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;/bin/bash &lt;span class=&quot;nv&quot;&gt;root&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;/dev/ram0 rw &lt;span class=&quot;nv&quot;&gt;maxloop&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;64
+
+EFI stub: Booting Linux Kernel...
+ConvertPages: range 7F280000 - 7F28FFFF covers multiple entries
+EFI stub: Using DTB from &lt;span class=&quot;nb&quot;&gt;command &lt;/span&gt;line
+EFI stub: Exiting boot services and installing virtual address map...
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    0.000000] Booting Linux on physical CPU 0x0
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    0.000000] Initializing cgroup subsys cpuset
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    0.000000] Initializing cgroup subsys cpu
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    0.000000] Initializing cgroup subsys cpuacct
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    0.000000] Linux version 4.4.51-armada-17.02.2  &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;weweng@sjc-asr-124&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;gcc version 5.3.0 &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;GCC&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;c&quot;&gt;#1 SMP Fri Apr 7 11:46:27 PDT 2017&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    0.000000] Boot CPU: AArch64 Processor &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;410fd081]
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    0.000000] efi: Getting EFI parameters from FDT:
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    0.000000] EFI v2.60 by EDK II
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    0.000000] efi:  SMBIOS 3.0&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;0x77da0000  ACPI 2.0&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;0x6e760000
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    0.000000] cma: Reserved 128 MiB at 0x0000000078000000
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    0.000000] pkg not found or empty
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    0.000000]  - disabling package support
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    0.000000] psci: probing &lt;span class=&quot;k&quot;&gt;for &lt;/span&gt;conduit method from DT.
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    0.000000] psci: PSCIv1.0 detected &lt;span class=&quot;k&quot;&gt;in &lt;/span&gt;firmware.
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    0.000000] psci: Using standard PSCI v0.2 &lt;span class=&quot;k&quot;&gt;function &lt;/span&gt;IDs
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    0.000000] psci: MIGRATE_INFO_TYPE not supported.
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    0.000000] PERCPU: Embedded 15 pages/cpu @ffffffc0778c1000 s24472 r8192 d28776 u61440
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    0.000000] Detected PIPT I-cache on CPU0
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    0.000000] Built 1 zonelists &lt;span class=&quot;k&quot;&gt;in &lt;/span&gt;Zone order, mobility grouping on.  Total pages: 515088
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    0.000000] Kernel &lt;span class=&quot;nb&quot;&gt;command &lt;/span&gt;line: Image.440.eval &lt;span class=&quot;nv&quot;&gt;dtb&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;armada-7040-sparrow-v2.dtb &lt;span class=&quot;nv&quot;&gt;initrd&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;initramfs-0328.cpio.gz &lt;span class=&quot;nv&quot;&gt;console&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;ttyS0,115200 emergency &lt;span class=&quot;nv&quot;&gt;init&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;/bin/bash &lt;span class=&quot;nv&quot;&gt;root&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;/dev/ram0 rw &lt;span class=&quot;nv&quot;&gt;maxloop&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;64
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    0.000000] log_buf_len individual max cpu contribution: 4096 bytes
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    0.000000] log_buf_len total cpu_extra contributions: 12288 bytes
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    0.000000] log_buf_len min size: 16384 bytes
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    0.000000] log_buf_len: 32768 bytes
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    0.000000] early log buf free: 14520&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;88%&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    0.000000] PID &lt;span class=&quot;nb&quot;&gt;hash &lt;/span&gt;table entries: 4096 &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;order: 3, 32768 bytes&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    0.000000] Dentry cache &lt;span class=&quot;nb&quot;&gt;hash &lt;/span&gt;table entries: 262144 &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;order: 9, 2097152 bytes&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    0.000000] Inode-cache &lt;span class=&quot;nb&quot;&gt;hash &lt;/span&gt;table entries: 131072 &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;order: 8, 1048576 bytes&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    0.000000] software IO TLB &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;mem 0x71500000-0x75500000] &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;64MB&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; mapped at &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;ffffffc071100000-ffffffc0750fffff]
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    0.000000] Memory: 1819492K/2093056K available &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;8820K kernel code, 553K rwdata, 3216K rodata, 452K init, 293K bss, 142492K reserved, 131072K cma-reserved&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    0.000000] Virtual kernel memory layout:
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    0.000000]     vmalloc : 0xffffff8000000000 - 0xffffffbdbfff0000   &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;   246 GB&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    0.000000]     vmemmap : 0xffffffbdc0000000 - 0xffffffbfc0000000   &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;     8 GB maximum&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    0.000000]               0xffffffbdc0010000 - 0xffffffbdc2000000   &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;    31 MB actual&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    0.000000]     fixed   : 0xffffffbffa7fd000 - 0xffffffbffac00000   &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;  4108 KB&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    0.000000]     PCI I/O : 0xffffffbffae00000 - 0xffffffbffbe00000   &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;    16 MB&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    0.000000]     modules : 0xffffffbffc000000 - 0xffffffc000000000   &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;    64 MB&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    0.000000]     memory  : 0xffffffc000000000 - 0xffffffc07fc00000   &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;  2044 MB&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    0.000000]       .init : 0xffffffc000c43000 - 0xffffffc000cb4000   &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;   452 KB&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    0.000000]       .text : 0xffffffc000080000 - 0xffffffc000c43000   &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt; 12044 KB&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    0.000000]       .data : 0xffffffc000cb4000 - 0xffffffc000d3e400   &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;   553 KB&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    0.000000] SLUB: &lt;span class=&quot;nv&quot;&gt;HWalign&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;64, &lt;span class=&quot;nv&quot;&gt;Order&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;0-3, &lt;span class=&quot;nv&quot;&gt;MinObjects&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;0, &lt;span class=&quot;nv&quot;&gt;CPUs&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;4, &lt;span class=&quot;nv&quot;&gt;Nodes&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;1
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    0.000000] Hierarchical RCU implementation.
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    0.000000]  Build-time adjustment of leaf fanout to 64.
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    0.000000]  RCU restricting CPUs from &lt;span class=&quot;nv&quot;&gt;NR_CPUS&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;64 to &lt;span class=&quot;nv&quot;&gt;nr_cpu_ids&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;4.
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    0.000000] RCU: Adjusting geometry &lt;span class=&quot;k&quot;&gt;for &lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;rcu_fanout_leaf&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;64, &lt;span class=&quot;nv&quot;&gt;nr_cpu_ids&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;4
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    0.000000] NR_IRQS:64 nr_irqs:64 0
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    0.000000] GICv2m: Overriding V2M MSI_TYPER &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;base:160, num:32&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    0.000000] GICv2m: Node v2m: range[0xf0280000:0xf0280fff], SPI[160:192]
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    0.000000] GICv2m: Overriding V2M MSI_TYPER &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;base:192, num:32&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    0.000000] GICv2m: Node v2m: range[0xf0290000:0xf0290fff], SPI[192:224]
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    0.000000] GICv2m: Overriding V2M MSI_TYPER &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;base:224, num:32&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    0.000000] GICv2m: Node v2m: range[0xf02a0000:0xf02a0fff], SPI[224:256]
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    0.000000] GICv2m: Overriding V2M MSI_TYPER &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;base:256, num:32&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    0.000000] GICv2m: Node v2m: range[0xf02b0000:0xf02b0fff], SPI[256:288]
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    0.000000] mvebu-pic: registered with 19 irqs
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    0.000000] mvebu-sei: registered with 64 irqs
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    0.000000] Architected cp15 timer&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;s&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; running at 25.00MHz &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;phys&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;.&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    0.000000] clocksource: arch_sys_counter: mask: 0xffffffffffffff max_cycles: 0x5c40939b5, max_idle_ns: 440795202646 ns
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    0.000002] sched_clock: 56 bits at 25MHz, resolution 40ns, wraps every 4398046511100ns
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    0.000117] Console: colour dummy device 80x25
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    0.000130] Calibrating delay loop &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;skipped&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;, value calculated using timer frequency.. 50.00 BogoMIPS &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;lpj&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;100000&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    0.000137] pid_max: default: 32768 minimum: 301
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    0.000174] Security Framework initialized
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    0.000195] Mount-cache &lt;span class=&quot;nb&quot;&gt;hash &lt;/span&gt;table entries: 4096 &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;order: 3, 32768 bytes&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    0.000199] Mountpoint-cache &lt;span class=&quot;nb&quot;&gt;hash &lt;/span&gt;table entries: 4096 &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;order: 3, 32768 bytes&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    0.000596] Initializing cgroup subsys memory
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    0.000613] Initializing cgroup subsys devices
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    0.000619] Initializing cgroup subsys freezer
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    0.000625] Initializing cgroup subsys net_cls
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    0.000630] Initializing cgroup subsys hugetlb
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    0.000652] Syspage size 3832 bytes, 300 task entries
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    0.001235] Remapping and enabling EFI services.
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    0.001242]   EFI remap 0x0000000077810000 &lt;span class=&quot;o&quot;&gt;=&amp;gt;&lt;/span&gt; 0000000040000000
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    0.001323]   EFI remap 0x0000000077d20000 &lt;span class=&quot;o&quot;&gt;=&amp;gt;&lt;/span&gt; 00000000403e0000
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    0.001377]   EFI remap 0x00000000f2284000 &lt;span class=&quot;o&quot;&gt;=&amp;gt;&lt;/span&gt; 00000000406a4000
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    0.001390] ASID allocator initialised with 65536 entries
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    0.002085] Detected PIPT I-cache on CPU1
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    0.002119] CPU1: Booted secondary processor &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;410fd081]
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    0.002316] Detected PIPT I-cache on CPU2
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    0.002345] CPU2: Booted secondary processor &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;410fd081]
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    0.002536] Detected PIPT I-cache on CPU3
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    0.002555] CPU3: Booted secondary processor &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;410fd081]
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    0.002591] Brought up 4 CPUs
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    0.002603] SMP: Total of 4 processors activated.
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    0.002611] CPU: All CPU&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;s&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; started at EL2
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    0.002954] devtmpfs: initialized
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    0.005912] SMBIOS 3.0.0 present.
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    0.006035] clocksource: jiffies: mask: 0xffffffff max_cycles: 0xffffffff, max_idle_ns: 7645041785100000 ns
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    0.006046] futex &lt;span class=&quot;nb&quot;&gt;hash &lt;/span&gt;table entries: 1024 &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;order: 5, 131072 bytes&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    0.007836] xor: measuring software checksum speed
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    0.044003]    8regs     :  4819.000 MB/sec
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    0.084028]    8regs_prefetch:  4216.000 MB/sec
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    0.124055]    32regs    :  5523.000 MB/sec
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    0.164082]    32regs_prefetch:  4580.000 MB/sec
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    0.164085] xor: using &lt;span class=&quot;k&quot;&gt;function&lt;/span&gt;: 32regs &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;5523.000 MB/sec&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    0.164101] pinctrl core: initialized pinctrl subsystem
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    0.164680] NET: Registered protocol family 16
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    0.176106] cpuidle: using governor ladder
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    0.186213] cpuidle: using governor menu
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    0.186335] vdso: 2 pages &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;1 code @ ffffffc000cb9000, 1 data @ ffffffc000cb8000&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    0.186353] hw-breakpoint: found 6 breakpoint and 4 watchpoint registers.
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    0.200479] DMA: preallocated 256 KiB pool &lt;span class=&quot;k&quot;&gt;for &lt;/span&gt;atomic allocations
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    0.200561] Serial: AMBA PL011 UART driver
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    0.289141] raid6: int64x1  gen&lt;span class=&quot;o&quot;&gt;()&lt;/span&gt;   844 MB/s
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    0.357179] raid6: int64x1  xor&lt;span class=&quot;o&quot;&gt;()&lt;/span&gt;   637 MB/s
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    0.425243] raid6: int64x2  gen&lt;span class=&quot;o&quot;&gt;()&lt;/span&gt;  1325 MB/s
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    0.493288] raid6: int64x2  xor&lt;span class=&quot;o&quot;&gt;()&lt;/span&gt;  1026 MB/s
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    0.561324] raid6: int64x4  gen&lt;span class=&quot;o&quot;&gt;()&lt;/span&gt;  1687 MB/s
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    0.629390] raid6: int64x4  xor&lt;span class=&quot;o&quot;&gt;()&lt;/span&gt;  1064 MB/s
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    0.697426] raid6: int64x8  gen&lt;span class=&quot;o&quot;&gt;()&lt;/span&gt;  1883 MB/s
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    0.765481] raid6: int64x8  xor&lt;span class=&quot;o&quot;&gt;()&lt;/span&gt;  1046 MB/s
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    0.833518] raid6: neonx1   gen&lt;span class=&quot;o&quot;&gt;()&lt;/span&gt;  1617 MB/s
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    0.901581] raid6: neonx1   xor&lt;span class=&quot;o&quot;&gt;()&lt;/span&gt;   985 MB/s
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    0.969628] raid6: neonx2   gen&lt;span class=&quot;o&quot;&gt;()&lt;/span&gt;  2494 MB/s
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    1.037683] raid6: neonx2   xor&lt;span class=&quot;o&quot;&gt;()&lt;/span&gt;  1600 MB/s
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    1.105722] raid6: neonx4   gen&lt;span class=&quot;o&quot;&gt;()&lt;/span&gt;  3232 MB/s
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    1.173777] raid6: neonx4   xor&lt;span class=&quot;o&quot;&gt;()&lt;/span&gt;  1990 MB/s
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    1.241813] raid6: neonx8   gen&lt;span class=&quot;o&quot;&gt;()&lt;/span&gt;  3124 MB/s
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    1.309861] raid6: neonx8   xor&lt;span class=&quot;o&quot;&gt;()&lt;/span&gt;  2109 MB/s
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    1.309865] raid6: using algorithm neonx4 gen&lt;span class=&quot;o&quot;&gt;()&lt;/span&gt; 3232 MB/s
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    1.309868] raid6: .... xor&lt;span class=&quot;o&quot;&gt;()&lt;/span&gt; 1990 MB/s, rmw enabled
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    1.309871] raid6: using intx1 recovery algorithm
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    1.309984] ACPI: Interpreter disabled.
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    1.310079] reg-fixed-voltage usb3-gpio-vbus: could not find pctldev &lt;span class=&quot;k&quot;&gt;for &lt;/span&gt;node /cpn-110-master/config-space/pinctrl@440000/xhci0-vbus-pins, deferring probe
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    1.310138] gpio-regulator ap806:config-space:regulator@0: No &lt;span class=&quot;s1&quot;&gt;'states'&lt;/span&gt; property found
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    1.310145] gpio-regulator: probe of ap806:config-space:regulator@0 failed with error &lt;span class=&quot;nt&quot;&gt;-22&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    1.310312] arm-smmu f0100000.iommu: probing hardware configuration...
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    1.310317] arm-smmu f0100000.iommu: SMMUv2 with:
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    1.310322] arm-smmu f0100000.iommu:         stage 1 translation
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    1.310326] arm-smmu f0100000.iommu:         stage 2 translation
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    1.310329] arm-smmu f0100000.iommu:         nested translation
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    1.310334] arm-smmu f0100000.iommu:         coherent table walk
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    1.310339] arm-smmu f0100000.iommu:         stream matching with 16 register groups, mask 0x7fff
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    1.310344] arm-smmu f0100000.iommu:         8 context banks &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;0 stage-2 only&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    1.310350] arm-smmu f0100000.iommu:         Supported page sizes: 0x60211000
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    1.310354] arm-smmu f0100000.iommu:         Stage-1: 48-bit VA -&amp;gt; 48-bit IPA
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    1.310358] arm-smmu f0100000.iommu:         Stage-2: 48-bit IPA -&amp;gt; 48-bit PA
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    1.310402] arm-smmu f0100000.iommu: registered 4 master devices
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    1.310817] iommu: Adding device f2500000.usb3 to group 0
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    1.310832] iommu: Adding device f26a0000.cpxor0 to group 1
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    1.310845] iommu: Adding device f26c0000.cpxor1 to group 2
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    1.311159] vgaarb: loaded
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    1.311289] SCSI subsystem initialized
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    1.311473] usbcore: registered new interface driver usbfs
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    1.311500] usbcore: registered new interface driver hub
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    1.311532] usbcore: registered new device driver usb
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    1.311805] pps_core: LinuxPPS API ver. 1 registered
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    1.311809] pps_core: Software ver. 5.3.6 - Copyright 2005-2007 Rodolfo Giometti &amp;lt;giometti@linux.it&amp;gt;
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    1.311820] PTP clock support registered
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    1.312519] clocksource: Switched to clocksource arch_sys_counter
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    1.312764] pnp: PnP ACPI: disabled
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    1.316183] NET: Registered protocol family 2
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    1.316432] TCP established &lt;span class=&quot;nb&quot;&gt;hash &lt;/span&gt;table entries: 16384 &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;order: 5, 131072 bytes&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    1.316496] TCP &lt;span class=&quot;nb&quot;&gt;bind hash &lt;/span&gt;table entries: 16384 &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;order: 6, 262144 bytes&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    1.316624] TCP: Hash tables configured &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;established 16384 &lt;span class=&quot;nb&quot;&gt;bind &lt;/span&gt;16384&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    1.316682] UDP &lt;span class=&quot;nb&quot;&gt;hash &lt;/span&gt;table entries: 1024 &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;order: 3, 32768 bytes&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    1.316699] UDP-Lite &lt;span class=&quot;nb&quot;&gt;hash &lt;/span&gt;table entries: 1024 &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;order: 3, 32768 bytes&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    1.316791] NET: Registered protocol family 1
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    1.316936] RPC: Registered named UNIX socket transport module.
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    1.316941] RPC: Registered udp transport module.
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    1.316944] RPC: Registered tcp transport module.
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    1.316948] RPC: Registered tcp NFSv4.1 backchannel transport module.
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    1.317087] Trying to unpack rootfs image as initramfs...
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    1.317087] initrd_start 0xffffffc01ece0000 initrd_end 0xffffffc01fff8c82 size 20024450
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    1.961786] Freeing initrd memory: 19552K &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;ffffffc01ece0000 - ffffffc01fff8000&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    1.962065] hw perfevents: enabled with armv8_cortex_a72 PMU driver, 7 counters available
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    1.962617] kvm &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;1]: 8-bit VMID
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    1.962622] kvm &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;1]: Hyp mode initialized successfully
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    1.962705] kvm &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;1]: interrupt-controller@f0240000 IRQ7
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    1.962826] kvm &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;1]: timer IRQ5
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    1.964298] audit: initializing netlink subsys &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;disabled&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    1.964323] audit: &lt;span class=&quot;nb&quot;&gt;type&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;2000 audit&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;1.956:1&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;: initialized
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    1.964719] HugeTLB registered 2 MB page size, pre-allocated 0 pages
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    1.968686] VFS: Disk quotas dquot_6.6.0
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    1.968777] VFS: Dquot-cache &lt;span class=&quot;nb&quot;&gt;hash &lt;/span&gt;table entries: 512 &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;order 0, 4096 bytes&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    1.969488] squashfs: version 4.0 &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;2009/01/31&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; Phillip Lougher
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    1.970057] NFS: Registering the id_resolver key &lt;span class=&quot;nb&quot;&gt;type&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    1.970087] Key &lt;span class=&quot;nb&quot;&gt;type &lt;/span&gt;id_resolver registered
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    1.970091] Key &lt;span class=&quot;nb&quot;&gt;type &lt;/span&gt;id_legacy registered
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    1.970119] jffs2: version 2.2. &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;NAND&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; Â© 2001-2006 Red Hat, Inc.
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    1.970363] fuse init &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;API version 7.23&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    1.970583] 9p: Installing v9fs 9p2000 file system support
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    1.971146] async_tx: api initialized &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;async&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    1.971241] Block layer SCSI generic &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;bsg&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; driver version 0.4 loaded &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;major 250&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    1.971249] io scheduler noop registered
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    1.971378] io scheduler cfq registered &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;default&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    1.971940] armada-ap806-pinctrl f06f4000.pinctrl: registered pinctrl driver
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    1.972366] armada-cp110-pinctrl f2440000.pinctrl: registered pinctrl driver
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    1.972581] irq: Cannot allocate irq_descs @ IRQ38, assuming pre-allocated
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    1.972768] irq: Cannot allocate irq_descs @ IRQ58, assuming pre-allocated
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    1.972911] irq: Cannot allocate irq_descs @ IRQ90, assuming pre-allocated
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    1.973059] Ethernet Channel Bonding Driver: v3.7.1 &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;April 27, 2011&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    1.974061] libphy: Fixed MDIO Bus: probed
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    1.974070] tun: Universal TUN/TAP device driver, 1.6
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    1.974073] tun: &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;C&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; 1999-2004 Max Krasnyansky &amp;lt;maxk@qualcomm.com&amp;gt;
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    1.974174] libphy: mdio_driver_register: mv88e6085
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    1.974278] libphy: orion_mdio_bus: probed
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    1.974371] libphy: Marvell XSMI MDIO Bus: probed
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    1.974449] sky2: driver version 1.30
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    1.974607] e1000e: Intel&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;R&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; PRO/1000 Network Driver - 3.2.6-k
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    1.974610] e1000e: Copyright&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;c&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; 1999 - 2015 Intel Corporation.
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    1.974640] igb: Intel&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;R&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; Gigabit Ethernet Network Driver - version 5.3.0-k
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    1.974643] igb: Copyright &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;c&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; 2007-2014 Intel Corporation.
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    1.974671] igbvf: Intel&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;R&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; Gigabit Virtual Function Network Driver - version 2.0.2-k
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    1.974674] igbvf: Copyright &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;c&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; 2009 - 2012 Intel Corporation.
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    1.974701] ixgbe: Intel&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;R&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; 10 Gigabit PCI Express Network Driver - version 4.2.1-k
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    1.974704] ixgbe: Copyright &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;c&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; 1999-2015 Intel Corporation.
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    1.974739] ixgbevf: Intel&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;R&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; 10 Gigabit PCI Express Virtual Function Network Driver - version 2.12.1-k
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    1.974742] ixgbevf: Copyright &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;c&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; 2009 - 2012 Intel Corporation.
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    1.974768] ixgb: Intel&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;R&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; PRO/10GbE Network Driver - version 1.0.135-k2-NAPI
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    1.974771] ixgb: Copyright &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;c&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; 1999-2008 Intel Corporation.
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    1.974910] usbcore: registered new interface driver asix
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    1.974945] usbcore: registered new interface driver ax88179_178a
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    1.974968] usbcore: registered new interface driver cdc_ether
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    1.974997] usbcore: registered new interface driver smsc75xx
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    1.975019] usbcore: registered new interface driver net1080
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    1.975042] usbcore: registered new interface driver cdc_subset
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    1.975064] usbcore: registered new interface driver zaurus
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    1.975099] usbcore: registered new interface driver cdc_ncm
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    1.975516] mv_xor_v2 f0400000.xor0: Marvell Version 2 XOR driver
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    1.977402] mv_xor_v2 f0420000.xor1: Marvell Version 2 XOR driver
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    1.978995] mv_xor_v2 f0440000.xor2: Marvell Version 2 XOR driver
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    1.980614] mv_xor_v2 f0460000.xor3: Marvell Version 2 XOR driver
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    1.982208] mv_xor_v2 f26a0000.cpxor0: Marvell Version 2 XOR driver
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    1.982283] mv_xor_v2 f26c0000.cpxor1: Marvell Version 2 XOR driver
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    1.983834] Serial: 8250/16550 driver, 4 ports, IRQ sharing disabled
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    1.984486] console &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;ttyS0] disabled
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    2.004652] f0512000.serial: ttyS0 at MMIO 0xf0512000 &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;irq &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; 13, base_baud &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; 12500000&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; is a 16550A
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    3.317096] console &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;ttyS0] enabled
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    3.321121] omap_rng f2760000.trng: initialization failed.
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    3.326752] Unable to detect cache hierarchy from DT &lt;span class=&quot;k&quot;&gt;for &lt;/span&gt;CPU 0
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    3.333009] brd: module loaded
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    3.338449] loop: module loaded
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    3.342529] VFIO - User Level meta-driver version: 0.3
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    3.350074] ehci_hcd: USB 2.0 &lt;span class=&quot;s1&quot;&gt;'Enhanced'&lt;/span&gt; Host Controller &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;EHCI&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; Driver
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    3.356648] ehci-pci: EHCI PCI platform driver
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    3.361138] ehci-platform: EHCI generic platform driver
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    3.366453] ehci-orion: EHCI orion driver
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    3.370537] ohci_hcd: USB 1.1 &lt;span class=&quot;s1&quot;&gt;'Open'&lt;/span&gt; Host Controller &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;OHCI&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; Driver
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    3.376756] ohci-pci: OHCI PCI platform driver
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    3.381247] ohci-platform: OHCI generic platform driver
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    3.386773] usbcore: registered new interface driver usb-storage
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    3.392859] usbcore: registered new interface driver usbserial
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    3.398997] mousedev: PS/2 mouse device common &lt;span class=&quot;k&quot;&gt;for &lt;/span&gt;all mice
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    3.405025] armada38x-rtc f2284000.rtc: rtc core: registered f2284000.rtc as rtc0
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    3.412708] rtc-efi rtc-efi: rtc core: registered rtc-efi as rtc1
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    3.418843] i2c /dev entries driver
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    3.432631] armada_thermal f06f808c.thermal: Overheat threshold between 93..107
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    3.450105] armada_thermal f2400078.thermal: Overheat threshold between 92..107
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    3.457540] md: linear personality registered &lt;span class=&quot;k&quot;&gt;for &lt;/span&gt;level &lt;span class=&quot;nt&quot;&gt;-1&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    3.463055] md: raid0 personality registered &lt;span class=&quot;k&quot;&gt;for &lt;/span&gt;level 0
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    3.468395] md: raid1 personality registered &lt;span class=&quot;k&quot;&gt;for &lt;/span&gt;level 1
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    3.473738] md: raid10 personality registered &lt;span class=&quot;k&quot;&gt;for &lt;/span&gt;level 10
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    3.479330] md: raid6 personality registered &lt;span class=&quot;k&quot;&gt;for &lt;/span&gt;level 6
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    3.484670] md: raid5 personality registered &lt;span class=&quot;k&quot;&gt;for &lt;/span&gt;level 5
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    3.490008] md: raid4 personality registered &lt;span class=&quot;k&quot;&gt;for &lt;/span&gt;level 4
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    3.495518] device-mapper: ioctl: 4.34.0-ioctl &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;2015-10-28&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; initialised: dm-devel@redhat.com
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    3.504455] sdhci: Secure Digital Host Controller Interface driver
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    3.510673] sdhci: Copyright&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;c&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; Pierre Ossman
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    3.515054] sdhci-pltfm: SDHCI platform and OF driver helper
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    3.520832] xenon-sdhci f2780000.sdhci: Failed to setup input clk: &lt;span class=&quot;nt&quot;&gt;-517&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    3.527564] ledtrig-cpu: registered to indicate activity on CPUs
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    3.533682] usbcore: registered new interface driver usbhid
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    3.539282] usbhid: USB HID core driver
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    3.543849] coresight-tmc f0809000.etf0: TMC initialized
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    3.549339] coresight-tmc f080a000.etf1: TMC initialized
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    3.554806] coresight-tmc f080b000.etf2: TMC initialized
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    3.560271] coresight-tmc f080c000.etf3: TMC initialized
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    3.565756] coresight-tmc f0811000.etf5: TMC initialized
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    3.575210] coresight-tmc f0812000.etr: TMC initialized
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    3.580660] coresight-funnel f0810000.funnel: FUNNEL initialized
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    3.587026] coresight-etm4x f0c40000.etm0: ETM 4.0 initialized
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    3.593083] coresight-etm4x f0d40000.etm1: ETM 4.0 initialized
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    3.599138] coresight-etm4x f0e40000.etm2: ETM 4.0 initialized
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    3.605190] coresight-etm4x f0f40000.etm3: ETM 4.0 initialized
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    3.611095] of_graph_get_next_endpoint&lt;span class=&quot;o&quot;&gt;()&lt;/span&gt;: no port node found &lt;span class=&quot;k&quot;&gt;in&lt;/span&gt; /ap806/config-space/axim-ddr-rd@840000
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    3.620561] coresight-axim f0840000.axim-ddr-rd: AXIM 4.0 2.0 initialized
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    3.627399] of_graph_get_next_endpoint&lt;span class=&quot;o&quot;&gt;()&lt;/span&gt;: no port node found &lt;span class=&quot;k&quot;&gt;in&lt;/span&gt; /ap806/config-space/axim-ddr-wr@841000
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    3.636849] coresight-axim f0841000.axim-ddr-wr: AXIM 4.0 2.0 initialized
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    3.643689] of_graph_get_next_endpoint&lt;span class=&quot;o&quot;&gt;()&lt;/span&gt;: no port node found &lt;span class=&quot;k&quot;&gt;in&lt;/span&gt; /ap806/config-space/axim-sb-rd@848000
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    3.653055] coresight-axim f0848000.axim-sb-rd: AXIM 4.0 2.0 initialized
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    3.659806] of_graph_get_next_endpoint&lt;span class=&quot;o&quot;&gt;()&lt;/span&gt;: no port node found &lt;span class=&quot;k&quot;&gt;in&lt;/span&gt; /ap806/config-space/axim-sb-wr@849000
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    3.669174] coresight-axim f0849000.axim-sb-wr: AXIM 4.0 2.0 initialized
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    3.675928] of_graph_get_next_endpoint&lt;span class=&quot;o&quot;&gt;()&lt;/span&gt;: no port node found &lt;span class=&quot;k&quot;&gt;in&lt;/span&gt; /cpn-110-master/config-space/axim-cp-rd@3c5000
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    3.686088] coresight-axim f23c5000.axim-cp-rd: AXIM 4.0 1.0 initialized
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    3.692840] of_graph_get_next_endpoint&lt;span class=&quot;o&quot;&gt;()&lt;/span&gt;: no port node found &lt;span class=&quot;k&quot;&gt;in&lt;/span&gt; /cpn-110-master/config-space/axim-cp-wr@3c6000
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    3.703001] coresight-axim f23c6000.axim-cp-wr: AXIM 4.0 1.0 initialized
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    3.709754] of_graph_get_next_endpoint&lt;span class=&quot;o&quot;&gt;()&lt;/span&gt;: no port node found &lt;span class=&quot;k&quot;&gt;in&lt;/span&gt; /cpn-110-master/config-space/axim-ppv2-rd@3c0000
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    3.720089] coresight-axim f23c0000.axim-ppv2-rd: AXIM 4.0 1.0 initialized
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    3.727017] of_graph_get_next_endpoint&lt;span class=&quot;o&quot;&gt;()&lt;/span&gt;: no port node found &lt;span class=&quot;k&quot;&gt;in&lt;/span&gt; /cpn-110-master/config-space/axim-ppv2-wr@3c1000
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    3.737350] coresight-axim f23c1000.axim-ppv2-wr: AXIM 4.0 1.0 initialized
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    3.744277] of_graph_get_next_endpoint&lt;span class=&quot;o&quot;&gt;()&lt;/span&gt;: no port node found &lt;span class=&quot;k&quot;&gt;in&lt;/span&gt; /cpn-110-master/config-space/axim-hb1-rd@3c8000
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    3.754524] coresight-axim f23c8000.axim-hb1-rd: AXIM 4.0 1.0 initialized
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    3.761363] of_graph_get_next_endpoint&lt;span class=&quot;o&quot;&gt;()&lt;/span&gt;: no port node found &lt;span class=&quot;k&quot;&gt;in&lt;/span&gt; /cpn-110-master/config-space/axim-hb1-wr@3c9000
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    3.771613] coresight-axim f23c9000.axim-hb1-wr: AXIM 4.0 1.0 initialized
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    3.778972] NET: Registered protocol family 10
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    3.783903] sit: IPv6 over IPv4 tunneling driver
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    3.788824] NET: Registered protocol family 17
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    3.793315] bridge: automatic filtering via arp/ip/ip6tables has been deprecated. Update your scripts to load br_netfilter &lt;span class=&quot;k&quot;&gt;if &lt;/span&gt;you need this.
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    3.806093] 8021q: 802.1Q VLAN Support v1.8
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    3.810328] 9pnet: Installing 9P2000 support
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    3.814657] Key &lt;span class=&quot;nb&quot;&gt;type &lt;/span&gt;dns_resolver registered
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    3.818952] openvswitch: Open vSwitch switching datapath
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    3.824417] mpls_gso: MPLS GSO support
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    3.828623] registered taskstats version 1
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    3.833849] Btrfs loaded
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    3.850896] mac_addr 0:0:0:0:0:3
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    3.864042] mvpp2 f2000000.ppv22 eth0: Using device tree mac address 00:00:00:00:00:03
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    3.872358] mv_xor_v2 f26a0000.cpxor0: Marvell Version 2 XOR driver
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    3.880641] mv_xor_v2 f26c0000.cpxor1: Marvell Version 2 XOR driver
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    3.888724] omap_rng f2760000.trng: Random Number Generator ver. 203b34c
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    3.895576] xhci-hcd f2500000.usb3: xHCI Host Controller
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    3.900924] xhci-hcd f2500000.usb3: new USB bus registered, assigned bus number 1
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    3.917037] xhci-hcd f2500000.usb3: hcc params 0x0a000990 hci version 0x100 quirks 0x00010010
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    3.925641] xhci-hcd f2500000.usb3: irq 27, io mem 0xf2500000
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    3.931831] hub 1-0:1.0: USB hub found
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    3.935625] hub 1-0:1.0: 1 port detected
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    3.939730] xhci-hcd f2500000.usb3: xHCI Host Controller
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    3.945081] xhci-hcd f2500000.usb3: new USB bus registered, assigned bus number 2
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    3.952650] usb usb2: We don&lt;span class=&quot;s1&quot;&gt;'t know the algorithms for LPM for this host, disabling LPM.
+[    3.961065] hub 2-0:1.0: USB hub found
+[    3.964856] hub 2-0:1.0: 1 port detected
+[    3.969166] xenon-sdhci f2780000.sdhci: Fail to get Xenon PHY type. Use default eMMC 5.1 PHY
+[    3.978949] xenon-sdhci f2780000.sdhci: No vmmc regulator found
+[    3.984912] xenon-sdhci f2780000.sdhci: No vqmmc regulator found
+[    4.028525] mmc0: SDHCI controller on f2780000.sdhci [f2780000.sdhci] using ADMA 64-bit
+[    4.040840] armada38x-rtc f2284000.rtc: setting system clock to 2079-12-13 02:24:14 UTC (3469659854)
+[    4.051151] Freeing unused kernel memory: 452K (ffffffc000c43000 - ffffffc000cb4000)
+[    4.064651] random: systemd: uninitialized urandom read (16 bytes read, 1 bits of entropy available)
+[    4.074318] random: systemd: uninitialized urandom read (16 bytes read, 1 bits of entropy available)
+[    4.084421] systemd[1]: systemd 229 running in system mode. (+PAM +AUDIT +SELINUX +IMA -APPARMOR +SMACK +SYSVINIT +UTMP -LIBCRYPTSETUP -GCRYPT +GNUTLS +ACL +XZ -LZ4 -SECCOMP +BLKID -ELFUTILS +KMOD -IDN)
+[    4.098103] mmc0: MAN_BKOPS_EN bit is not set
+[    4.107145] systemd[1]: Detected architecture arm64.
+[    4.109402] mmc0: new HS200 MMC card at address 0001
+[    4.109648] mmcblk0: mmc0:0001 Q2J55L 7.09 GiB
+[    4.109737] mmcblk0boot0: mmc0:0001 Q2J55L partition 1 16.0 MiB
+[    4.109829] mmcblk0boot1: mmc0:0001 Q2J55L partition 2 16.0 MiB
+[    4.109921] mmcblk0rpmb: mmc0:0001 Q2J55L partition 3 4.00 MiB
+[    4.112627]  mmcblk0: p1 p2 &amp;lt; p5 p6 p7 p8 p9 p10 &amp;gt; p3
+[    4.144592] systemd[1]: Running with unpopulated /etc.
+[    4.149839] systemd[1]: No hostname configured.
+[    4.154427] systemd[1]: Set hostname to &amp;lt;localhost&amp;gt;.
+[    4.159470] random: systemd: uninitialized urandom read (16 bytes read, 2 bits of entropy available)
+[    4.168668] systemd[1]: Initializing machine ID from random generator.
+[    4.176466] random: systemd: uninitialized urandom read (16 bytes read, 2 bits of entropy available)
+[    4.186211] random: systemd: uninitialized urandom read (16 bytes read, 2 bits of entropy available)
+[    4.196445] random: systemd: uninitialized urandom read (16 bytes read, 2 bits of entropy available)
+[    4.207839] random: systemd: uninitialized urandom read (16 bytes read, 2 bits of entropy available)
+[    4.221062] random: systemd: uninitialized urandom read (16 bytes read, 2 bits of entropy available)
+[    4.232749] random: systemd: uninitialized urandom read (16 bytes read, 2 bits of entropy available)
+[    4.244142] random: systemd: uninitialized urandom read (16 bytes read, 2 bits of entropy available)
+[    4.253781] systemd[1]: Failed to populate /etc with preset unit settings, ignoring: No such file or directory
+[    4.301708] systemd[1]: Created slice System Slice.
+[    4.324534] usb 1-1: new high-speed USB device number 2 using xhci-hcd
+[    4.328641] systemd[1]: Started Emergency Shell.
+[    4.328975] systemd[1]: Reached target Emergency Mode.
+[    4.329045] systemd[1]: Startup finished in 4.057s (kernel) + 266ms (userspace) = 4.324s.
+Welcome to emergbash-4.3# [    4.479740] hub 1-1:1.0: USB hub found
+[    4.483584] hub 1-1:1.0: 4 ports detected
+[    4.776524] usb 1-1.1: new high-speed USB device number 3 using xhci-hcd
+[    4.888729] hub 1-1.1:1.0: USB hub found
+[    4.892984] hub 1-1.1:1.0: 4 ports detected
+[    5.172524] usb 1-1.1.3: new high-speed USB device number 4 using xhci-hcd
+[    5.372758] usb 1-1.1.3: ep 0x81 - rounding interval to 128 microframes, ep desc says 255 microframes
+[    5.384461] usb 1-1.1.3: ep 0x2 - rounding interval to 128 microframes, ep desc says 255 microframes
+[    5.393854] usb-storage 1-1.1.3:1.0: USB Mass Storage device detected
+[    5.401678] usb-storage 1-1.1.3:1.0: Quirks match for vid 054c pid 02a5: 80000
+[    5.408991] scsi host0: usb-storage 1-1.1.3:1.0
+
+bash-4.3# [    6.591678] scsi 0:0:0:0: Direct-Access     Sony     Storage Media    0100 PQ: 0 ANSI: 4
+[    6.600245] sd 0:0:0:0: [sda] 7628544 512-byte logical blocks: (3.91 GB/3.64 GiB)
+[    6.608725] sd 0:0:0:0: [sda] No Caching mode page found
+[    6.616445]  sda: sda1
+[    6.620264] sd 0:0:0:0: [sda] Attached SCSI removable disk
+
+bash-4.3#&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;</content><author><name></name></author><summary type="html">For the last few days, I have been working on switching u-boot based bootloader to UEFI based boot loader for a new platform at work. I found out it is useful to able to boot manually with kernel, dtb, initramfs. By doing this, if the thing doesn’t work, we can change any one of them to identify which one has issue.</summary></entry><entry><title type="html">Linux udev rule to create persistent device name</title><link href="http://localhost:4000/2017/05/21/udev-rule.html" rel="alternate" type="text/html" title="Linux udev rule to create persistent device name" /><published>2017-05-21T00:00:00-07:00</published><updated>2017-05-21T00:00:00-07:00</updated><id>http://localhost:4000/2017/05/21/udev-rule</id><content type="html" xml:base="http://localhost:4000/2017/05/21/udev-rule.html">&lt;p&gt;udev is targeted at Linux kernels 2.6 and beyond to provide a userspace solution for a dynamic /dev directory, with persistent device naming. The previous /dev implementation, devfs, is now deprecated, and udev is seen as the successor.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/uploads/linux/linux-udev-rule.jpg&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;!--more--&gt;
+&lt;h2 id=&quot;background-udev-and-sysfs&quot;&gt;Background: udev and sysfs&lt;/h2&gt;
+&lt;p&gt;The original /dev directories were just populated with every device that might possibly appear in the system. /dev directories were typically very large because of this. devfs came along to provide a more manageable approach (noticeably, it only populated /dev with hardware that is plugged into the system), as well as some other functionality, but the system proved to have problems which could not be easily fixed.&lt;/p&gt;
+
+&lt;p&gt;udev is the “new” way of managing /dev directories, designed to clear up some issues with previous /dev implementations, and provide a robust path forward. In order to create and name /dev device nodes corresponding to devices that are present in the system, udev relies on matching information provided by sysfs with rules provided by the user.&lt;/p&gt;
+
+&lt;p&gt;sysfs is a new filesystem to the 2.6 kernels. It is managed by the kernel, and exports basic information about the devices currently plugged into your system. udev can use this information to create device nodes corresponding to your hardware. sysfs is mounted at /sys and is browseable.&lt;/p&gt;
+
+&lt;h2 id=&quot;what-udev-rule-can-do&quot;&gt;what udev rule can do?&lt;/h2&gt;
+
+&lt;p&gt;udev rules are flexible and very powerful. Here are some of the things you can use rules to achieve:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt; Rename a device node from the default name to something else &lt;/li&gt;
+&lt;li&gt; Provide an alternative/persistent name for a device node by creating a symbolic link to the default device node &lt;/li&gt;
+&lt;li&gt; Name a device node based on the output of a program &lt;/li&gt;
+&lt;li&gt; Change permissions and ownership of a device node &lt;/li&gt;
+&lt;li&gt; Launch a script when a device node is created or deleted (typically when a device is attached or unplugged) &lt;/li&gt;
+&lt;li&gt; Rename network interfaces &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;built-in-persistent-naming-schemes&quot;&gt;Built-in persistent naming schemes&lt;/h3&gt;
+
+&lt;p&gt;udev provides persistent naming for some device types out of the box. This is a very useful feature, and in many circumstances means that your journey ends here: you do not have to write any rules.&lt;/p&gt;
+
+&lt;p&gt;udev provides out-of-the-box persistent naming for storage devices in the /dev/disk directory. To view the persistent names which have been created for your storage hardware, you can use the following command:&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;root@sg-centos-hv1 dev]# &lt;span class=&quot;nb&quot;&gt;ls&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;-lR&lt;/span&gt; /dev/disk/
+/dev/disk/:
+total 0
+drwxr-xr-x. 2 root root 400 Jun 19 10:15 by-id
+drwxr-xr-x. 2 root root 180 Jun 19 10:15 by-path
+drwxr-xr-x. 2 root root 120 Jun 19 10:15 by-uuid
+
+/dev/disk/by-id:
+total 0
+lrwxrwxrwx. 1 root root  9 Jun 19 10:16 ata-ST91000640NS_9XG1BQRV -&amp;gt; ../../sda
+lrwxrwxrwx. 1 root root 10 Jun 19 10:15 ata-ST91000640NS_9XG1BQRV-part1 -&amp;gt; ../../sda1
+lrwxrwxrwx. 1 root root 10 Jun 19 10:15 ata-ST91000640NS_9XG1BQRV-part2 -&amp;gt; ../../sda2
+lrwxrwxrwx. 1 root root 10 Jun 19 10:15 dm-name-vg_sgcentoshv1-lv_home -&amp;gt; ../../dm-2
+lrwxrwxrwx. 1 root root 10 Jun 19 10:15 dm-name-vg_sgcentoshv1-lv_root -&amp;gt; ../../dm-0
+lrwxrwxrwx. 1 root root 10 Jun 19 10:15 dm-name-vg_sgcentoshv1-lv_swap -&amp;gt; ../../dm-1
+lrwxrwxrwx. 1 root root 10 Jun 19 10:15 dm-uuid-LVM-3CQarSxJz8rzmI2nxhj4pKqUFrwrRXkiBpTs4P7cIHC1eetajjlqx2I2PqA9gy3s -&amp;gt; ../../dm-1
+lrwxrwxrwx. 1 root root 10 Jun 19 10:15 dm-uuid-LVM-3CQarSxJz8rzmI2nxhj4pKqUFrwrRXkiebnL5kGmac6gqEPPF59925qRUMVH24Co -&amp;gt; ../../dm-0
+lrwxrwxrwx. 1 root root 10 Jun 19 10:15 dm-uuid-LVM-3CQarSxJz8rzmI2nxhj4pKqUFrwrRXkiqZYut3A0vRuKrOfNR622Jpoa0zNqmfKy -&amp;gt; ../../dm-2
+lrwxrwxrwx. 1 root root  9 Jun 19 10:16 scsi-SATA_ST91000640NS_9XG1BQRV -&amp;gt; ../../sda
+lrwxrwxrwx. 1 root root 10 Jun 19 10:15 scsi-SATA_ST91000640NS_9XG1BQRV-part1 -&amp;gt; ../../sda1
+lrwxrwxrwx. 1 root root 10 Jun 19 10:15 scsi-SATA_ST91000640NS_9XG1BQRV-part2 -&amp;gt; ../../sda2
+lrwxrwxrwx. 1 root root  9 Jun 19 10:15 usb-Cisco_Virtual_CD_DVD_20080930-1-0:0 -&amp;gt; ../../sr1
+lrwxrwxrwx. 1 root root  9 Jun 19 10:15 usb-Cisco_Virtual_FDD_HDD_20080930-1-0:1 -&amp;gt; ../../sdb
+lrwxrwxrwx. 1 root root  9 Jun 19 10:15 usb-Cisco_Virtual_Floppy_20080930-1-0:2 -&amp;gt; ../../sdc
+lrwxrwxrwx. 1 root root  9 Jun 19 10:16 wwn-0x5000c5004067bd70 -&amp;gt; ../../sda
+lrwxrwxrwx. 1 root root 10 Jun 19 10:15 wwn-0x5000c5004067bd70-part1 -&amp;gt; ../../sda1
+lrwxrwxrwx. 1 root root 10 Jun 19 10:15 wwn-0x5000c5004067bd70-part2 -&amp;gt; ../../sda2
+
+/dev/disk/by-path:
+total 0
+lrwxrwxrwx. 1 root root  9 Jun 19 10:15 pci-0000:00:1a.7-usb-0:4:1.0-scsi-0:0:0:0 -&amp;gt; ../../sr1
+lrwxrwxrwx. 1 root root  9 Jun 19 10:15 pci-0000:00:1a.7-usb-0:4:1.0-scsi-0:0:0:1 -&amp;gt; ../../sdb
+lrwxrwxrwx. 1 root root  9 Jun 19 10:15 pci-0000:00:1a.7-usb-0:4:1.0-scsi-0:0:0:2 -&amp;gt; ../../sdc
+lrwxrwxrwx. 1 root root  9 Jun 19 10:16 pci-0000:00:1f.2-scsi-0:0:0:0 -&amp;gt; ../../sda
+lrwxrwxrwx. 1 root root 10 Jun 19 10:15 pci-0000:00:1f.2-scsi-0:0:0:0-part1 -&amp;gt; ../../sda1
+lrwxrwxrwx. 1 root root 10 Jun 19 10:15 pci-0000:00:1f.2-scsi-0:0:0:0-part2 -&amp;gt; ../../sda2
+lrwxrwxrwx. 1 root root  9 Jun 19 10:15 pci-0000:00:1f.5-scsi-1:0:0:0 -&amp;gt; ../../sr0
+
+/dev/disk/by-uuid:
+total 0
+lrwxrwxrwx. 1 root root 10 Jun 19 10:15 24a65001-96cb-4eec-9149-a297f2a0bbaf -&amp;gt; ../../sda1
+lrwxrwxrwx. 1 root root 10 Jun 19 10:15 32b80fc5-9055-4732-8991-1e24d46d0665 -&amp;gt; ../../dm-1
+lrwxrwxrwx. 1 root root 10 Jun 19 10:15 e2f3cb08-02be-4d27-89be-4c4a58912886 -&amp;gt; ../../dm-0
+lrwxrwxrwx. 1 root root 10 Jun 19 10:15 f77f5f9e-d434-47ed-b310-e6b5fda624f4 -&amp;gt; ../../dm-2
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;root@sg-centos-hv1 dev]# &lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;This works for all storage types.&lt;/p&gt;
+
+&lt;h2 id=&quot;rule-writing&quot;&gt;Rule writing&lt;/h2&gt;
+
+&lt;p&gt;These udev rule files are kept in the /etc/udev/rules.d directory, and they all must have the .rules suffix, and parsed in lexical order, and in some circumstances, the order in which rules are parsed is important. In general, you want your own rules to be parsed before the defaults, so it is good idea to create a file at /etc/udev/rules.d/10-local.rules and write all your rules into this file.&lt;/p&gt;
+
+&lt;h3 id=&quot;rule-syntax&quot;&gt;Rule syntax&lt;/h3&gt;
+&lt;p&gt;Each rule is constructed from a series of key-value pairs, which are separated by commas. match keys are conditions used to identify the device which the rule is acting upon. When all match keys in a rule correspond to the device being handled, then the rule is applied and the actions of the assignment keys are invoked. Every rule should consist of at least one match key and at least one assignment key. e.g. KERNEL==”hdb”, NAME=”my_special_disk”&lt;/p&gt;
+
+&lt;h3 id=&quot;basic-rules&quot;&gt;Basic Rules&lt;/h3&gt;
+
+&lt;p&gt;udev provides several different match keys which can be used to write rules which match devices very precisely. Some of the most common keys are introduced below, others will be introduced later in this document. For a complete list, see the udev man page.&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt; KERNEL - match against the kernel name for the device &lt;/li&gt;
+&lt;li&gt; SUBSYSTEM - match against the subsystem of the device &lt;/li&gt;
+&lt;li&gt; DRIVER - match against the name of the driver backing the device &lt;/li&gt;
+
+After you have used a series of match keys to precisely match a device, udev gives you fine control over what happens next, through a range of assignment keys. For a complete list of possible assignment keys, see the udev man page. 
+
+The most basic assignment keys are introduced below. Others will be introduced later in this document.
+
+&lt;ul&gt;
+&lt;li&gt; NAME - the name that shall be used for the device node &lt;/li&gt;
+&lt;li&gt; SYMLINK - a list of symbolic links which act as alternative names for the device node &lt;/li&gt;
+
+As hinted above, udev only creates one true device node for one device. If you wish to provide alternate names for this device node, you use the symbolic link functionality. With the SYMLINK assignment, you are actually maintaining a list of symbolic links, all of which will be pointed at the real device node. To manipulate these links, we introduce a new operator for appending to lists: +=. You can append multiple symlinks to the list from any one rule by separating each one with a space.
+
+example #1:
+KERNEL==&quot;hdb&quot;, NAME=&quot;my_spare_disk&quot;
+The above rule says: match a device which was named by the kernel as hdb, and instead of calling it hdb, name the device node as my_spare_disk. The device node appears at /dev/my_spare_disk.
+
+example #2:
+KERNEL==&quot;hdb&quot;, DRIVER==&quot;ide-disk&quot;, SYMLINK+=&quot;sparedisk&quot;
+The above rule says: match a device which was named by the kernel as hdb AND where the driver is ide-disk. Name the device node with the default name and create a symbolic link to it named sparedisk.
+
+### Matching sysfs attributes and find them from sysfs
+
+To make the match criteria more granular, usually it is needed to get attributes from sysfs, which is exposed through /sys/.
+There is linux tool &quot;udevadm&quot; which can retrieve sysfs information and show it in a proper way:
+e.g. to get a disk /dev/sda info, this can be done below:
+
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;iot@iot-sparrow:~&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;udevadm info &lt;span class=&quot;nt&quot;&gt;-help&lt;/span&gt;
+udevadm info &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;OPTIONS] &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;DEVPATH|FILE]
+
+Query sysfs or the udev database.
+
+  &lt;span class=&quot;nt&quot;&gt;-h&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;--help&lt;/span&gt;                   Print this message
+     &lt;span class=&quot;nt&quot;&gt;--version&lt;/span&gt;                Print version of the program
+  &lt;span class=&quot;nt&quot;&gt;-q&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;--query&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;TYPE             Query device information:
+       name                     Name of device node
+       symlink                  Pointing to node
+       path                     sysfs device path
+       property                 The device properties
+       all                      All values
+  &lt;span class=&quot;nt&quot;&gt;-p&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;--path&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;SYSPATH           sysfs device path used &lt;span class=&quot;k&quot;&gt;for &lt;/span&gt;query or attribute walk
+  &lt;span class=&quot;nt&quot;&gt;-n&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;--name&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;NAME              Node or symlink name used &lt;span class=&quot;k&quot;&gt;for &lt;/span&gt;query or attribute walk
+  &lt;span class=&quot;nt&quot;&gt;-r&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;--root&lt;/span&gt;                   Prepend dev directory to path names
+  &lt;span class=&quot;nt&quot;&gt;-a&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;--attribute-walk&lt;/span&gt;         Print all key matches walking along the chain
+                              of parent devices
+  &lt;span class=&quot;nt&quot;&gt;-d&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;--device-id-of-file&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;FILE Print major:minor of device containing this file
+  &lt;span class=&quot;nt&quot;&gt;-x&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;--export&lt;/span&gt;                 Export key/value pairs
+  &lt;span class=&quot;nt&quot;&gt;-P&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;--export-prefix&lt;/span&gt;          Export the key name with a prefix
+  &lt;span class=&quot;nt&quot;&gt;-e&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;--export-db&lt;/span&gt;              Export the content of the udev database
+  &lt;span class=&quot;nt&quot;&gt;-c&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;--cleanup-db&lt;/span&gt;             Clean up the udev database
+iot@iot-sparrow:~&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;
+iot@iot-sparrow:~&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;udevadm info &lt;span class=&quot;nt&quot;&gt;-q&lt;/span&gt; all &lt;span class=&quot;nt&quot;&gt;-n&lt;/span&gt; /dev/sda
+P: /devices/pci0000:00/0000:00:1f.2/ata1/host0/target0:0:0/0:0:0:0/block/sda
+N: sda
+S: disk/by-id/ata-WDC_WD2502ABYS-02B7A0_WD-WCAT1H620711
+S: disk/by-id/wwn-0x50014ee1038de847
+S: disk/by-path/pci-0000:00:1f.2-ata-1
+E: &lt;span class=&quot;nv&quot;&gt;DEVLINKS&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;/dev/disk/by-id/ata-WDC_WD2502ABYS-02B7A0_WD-WCAT1H620711 /dev/disk/by-path/pci-0000:00:1f.2-ata-1 /dev/disk/by-id/wwn-0x50014ee1038de847
+E: &lt;span class=&quot;nv&quot;&gt;DEVNAME&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;/dev/sda
+E: &lt;span class=&quot;nv&quot;&gt;DEVPATH&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;/devices/pci0000:00/0000:00:1f.2/ata1/host0/target0:0:0/0:0:0:0/block/sda
+E: &lt;span class=&quot;nv&quot;&gt;DEVTYPE&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;disk
+E: &lt;span class=&quot;nv&quot;&gt;ID_ATA&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;1
+E: &lt;span class=&quot;nv&quot;&gt;ID_ATA_DOWNLOAD_MICROCODE&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;1
+E: &lt;span class=&quot;nv&quot;&gt;ID_ATA_FEATURE_SET_AAM&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;1
+E: &lt;span class=&quot;nv&quot;&gt;ID_ATA_FEATURE_SET_AAM_CURRENT_VALUE&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;254
+E: &lt;span class=&quot;nv&quot;&gt;ID_ATA_FEATURE_SET_AAM_ENABLED&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;1
+E: &lt;span class=&quot;nv&quot;&gt;ID_ATA_FEATURE_SET_AAM_VENDOR_RECOMMENDED_VALUE&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;128
+E: &lt;span class=&quot;nv&quot;&gt;ID_ATA_FEATURE_SET_HPA&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;1
+E: &lt;span class=&quot;nv&quot;&gt;ID_ATA_FEATURE_SET_HPA_ENABLED&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;1
+E: &lt;span class=&quot;nv&quot;&gt;ID_ATA_FEATURE_SET_PM&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;1
+E: &lt;span class=&quot;nv&quot;&gt;ID_ATA_FEATURE_SET_PM_ENABLED&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;1
+E: &lt;span class=&quot;nv&quot;&gt;ID_ATA_FEATURE_SET_PUIS&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;1
+E: &lt;span class=&quot;nv&quot;&gt;ID_ATA_FEATURE_SET_PUIS_ENABLED&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;0
+E: &lt;span class=&quot;nv&quot;&gt;ID_ATA_FEATURE_SET_SECURITY&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;1
+E: &lt;span class=&quot;nv&quot;&gt;ID_ATA_FEATURE_SET_SECURITY_ENABLED&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;0
+E: &lt;span class=&quot;nv&quot;&gt;ID_ATA_FEATURE_SET_SECURITY_ENHANCED_ERASE_UNIT_MIN&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;48
+E: &lt;span class=&quot;nv&quot;&gt;ID_ATA_FEATURE_SET_SECURITY_ERASE_UNIT_MIN&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;48
+E: &lt;span class=&quot;nv&quot;&gt;ID_ATA_FEATURE_SET_SECURITY_FROZEN&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;1
+E: &lt;span class=&quot;nv&quot;&gt;ID_ATA_FEATURE_SET_SMART&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;1
+E: &lt;span class=&quot;nv&quot;&gt;ID_ATA_FEATURE_SET_SMART_ENABLED&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;1
+E: &lt;span class=&quot;nv&quot;&gt;ID_ATA_ROTATION_RATE_RPM&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;7200
+E: &lt;span class=&quot;nv&quot;&gt;ID_ATA_SATA&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;1
+E: &lt;span class=&quot;nv&quot;&gt;ID_ATA_SATA_SIGNAL_RATE_GEN1&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;1
+E: &lt;span class=&quot;nv&quot;&gt;ID_ATA_SATA_SIGNAL_RATE_GEN2&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;1
+E: &lt;span class=&quot;nv&quot;&gt;ID_ATA_WRITE_CACHE&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;1
+E: &lt;span class=&quot;nv&quot;&gt;ID_ATA_WRITE_CACHE_ENABLED&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;1
+E: &lt;span class=&quot;nv&quot;&gt;ID_BUS&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;ata
+E: &lt;span class=&quot;nv&quot;&gt;ID_MODEL&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;WDC_WD2502ABYS-02B7A0
+E: &lt;span class=&quot;nv&quot;&gt;ID_MODEL_ENC&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;WDC&lt;span class=&quot;se&quot;&gt;\x&lt;/span&gt;20WD2502ABYS-02B7A0&lt;span class=&quot;se&quot;&gt;\x&lt;/span&gt;20&lt;span class=&quot;se&quot;&gt;\x&lt;/span&gt;20&lt;span class=&quot;se&quot;&gt;\x&lt;/span&gt;20&lt;span class=&quot;se&quot;&gt;\x&lt;/span&gt;20&lt;span class=&quot;se&quot;&gt;\x&lt;/span&gt;20&lt;span class=&quot;se&quot;&gt;\x&lt;/span&gt;20&lt;span class=&quot;se&quot;&gt;\x&lt;/span&gt;20&lt;span class=&quot;se&quot;&gt;\x&lt;/span&gt;20&lt;span class=&quot;se&quot;&gt;\x&lt;/span&gt;20&lt;span class=&quot;se&quot;&gt;\x&lt;/span&gt;20&lt;span class=&quot;se&quot;&gt;\x&lt;/span&gt;20&lt;span class=&quot;se&quot;&gt;\x&lt;/span&gt;20&lt;span class=&quot;se&quot;&gt;\x&lt;/span&gt;20&lt;span class=&quot;se&quot;&gt;\x&lt;/span&gt;20&lt;span class=&quot;se&quot;&gt;\x&lt;/span&gt;20&lt;span class=&quot;se&quot;&gt;\x&lt;/span&gt;20&lt;span class=&quot;se&quot;&gt;\x&lt;/span&gt;20&lt;span class=&quot;se&quot;&gt;\x&lt;/span&gt;20&lt;span class=&quot;se&quot;&gt;\x&lt;/span&gt;20
+E: &lt;span class=&quot;nv&quot;&gt;ID_PART_TABLE_TYPE&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;dos
+E: &lt;span class=&quot;nv&quot;&gt;ID_PART_TABLE_UUID&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;00087b41
+E: &lt;span class=&quot;nv&quot;&gt;ID_PATH&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;pci-0000:00:1f.2-ata-1
+E: &lt;span class=&quot;nv&quot;&gt;ID_PATH_TAG&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;pci-0000_00_1f_2-ata-1
+E: &lt;span class=&quot;nv&quot;&gt;ID_REVISION&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;02.03B03
+E: &lt;span class=&quot;nv&quot;&gt;ID_SERIAL&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;WDC_WD2502ABYS-02B7A0_WD-WCAT1H620711
+E: &lt;span class=&quot;nv&quot;&gt;ID_SERIAL_SHORT&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;WD-WCAT1H620711
+E: &lt;span class=&quot;nv&quot;&gt;ID_TYPE&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;disk
+E: &lt;span class=&quot;nv&quot;&gt;ID_WWN&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;0x50014ee1038de847
+E: &lt;span class=&quot;nv&quot;&gt;ID_WWN_WITH_EXTENSION&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;0x50014ee1038de847
+E: &lt;span class=&quot;nv&quot;&gt;MAJOR&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;8
+E: &lt;span class=&quot;nv&quot;&gt;MINOR&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;0
+E: &lt;span class=&quot;nv&quot;&gt;SUBSYSTEM&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;block
+E: &lt;span class=&quot;nv&quot;&gt;TAGS&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;:systemd:
+E: &lt;span class=&quot;nv&quot;&gt;USEC_INITIALIZED&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;2100399
+
+iot@iot-sparrow:~&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+
+Another example, there are many USB serail adapters are connected to the same linux box, they are named as based on the time it is plugged. So sometimes it is very important to create a persistent name based on the USB port it is connected to. 
+
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;iot@iot-sparrow:~&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;ls&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;-l&lt;/span&gt; /dev/ttyUSB&lt;span class=&quot;k&quot;&gt;*&lt;/span&gt;
+crw-rw---- 1 root dialout 188,  0 Jul 21 15:20 /dev/ttyUSB0
+crw-rw---- 1 root dialout 188,  1 Jul 20 16:15 /dev/ttyUSB1
+crw-rw---- 1 root dialout 188, 10 Jul 21 14:55 /dev/ttyUSB10
+crw-rw---- 1 root dialout 188, 11 Jul 22 22:58 /dev/ttyUSB11
+crw-rw---- 1 root dialout 188, 12 Jul 21 16:32 /dev/ttyUSB12
+crw-rw---- 1 root dialout 188,  2 Jul 23 23:03 /dev/ttyUSB2
+crw-rw---- 1 root dialout 188,  3 Jul 21 12:31 /dev/ttyUSB3
+crw-rw---- 1 root dialout 188,  4 Jul 21 17:23 /dev/ttyUSB4
+crw-rw---- 1 root dialout 188,  5 Jul 23 13:05 /dev/ttyUSB5
+crw-rw---- 1 root dialout 188,  6 Jul 20 16:15 /dev/ttyUSB6
+crw-rw---- 1 root dialout 188,  7 Jul 20 17:02 /dev/ttyUSB7
+crw-rw---- 1 root dialout 188,  8 Jul 21 07:24 /dev/ttyUSB8
+crw-rw---- 1 root dialout 188,  9 Jul 22 19:07 /dev/ttyUSB9&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+
+e.g. I want &quot;/dev/ttyUSB0&quot; named as /dev/UUT03 no matter when it is pluggeed into the box. to achieve that, the following rule is needed:
+
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;&lt;span class=&quot;c&quot;&gt;#first find the path of USB serail adapter for /dev/ttyUSB0&lt;/span&gt;
+iot@iot-sparrow:~&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;udevadm info &lt;span class=&quot;nt&quot;&gt;-q&lt;/span&gt; path &lt;span class=&quot;nt&quot;&gt;-n&lt;/span&gt; /dev/ttyUSB0
+/devices/pci0000:00/0000:00:1d.7/usb2/2-4/2-4.2/2-4.2:1.0/ttyUSB0/tty/ttyUSB0
+
+&lt;span class=&quot;c&quot;&gt;# second create a udev rule for it&lt;/span&gt;
+iot@iot-sparrow:~&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;cat&lt;/span&gt; /etc/udev/rules.d/10-usbconsoles.rules  | &lt;span class=&quot;nb&quot;&gt;grep &lt;/span&gt;UUT03
+&lt;span class=&quot;nv&quot;&gt;KERNELS&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;==&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;2-4.2:1.0&quot;&lt;/span&gt;,SUBSYSTEMS&lt;span class=&quot;o&quot;&gt;==&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;usb&quot;&lt;/span&gt;,SYMLINK+&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;UUT03&quot;&lt;/span&gt;
+
+&lt;span class=&quot;c&quot;&gt;# with rule in place, we have below:&lt;/span&gt;
+iot@iot-sparrow:~&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;ls&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;-l&lt;/span&gt; /dev/UUT03
+lrwxrwxrwx 1 root root 7 Jul 20 16:15 /dev/UUT03 -&amp;gt; ttyUSB0&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+
+Please note if you are adding a new rule, you need possible restart udev by &quot;udevadm control --reload-rules&quot;
+
+For network devices, there is no entry under /dev/, but still you can find sysfs info using udevadm command, e.g.
+
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;iot@iot-sparrow:~&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;udevadm info &lt;span class=&quot;nt&quot;&gt;-a&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;-p&lt;/span&gt; /sys/class/net/enp1s0
+
+Udevadm info starts with the device specified by the devpath and &lt;span class=&quot;k&quot;&gt;then
+&lt;/span&gt;walks up the chain of parent devices. It prints &lt;span class=&quot;k&quot;&gt;for &lt;/span&gt;every device
+found, all possible attributes &lt;span class=&quot;k&quot;&gt;in &lt;/span&gt;the udev rules key format.
+A rule to match, can be composed by the attributes of the device
+and the attributes from one single parent device.
+
+  looking at device &lt;span class=&quot;s1&quot;&gt;'/devices/pci0000:00/0000:00:1e.0/0000:01:00.0/net/enp1s0'&lt;/span&gt;:
+    &lt;span class=&quot;nv&quot;&gt;KERNEL&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;==&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;enp1s0&quot;&lt;/span&gt;
+    &lt;span class=&quot;nv&quot;&gt;SUBSYSTEM&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;==&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;net&quot;&lt;/span&gt;
+    &lt;span class=&quot;nv&quot;&gt;DRIVER&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;==&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&quot;&lt;/span&gt;
+    ATTR&lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;addr_assign_type&lt;span class=&quot;o&quot;&gt;}==&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;0&quot;&lt;/span&gt;
+    ATTR&lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;addr_len&lt;span class=&quot;o&quot;&gt;}==&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;6&quot;&lt;/span&gt;
+    ATTR&lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;address&lt;span class=&quot;o&quot;&gt;}==&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;00:1b:21:9b:11:d1&quot;&lt;/span&gt;
+    ATTR&lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;broadcast&lt;span class=&quot;o&quot;&gt;}==&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;ff:ff:ff:ff:ff:ff&quot;&lt;/span&gt;
+    ATTR&lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;carrier&lt;span class=&quot;o&quot;&gt;}==&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;1&quot;&lt;/span&gt;
+    ATTR&lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;carrier_changes&lt;span class=&quot;o&quot;&gt;}==&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;2&quot;&lt;/span&gt;
+    ATTR&lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;dev_id&lt;span class=&quot;o&quot;&gt;}==&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;0x0&quot;&lt;/span&gt;
+    ATTR&lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;dev_port&lt;span class=&quot;o&quot;&gt;}==&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;0&quot;&lt;/span&gt;
+    ATTR&lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;dormant&lt;span class=&quot;o&quot;&gt;}==&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;0&quot;&lt;/span&gt;
+    ATTR&lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;duplex&lt;span class=&quot;o&quot;&gt;}==&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;full&quot;&lt;/span&gt;
+    ATTR&lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;flags&lt;span class=&quot;o&quot;&gt;}==&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;0x1003&quot;&lt;/span&gt;
+    ATTR&lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;gro_flush_timeout&lt;span class=&quot;o&quot;&gt;}==&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;0&quot;&lt;/span&gt;
+    ATTR&lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;ifalias&lt;span class=&quot;o&quot;&gt;}==&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&quot;&lt;/span&gt;
+    ATTR&lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;ifindex&lt;span class=&quot;o&quot;&gt;}==&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;3&quot;&lt;/span&gt;
+    ATTR&lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;iflink&lt;span class=&quot;o&quot;&gt;}==&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;3&quot;&lt;/span&gt;
+    ATTR&lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;link_mode&lt;span class=&quot;o&quot;&gt;}==&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;0&quot;&lt;/span&gt;
+    ATTR&lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;mtu&lt;span class=&quot;o&quot;&gt;}==&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;1500&quot;&lt;/span&gt;
+    ATTR&lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;name_assign_type&lt;span class=&quot;o&quot;&gt;}==&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;4&quot;&lt;/span&gt;
+    ATTR&lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;netdev_group&lt;span class=&quot;o&quot;&gt;}==&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;0&quot;&lt;/span&gt;
+    ATTR&lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;operstate&lt;span class=&quot;o&quot;&gt;}==&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;up&quot;&lt;/span&gt;
+    ATTR&lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;proto_down&lt;span class=&quot;o&quot;&gt;}==&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;0&quot;&lt;/span&gt;
+    ATTR&lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;speed&lt;span class=&quot;o&quot;&gt;}==&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;100&quot;&lt;/span&gt;
+    ATTR&lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;tx_queue_len&lt;span class=&quot;o&quot;&gt;}==&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;1000&quot;&lt;/span&gt;
+    ATTR&lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;type&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;}==&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;1&quot;&lt;/span&gt;
+
+  looking at parent device &lt;span class=&quot;s1&quot;&gt;'/devices/pci0000:00/0000:00:1e.0/0000:01:00.0'&lt;/span&gt;:
+    &lt;span class=&quot;nv&quot;&gt;KERNELS&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;==&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;0000:01:00.0&quot;&lt;/span&gt;
+    &lt;span class=&quot;nv&quot;&gt;SUBSYSTEMS&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;==&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;pci&quot;&lt;/span&gt;
+    &lt;span class=&quot;nv&quot;&gt;DRIVERS&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;==&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;e1000&quot;&lt;/span&gt;
+    ATTRS&lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;broken_parity_status&lt;span class=&quot;o&quot;&gt;}==&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;0&quot;&lt;/span&gt;
+    ATTRS&lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;class&lt;span class=&quot;o&quot;&gt;}==&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;0x020000&quot;&lt;/span&gt;
+    ATTRS&lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;consistent_dma_mask_bits&lt;span class=&quot;o&quot;&gt;}==&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;32&quot;&lt;/span&gt;
+    ATTRS&lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;d3cold_allowed&lt;span class=&quot;o&quot;&gt;}==&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;1&quot;&lt;/span&gt;
+    ATTRS&lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;device&lt;span class=&quot;o&quot;&gt;}==&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;0x107c&quot;&lt;/span&gt;
+    ATTRS&lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;dma_mask_bits&lt;span class=&quot;o&quot;&gt;}==&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;32&quot;&lt;/span&gt;
+    ATTRS&lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;driver_override&lt;span class=&quot;o&quot;&gt;}==&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;(null)&quot;&lt;/span&gt;
+    ATTRS&lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;enable&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;}==&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;1&quot;&lt;/span&gt;
+    ATTRS&lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;irq&lt;span class=&quot;o&quot;&gt;}==&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;16&quot;&lt;/span&gt;
+    ATTRS&lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;local_cpulist&lt;span class=&quot;o&quot;&gt;}==&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;0-1&quot;&lt;/span&gt;
+    ATTRS&lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;local_cpus&lt;span class=&quot;o&quot;&gt;}==&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;3&quot;&lt;/span&gt;
+    ATTRS&lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;msi_bus&lt;span class=&quot;o&quot;&gt;}==&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;1&quot;&lt;/span&gt;
+    ATTRS&lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;numa_node&lt;span class=&quot;o&quot;&gt;}==&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;-1&quot;&lt;/span&gt;
+    ATTRS&lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;subsystem_device&lt;span class=&quot;o&quot;&gt;}==&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;0x1376&quot;&lt;/span&gt;
+    ATTRS&lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;subsystem_vendor&lt;span class=&quot;o&quot;&gt;}==&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;0x8086&quot;&lt;/span&gt;
+    ATTRS&lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;vendor&lt;span class=&quot;o&quot;&gt;}==&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;0x8086&quot;&lt;/span&gt;
+
+  looking at parent device &lt;span class=&quot;s1&quot;&gt;'/devices/pci0000:00/0000:00:1e.0'&lt;/span&gt;:
+    &lt;span class=&quot;nv&quot;&gt;KERNELS&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;==&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;0000:00:1e.0&quot;&lt;/span&gt;
+    &lt;span class=&quot;nv&quot;&gt;SUBSYSTEMS&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;==&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;pci&quot;&lt;/span&gt;
+    &lt;span class=&quot;nv&quot;&gt;DRIVERS&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;==&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&quot;&lt;/span&gt;
+    ATTRS&lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;broken_parity_status&lt;span class=&quot;o&quot;&gt;}==&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;0&quot;&lt;/span&gt;
+    ATTRS&lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;class&lt;span class=&quot;o&quot;&gt;}==&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;0x060401&quot;&lt;/span&gt;
+    ATTRS&lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;consistent_dma_mask_bits&lt;span class=&quot;o&quot;&gt;}==&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;32&quot;&lt;/span&gt;
+    ATTRS&lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;d3cold_allowed&lt;span class=&quot;o&quot;&gt;}==&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;0&quot;&lt;/span&gt;
+    ATTRS&lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;device&lt;span class=&quot;o&quot;&gt;}==&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;0x244e&quot;&lt;/span&gt;
+    ATTRS&lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;dma_mask_bits&lt;span class=&quot;o&quot;&gt;}==&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;32&quot;&lt;/span&gt;
+    ATTRS&lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;driver_override&lt;span class=&quot;o&quot;&gt;}==&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;(null)&quot;&lt;/span&gt;
+    ATTRS&lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;enable&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;}==&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;1&quot;&lt;/span&gt;
+    ATTRS&lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;irq&lt;span class=&quot;o&quot;&gt;}==&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;0&quot;&lt;/span&gt;
+    ATTRS&lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;local_cpulist&lt;span class=&quot;o&quot;&gt;}==&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;0-1&quot;&lt;/span&gt;
+    ATTRS&lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;local_cpus&lt;span class=&quot;o&quot;&gt;}==&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;3&quot;&lt;/span&gt;
+    ATTRS&lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;msi_bus&lt;span class=&quot;o&quot;&gt;}==&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;1&quot;&lt;/span&gt;
+    ATTRS&lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;numa_node&lt;span class=&quot;o&quot;&gt;}==&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;-1&quot;&lt;/span&gt;
+    ATTRS&lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;subsystem_device&lt;span class=&quot;o&quot;&gt;}==&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;0x83ca&quot;&lt;/span&gt;
+    ATTRS&lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;subsystem_vendor&lt;span class=&quot;o&quot;&gt;}==&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;0x1043&quot;&lt;/span&gt;
+    ATTRS&lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;vendor&lt;span class=&quot;o&quot;&gt;}==&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;0x8086&quot;&lt;/span&gt;
+
+  looking at parent device &lt;span class=&quot;s1&quot;&gt;'/devices/pci0000:00'&lt;/span&gt;:
+    &lt;span class=&quot;nv&quot;&gt;KERNELS&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;==&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;pci0000:00&quot;&lt;/span&gt;
+    &lt;span class=&quot;nv&quot;&gt;SUBSYSTEMS&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;==&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&quot;&lt;/span&gt;
+    &lt;span class=&quot;nv&quot;&gt;DRIVERS&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;==&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&quot;&lt;/span&gt;
+
+iot@iot-sparrow:~&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+
+From the output, we can see that the device has MAC address &quot;00:1b:21:9b:11:d1&quot;, and we could possiblely to make the device name to be something else like &quot;myLan&quot;
+
+KERNEL==&quot;eth*&quot;, ATTR{address}==&quot;00:1b:21:9b:11:d1&quot;, NAME=&quot;myLan&quot;
+
+### monitor udev event
+
+udevadm can show udev event so that you could learn better about the device.
+
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;iot@iot-sparrow:~&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;udevadm monitor &lt;span class=&quot;nt&quot;&gt;-e&lt;/span&gt;
+monitor will print the received events &lt;span class=&quot;k&quot;&gt;for&lt;/span&gt;:
+UDEV - the event which udev sends out after rule processing
+KERNEL - the kernel uevent&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+
+
+# Reference:
+http://reactivated.net/writing_udev_rules.html
+
+&lt;/ul&gt;&lt;/ul&gt;</content><author><name></name></author><summary type="html">udev is targeted at Linux kernels 2.6 and beyond to provide a userspace solution for a dynamic /dev directory, with persistent device naming. The previous /dev implementation, devfs, is now deprecated, and udev is seen as the successor.</summary></entry><entry><title type="html">Make a high end UCS Server for fast build</title><link href="http://localhost:4000/2017/04/27/UCS-install.html" rel="alternate" type="text/html" title="Make a high end UCS Server for fast build" /><published>2017-04-27T00:00:00-07:00</published><updated>2017-04-27T00:00:00-07:00</updated><id>http://localhost:4000/2017/04/27/UCS-install</id><content type="html" xml:base="http://localhost:4000/2017/04/27/UCS-install.html">&lt;p&gt;Cisco IOS has been growing significantly over the last ten years. The source code is reaching 10GB, and build time is taking long depending on the build machine capacity. To make development time efficient, it is critical to cut down the image build time. This week, I spent some time to make a high end of UCS server for IOS image build.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/uploads/ucs/ddr-cpu-hs.jpg&quot; alt=&quot;High End UCS Server&quot; /&gt;&lt;/p&gt;
+
+&lt;!--more--&gt;
+&lt;h1 id=&quot;what-parts-needed-the-below-picture-shows-required-parts&quot;&gt;What parts needed: the below picture shows required parts:&lt;/h1&gt;
+
+&lt;p&gt;&lt;img src=&quot;/uploads/ucs/parts.jpg&quot; alt=&quot;UCS server parts&quot; /&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Chassis: UCS 240 M3&lt;/li&gt;
+  &lt;li&gt;Power Supply Unit (PSU)&lt;/li&gt;
+  &lt;li&gt;Two Heat sinks for CPU heat dispatch&lt;/li&gt;
+  &lt;li&gt;24x16GB DDR3 RAM&lt;/li&gt;
+  &lt;li&gt;Two Intel Xeon E5 2697V2 CPU&lt;/li&gt;
+  &lt;li&gt;Raid Controller: LSI 9271-8i MegaRaid&lt;/li&gt;
+  &lt;li&gt;3x2TB HDD&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h1 id=&quot;install-psu&quot;&gt;Install PSU&lt;/h1&gt;
+&lt;p&gt;UCS 240 M3 chassis has two PSU slots for redundancy. However I install only one PSU.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/uploads/ucs/psu-install.jpg&quot; alt=&quot;PSU parts&quot; /&gt;&lt;/p&gt;
+
+&lt;h1 id=&quot;install-raid-controller-lsi-9271-8i-megaraid&quot;&gt;Install Raid Controller LSI 9271-8i MegaRaid&lt;/h1&gt;
+&lt;p&gt;UCS 240 M3 chassis comes with on-board raid controller, somehow it doesn’t work well. Raid controller is a way of virtualize hard disk drive, it provides different level of disk redundacies (R0, R3, R5, R6). For UCS, it needs to be installed in one of PCI riser.Inside PCI riser, I also install a 4 ports GE NIC cards&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/uploads/ucs/raider.jpg&quot; alt=&quot;raid part&quot; /&gt;&lt;/p&gt;
+
+&lt;h1 id=&quot;install-hard-disk-drive&quot;&gt;Install Hard Disk Drive&lt;/h1&gt;
+&lt;p&gt;UCS 240 M3 has 12 slots for hard disk drive. In this box, I install 3 2TB HDD.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/uploads/ucs/6T-hdd.jpg&quot; alt=&quot;HDD part&quot; /&gt;&lt;/p&gt;
+
+&lt;h1 id=&quot;install-cpu&quot;&gt;Install CPU&lt;/h1&gt;
+&lt;p&gt;The chassis has two CPU sockets. I have two Intel Xeon E5 2697V2. Each one has 12 physical cores. With hyperthreading enabled, there are total 48 virtuals cores available.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/uploads/ucs/CPU.jpg&quot; alt=&quot;CPU part&quot; /&gt;&lt;/p&gt;
+
+&lt;h1 id=&quot;install-ddr3&quot;&gt;Install DDR3&lt;/h1&gt;
+&lt;p&gt;The chassis has 24 slots for DDR3 DRAM (Channels: A, B, C, D, E, F; each channel has three banks)&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/uploads/ucs/ddr-cpu.jpg&quot; alt=&quot;DDR part&quot; /&gt;&lt;/p&gt;
+
+&lt;h1 id=&quot;install-head-sink&quot;&gt;Install head sink&lt;/h1&gt;
+&lt;p&gt;Heat sink is required for each CPU. before installing heat sink, make sure to apply grease evenly on the top surface of processor.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/uploads/ucs/ddr-cpu-hs.jpg&quot; alt=&quot;cpu-hs-ddr part&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Now hardware is ready. In order to work, there are two low level software configuration required:&lt;/p&gt;
+
+&lt;h2 id=&quot;enable-raid-controller-and-4-ports-nic-card-inside-bios&quot;&gt;Enable Raid controller and 4 Ports NIC card inside BIOS&lt;/h2&gt;
+&lt;p&gt;During box boots up, press F2 to enter BIOS, and go to “Advanced” menu, then PCI configuration to enable Raid Controller (slot#3) and NIC card (Slot#2)
+&lt;img src=&quot;/uploads/ucs/bios-raider.jpg&quot; alt=&quot;bios raid&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;After configuration is done, press F10 to save and exit, and reboot box.&lt;/p&gt;
+
+&lt;h2 id=&quot;configure-virtual-drive-by-raid-controller-from-webbios&quot;&gt;Configure virtual drive by Raid controller from webBIOS&lt;/h2&gt;
+&lt;p&gt;After Raid controller is enabled, during boot up, it will come with a stage to let you press “Ctrl+H” to enter into WebBIOS to configure Raid controller. Please use the configuration wizard to follow steps.&lt;/p&gt;
+
+&lt;p&gt;After All those hardwork, the box is ready to install linux !!!&lt;/p&gt;</content><author><name></name></author><summary type="html">Cisco IOS has been growing significantly over the last ten years. The source code is reaching 10GB, and build time is taking long depending on the build machine capacity. To make development time efficient, it is critical to cut down the image build time. This week, I spent some time to make a high end of UCS server for IOS image build.</summary></entry><entry><title type="html">Marvell ARMADA 7K Linux boot using u-boot</title><link href="http://localhost:4000/2017/03/24/ARMv8-manual-boot.html" rel="alternate" type="text/html" title="Marvell ARMADA 7K Linux boot using u-boot" /><published>2017-03-24T00:00:00-07:00</published><updated>2017-03-24T00:00:00-07:00</updated><id>http://localhost:4000/2017/03/24/ARMv8-manual-boot</id><content type="html" xml:base="http://localhost:4000/2017/03/24/ARMv8-manual-boot.html">&lt;p&gt;For the last few days, I have been working on build new image for a new platform at work. I found out it is useful to able to boot manually with kernel, dtb, initramfs from u-boot. By doing this, if the thing doesn’t work, we can change any one of them to identify which one has issue.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/uploads/linux/armada7k-boot-linux-steps.jpg&quot; alt=&quot;armada7k boot manually&quot; /&gt;&lt;/p&gt;
+
+&lt;!--more--&gt;
+&lt;p&gt;First you need prepare kernel image as “Image” format, device tree blob (dtb file), and initramfs.&lt;/p&gt;
+
+&lt;p&gt;If you have initramfs file in cpio.gz format, you need do following:&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;&lt;span class=&quot;c&quot;&gt;#since it is for u-boot to use, it has to be converted to add a header in front&lt;/span&gt;
+mkimage &lt;span class=&quot;nt&quot;&gt;-A&lt;/span&gt; arm64 &lt;span class=&quot;nt&quot;&gt;-T&lt;/span&gt; ramdisk &lt;span class=&quot;nt&quot;&gt;-C&lt;/span&gt; gzip &lt;span class=&quot;nt&quot;&gt;-n&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;Sparrow Ramdisk Image&quot;&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;-d&lt;/span&gt; initramfs.cpio.gz initramfs.cpio.gz.uRamdisk&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;When all three images are ready, and loaded them into SD card,&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt; 
+
+&lt;span class=&quot;c&quot;&gt;#check what files are in SD card partition#1 &lt;/span&gt;
+Marvell&amp;gt;&amp;gt;  fatls mmc 0:1
+ 14472704   image-armv8le-a70x0-a80x0-ga-17.02.2 
+    25563   armada-7040-db-a-armv8le-a70x0-a80x0-ga-17.02.2.dtb 
+ 94229849   initramfs.igz 
+ 304035328   initramfs.cpio 
+   407653   ramdisk.img.gz 
+ 97505226   uramdisk 
+    21008   armada-7040-tsn-h-sgmii.dtb.cisco 
+ 12466176   image-4.4.27-a7040-16.07.8.cisco 
+  3815722   initramfs.arm64.ir909.ramfs.cpio.gz 
+  3815786   initramfs.arm64.ir909.filesystem 
+  4758592   u_rootfs-buildroot-2015.11-16.08.0.ext2 
+  1794156   uramdisk-armv8-tiny-le 
+  3866681   initramfs.arm64.uramdisk 
+  3815786   initramfs.arm64.ramfs.cpio.gz.uramdisk 
+ 13428224   image.new 
+ 12651270   initramfs.arm64.ir909.ramfs.new.cpio.gz 
+ 12651334   initramfs.arm64.ir909.ramfs.new.cpio.gz.uramdisk 
+    25740   devicetree-image-armada-7040-db-a.new.dtb 
+
+18 file&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;s&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;, 0 dir&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;s&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+
+&lt;span class=&quot;c&quot;&gt;# load dtb file&lt;/span&gt;
+Marvell&amp;gt;&amp;gt;  fatload mmc 0:1 &lt;span class=&quot;nv&quot;&gt;$fdt_addr&lt;/span&gt; devicetree-image-armada-7040-db-a.new.dtb
+reading devicetree-image-armada-7040-db-a.new.dtb
+25740 bytes &lt;span class=&quot;nb&quot;&gt;read &lt;/span&gt;&lt;span class=&quot;k&quot;&gt;in &lt;/span&gt;40 ms &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;627.9 KiB/s&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+
+&lt;span class=&quot;c&quot;&gt;#load image file&lt;/span&gt;
+Marvell&amp;gt;&amp;gt; fatload mmc 0:1 &lt;span class=&quot;nv&quot;&gt;$kernel_addr&lt;/span&gt; image.new
+reading image.new
+13428224 bytes &lt;span class=&quot;nb&quot;&gt;read &lt;/span&gt;&lt;span class=&quot;k&quot;&gt;in &lt;/span&gt;2736 ms &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;4.7 MiB/s&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+Marvell&amp;gt;&amp;gt; setenv ramfs_addr 0x12000000
+Marvell&amp;gt;&amp;gt; fatload mmc 0:1 &lt;span class=&quot;nv&quot;&gt;$ramfs_addr&lt;/span&gt; initramfs.arm64.ramfs.new.cpio.gz.uramdisk
+reading initramfs.arm64.ir909.ramfs.new.cpio.gz.uramdisk
+12651334 bytes &lt;span class=&quot;nb&quot;&gt;read &lt;/span&gt;&lt;span class=&quot;k&quot;&gt;in &lt;/span&gt;2587 ms &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;4.7 MiB/s&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+
+&lt;span class=&quot;c&quot;&gt;# set console&lt;/span&gt;
+Marvell&amp;gt;&amp;gt; setenv bootargs &lt;span class=&quot;nv&quot;&gt;console&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;ttyS0,115200
+Marvell&amp;gt;&amp;gt; booti &lt;span class=&quot;nv&quot;&gt;$kernel_addr&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;$ramfs_addr&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;$fdt_addr&lt;/span&gt;
+&lt;span class=&quot;c&quot;&gt;## Current stack ends at 0x3f970fd0 *  ramdisk: cmdline image address = 0x12000000&lt;/span&gt;
+&lt;span class=&quot;c&quot;&gt;## Loading init Ramdisk from Legacy Image at 12000000 ...&lt;/span&gt;
+   Image Name:   Sparrow Ramdisk Image
+   Created:      2017-03-23  23:52:49 UTC
+   Image Type:   AArch64 Linux RAMDisk Image &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;gzip compressed&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+   Data Size:    12651270 Bytes &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; 12.1 MiB
+   Load Address: 00000000
+   Entry Point:  00000000
+   Verifying Checksum ... OK
+   ramdisk start &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; 0x12000040, ramdisk end &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; 0x12c10b46
+&lt;span class=&quot;c&quot;&gt;## Flattened Device Tree blob at 01000000&lt;/span&gt;
+   Booting using the fdt blob at 0x1000000
+using: FDT
+&lt;span class=&quot;c&quot;&gt;## initrd_high = 0xffffffffffffffff, copy_to_ram = 1&lt;/span&gt;
+   Loading Ramdisk to 3ed5f000, end 3f96fb06 ... OK
+   ramdisk load start &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; 0x3ed5f000, ramdisk load end &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; 0x3f96fb06
+   Using Device Tree &lt;span class=&quot;k&quot;&gt;in &lt;/span&gt;place at 0000000001000000, end 000000000100948b
+&lt;span class=&quot;c&quot;&gt;## Transferring control to Linux (at address 80000)...&lt;/span&gt;
+
+Starting kernel ...
+
+Timer summary &lt;span class=&quot;k&quot;&gt;in &lt;/span&gt;microseconds:
+       Mark    Elapsed  Stage
+          0          0  reset
+    987,000    987,000  &lt;span class=&quot;nv&quot;&gt;id&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;64
+  1,188,000    201,000  &lt;span class=&quot;nv&quot;&gt;id&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;65
+  1,214,000     26,000  main_loop
+  4,236,000  3,022,000  &lt;span class=&quot;nv&quot;&gt;id&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;80
+  4,236,000          0  tftp_start
+  4,236,000          0  eth_start
+  4,245,000      9,000  &lt;span class=&quot;nv&quot;&gt;id&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;81
+  4,245,000          0  tftp_done
+  4,258,000     13,000  bootm_start
+160,127,000155,869,000  &lt;span class=&quot;nv&quot;&gt;id&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;9
+160,127,000          0  &lt;span class=&quot;nv&quot;&gt;id&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;10
+162,117,000  1,990,000  &lt;span class=&quot;nv&quot;&gt;id&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;11
+162,135,000     18,000  &lt;span class=&quot;nv&quot;&gt;id&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;12
+166,294,000  4,159,000  &lt;span class=&quot;nv&quot;&gt;id&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;15
+166,296,000      2,000  start_kernel
+769,189,068,930,788,833,6769,189,068,914,159,233,6  board_init_f
+
+Accumulated &lt;span class=&quot;nb&quot;&gt;time&lt;/span&gt;:
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    0.000000] Booting Linux on physical CPU 0x0
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    0.000000] Initializing cgroup subsys cpuset
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    0.000000] Initializing cgroup subsys cpu
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    0.000000] Initializing cgroup subsys cpuacct
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    0.000000] Linux version 4.4.51-armada-17.02.2  &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;xelinux@xe-linux-bld2&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;gcc version 5.3.0 &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;GCC&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;c&quot;&gt;#1 SMP Wed Mar 22 05:447&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    0.000000] Boot CPU: AArch64 Processor &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;410fd081]
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    0.000000] efi: Getting EFI parameters from FDT:
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    0.000000] efi: UEFI not found.
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    0.000000] cma: Reserved 128 MiB at 0x0000000078000000
+...&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;</content><author><name></name></author><summary type="html">For the last few days, I have been working on build new image for a new platform at work. I found out it is useful to able to boot manually with kernel, dtb, initramfs from u-boot. By doing this, if the thing doesn’t work, we can change any one of them to identify which one has issue.</summary></entry><entry><title type="html">Linux initrd and initramfs</title><link href="http://localhost:4000/2017/03/20/linux-initrd-initramfs.html" rel="alternate" type="text/html" title="Linux initrd and initramfs" /><published>2017-03-20T00:00:00-07:00</published><updated>2017-03-20T00:00:00-07:00</updated><id>http://localhost:4000/2017/03/20/linux-initrd-initramfs</id><content type="html" xml:base="http://localhost:4000/2017/03/20/linux-initrd-initramfs.html">&lt;p&gt;After Linux kernel boots, it looks for root file system, which can be initrd or initramfs. They are two different ways.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/uploads/linux/linux-initrd-initramfs-comp.jpg&quot; alt=&quot;linux init rootfs&quot; /&gt;&lt;/p&gt;
+
+&lt;!--more--&gt;
+
+&lt;h1 id=&quot;initrd&quot;&gt;initrd&lt;/h1&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;ramdev block device is created. It is a ram-based block device, that is a simulated hard disk that uses memory instead of physical disks.&lt;/li&gt;
+  &lt;li&gt;
+    &lt;table&gt;
+      &lt;tbody&gt;
+        &lt;tr&gt;
+          &lt;td&gt;The initrd file is read and unzipped into the device, as if you did zcat initrd&lt;/td&gt;
+          &lt;td&gt;dd of=/dev/ram0 or something similar.&lt;/td&gt;
+        &lt;/tr&gt;
+      &lt;/tbody&gt;
+    &lt;/table&gt;
+  &lt;/li&gt;
+  &lt;li&gt;The initrd contains an image of a filesystem, so now you can mount the filesystem as usual: mount /dev/ram0 /root. Naturally, filesystems need a driver, so if you use ext2, the ext2 driver has to be compiled in-kernel.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Example to create ramdisk image:&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt; &lt;span class=&quot;nb&quot;&gt;cat &lt;/span&gt;createramdisk.sh
+&lt;span class=&quot;c&quot;&gt;#!/bin/bash&lt;/span&gt;
+
+&lt;span class=&quot;nv&quot;&gt;RDSIZE&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;400000
+&lt;span class=&quot;nv&quot;&gt;BLKSIZE&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;1024
+&lt;span class=&quot;c&quot;&gt;# create raw disk image first&lt;/span&gt;
+dd &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;/dev/zero &lt;span class=&quot;nv&quot;&gt;of&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;/tmp/ramdisk.img &lt;span class=&quot;nv&quot;&gt;bs&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$BLKSIZE&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;count&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$RDSIZE&lt;/span&gt;
+
+&lt;span class=&quot;c&quot;&gt;# format it to ext2&lt;/span&gt;
+/sbin/mke2fs &lt;span class=&quot;nt&quot;&gt;-F&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;-m&lt;/span&gt; 0 &lt;span class=&quot;nt&quot;&gt;-b&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;$BLKSIZE&lt;/span&gt; /tmp/ramdisk.img &lt;span class=&quot;nv&quot;&gt;$RDSIZE&lt;/span&gt;
+
+&lt;span class=&quot;c&quot;&gt;# mount it&lt;/span&gt;
+mkdir /mnt/initrd-disk
+mount /tmp/ramdisk.img /mnt/initrd-disk &lt;span class=&quot;nt&quot;&gt;-t&lt;/span&gt; ext2 &lt;span class=&quot;nt&quot;&gt;-o&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;loop&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;/dev/loop0
+
+&lt;span class=&quot;c&quot;&gt;# copy context into ramdisk image&lt;/span&gt;
+cp &lt;span class=&quot;nt&quot;&gt;-rf&lt;/span&gt; /mnt/marvell/&lt;span class=&quot;k&quot;&gt;*&lt;/span&gt; /mnt/initrd-disk/
+
+&lt;span class=&quot;c&quot;&gt;# umount and force it write into ramdisk image&lt;/span&gt;
+umount /mnt/initrd-disk/
+
+&lt;span class=&quot;c&quot;&gt;# zip it&lt;/span&gt;
+gzip &lt;span class=&quot;nt&quot;&gt;-9&lt;/span&gt; /tmp/ramdisk.img
+mv /tmp/ramdisk.img.gz &lt;span class=&quot;nb&quot;&gt;.&lt;/span&gt;
+
+&lt;span class=&quot;c&quot;&gt;#since it is for u-boot to use, it has to be converted to add a header in front&lt;/span&gt;
+mkimage &lt;span class=&quot;nt&quot;&gt;-A&lt;/span&gt; arm64 &lt;span class=&quot;nt&quot;&gt;-T&lt;/span&gt; ramdisk &lt;span class=&quot;nt&quot;&gt;-C&lt;/span&gt; gzip &lt;span class=&quot;nt&quot;&gt;-n&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;Sparrow Ramdisk Image&quot;&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;-d&lt;/span&gt; ramdisk.img.gz uRamdisk&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;h1 id=&quot;initramfs&quot;&gt;initramfs&lt;/h1&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;A tmpfs is mounted: mount -t tmpfs nodev /root. The tmpfs doesn’t need a driver, it is always on-kernel. No device needed, no additional drivers.&lt;/li&gt;
+  &lt;li&gt;
+    &lt;table&gt;
+      &lt;tbody&gt;
+        &lt;tr&gt;
+          &lt;td&gt;The initramfs is uncompressed directly into this new filesystem: zcat initramfs&lt;/td&gt;
+          &lt;td&gt;cpio -i, or similar.&lt;/td&gt;
+        &lt;/tr&gt;
+      &lt;/tbody&gt;
+    &lt;/table&gt;
+  &lt;/li&gt;
+  &lt;li&gt;Sometimes it can be very confusing because it is still called initrd in many places although it is a initramfs, particularly in boot loaders, as for them it is just a BLOB. The difference is made by the OS when it boots.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Create initramfs is a lot simpler, prepare a directory, and holding all needed files inside it, then:&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;find &lt;span class=&quot;nb&quot;&gt;.&lt;/span&gt; | cpio &lt;span class=&quot;nt&quot;&gt;-o&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;-H&lt;/span&gt; newc | gzip | initramfs.cpio.gz&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;initramfs.cpip.gz, it cal also embedded into kernel directly to make just one binary.&lt;/p&gt;
+
+&lt;h1 id=&quot;reference&quot;&gt;Reference&lt;/h1&gt;
+&lt;p&gt;https://www.kernel.org/doc/Documentation/filesystems/ramfs-rootfs-initramfs.txt&lt;/p&gt;</content><author><name></name></author><summary type="html">After Linux kernel boots, it looks for root file system, which can be initrd or initramfs. They are two different ways.</summary></entry><entry><title type="html">Linux Kernel image in different forms</title><link href="http://localhost:4000/2017/03/17/linux-kernel-image.html" rel="alternate" type="text/html" title="Linux Kernel image in different forms" /><published>2017-03-17T00:00:00-07:00</published><updated>2017-03-17T00:00:00-07:00</updated><id>http://localhost:4000/2017/03/17/linux-kernel-image</id><content type="html" xml:base="http://localhost:4000/2017/03/17/linux-kernel-image.html">&lt;p&gt;Linux kernel presents in different forms depending on the actual context.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/uploads/linux/linux-kernel-image.jpg&quot; alt=&quot;linux kernel image&quot; /&gt;&lt;/p&gt;
+
+&lt;!--more--&gt;
+
+&lt;h1 id=&quot;vmlinux&quot;&gt;vmlinux&lt;/h1&gt;
+
+&lt;p&gt;vmlinux, the name comes from the fact that “linux” supports virtual memory. It is typically in ELF format, created by linker. This file is needed when debugging kernel. In order to boot linux kernel, vmlinux image has to be transformed into different from based on processor type.&lt;/p&gt;
+
+&lt;h1 id=&quot;vmlinuxbin&quot;&gt;vmlinux.bin&lt;/h1&gt;
+&lt;p&gt;this is binary form of kernel image, which is created by using objdump from vmlinux image.&lt;/p&gt;
+
+&lt;h1 id=&quot;bzimage&quot;&gt;bzImage&lt;/h1&gt;
+&lt;p&gt;This is bootable image for x86 processor. The following picture well describe the actaul content of bzImage.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/uploads/linux/linux-kernel-bzimage.jpg&quot; alt=&quot;linux kernel bzImage&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;It contains concatenated bootsect.o + setup.o + misc.o + piggy.o&lt;/p&gt;
+
+&lt;h1 id=&quot;uimage&quot;&gt;uImage&lt;/h1&gt;
+&lt;p&gt;This is bootable image for a processor, which uses u-boot as bootloader. THe processors are like ARM (32-bit), PowerPC, MIPS.
+There is a utility tool “mkimage” to transform vmlinux into uImage. The uImage has the following header in the beginning of image.&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;typedef struct uimage_header &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+    uint32_t    ih_magic&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;           /&lt;span class=&quot;k&quot;&gt;*&lt;/span&gt; Image Header Magic Number &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;BE&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;*&lt;/span&gt;/
+    uint32_t    ih_hcrc&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;            /&lt;span class=&quot;k&quot;&gt;*&lt;/span&gt; Image Header CRC Checksum &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;BE&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;*&lt;/span&gt;/
+    uint32_t    ih_time&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;            /&lt;span class=&quot;k&quot;&gt;*&lt;/span&gt; Image Creation Timestamp &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;BE&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;*&lt;/span&gt;/
+    uint32_t    ih_size&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;            /&lt;span class=&quot;k&quot;&gt;*&lt;/span&gt; Image Data Size &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;BE&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;*&lt;/span&gt;/
+    uint32_t    ih_load&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;            /&lt;span class=&quot;k&quot;&gt;*&lt;/span&gt; Data  Load  Address &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;BE&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;*&lt;/span&gt;/
+    uint32_t    ih_ep&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;              /&lt;span class=&quot;k&quot;&gt;*&lt;/span&gt; Entry Point Address &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;BE&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;*&lt;/span&gt;/
+    uint32_t    ih_dcrc&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;            /&lt;span class=&quot;k&quot;&gt;*&lt;/span&gt; Image Data CRC Checksum &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;BE&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;*&lt;/span&gt;/
+    uint8_t     ih_os&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;              /&lt;span class=&quot;k&quot;&gt;*&lt;/span&gt; Operating System     &lt;span class=&quot;k&quot;&gt;*&lt;/span&gt;/
+    uint8_t     ih_arch&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;            /&lt;span class=&quot;k&quot;&gt;*&lt;/span&gt; CPU architecture     &lt;span class=&quot;k&quot;&gt;*&lt;/span&gt;/
+    uint8_t     ih_type&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;            /&lt;span class=&quot;k&quot;&gt;*&lt;/span&gt; Image Type           &lt;span class=&quot;k&quot;&gt;*&lt;/span&gt;/
+    uint8_t     ih_comp&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;            /&lt;span class=&quot;k&quot;&gt;*&lt;/span&gt; Compression Type     &lt;span class=&quot;k&quot;&gt;*&lt;/span&gt;/
+    uint8_t     ih_name[IH_NMLEN]&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;  /&lt;span class=&quot;k&quot;&gt;*&lt;/span&gt; Image Name       &lt;span class=&quot;k&quot;&gt;*&lt;/span&gt;/
+&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt; uimage_header_t&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;h1 id=&quot;image&quot;&gt;Image&lt;/h1&gt;
+&lt;p&gt;This a relatively new format for ARMV8 64-bit processor. It can also created by using “mkimage” tool.&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;typedef struct arm64_image_header &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+    uint32_t ih_code0&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;			/&lt;span class=&quot;k&quot;&gt;*&lt;/span&gt; Executable code &lt;span class=&quot;k&quot;&gt;*&lt;/span&gt;/
+    uint32_t ih_code1&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;			/&lt;span class=&quot;k&quot;&gt;*&lt;/span&gt; Executable code &lt;span class=&quot;k&quot;&gt;*&lt;/span&gt;/
+    uint64_t ih_text_offset&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;		/&lt;span class=&quot;k&quot;&gt;*&lt;/span&gt; Image load offset, little endian &lt;span class=&quot;k&quot;&gt;*&lt;/span&gt;/
+    uint64_t ih_image_size&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;		/&lt;span class=&quot;k&quot;&gt;*&lt;/span&gt; Effective Image size, little endian &lt;span class=&quot;k&quot;&gt;*&lt;/span&gt;/
+    uint64_t ih_flags&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;			/&lt;span class=&quot;k&quot;&gt;*&lt;/span&gt; kernel flags, little endian &lt;span class=&quot;k&quot;&gt;*&lt;/span&gt;/
+    uint64_t res2&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;		        /&lt;span class=&quot;k&quot;&gt;*&lt;/span&gt; reserved &lt;span class=&quot;k&quot;&gt;*&lt;/span&gt;/
+    uint64_t res3&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;		        /&lt;span class=&quot;k&quot;&gt;*&lt;/span&gt; reserved &lt;span class=&quot;k&quot;&gt;*&lt;/span&gt;/
+    uint64_t res4&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;		        /&lt;span class=&quot;k&quot;&gt;*&lt;/span&gt; reserved &lt;span class=&quot;k&quot;&gt;*&lt;/span&gt;/
+    uint32_t ih_magic&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;	                /&lt;span class=&quot;k&quot;&gt;*&lt;/span&gt; 0x644d5241 Magic number, little endian, &lt;span class=&quot;s2&quot;&gt;&quot;ARM&lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\x&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;64&quot;&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;*&lt;/span&gt;/
+    uint32_t res5&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;			/&lt;span class=&quot;k&quot;&gt;*&lt;/span&gt; reserved &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;used &lt;span class=&quot;k&quot;&gt;for &lt;/span&gt;PE COFF offset&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;*&lt;/span&gt;/
+&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt; arm64_image_header_t&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;</content><author><name></name></author><summary type="html">Linux kernel presents in different forms depending on the actual context.</summary></entry><entry><title type="html">Create docker container image</title><link href="http://localhost:4000/2017/03/04/docker-container-image-creation.html" rel="alternate" type="text/html" title="Create docker container image" /><published>2017-03-04T00:00:00-08:00</published><updated>2017-03-04T00:00:00-08:00</updated><id>http://localhost:4000/2017/03/04/docker-container-image-creation</id><content type="html" xml:base="http://localhost:4000/2017/03/04/docker-container-image-creation.html">&lt;p&gt;Docker is growing with amazing features, and it becomes a platform to deploy services even in embedded linux enviroment. The container image creation is an important part of process.
+Docker has done great job to manage the container image to make it to be in layer fashion, this is especially important for storage efficiency.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/uploads/linux/docker_container_image_layers.png&quot; alt=&quot;docker install&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;The following post shows what I did to create a scratch hello image and a minimal linux image based on alpine using Dockerfile.&lt;/p&gt;
+
+&lt;!--more--&gt;
+&lt;p&gt;Dockerfile is the way docker has defined to create docker container image. It is kind of like GNU Makefile to build binary application from C source code. It has a set of simple instructions. For details, check &lt;a href=&quot;https://docs.docker.com/engine/reference/builder/&quot;&gt;Dockerfile reference&lt;/a&gt; and &lt;a href=&quot;https://docs.docker.com/engine/userguide/eng-image/dockerfile_best-practices/&quot;&gt;best Dockerfile practice&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;(There is another way to create a tar file and use “docker import “ to create a container name. But here I only use Dockerfile to create.)&lt;/p&gt;
+
+&lt;p&gt;Inside Dockerfile, each line docker build will create a layer. Layer is marked with checksum,it is used for file systme overlay to avoid duplication of same content across containers. More details, check &lt;a href=&quot;https://docs.docker.com/engine/userguide/storagedriver/imagesandcontainers/&quot;&gt;here&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h1 id=&quot;hello-image-from-scratch&quot;&gt;hello image from scratch&lt;/h1&gt;
+&lt;p&gt;Objective: create a minimum container image to show “Hello from Docker by WENWEI WENG”.&lt;/p&gt;
+
+&lt;p&gt;How: Docker has a minimal image “scratch”, which is empty. It can be used as a starting point for building containers. Using the “scratch” image as a base to tell the build process that I want the next command in the Dockerfile to be the first filesystem layer in my image. From there, I add a static linked executable “hello” binary.&lt;/p&gt;
+
+&lt;h2 id=&quot;helloc-file&quot;&gt;hello.c file:&lt;/h2&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;iot@sg-ucs-1:~/temp-docker/hello-world&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;cat &lt;/span&gt;hello.c 
+&lt;span class=&quot;c&quot;&gt;#include &amp;lt;sys/syscall.h&amp;gt;&lt;/span&gt;
+
+&lt;span class=&quot;c&quot;&gt;#ifndef DOCKER_IMAGE&lt;/span&gt;
+	&lt;span class=&quot;c&quot;&gt;#define DOCKER_IMAGE &quot;hello-world&quot;&lt;/span&gt;
+&lt;span class=&quot;c&quot;&gt;#endif&lt;/span&gt;
+
+&lt;span class=&quot;c&quot;&gt;#ifndef DOCKER_GREETING&lt;/span&gt;
+	&lt;span class=&quot;c&quot;&gt;#define DOCKER_GREETING &quot;Hello from Docker by WENWEI WENG!&quot;&lt;/span&gt;
+&lt;span class=&quot;c&quot;&gt;#endif&lt;/span&gt;
+
+const char message[] &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;
+	&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\n&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;
+	DOCKER_GREETING &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\n&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;
+	&lt;span class=&quot;s2&quot;&gt;&quot;This message shows that a simple hellow world built from scratch is working.&lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\n&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;
+	&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\n&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+
+void _start&lt;span class=&quot;o&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+	syscall&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;SYS_write, 1, message, sizeof&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;message&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; - 1&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+	syscall&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;SYS_exit, 0&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+
+iot@sg-ucs-1:~/temp-docker/hello-world&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;it is good to notice that to print hello, printf() is not used, instead use syscall(), because printf() requires libc, which it needs to be avoided in this case. it is needed to build and linked statically like below.&lt;/p&gt;
+
+&lt;h2 id=&quot;build-helloc&quot;&gt;Build hello.c&lt;/h2&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;gcc &lt;span class=&quot;nt&quot;&gt;-o&lt;/span&gt; hello &lt;span class=&quot;nt&quot;&gt;-static&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;-nostartfiles&lt;/span&gt; hello.c
+hello.c: In &lt;span class=&quot;k&quot;&gt;function &lt;/span&gt;_start:
+hello.c:36:2: warning: implicit declaration of &lt;span class=&quot;k&quot;&gt;function &lt;/span&gt;syscall &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;-Wimplicit-function-declaration&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;]&lt;/span&gt;
+  syscall&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;SYS_write, 1, message, sizeof&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;message&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; - 1&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+  ^
+iot@sg-ucs-1:~/temp-docker/hello-world&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;file hello
+hello: ELF 64-bit LSB executable, x86-64, version 1 &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;SYSV&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;, statically linked, BuildID[sha1]&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;03031e04b4ccc726db7a44f84460e2f95834a9c8, not stripped
+iot@sg-ucs-1:~/temp-docker/hello-world&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;ldd hello
+	not a dynamic executable
+iot@sg-ucs-1:~/temp-docker/hello-world&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;h2 id=&quot;dockerfile&quot;&gt;Dockerfile:&lt;/h2&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;iot@sg-ucs-1:~/temp-docker/hello-world&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;cat &lt;/span&gt;Dockerfile 
+FROM scratch
+ADD hello /
+CMD &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;/hello&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;]&lt;/span&gt;
+iot@sg-ucs-1:~/temp-docker/hello-world&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;h2 id=&quot;build-container-image&quot;&gt;Build container image&lt;/h2&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;iot@sg-ucs-1:~/temp-docker/hello-world&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;sudo &lt;/span&gt;docker build &lt;span class=&quot;nt&quot;&gt;-t&lt;/span&gt; hello &lt;span class=&quot;nb&quot;&gt;.&lt;/span&gt;
+Sending build context to Docker daemon 6.144 kB
+Step 1 : FROM scratch
+ &lt;span class=&quot;nt&quot;&gt;---&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; 
+Step 2 : ADD hello /
+ &lt;span class=&quot;nt&quot;&gt;---&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; f246c1ebded0
+Removing intermediate container b8f2e862b305
+Step 3 : CMD /hello
+ &lt;span class=&quot;nt&quot;&gt;---&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; Running &lt;span class=&quot;k&quot;&gt;in &lt;/span&gt;2590c17b439c
+ &lt;span class=&quot;nt&quot;&gt;---&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; c47cc50ca9c3
+Removing intermediate container 2590c17b439c
+Successfully built c47cc50ca9c3
+iot@sg-ucs-1:~/temp-docker/hello-world&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;sudo &lt;/span&gt;docker images
+REPOSITORY          TAG                 IMAGE ID            CREATED             VIRTUAL SIZE
+hello               latest              c47cc50ca9c3        7 seconds ago       2.064 kB
+&amp;lt;none&amp;gt;              &amp;lt;none&amp;gt;              366a6281a9f6        3 minutes ago       2.752 kB
+&amp;lt;none&amp;gt;              &amp;lt;none&amp;gt;              b2fa06955e3a        10 hours ago        123.1 MB
+elasticsearch       latest              9bd9659e5b46        3 days ago          351.3 MB
+jetty               latest              6544cee122fe        3 days ago          318.9 MB
+nginx               latest              cb2a085838a2        4 days ago          181.8 MB
+mongo               latest              a1112943ce27        4 days ago          402.2 MB
+golang              latest              0f5f664883a2        4 days ago          696.6 MB
+debian              latest              81d47ee3898e        5 days ago          123.1 MB
+debian              jessie              81d47ee3898e        5 days ago          123.1 MB
+ubuntu              xenial              e37d367c3507        5 days ago          130 MB
+ubuntu              trusty              a437f423d026        5 days ago          188 MB
+ubuntu              12.04               8436209beb19        5 days ago          103.6 MB
+fedora              latest              b083ce60cff6        2 weeks ago         230.3 MB
+registry            latest              c78f4fd8bf90        6 weeks ago         33.2 MB
+busybox             latest              1911ea24d99d        7 weeks ago         1.11 MB
+centos              latest              2785d012ae3e        11 weeks ago        191.8 MB
+iot@sg-ucs-1:~/temp-docker/hello-world&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;sudo &lt;/span&gt;docker run &lt;span class=&quot;nt&quot;&gt;--rm&lt;/span&gt; hello
+
+Hello from Docker by WENWEI WENG!
+This message shows that a simple hellow world built from scratch is working.
+
+iot@sg-ucs-1:~/temp-docker/hello-world&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;h1 id=&quot;build-a-minimal-linux-image-with-a-file-named-test-alpine-wengtxt&quot;&gt;Build a minimal linux image with a file named “test-alpine-weng.txt”&lt;/h1&gt;
+&lt;p&gt;Objective: a minimal linux image with a file named “test-alpine-weng.txt”&lt;/p&gt;
+
+&lt;p&gt;How: starting with “alpine” image as base, add file “test-alpine-weng.txt””.&lt;/p&gt;
+
+&lt;h2 id=&quot;create-the-file-test-alpine-wengtxt&quot;&gt;create the file “test-alpine-weng.txt”&lt;/h2&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;iot@sg-ucs-1:~/temp-docker/alpine-weng&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;cat &lt;/span&gt;test-alpine-weng.txt 
+adding a new file into alpine base image by Wenwei Weng.
+
+iot@sg-ucs-1:~/temp-docker/alpine-weng&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;h2 id=&quot;dockerfile-1&quot;&gt;Dockerfile&lt;/h2&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;iot@sg-ucs-1:~/temp-docker/alpine-weng&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;cat &lt;/span&gt;Dockerfile 
+FROM alpine 
+ADD test-alpine-weng.txt /
+CMD &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;cat /test-alpine-weng.txt&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;]&lt;/span&gt;
+
+iot@sg-ucs-1:~/temp-docker/alpine-weng&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;h2 id=&quot;build-container-image-and-run&quot;&gt;Build container image and run&lt;/h2&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;iot@sg-ucs-1:~/temp-docker/alpine-weng&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;sudo &lt;/span&gt;docker build &lt;span class=&quot;nt&quot;&gt;-t&lt;/span&gt; alpine-weng &lt;span class=&quot;nb&quot;&gt;.&lt;/span&gt;
+Sending build context to Docker daemon 3.072 kB
+Step 1 : FROM scratch
+ &lt;span class=&quot;nt&quot;&gt;---&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; 
+Step 2 : ADD test-alpine-weng.txt /
+ &lt;span class=&quot;nt&quot;&gt;---&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; 481b37eca163
+Removing intermediate container 76feaa4e8422
+Step 3 : CMD &lt;span class=&quot;nb&quot;&gt;cat&lt;/span&gt; /test-alpine-weng.txt
+ &lt;span class=&quot;nt&quot;&gt;---&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; Running &lt;span class=&quot;k&quot;&gt;in &lt;/span&gt;ac76f3fc697a
+ &lt;span class=&quot;nt&quot;&gt;---&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; 0a6ea5edd612
+Removing intermediate container ac76f3fc697a
+Successfully built 0a6ea5edd612
+iot@sg-ucs-1:~/temp-docker/alpine-weng&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;vi Dockerfile 
+iot@sg-ucs-1:~/temp-docker/alpine-weng&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;sudo &lt;/span&gt;docker build &lt;span class=&quot;nt&quot;&gt;-t&lt;/span&gt; alpine-weng &lt;span class=&quot;nb&quot;&gt;.&lt;/span&gt;
+Sending build context to Docker daemon 3.072 kB
+Step 1 : FROM alpine
+ &lt;span class=&quot;nt&quot;&gt;---&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; 031b4db7df57
+Step 2 : ADD test-alpine-weng.txt /
+ &lt;span class=&quot;nt&quot;&gt;---&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; 3a4198f8c17b
+Removing intermediate container 0e51f073610c
+Step 3 : CMD &lt;span class=&quot;nb&quot;&gt;cat&lt;/span&gt; /test-alpine-weng.txt
+ &lt;span class=&quot;nt&quot;&gt;---&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; Running &lt;span class=&quot;k&quot;&gt;in &lt;/span&gt;bd34e7f24c95
+ &lt;span class=&quot;nt&quot;&gt;---&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; 5bb6c4a478c8
+Removing intermediate container bd34e7f24c95
+Successfully built 5bb6c4a478c8
+iot@sg-ucs-1:~/temp-docker/alpine-weng&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;sudo &lt;/span&gt;docker images
+REPOSITORY          TAG                 IMAGE ID            CREATED             VIRTUAL SIZE
+alpine-weng         latest              5bb6c4a478c8        17 seconds ago      3.988 MB
+&amp;lt;none&amp;gt;              &amp;lt;none&amp;gt;              0a6ea5edd612        41 seconds ago      58 B
+hello               latest              c47cc50ca9c3        5 minutes ago       2.064 kB
+&amp;lt;none&amp;gt;              &amp;lt;none&amp;gt;              366a6281a9f6        8 minutes ago       2.752 kB
+&amp;lt;none&amp;gt;              &amp;lt;none&amp;gt;              b2fa06955e3a        10 hours ago        123.1 MB
+alpine              latest              031b4db7df57        27 hours ago        3.987 MB
+elasticsearch       latest              9bd9659e5b46        3 days ago          351.3 MB
+jetty               latest              6544cee122fe        3 days ago          318.9 MB
+nginx               latest              cb2a085838a2        4 days ago          181.8 MB
+mongo               latest              a1112943ce27        4 days ago          402.2 MB
+golang              latest              0f5f664883a2        4 days ago          696.6 MB
+debian              jessie              81d47ee3898e        5 days ago          123.1 MB
+debian              latest              81d47ee3898e        5 days ago          123.1 MB
+ubuntu              xenial              e37d367c3507        5 days ago          130 MB
+ubuntu              trusty              a437f423d026        5 days ago          188 MB
+ubuntu              12.04               8436209beb19        5 days ago          103.6 MB
+fedora              latest              b083ce60cff6        2 weeks ago         230.3 MB
+registry            latest              c78f4fd8bf90        6 weeks ago         33.2 MB
+busybox             latest              1911ea24d99d        7 weeks ago         1.11 MB
+centos              latest              2785d012ae3e        11 weeks ago        191.8 MB
+iot@sg-ucs-1:~/temp-docker/alpine-weng&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;sudo &lt;/span&gt;docker run &lt;span class=&quot;nt&quot;&gt;--rm&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;-it&lt;/span&gt; alpine-weng /bin/sh
+/ &lt;span class=&quot;c&quot;&gt;# ls&lt;/span&gt;
+bin                   lib                   root                  sys                   var
+dev                   media                 run                   test-alpine-weng.txt
+etc                   mnt                   sbin                  tmp
+home                  proc                  srv                   usr
+/ &lt;span class=&quot;c&quot;&gt;# cat test-alpine-weng.txt &lt;/span&gt;
+adding a new file into alpine base image by Wenwei Weng.
+
+/ &lt;span class=&quot;c&quot;&gt;#  exit&lt;/span&gt;
+iot@sg-ucs-1:~/temp-docker/alpine-weng&lt;span class=&quot;err&quot;&gt;$&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;h1 id=&quot;reference&quot;&gt;Reference&lt;/h1&gt;
+
+&lt;p&gt;For more details, check &lt;a href=&quot;https://docs.docker.com/engine/userguide/eng-image/baseimages/&quot;&gt;docker docs&lt;/a&gt;.&lt;/p&gt;</content><author><name></name></author><summary type="html">Docker is growing with amazing features, and it becomes a platform to deploy services even in embedded linux enviroment. The container image creation is an important part of process. Docker has done great job to manage the container image to make it to be in layer fashion, this is especially important for storage efficiency.</summary></entry><entry><title type="html">Install docker from binary distribution</title><link href="http://localhost:4000/2017/02/27/docker-binary-install.html" rel="alternate" type="text/html" title="Install docker from binary distribution" /><published>2017-02-27T00:00:00-08:00</published><updated>2017-02-27T00:00:00-08:00</updated><id>http://localhost:4000/2017/02/27/docker-binary-install</id><content type="html" xml:base="http://localhost:4000/2017/02/27/docker-binary-install.html">&lt;p&gt;Docker is growing with amazing features, and it becomes a platform to deploy services even in embedded linux enviroment. There are different ways to install docker, one approach is to install using the pre-built binary distribution.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/uploads/linux/install-docker-binary.jpg&quot; alt=&quot;docker install&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;The following post shows what I did under ubuntu 16.04.&lt;/p&gt;
+
+&lt;!--more--&gt;
+&lt;p&gt;Let’s go through some basic steps:&lt;/p&gt;
+
+&lt;h1 id=&quot;prerequistes&quot;&gt;Prerequistes&lt;/h1&gt;
+&lt;ul&gt;
+&lt;li&gt;A 64-bit installation &lt;/li&gt;
+&lt;li&gt;Version 3.10 or higher of the Linux kernel. The latest version of the kernel available for you platform is recommended. &lt;/li&gt;
+&lt;li&gt;iptables version 1.4 or higher.&lt;/li&gt;
+&lt;li&gt;git version 1.7 or higher. &lt;/li&gt;
+&lt;li&gt;A ps executable, usually provided by procps or a similar package.&lt;/li&gt;
+&lt;li&gt;XZ Utils 4.9 or higher. &lt;/li&gt;
+&lt;li&gt;a properly mounted cgroupfs hierarchy; a single, all-encompassing cgroup mount point is not sufficient. See Github issues #2683, #3485, #4568).&lt;/li&gt;
+
+
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;iot@sgbu-ucs-11:/nobackup/docker/docker-1.13.1&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;uname &lt;span class=&quot;nt&quot;&gt;-a&lt;/span&gt;
+Linux sgbu-ucs-11 4.4.0-53-generic &lt;span class=&quot;c&quot;&gt;#74-Ubuntu SMP Fri Dec 2 15:59:10 UTC 2016 x86_64 x86_64 x86_64 GNU/Linux&lt;/span&gt;
+iot@sgbu-ucs-11:/nobackup/docker/docker-1.13.1&lt;span class=&quot;nv&quot;&gt;$iptables&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;--version&lt;/span&gt;
+iptables v1.6.0
+iot@sgbu-ucs-11:/nobackup/docker/docker-1.13.1&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;git &lt;span class=&quot;nt&quot;&gt;--version&lt;/span&gt;
+git version 2.7.4
+iot@sgbu-ucs-11:/nobackup/docker/docker-1.13.1&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;which ps
+/bin/ps
+iot@sgbu-ucs-11:/nobackup/docker/docker-1.13.1&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;which xz
+/usr/bin/xz
+iot@sgbu-ucs-11:/nobackup/docker/docker-1.13.1&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;xz &lt;span class=&quot;nt&quot;&gt;--version&lt;/span&gt;
+xz &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;XZ Utils&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; 5.1.0alpha
+liblzma 5.1.0alpha
+iot@sgbu-ucs-11:/nobackup/docker/docker-1.13.1&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;cat&lt;/span&gt; /proc/filesystems | &lt;span class=&quot;nb&quot;&gt;grep &lt;/span&gt;cgroup
+nodev	cgroup&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+
+# Download docker binary distribution
+
+Check [GITHUB docker release site](https://github.com/docker/docker/releases) to pick a version you want, I pick version 1.13.1.
+
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;iot@sgbu-ucs-11:/nobackup/docker&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;wget  https://get.docker.com/builds/Linux/x86_64/docker-1.13.1.tgz
+&lt;span class=&quot;nt&quot;&gt;--2017-03-04&lt;/span&gt; 15:56:54--  https://get.docker.com/builds/Linux/x86_64/docker-1.13.1.tgz
+Resolving proxy.esl.cisco.com &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;proxy.esl.cisco.com&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;... 173.36.224.109, 2001:420:620::4
+Connecting to proxy.esl.cisco.com &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;proxy.esl.cisco.com&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;|173.36.224.109|:8080... connected.
+Proxy request sent, awaiting response... 200 OK
+Length: 27851024 &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;27M&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;application/x-tar]
+Saving to: docker-1.13.1.tgz
+
+docker-1.13.1.tgz                100%[&lt;span class=&quot;o&quot;&gt;=========================================================&amp;gt;]&lt;/span&gt;  26.56M  26.5MB/s    &lt;span class=&quot;k&quot;&gt;in &lt;/span&gt;1.0s
+
+2017-03-04 15:56:55 &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;26.5 MB/s&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; - docker-1.13.1.tgz saved &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;27851024/27851024]
+
+iot@sgbu-ucs-11:/nobackup/docker&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;ls&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;-l&lt;/span&gt; docker-1.13.1.tgz
+&lt;span class=&quot;nt&quot;&gt;-rw-rw-r--&lt;/span&gt; 1 iot iot 27851024 Feb  8 00:52 docker-1.13.1.tgz
+iot@sgbu-ucs-11:/nobackup/docker&lt;span class=&quot;err&quot;&gt;$&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+
+# Installation
+
+Installation is straightforward by extracting tarball, and copy the binary into a directory like &quot;usr/bin&quot;, any directory which is part of your existing $PATH is fine.
+
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;iot@sgbu-ucs-11:/nobackup/docker&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;tar &lt;/span&gt;xvf docker-1.13.1.tgz &lt;span class=&quot;o&quot;&gt;&amp;amp;&amp;amp;&lt;/span&gt; mv docker docker-1.13.1
+iot@sgbu-ucs-11:/nobackup/docker&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;ls&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;-l&lt;/span&gt;
+total 866320
+drwxr-xr-x  3 iot iot      4096 Feb  8 00:51 docker-1.13.1
+&lt;span class=&quot;nt&quot;&gt;-rw-rw-r--&lt;/span&gt;  1 iot iot  27851024 Feb  8 00:52 docker-1.13.1.tgz
+iot@sgbu-ucs-11:/nobackup/docker&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;ls&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;-l&lt;/span&gt; docker-1.13.1
+total 82856
+drwxr-xr-x 5 iot iot     4096 Feb  8 00:51 completion
+&lt;span class=&quot;nt&quot;&gt;-rwxr-xr-x&lt;/span&gt; 1 iot iot 14125488 Feb  8 00:51 docker
+&lt;span class=&quot;nt&quot;&gt;-rwxr-xr-x&lt;/span&gt; 1 iot iot  8932648 Feb  8 00:51 docker-containerd
+&lt;span class=&quot;nt&quot;&gt;-rwxr-xr-x&lt;/span&gt; 1 iot iot  8381448 Feb  8 00:51 docker-containerd-ctr
+&lt;span class=&quot;nt&quot;&gt;-rwxr-xr-x&lt;/span&gt; 1 iot iot  3047368 Feb  8 00:51 docker-containerd-shim
+&lt;span class=&quot;nt&quot;&gt;-rwxr-xr-x&lt;/span&gt; 1 iot iot 39941680 Feb  8 00:51 dockerd
+&lt;span class=&quot;nt&quot;&gt;-rwxr-xr-x&lt;/span&gt; 1 iot iot   772400 Feb  8 00:51 docker-init
+&lt;span class=&quot;nt&quot;&gt;-rwxr-xr-x&lt;/span&gt; 1 iot iot  2534781 Feb  8 00:51 docker-proxy
+&lt;span class=&quot;nt&quot;&gt;-rwxr-xr-x&lt;/span&gt; 1 iot iot  7092736 Feb  8 00:51 docker-runc
+iot@sgbu-ucs-11:/nobackup/docker&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;sudo &lt;/span&gt;cp docker-1.13.1/&lt;span class=&quot;k&quot;&gt;*&lt;/span&gt; /usr/bin&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+
+# Run
+
+It is important to know that docker is running in a client server mode, it means that &quot;dockerd&quot; runs as a daemon, which is server and does all the heavy lifting work; &quot;docker&quot; is client tool, which used to send command to dockerd to do actual work.
+
+Here I show to run docker manually. Since my box is running inside Cisco lab, which sits behind proxy, I pass the proxy setting to dockerd directly, this works well. I ecountered erros in a apt-get docker set up case, even after I configured docker proxy under /etc/default/docker. Another thing to be aware, you need to know that docker needs storage space to store all containers, which could grow significantly depending on what you do.
+In my case, I create a directory &quot;/nobackup/docker/workspace1.13.1/&quot; as storage area.
+
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;iot@sgbu-ucs-11:/nobackup/docker&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;mkdir workspace1.13.1
+iot@sgbu-ucs-11:/nobackup/docker&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;sudo &lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;https_proxy&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;https://proxy.esl.cisco.com:8080&quot;&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;http_proxy&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;http://proxy.esl.cisco.com:8080&quot;&lt;/span&gt; dockerd &lt;span class=&quot;nt&quot;&gt;-g&lt;/span&gt; /nobackup/docker/workspace1.13.1/ &amp;amp;
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;1] 10038
+iot@sgbu-ucs-11:/nobackup/docker&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;INFO[0000] libcontainerd: new containerd process, pid: 10050 
+WARN[0000] containerd: low RLIMIT_NOFILE changing to max  &lt;span class=&quot;nv&quot;&gt;current&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;1024 &lt;span class=&quot;nv&quot;&gt;max&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;65536
+INFO[0001] &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;graphdriver] using prior storage driver: aufs 
+INFO[0001] Graph migration to content-addressability took 0.00 seconds 
+WARN[0001] Your kernel does not support swap memory limit 
+WARN[0001] Your kernel does not support cgroup rt period 
+WARN[0001] Your kernel does not support cgroup rt runtime 
+INFO[0001] Loading containers: start.                   
+INFO[0001] Firewalld running: &lt;span class=&quot;nb&quot;&gt;false                     
+&lt;/span&gt;INFO[0001] Default bridge &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;docker0&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; is assigned with an IP address 172.17.0.0/16. Daemon option &lt;span class=&quot;nt&quot;&gt;--bip&lt;/span&gt; can be used to &lt;span class=&quot;nb&quot;&gt;set &lt;/span&gt;a preferred IP address 
+INFO[0001] Loading containers: &lt;span class=&quot;k&quot;&gt;done&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;.&lt;/span&gt;                    
+WARN[0001] Couldn&lt;span class=&quot;s1&quot;&gt;'t run auplink before unmount /nobackup/docker/workspace1.13.1/tmp/docker-aufs-union687449707: exec: &quot;auplink&quot;: executable file not found in $PATH 
+INFO[0001] Daemon has completed initialization          
+INFO[0001] Docker daemon                                 commit=092cba3 graphdriver=aufs version=1.13.1
+INFO[0001] API listen on /var/run/docker.sock           
+
+iot@sgbu-ucs-11:/nobackup/docker$
+iot@sgbu-ucs-11:/nobackup/docker$ ps -ef | grep docker
+root     10038  8482  0 16:18 pts/16   00:00:00 sudo https_proxy=https://proxy.esl.cisco.com:8080 http_proxy=http://proxy.esl.cisco.com:8080 dockerd -g /nobackup/docker/workspace1.13.1/
+root     10039 10038  0 16:18 pts/16   00:00:01 dockerd -g /nobackup/docker/workspace1.13.1/
+root     10050 10039  0 16:18 ?        00:00:00 docker-containerd -l unix:///var/run/docker/libcontainerd/docker-containerd.sock --metrics-interval=0 --start-timeout 2m --state-dir /var/run/docker/libcontainerd/containerd --shim docker-containerd-shim --runtime docker-runc
+iot      10248  8482  0 16:22 pts/16   00:00:00 grep --color=auto docker
+iot@sgbu-ucs-11:/nobackup/docker$ 
+
+As it is shwoing, docker is running nicely.&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+
+# Deploy containers
+
+First we make sure there is no docker images there:
+
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;iot@sgbu-ucs-11:/nobackup/docker&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;sudo &lt;/span&gt;docker images
+REPOSITORY          TAG                 IMAGE ID            CREATED             SIZE
+iot@sgbu-ucs-11:/nobackup/docker&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+
+As a sanity testing, we install &quot;hello-world&quot; from docker hub to make sure it is working well:
+
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;iot@sgbu-ucs-11:/nobackup/docker&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;sudo &lt;/span&gt;docker pull hello-world
+Using default tag: latest
+latest: Pulling from library/hello-world
+78445dd45222: Already exists 
+Digest: sha256:c5515758d4c5e1e838e9cd307f6c6a0d620b5e07e6f927b07d05f6d12a1ac8d7
+Status: Downloaded newer image &lt;span class=&quot;k&quot;&gt;for &lt;/span&gt;hello-world:latest
+iot@sgbu-ucs-11:/nobackup/docker&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;sudo &lt;/span&gt;docker images
+REPOSITORY          TAG                 IMAGE ID            CREATED             SIZE
+hello-world         latest              48b5124b2768        7 weeks ago         1.84 kB
+iot@sgbu-ucs-11:/nobackup/docker&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+
+Second we can install a &quot;fedora&quot; image and &quot;nginx&quot; image.
+
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;iot@sgbu-ucs-11:/nobackup/docker&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;sudo &lt;/span&gt;docker pull fedora
+Using default tag: latest
+latest: Pulling from library/fedora
+1b39978eabd9: Pull &lt;span class=&quot;nb&quot;&gt;complete 
+&lt;/span&gt;Digest: sha256:8d3f642aa4d3fa8f9dc52ab0e3bbbe8bc2494843dc6ebb26c4a6958db888e5a2
+Status: Downloaded newer image &lt;span class=&quot;k&quot;&gt;for &lt;/span&gt;fedora:latest
+iot@sgbu-ucs-11:/nobackup/docker&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;sudo &lt;/span&gt;docker pull nginx
+Using default tag: latest
+latest: Pulling from library/nginx
+693502eb7dfb: Pull &lt;span class=&quot;nb&quot;&gt;complete 
+&lt;/span&gt;6decb850d2bc: Pull &lt;span class=&quot;nb&quot;&gt;complete 
+&lt;/span&gt;c3e19f087ed6: Pull &lt;span class=&quot;nb&quot;&gt;complete 
+&lt;/span&gt;Digest: sha256:52a189e49c0c797cfc5cbfe578c68c225d160fb13a42954144b29af3fe4fe335
+Status: Downloaded newer image &lt;span class=&quot;k&quot;&gt;for &lt;/span&gt;nginx:latest
+iot@sgbu-ucs-11:/nobackup/docker&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;sudo &lt;/span&gt;docker images
+REPOSITORY          TAG                 IMAGE ID            CREATED             SIZE
+nginx               latest              6b914bbcb89e        4 days ago          182 MB
+fedora              latest              1f8ec1108a3f        2 weeks ago         230 MB
+hello-world         latest              48b5124b2768        7 weeks ago         1.84 kB
+iot@sgbu-ucs-11:/nobackup/docker&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+
+Third, let run fedora interactive through bash: it shows it is fedora 25, however you can see it is actually has ubuntu kernel since container is a user space virtualization technology.
+
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;iot@sgbu-ucs-11:/nobackup/docker&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;sudo &lt;/span&gt;docker run &lt;span class=&quot;nt&quot;&gt;-it&lt;/span&gt; fedora /bin/bash
+WARN[0699] Couldn&lt;span class=&quot;s1&quot;&gt;'t run auplink before unmount /nobackup/docker/workspace1.13.1/aufs/mnt/f7babbdcde18ee51bc5efffbe67aff8edc734753624c91f0bfb8702ef4922d93-init: exec: &quot;auplink&quot;: executable file not found in $PATH 
+WARN[0699] Couldn'&lt;/span&gt;t run auplink before unmount /nobackup/docker/workspace1.13.1/aufs/mnt/f7babbdcde18ee51bc5efffbe67aff8edc734753624c91f0bfb8702ef4922d93: &lt;span class=&quot;nb&quot;&gt;exec&lt;/span&gt;: &lt;span class=&quot;s2&quot;&gt;&quot;auplink&quot;&lt;/span&gt;: executable file not found &lt;span class=&quot;k&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;$PATH&lt;/span&gt; 
+INFO[0700] No non-localhost DNS nameservers are left &lt;span class=&quot;k&quot;&gt;in &lt;/span&gt;resolv.conf. Using default external servers: &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;nameserver 8.8.8.8 nameserver 8.8.4.4] 
+          INFO[0700] IPv6 enabled&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt; Adding default IPv6 external servers: &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;nameserver 2001:4860:4860::8888 nameserver 2001:4860:4860::8844] 
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;root@18ca8d8ced5b /]# &lt;span class=&quot;nb&quot;&gt;cat&lt;/span&gt; /etc/fedora-release 
+Fedora release 25 &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;Twenty Five&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;root@18ca8d8ced5b /]# uname &lt;span class=&quot;nt&quot;&gt;-a&lt;/span&gt;
+Linux 18ca8d8ced5b 4.4.0-53-generic &lt;span class=&quot;c&quot;&gt;#74-Ubuntu SMP Fri Dec 2 15:59:10 UTC 2016 x86_64 x86_64 x86_64 GNU/Linux&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;root@18ca8d8ced5b /]# 
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;root@18ca8d8ced5b /]# df &lt;span class=&quot;nt&quot;&gt;-h&lt;/span&gt;
+Filesystem      Size  Used Avail Use% Mounted on
+none            823G   49G  733G   7% /
+tmpfs            48G     0   48G   0% /dev
+tmpfs            48G     0   48G   0% /sys/fs/cgroup
+/dev/sda1       823G   49G  733G   7% /etc/hosts
+shm              64M     0   64M   0% /dev/shm
+tmpfs            48G     0   48G   0% /sys/firmware
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;root@18ca8d8ced5b /]# &lt;span class=&quot;nb&quot;&gt;exit
+exit
+&lt;/span&gt;iot@sgbu-ucs-11:/nobackup/docker&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;WARN[0988] Couldn&lt;span class=&quot;s1&quot;&gt;'t run auplink before unmount /nobackup/docker/workspace1.13.1/aufs/mnt/f7babbdcde18ee51bc5efffbe67aff8edc734753624c91f0bfb8702ef4922d93: exec: &quot;auplink&quot;: executable file not found in $PATH 
+
+iot@sgbu-ucs-11:/nobackup/docker$ sudo docker ps -a
+CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS                         PORTS               NAMES
+18ca8d8ced5b        fedora              &quot;/bin/bash&quot;         5 minutes ago       Exited (0) 12 seconds ago                          romantic_einstein
+81b59ab256b3        hello-world         &quot;/hello&quot;            About an hour ago   Exited (0) About an hour ago                       keen_mestorf
+iot@sgbu-ucs-11:/nobackup/docker$ &lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+
+There is another way to load docker image by reading a prepared and downloaded binary of docker image:
+
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;iot@sgbu-ucs-11:/nobackup/docker&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;sudo &lt;/span&gt;docker load &lt;span class=&quot;nt&quot;&gt;--input&lt;/span&gt; widevine-api.tar 
+e7ebc6e16708: Loading layer &lt;span class=&quot;o&quot;&gt;[==================================================&amp;gt;]&lt;/span&gt; 133.8 MB/133.8 MB
+f934e33a54a6: Loading layer &lt;span class=&quot;o&quot;&gt;[==================================================&amp;gt;]&lt;/span&gt; 15.87 kB/15.87 kB
+bf6751561805: Loading layer &lt;span class=&quot;o&quot;&gt;[==================================================&amp;gt;]&lt;/span&gt; 11.78 kB/11.78 kB
+943edb549a83: Loading layer &lt;span class=&quot;o&quot;&gt;[==================================================&amp;gt;]&lt;/span&gt; 4.608 kB/4.608 kB
+c1bd37d01c89: Loading layer &lt;span class=&quot;o&quot;&gt;[==================================================&amp;gt;]&lt;/span&gt; 3.072 kB/3.072 kB
+a95df000892a: Loading layer &lt;span class=&quot;o&quot;&gt;[==================================================&amp;gt;]&lt;/span&gt; 31.23 kB/31.23 kB
+87a8db33c00a: Loading layer &lt;span class=&quot;o&quot;&gt;[==================================================&amp;gt;]&lt;/span&gt; 680.7 MB/680.7 MB
+3eb94c8c4801: Loading layer &lt;span class=&quot;o&quot;&gt;[==================================================&amp;gt;]&lt;/span&gt; 1.536 kB/1.536 kB
+ae09daac5f09: Loading layer &lt;span class=&quot;o&quot;&gt;[==================================================&amp;gt;]&lt;/span&gt; 10.37 MB/10.37 MB
+7515649c4f96: Loading layer &lt;span class=&quot;o&quot;&gt;[==================================================&amp;gt;]&lt;/span&gt; 34.23 MB/34.23 MB
+3df54ddc927e: Loading layer &lt;span class=&quot;o&quot;&gt;[==================================================&amp;gt;]&lt;/span&gt; 3.584 kB/3.584 kB
+afaa58df73a7: Loading layer &lt;span class=&quot;o&quot;&gt;[==================================================&amp;gt;]&lt;/span&gt; 3.584 kB/3.584 kB
+54f82330fe32: Loading layer &lt;span class=&quot;o&quot;&gt;[==================================================&amp;gt;]&lt;/span&gt; 4.608 kB/4.608 kB
+cce3f38770a6: Loading layer &lt;span class=&quot;o&quot;&gt;[==================================================&amp;gt;]&lt;/span&gt; 3.072 kB/3.072 kB
+f157603ca1b0: Loading layer &lt;span class=&quot;o&quot;&gt;[==================================================&amp;gt;]&lt;/span&gt; 2.048 kB/2.048 kB
+14f338761f7e: Loading layer &lt;span class=&quot;o&quot;&gt;[==================================================&amp;gt;]&lt;/span&gt; 2.048 kB/2.048 kB
+Loaded image: registry.axinom.com/widevine-api/app:latest
+iot@sgbu-ucs-11:/nobackup/docker&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;sudo &lt;/span&gt;docker images
+REPOSITORY                             TAG                 IMAGE ID            CREATED             SIZE
+nginx                                  latest              6b914bbcb89e        4 days ago          182 MB
+fedora                                 latest              1f8ec1108a3f        2 weeks ago         230 MB
+hello-world                            latest              48b5124b2768        7 weeks ago         1.84 kB
+registry.axinom.com/widevine-api/app   latest              a8c197b7a44b        3 months ago        840 MB
+iot@sgbu-ucs-11:/nobackup/docker&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;iot@sgbu-ucs-11:/nobackup/docker&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;sudo &lt;/span&gt;docker run registry.axinom.com/widevine-api/app &lt;span class=&quot;nt&quot;&gt;-it&lt;/span&gt;
+WARN[1873] Couldn&lt;span class=&quot;s1&quot;&gt;'t run auplink before unmount /nobackup/docker/workspace1.13.1/aufs/mnt/f17847c68b04f64b687f745fb49abf82cde3fcb4ba38cbdb94748862e69c4d2b-init: exec: &quot;auplink&quot;: executable file not found in $PATH 
+WARN[1873] Couldn'&lt;/span&gt;t run auplink before unmount /nobackup/docker/workspace1.13.1/aufs/mnt/f17847c68b04f64b687f745fb49abf82cde3fcb4ba38cbdb94748862e69c4d2b: &lt;span class=&quot;nb&quot;&gt;exec&lt;/span&gt;: &lt;span class=&quot;s2&quot;&gt;&quot;auplink&quot;&lt;/span&gt;: executable file not found &lt;span class=&quot;k&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;$PATH&lt;/span&gt; 
+INFO[1874] No non-localhost DNS nameservers are left &lt;span class=&quot;k&quot;&gt;in &lt;/span&gt;resolv.conf. Using default external servers: &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;nameserver 8.8.8.8 nameserver 8.8.4.4] 
+INFO[1874] IPv6 enabled&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt; Adding default IPv6 external servers: &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;nameserver 2001:4860:4860::8888 nameserver 2001:4860:4860::8844] 
+The setup has been successfully completed.
+..........&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+
+# Reference
+
+For more details, check [docker docs](https://docs.docker.com/engine/installation/binaries/#install-daemon-and-client-binaries-on-linux).
+
+
+&lt;/ul&gt;</content><author><name></name></author><summary type="html">Docker is growing with amazing features, and it becomes a platform to deploy services even in embedded linux enviroment. There are different ways to install docker, one approach is to install using the pre-built binary distribution.</summary></entry></feed>

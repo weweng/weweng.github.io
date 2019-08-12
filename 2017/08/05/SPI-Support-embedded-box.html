@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset='UTF-8'>
+	<title>SPI flash support in embedded Linux box | Wenwei's tech Blog</title>
+	<link rel='alternate' type='application/rss+xml' title='Wenwei Feed' href='http://weweng.github.io/atom.xml'>
+	<meta name='description' content=''/>
+	<meta name='keywords' content='linux SPI flash MTD'/>
+	<meta name='viewport' content='width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no'>
+	<meta name='theme-color' content='#655B54'>
+	<link rel='shortcut icon' href='/assets/favicon.ico' type='image/x-icon'> 
+	<!--- <link rel='icon' href='/assets/favicon.ico' type='image/x-icon'> --->
+<link rel='icon' href='/assets/blogger.png' type='image/x-png'>
+
+	<link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro:400,700' rel='stylesheet' type='text/css'>
+	<link rel='stylesheet' type='text/css' href='/assets/css/code-highlighter.css' />
+<link rel='stylesheet' type='text/css' href='/assets/css/default.min.css' />
+<link rel='stylesheet' type='text/css' href='/assets/css/github.css' />
+<link rel='stylesheet' type='text/css' href='/assets/css/pure-base-min.css' />
+<link rel='stylesheet' type='text/css' href='/assets/css/pure-grids-responsive-min.css' />
+<link rel='stylesheet' type='text/css' href='/assets/css/pure-menus-min.css' />
+<link rel='stylesheet' type='text/css' href='/assets/css/pure-tables-min.css' />
+<link rel='stylesheet' type='text/css' href='/assets/css/social-buttons.css' />
+<link rel='stylesheet' type='text/css' href='/assets/css/weweng.css' />
+
+
+	
+</head>
+<body>
+
+<div class='pure-g' id='layout'>
+    <div class='sidebar pure-u-1 pure-u-md-1-4'>
+      <div class='header'>
+	<nav class='nav'>
+	  <ul class='nav-list'>
+	    <li class='nav-item'>
+	      <strong> <a href='/workblog.html'>Blog</a> </strong>
+	    </li>
+<!--
+	    <li class='nav-item'>
+	      <strong> <a href='/study/index.html'>Study</a> </strong>
+	    </li>
+	    <li class='nav-item'>
+	      <strong> <a href='/projects/index.html'>Projects</a> </strong>
+	    </li>
+-->
+<!--
+            <li class='nav-item'>
+              <strong> <a href='/services/index.html'>读书笔记</a> </strong>
+            </li>
+-->
+	    <li class='nav-item'>
+	      <strong><a href='/aboutme.html'>About Me</a></strong>
+	    </li>
+	</ul>
+	</nav>
+	<br> 
+	<h1 class='brand-title'>
+	  <a href='/index.html'>
+		<img src='/assets/img/avatar.png' height='100'/>
+	  </a>
+	</h1>
+      </div>
+</div>
+
+<div class='pure-u-1'>
+	<div class='content'>
+		<section class='post'>
+	<header class='post-header'>
+		<h2 class='post-title'> SPI flash support in embedded Linux box </h2>
+		<p class='post-meta'>
+			Posted on <time class='date' datetime='2017-08-05T00:00:00+01:00'>05 Aug 2017</time>
+		</p>
+	</header>
+
+	<div class='post-description'>
+		<p>Serial Peripheral Interface (SPI) flash memory is often used in an embedded Linux box to hold bootloader. During very initial board bringup, SPI flash memory needs to be programmed properly using device like Dediprog, otherwise the box won’t boot. After the box is up running linux, often there is need to access SPI flash, e.g. upgrade new version of bootloader from linux. I will share what needs to be done for that.</p>
+
+<p><img src="/uploads/linux/linux-spi.jpg" alt="Linux SPI" /></p>
+
+<!--more-->
+<h2 id="spi-flash-hardware-overview">SPI Flash: hardware overview</h2>
+<p>There are many flash memory devices in the market, often people see USB flash memory, SD card. Those flash memory are parallel flash, eithe NOR or NAND flash. With parell access, the throughput is a lot higher. SPI flash is accessed in a serial way, so it is much slower.</p>
+
+<p>SPI devices communicate in full duplex mode using a master-slave architecture with a single master. The master device originates the frame for reading and writing. Multiple slave devices are supported through selection with individual slave select (SS) lines.</p>
+
+<p><img src="/uploads/linux/spi-master-slave.png" alt="SPI Master Slaves" /></p>
+
+<p>SCK: Serial Clock  MOSI: Master Output Slave Input   MISO: Master Input Slave Output  SS: Slave Select</p>
+
+<p>SPI Master often is provided by SoC, SPI flash device serves as SPI slave.</p>
+
+<h2 id="what-are-needed-to-enable-spi-flash-access-from-linux-">What are needed to enable SPI flash access from Linux ?</h2>
+<p>There are three areas to do in order to enable SPI flash access from Linux user space.</p>
+
+<h3 id="enable-spi-controller-in-device-tree">Enable SPI controller in device tree.</h3>
+
+<p>In my case, Marvell ARMADA 7040 SoC has SPI controller provided, I need do the following:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">bash-4.3# <span class="nb">cat </span>armada-7040-db.dts
+...
+                        spi@700680 <span class="o">{</span>
+                                compatible <span class="o">=</span> <span class="s2">"marvell,armada-380-spi"</span><span class="p">;</span>
+                                reg <span class="o">=</span> &lt;0x700680 0x50&gt;<span class="p">;</span>
+                                <span class="c">#address-cells = &lt;0x1&gt;;</span>
+                                <span class="c">#size-cells = &lt;0x0&gt;;</span>
+                                cell-index <span class="o">=</span> &lt;0x2&gt;<span class="p">;</span>
+                                clocks <span class="o">=</span> &lt;0x26 0x1 0x15&gt;<span class="p">;</span>
+                                status <span class="o">=</span> “okay<span class="s2">";
+
+                                spi-flash@0 {
+                                        #address-cells = &lt;0x1&gt;;
+                                        #size-cells = &lt;0x1&gt;;
+                                        compatible = "</span>jedec,spi-nor<span class="s2">";
+                                        reg = &lt;0x0&gt;;
+                                        spi-max-frequency = &lt;0x1312d00&gt;;
+
+                                        partition@0 {
+                                                label = "</span>boot<span class="s2">";
+                                                reg = &lt;0x0 0x200000&gt;;
+                                        };
+
+                                        partition@200000 {
+                                                label = "</span>Filesystem<span class="s2">";
+                                                reg = &lt;0x200000 0xd00000&gt;;
+                                        };
+
+                                        partition@d00000 {
+                                                label = "</span>boot_2nd<span class="s2">";
+                                                reg = &lt;0xf00000 0x100000&gt;;
+                                        };
+                                };
+                        };
+...</span></code></pre></figure>
+
+<p>From the above, DTS defined the SPI flash to have three partitions: “boot”, “Filesystem” and “boot_2nd”. We will see how this definition is manifested in linux system.</p>
+
+<p>Integrate the dtb file into linux boot in a proper way depending your situation.</p>
+
+<h3 id="enable-proper-kernel-drivers-for-spi">Enable proper kernel drivers for SPI</h3>
+
+<p>Linux kernel has done a lot work to support SPI flash so that user space can access SPI flash easily. It has following architecture:</p>
+
+<p><img src="/uploads/linux/linux-spi-mtd-fs.jpg" alt="Linux SPI SW arch" /></p>
+
+<p>To enable SPI access, the following kernel configurations are required:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">bash-4.3# <span class="nb">cat</span> .config
+...
+<span class="nv">CONFIG_MTD</span><span class="o">=</span>y
+<span class="nv">CONFIG_MTD_BLKDEVS</span><span class="o">=</span>y
+<span class="nv">CONFIG_MTD_BLOCK</span><span class="o">=</span>y
+<span class="nv">CONFIG_MTD_M25P80</span><span class="o">=</span>y
+<span class="nv">CONFIG_MTD_SPI_NOR</span><span class="o">=</span>y
+<span class="nv">CONFIG_MTD_SPI_NOR_USE_4K_SECTORS</span><span class="o">=</span>y
+...
+<span class="nv">CONFIG_SPI</span><span class="o">=</span>y
+<span class="nv">CONFIG_SPI_MASTER</span><span class="o">=</span>y
+<span class="nv">CONFIG_SPI_ARMADA_3700</span><span class="o">=</span>y
+...</code></pre></figure>
+
+<h3 id="access-from-user-space">Access from user space</h3>
+<p>With the changes in DTS and kernel, after linux boots, the below will be observed in kernel space:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"> 
+bash# dmesg
+.......
+<span class="o">[</span>    4.110288] m25p80 spi2.0: n25q128a13 <span class="o">(</span>16384 Kbytes<span class="o">)</span>
+<span class="o">[</span>    4.115301] 3 ofpart partitions found on MTD device spi2.0
+<span class="o">[</span>    4.120815] Creating 3 MTD partitions on <span class="s2">"spi2.0"</span>:
+<span class="o">[</span>    4.125632] 0x000000000000-0x000000200000 : <span class="s2">"boot"</span>
+<span class="o">[</span>    4.130895] 0x000000200000-0x000000f00000 : <span class="s2">"Filesystem"</span>
+<span class="o">[</span>    4.136619] 0x000000f00000-0x000001000000 : <span class="s2">"boot_2nd"</span>
+.......</code></pre></figure>
+
+<p>From the user space, the first thing can be seen is the mtd device files:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"> 
+bash#  <span class="nb">ls</span> <span class="nt">-l</span> /dev/mtd<span class="k">*</span>
+crw------- 1 root root 90, 0 Feb  6 08:14 /dev/mtd0
+crw------- 1 root root 90, 1 Feb  6 08:14 /dev/mtd0ro
+crw------- 1 root root 90, 2 Feb  6 08:14 /dev/mtd1
+crw------- 1 root root 90, 3 Feb  6 08:14 /dev/mtd1ro
+crw------- 1 root root 90, 4 Feb  6 08:14 /dev/mtd2
+crw------- 1 root root 90, 5 Feb  6 08:14 /dev/mtd2ro
+brw------- 1 root disk 31, 0 Feb  6 08:14 /dev/mtdblock0
+brw------- 1 root disk 31, 1 Feb  6 08:14 /dev/mtdblock1
+brw------- 1 root disk 31, 2 Feb  6 08:14 /dev/mtdblock2</code></pre></figure>
+
+<p>/dev/mtdblock0 is for “boot” (first bootloader) partition; 
+/dev/mtdblock1 is for “FileSystem” partition;
+/dev/mtdblock2 is for “boot_2nd” partition.</p>
+
+<p>what can we do now? Life is easy with all these infrastructure in place.</p>
+<ul>
+<li> To program a new version bootloader, simply: dd if=new-bootloader.bin of=/dev/mtdblock0 </li>
+<li> If we want to use partition as file system, simply: </li>
+     <ul>
+     <li>mkdir /mnt/spi </li>
+     <li>mkfs.jffs2 /dev/mtdblock1 </li>
+     <li>mount -t jfss2 /dev/mtdblock1 /mnt/spi </li>
+     </ul>
+</ul>
+
+<p>Life is good!</p>
+
+<p>References:</p>
+<ul>
+<li> http://free-electrons.com/blog/managing-flash-storage-with-linux/ </li>
+<li> http://slideplayer.com/slide/10452504/ </li>
+</ul>
+
+
+	</div>
+
+<!--	
+	<div class='share-button-container'>
+		<p>Like it? Share it!</p>
+		<div class='share-button share-button-twitter' data-share-url="http://weweng.github.io/2017/08/05/SPI-Support-embedded-box.html">
+			<div clas='box'>
+				<a href="https://twitter.com/share?url=http://weweng.github.io%2F2017%2F08%2F05%2FSPI-Support-embedded-box.html&text=SPI flash support in embedded Linux box&via=weweng" target='_blank'>
+					<span class='share'>Tweet</span>
+					<span class='count'>0</span>
+				</a>
+			</div>
+		</div>
+
+		<div class="share-button share-button-facebook" data-share-url="http://weweng.github.io/2017/08/05/SPI-Support-embedded-box.html">
+			<div class="box">
+				<a href="https://www.facebook.com/sharer/sharer.php?u=http://weweng.github.io%2F2017%2F08%2F05%2FSPI-Support-embedded-box.html">
+					<span class='share'>Share</span>
+					<span class='count'>0</span>
+				</a>
+			</div>
+		</div>
+	</div>
+-->
+
+</section>
+
+<div id='comments'>
+	<div id='disqus_thread'></div>
+	<script type='text/javascript'>
+		var disqus_shortname = 'wewenggithubio';
+		(function() {
+			var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+			dsq.src = 'http://' + disqus_shortname + '.disqus.com/embed.js';
+			(document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+		})();
+	</script>
+
+	<noscript>Please enable JavaScript to view the comments</noscript>
+</div>
+<script type='text/javascript' src='/assets/js/StaticShareButtons.js'></script>
+
+
+	</div>
+
+	<footer class='footer'>
+		<span>Copyright 2015-2017, Wenwei Weng</span>
+	</footer>
+</div>
+</div>
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-62997612-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+
+
+<script type="text/javascript">
+// Open external links in new tab
+(window.onload = function(){
+	var links = document.links;
+
+	for(i=0; i<=links.length -1; i++){
+		if(links[i].hostname != window.location.hostname){
+			links[i].target = '_blank';
+		}
+	}
+})();
+</script>
+</body>
+</html>
