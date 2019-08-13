@@ -3,7 +3,7 @@
 	<title>weweng.github.io</title>
 	<link href='http://weweng.github.io/'/>
 	<link type='application/atom+xml' rel='self' href='http://weweng.github.io/atom.xml'/>
-	<updated>2019-08-12T15:56:41-07:00</updated>
+	<updated>2019-08-12T17:54:50-07:00</updated>
 	<id>http://weweng.github.io/</id>
 
 	<author>
@@ -26,6 +26,23 @@
 		<content type='html'>&lt;p&gt;My blog site was shutdown for quite a while for certain reasons. However I strongly feel this is a good way for me to capture what I learned along the way and share with anyone who might feel helpful for them. Thanks to all people who provided postivie feedback. After clearup the issue and I finally decide to continue working on my blog site. First thing I do is to update my blog development enviroment which is Jekyll, installed in ubuntu 16.04 VM.&lt;/p&gt;
 
 &lt;p&gt;&lt;img src=&quot;/uploads/jekyll.jpg&quot; alt=&quot;Jekyll on Ubuntu&quot; /&gt; 
+</content>
+	</entry>
+  
+	<entry>
+		<title>Building a Machine Learning platform using UCS 220 M5 with Tesla P4 GPU</title>
+		<link type='text/html' href='http://weweng.github.io/2018/09/08/UCS220-M5-ML-platform.html'/>
+		<id>http://weweng.github.io/2018/09/08/UCS220-M5-ML-platform.html</id>
+		<updated>2018-09-08T00:00:00-07:00</updated>
+
+		<author>
+			<name>Wenwei Weng</name>
+			<uri>http://weweng.github.io/</uri>
+		</author>
+
+		<content type='html'>&lt;p&gt;Machine Learning has been a very hot field. Big players like Amazon, Google, they host machine learning infrastructure in the cloud, which is very nice thing, except it can be very expensive to use it. I’m always curious if I can build one by myself: a relative powerful machine learning platform. The following shows what I achieved using UCS220-M5 with Tesla-P4 GPU.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/uploads/ucs/c220-m5-tesla-p4-ml.jpg&quot; alt=&quot;Required Hardware&quot; /&gt; 
 </content>
 	</entry>
   
@@ -264,27 +281,6 @@ Docker has done great job to manage the container image to make it to be in laye
 		<content type='html'>&lt;p&gt;There are some Linux open source tools like iperf, netperf can be used to generate ethernet tarrfic for throughput testing. Those tools can get a ballpark number only. There are vendors like IXIA, Spirent, which design the dedicate measurement tools. For the last few days, as I’m evaluating the different software architecture for the next routing platform I’m going to work on this year, I used Spirent SPT-9000A to perform ethernet throughput testing.&lt;/p&gt;
 
 &lt;p&gt;&lt;img src=&quot;/uploads/networking/spirent-testing.jpg&quot; alt=&quot;Spirent Test Center&quot; /&gt;&lt;/p&gt;
-
-</content>
-	</entry>
-  
-	<entry>
-		<title>xilinx ARM MPSoc+ultrascale software run in QEMU</title>
-		<link type='text/html' href='http://weweng.github.io/2016/12/21/xilinx-MPSoC-ultrascale-dev.html'/>
-		<id>http://weweng.github.io/2016/12/21/xilinx-MPSoC-ultrascale-dev.html</id>
-		<updated>2016-12-21T00:00:00-08:00</updated>
-
-		<author>
-			<name>Wenwei Weng</name>
-			<uri>http://weweng.github.io/</uri>
-		</author>
-
-		<content type='html'>&lt;p&gt;Many vendors are shipping ARMv8 SoC including NXP/Freescale, Marvell, Broadcom, xilinx. xilinx MPSoC is one of impressive one, with Cortex-53, integrated with xilinx FPGA.&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;/uploads/linux/linux-arm-xilinx-mpsoc-chip.jpg&quot; alt=&quot;xilinx MPSoC&quot; /&gt;&lt;/p&gt;
-
-&lt;p&gt;I’m impressed with xilinx’s rich document for software developers to reference.
-In this post I share what I have done in order to boot linux in QEMU which simulates xilinx ARM MPSoC+ultrascale.&lt;/p&gt;
 
 </content>
 	</entry>

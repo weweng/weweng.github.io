@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.8.5">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2019-08-12T15:56:41-07:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Your awesome title</title><subtitle>Write an awesome description for your new site here. You can edit this line in _config.yml. It will appear in your document head meta (for Google search results) and in your feed.xml site description.</subtitle><entry><title type="html">Jekyll update for my blog site</title><link href="http://localhost:4000/2019/08/12/Jekyll-Update-blog-site.html" rel="alternate" type="text/html" title="Jekyll update for my blog site" /><published>2019-08-12T00:00:00-07:00</published><updated>2019-08-12T00:00:00-07:00</updated><id>http://localhost:4000/2019/08/12/Jekyll-Update-blog-site</id><content type="html" xml:base="http://localhost:4000/2019/08/12/Jekyll-Update-blog-site.html">&lt;p&gt;My blog site was shutdown for quite a while for certain reasons. However I strongly feel this is a good way for me to capture what I learned along the way and share with anyone who might feel helpful for them. Thanks to all people who provided postivie feedback. After clearup the issue and I finally decide to continue working on my blog site. First thing I do is to update my blog development enviroment which is Jekyll, installed in ubuntu 16.04 VM.&lt;/p&gt;
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.8.5">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2019-08-12T17:54:50-07:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Your awesome title</title><subtitle>Write an awesome description for your new site here. You can edit this line in _config.yml. It will appear in your document head meta (for Google search results) and in your feed.xml site description.</subtitle><entry><title type="html">Jekyll update for my blog site</title><link href="http://localhost:4000/2019/08/12/Jekyll-Update-blog-site.html" rel="alternate" type="text/html" title="Jekyll update for my blog site" /><published>2019-08-12T00:00:00-07:00</published><updated>2019-08-12T00:00:00-07:00</updated><id>http://localhost:4000/2019/08/12/Jekyll-Update-blog-site</id><content type="html" xml:base="http://localhost:4000/2019/08/12/Jekyll-Update-blog-site.html">&lt;p&gt;My blog site was shutdown for quite a while for certain reasons. However I strongly feel this is a good way for me to capture what I learned along the way and share with anyone who might feel helpful for them. Thanks to all people who provided postivie feedback. After clearup the issue and I finally decide to continue working on my blog site. First thing I do is to update my blog development enviroment which is Jekyll, installed in ubuntu 16.04 VM.&lt;/p&gt;
 
 &lt;p&gt;&lt;img src=&quot;/uploads/jekyll.jpg&quot; alt=&quot;Jekyll on Ubuntu&quot; /&gt; 
 &lt;!--more--&gt;&lt;/p&gt;
@@ -102,7 +102,687 @@ done&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
 
 &lt;h4 id=&quot;main-page-recent-posts&quot;&gt;Main page recent posts&lt;/h4&gt;
 
-&lt;p&gt;The main page most recent posts are not shown, which I haven’t fixed it. Now I simply change to show all posts sorted by date.&lt;/p&gt;</content><author><name></name></author><summary type="html">My blog site was shutdown for quite a while for certain reasons. However I strongly feel this is a good way for me to capture what I learned along the way and share with anyone who might feel helpful for them. Thanks to all people who provided postivie feedback. After clearup the issue and I finally decide to continue working on my blog site. First thing I do is to update my blog development enviroment which is Jekyll, installed in ubuntu 16.04 VM.</summary></entry><entry><title type="html">SPI flash support in embedded Linux box</title><link href="http://localhost:4000/2017/08/05/SPI-Support-embedded-box.html" rel="alternate" type="text/html" title="SPI flash support in embedded Linux box" /><published>2017-08-05T00:00:00-07:00</published><updated>2017-08-05T00:00:00-07:00</updated><id>http://localhost:4000/2017/08/05/SPI-Support-embedded-box</id><content type="html" xml:base="http://localhost:4000/2017/08/05/SPI-Support-embedded-box.html">&lt;p&gt;Serial Peripheral Interface (SPI) flash memory is often used in an embedded Linux box to hold bootloader. During very initial board bringup, SPI flash memory needs to be programmed properly using device like Dediprog, otherwise the box won’t boot. After the box is up running linux, often there is need to access SPI flash, e.g. upgrade new version of bootloader from linux. I will share what needs to be done for that.&lt;/p&gt;
+&lt;p&gt;The main page most recent posts are not shown, which I haven’t fixed it. Now I simply change to show all posts sorted by date.&lt;/p&gt;</content><author><name></name></author><summary type="html">My blog site was shutdown for quite a while for certain reasons. However I strongly feel this is a good way for me to capture what I learned along the way and share with anyone who might feel helpful for them. Thanks to all people who provided postivie feedback. After clearup the issue and I finally decide to continue working on my blog site. First thing I do is to update my blog development enviroment which is Jekyll, installed in ubuntu 16.04 VM.</summary></entry><entry><title type="html">Building a Machine Learning platform using UCS 220 M5 with Tesla P4 GPU</title><link href="http://localhost:4000/2018/09/08/UCS220-M5-ML-platform.html" rel="alternate" type="text/html" title="Building a Machine Learning platform using UCS 220 M5 with Tesla P4 GPU" /><published>2018-09-08T00:00:00-07:00</published><updated>2018-09-08T00:00:00-07:00</updated><id>http://localhost:4000/2018/09/08/UCS220-M5-ML-platform</id><content type="html" xml:base="http://localhost:4000/2018/09/08/UCS220-M5-ML-platform.html">&lt;p&gt;Machine Learning has been a very hot field. Big players like Amazon, Google, they host machine learning infrastructure in the cloud, which is very nice thing, except it can be very expensive to use it. I’m always curious if I can build one by myself: a relative powerful machine learning platform. The following shows what I achieved using UCS220-M5 with Tesla-P4 GPU.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/uploads/ucs/c220-m5-tesla-p4-ml.jpg&quot; alt=&quot;Required Hardware&quot; /&gt; 
+&lt;!--more--&gt;&lt;/p&gt;
+&lt;h2 id=&quot;what-is-required-hardware&quot;&gt;What is required hardware?&lt;/h2&gt;
+&lt;ul&gt;
+  &lt;li&gt;CPU: Dual Intel Xeon 6132 @2.6 GHz, 28 cores/each&lt;/li&gt;
+  &lt;li&gt;GPU: Nvidia Tesla P4 (Compute Capability: 6.1)&lt;/li&gt;
+  &lt;li&gt;DDR4: 192 GB&lt;/li&gt;
+  &lt;li&gt;HDD: 2TB&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Cisco UCS220-M5 is a good platform to start with!&lt;/p&gt;
+
+&lt;h2 id=&quot;what-is-software-stack-to-be-built&quot;&gt;What is software stack to be built?&lt;/h2&gt;
+&lt;p&gt;The following diagram shows the typical ML software stack. In my case, I build software stack from bottom-up, however top layer, I only build TensorFlow.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/uploads/ucs/ml-sw-stack.jpg&quot; alt=&quot;ML software stack&quot; /&gt;&lt;/p&gt;
+
+&lt;h4 id=&quot;step1-get-ubuntu-1604-box-ready&quot;&gt;Step#1 Get ubuntu 16.04 box ready&lt;/h4&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;iot@iotg-ml-2:~&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;lsb_release &lt;span class=&quot;nt&quot;&gt;-a&lt;/span&gt;
+No LSB modules are available.
+Distributor ID:	Ubuntu
+Description:	Ubuntu 16.04.5 LTS
+Release:	16.04
+Codename:	xenial
+iot@iotg-ml-2:~&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;lspci | &lt;span class=&quot;nb&quot;&gt;grep&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;-i&lt;/span&gt; nvidia
+d8:00.0 3D controller: NVIDIA Corporation Device 1bb3 &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;rev a1&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+iot@iotg-ml-2:~&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;
+iot@iotg-ml-2:~&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;sudo &lt;/span&gt;apt-get update
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;sudo&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;]&lt;/span&gt; password &lt;span class=&quot;k&quot;&gt;for &lt;/span&gt;iot: 
+Hit:1 http://us.archive.ubuntu.com/ubuntu xenial InRelease
+Hit:2 http://us.archive.ubuntu.com/ubuntu xenial-updates InRelease      
+Hit:3 http://us.archive.ubuntu.com/ubuntu xenial-backports InRelease    
+Hit:4 http://security.ubuntu.com/ubuntu xenial-security InRelease
+Reading package lists... Done                     
+iot@iotg-ml-2:~&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;sudo &lt;/span&gt;apt-get install build-essential linux-headers-&lt;span class=&quot;k&quot;&gt;$(&lt;/span&gt;uname &lt;span class=&quot;nt&quot;&gt;-r&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;)&lt;/span&gt;
+Reading package lists... Done
+Building dependency tree       
+Reading state information... Done
+build-essential is already the newest version &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;12.1ubuntu2&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;.&lt;/span&gt;
+linux-headers-4.15.0-29-generic is already the newest version &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;4.15.0-29.31~16.04.1&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;.&lt;/span&gt;
+linux-headers-4.15.0-29-generic &lt;span class=&quot;nb&quot;&gt;set &lt;/span&gt;to manually installed.
+0 upgraded, 0 newly installed, 0 to remove and 39 not upgraded.
+iot@iotg-ml-2:~&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;gcc &lt;span class=&quot;nt&quot;&gt;--version&lt;/span&gt;
+gcc &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;Ubuntu 5.4.0-6ubuntu1~16.04.10&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; 5.4.0 20160609
+Copyright &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;C&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; 2015 Free Software Foundation, Inc.
+This is free software&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt; see the &lt;span class=&quot;nb&quot;&gt;source &lt;/span&gt;&lt;span class=&quot;k&quot;&gt;for &lt;/span&gt;copying conditions.  There is NO
+warranty&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt; not even &lt;span class=&quot;k&quot;&gt;for &lt;/span&gt;MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+iot@iotg-ml-2:~/Downloads&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;sudo &lt;/span&gt;apt-get install libncurses5-dev libncursesw5-dev
+Reading package lists... Done
+Building dependency tree       
+Reading state information... Done
+The following additional packages will be installed:
+  libtinfo-dev
+Suggested packages:
+  ncurses-doc
+The following NEW packages will be installed:
+  libncurses5-dev libncursesw5-dev libtinfo-dev
+0 upgraded, 3 newly installed, 0 to remove and 39 not upgraded.
+Need to get 450 kB of archives.
+After this operation, 2,642 kB of additional disk space will be used.
+Do you want to &lt;span class=&quot;k&quot;&gt;continue&lt;/span&gt;? &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;Y/n] y
+Get:1 http://us.archive.ubuntu.com/ubuntu xenial/main amd64 libtinfo-dev amd64 6.0+20160213-1ubuntu1 &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;77.4 kB]
+Get:2 http://us.archive.ubuntu.com/ubuntu xenial/main amd64 libncurses5-dev amd64 6.0+20160213-1ubuntu1 &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;175 kB]
+Get:3 http://us.archive.ubuntu.com/ubuntu xenial/main amd64 libncursesw5-dev amd64 6.0+20160213-1ubuntu1 &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;198 kB]
+Fetched 450 kB &lt;span class=&quot;k&quot;&gt;in &lt;/span&gt;3s &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;140 kB/s&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;            
+Selecting previously unselected package libtinfo-dev:amd64.
+&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;Reading database ... 220106 files and directories currently installed.&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+Preparing to unpack .../libtinfo-dev_6.0+20160213-1ubuntu1_amd64.deb ...
+Unpacking libtinfo-dev:amd64 &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;6.0+20160213-1ubuntu1&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; ...
+Selecting previously unselected package libncurses5-dev:amd64.
+Preparing to unpack .../libncurses5-dev_6.0+20160213-1ubuntu1_amd64.deb ...
+Unpacking libncurses5-dev:amd64 &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;6.0+20160213-1ubuntu1&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; ...
+Selecting previously unselected package libncursesw5-dev:amd64.
+Preparing to unpack .../libncursesw5-dev_6.0+20160213-1ubuntu1_amd64.deb ...
+Unpacking libncursesw5-dev:amd64 &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;6.0+20160213-1ubuntu1&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; ...
+Processing triggers &lt;span class=&quot;k&quot;&gt;for &lt;/span&gt;man-db &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;2.7.5-1&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; ...
+Setting up libtinfo-dev:amd64 &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;6.0+20160213-1ubuntu1&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; ...
+Setting up libncurses5-dev:amd64 &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;6.0+20160213-1ubuntu1&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; ...
+Setting up libncursesw5-dev:amd64 &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;6.0+20160213-1ubuntu1&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; ...
+
+iot@iotg-ml-2:~/Downloads&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;sudo &lt;/span&gt;apt-get install libelf-dev
+...
+iot@iotg-ml-2:~/Downloads&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt; 
+iot@iotg-ml-2:~&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;uname &lt;span class=&quot;nt&quot;&gt;-a&lt;/span&gt;
+Linux iotg-ml-2 4.15.0-29-generic &lt;span class=&quot;c&quot;&gt;#31~16.04.1-Ubuntu SMP Wed Jul 18 08:54:04 UTC 2018 x86_64 x86_64 x86_64 GNU/Linux&lt;/span&gt;
+iot@iotg-ml-2:~&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt; 
+iot@iotg-ml-2:~/Downloads&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;sudo &lt;/span&gt;apt-get &lt;span class=&quot;nt&quot;&gt;--purge&lt;/span&gt; remove nvidia-&lt;span class=&quot;k&quot;&gt;*&lt;/span&gt;
+Reading package lists... Done
+Building dependency tree       
+Reading state information... Done
+Note, selecting &lt;span class=&quot;s1&quot;&gt;'nvidia-325-updates'&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;for &lt;/span&gt;glob &lt;span class=&quot;s1&quot;&gt;'nvidia-*'&lt;/span&gt;
+....
+Package &lt;span class=&quot;s1&quot;&gt;'nvidia-opencl-icd-375'&lt;/span&gt; is not installed, so not removed
+0 upgraded, 0 newly installed, 0 to remove and 39 not upgraded.
+iot@iotg-ml-2:~/Downloads&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;h4 id=&quot;step2-install-nvidia-driver-for-tesla-p4&quot;&gt;Step#2 Install Nvidia Driver for Tesla P4&lt;/h4&gt;
+&lt;p&gt;From Nvidia site, Tesla P4 driver: 
+https://www.nvidia.com/download/driverResults.aspx/112428/en-us
+TESLA DRIVER FOR LINUX X64&lt;/p&gt;
+
+&lt;p&gt;Version:	375.20
+Release Date:	2016.12.9
+Operating System:	Linux 64-bit
+CUDA Toolkit:	8.0
+Language:	English (India)
+File Size:	72.37 MB
+New in Release 375.20
+New Device Support
+P100
+P4&lt;/p&gt;
+
+&lt;p&gt;Recommended CUDA version(s):
+CUDA 8.0&lt;/p&gt;
+
+&lt;p&gt;iot@iotg-ml-2:~/Downloads$ ls -l NVIDIA-Linux-x86_64-375.20.run
+-rw-rw-r– 1 iot iot 75886564 Nov 16  2016 NVIDIA-Linux-x86_64-375.20.run&lt;/p&gt;
+
+&lt;h5 id=&quot;disable-x-display-server&quot;&gt;Disable X display server:&lt;/h5&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;iot@iotg-ml-2:~/Downloads&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;sudo &lt;/span&gt;rm /etc/X11/xorg.conf
+rm: cannot remove &lt;span class=&quot;s1&quot;&gt;'/etc/X11/xorg.conf'&lt;/span&gt;: No such file or directory
+iot@iotg-ml-2:~/Downloads&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;
+iot@iotg-ml-2:~/Downloads&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;cat&lt;/span&gt; /etc/modprobe.d/blacklist-nouveau.conf
+blacklist nouveau
+options nouveau &lt;span class=&quot;nv&quot;&gt;modeset&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;0
+iot@iotg-ml-2:~/Downloads&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;sudo &lt;/span&gt;update-initramfs &lt;span class=&quot;nt&quot;&gt;-u&lt;/span&gt;
+update-initramfs: Generating /boot/initrd.img-4.15.0-34-generic
+Reboot into text mode &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;runlevel 3&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;.&lt;/span&gt;
+This can usually be accomplished by adding the number &lt;span class=&quot;s2&quot;&gt;&quot;3&quot;&lt;/span&gt; to the end of the system&lt;span class=&quot;s1&quot;&gt;'s kernel boot parameters.
+iot@iotg-ml-2:~/Downloads$ sudo reboot&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;h5 id=&quot;install-driver-from-downloaded-run-file-failed&quot;&gt;Install driver from downloaded run file: failed!!!&lt;/h5&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;iot@iotg-ml-2:~&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;sudo &lt;/span&gt;service lightdm stop
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;sudo&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;]&lt;/span&gt; password &lt;span class=&quot;k&quot;&gt;for &lt;/span&gt;iot: 
+iot@iotg-ml-2:~&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;cd&lt;/span&gt; ~/Downloads/
+iot@iotg-ml-2:~/Downloads&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;ls&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;-l&lt;/span&gt;
+total 1600552
+&lt;span class=&quot;nt&quot;&gt;-rwxr-xr-x&lt;/span&gt; 1 iot iot   97546170 Sep 26 22:44 cuda_8.0.61.2_linux.run
+&lt;span class=&quot;nt&quot;&gt;-rwxr-xr-x&lt;/span&gt; 1 iot iot 1465528129 Sep 26 22:45 cuda_8.0.61_375.26_linux.run
+&lt;span class=&quot;nt&quot;&gt;-rw-rw-r--&lt;/span&gt; 1 iot iot   75886564 Nov 16  2016 NVIDIA-Linux-x86_64-375.20.run
+iot@iotg-ml-2:~/Downloads&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;chmod +x NVIDIA-Linux-x86_64-375.20.run 
+iot@iotg-ml-2:~/Downloads&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;sudo&lt;/span&gt; ./NVIDIA-Linux-x86_64-375.20.run &lt;span class=&quot;nt&quot;&gt;--no-opengl-files&lt;/span&gt;
+Verifying archive integrity... OK
+Uncompressing NVIDIA Accelerated Graphics Driver &lt;span class=&quot;k&quot;&gt;for &lt;/span&gt;Linux-x86_64 375.20.....
+&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;
+iot@iotg-ml-2:~/Downloads&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;cat&lt;/span&gt; /usr/lib/nvidia/pre-install
+&lt;span class=&quot;c&quot;&gt;#!/bin/sh&lt;/span&gt;
+&lt;span class=&quot;c&quot;&gt;# Trigger an error exit status to prevent the installer from overwriting&lt;/span&gt;
+&lt;span class=&quot;c&quot;&gt;# Ubuntu's nvidia packages.&lt;/span&gt;
+&lt;span class=&quot;nb&quot;&gt;exit &lt;/span&gt;1
+iot@iotg-ml-2:~/Downloads&lt;span class=&quot;err&quot;&gt;$&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;local run file installation failed because this 16.04.5 is latest version with kernel 4.15.0, which is not compatible with installer file. Switch to use ubuntu repo version.&lt;/p&gt;
+
+&lt;h5 id=&quot;install-driver-using-apt-get-luckily-it-succeeds&quot;&gt;Install driver using apt-get, luckily, it succeeds!&lt;/h5&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;iot@iotg-ml-2:~/Downloads&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;sudo &lt;/span&gt;apt-get install nvidia-375 nvidia-modprobe
+...
+nvidia_384:
+Running module version sanity check.
+ - Original module
+   - No original module exists within this kernel
+ - Installation
+   - Installing to /lib/modules/4.15.0-34-generic/updates/dkms/
+nvidia_384_modeset.ko:
+Running module version sanity check.
+ - Original module
+   - No original module exists within this kernel
+ - Installation
+   - Installing to /lib/modules/4.15.0-34-generic/updates/dkms/
+ 
+nvidia_384_drm.ko:
+Running module version sanity check.
+ - Original module
+   - No original module exists within this kernel
+ - Installation
+   - Installing to /lib/modules/4.15.0-34-generic/updates/dkms/
+ 
+nvidia_384_uvm.ko:
+Running module version sanity check.
+ - Original module
+   - No original module exists within this kernel
+ - Installation
+   - Installing to /lib/modules/4.15.0-34-generic/updates/dkms/
+depmod............
+DKMS: install completed.
+Setting up libcuda1-384 &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;384.130-0ubuntu0.16.04.1&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; ...
+Setting up libjansson4:amd64 &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;2.7-3ubuntu0.1&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; ...
+Setting up libvdpau1:amd64 &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;1.1.1-3ubuntu1&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; ...
+Setting up libxnvctrl0 &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;361.42-0ubuntu1&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; ...
+Setting up mesa-vdpau-drivers:amd64 &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;18.0.5-0ubuntu0~16.04.1&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; ...
+Setting up nvidia-375 &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;384.130-0ubuntu0.16.04.1&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; ...
+Setting up nvidia-modprobe &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;361.28-1&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; ...
+Setting up ocl-icd-libopencl1:amd64 &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;2.2.8-1&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; ...
+Setting up nvidia-opencl-icd-384 &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;384.130-0ubuntu0.16.04.1&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; ...
+Setting up bbswitch-dkms &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;0.8-3ubuntu1&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; ...
+Loading new bbswitch-0.8 DKMS files...
+First Installation: checking all kernels...
+Building only &lt;span class=&quot;k&quot;&gt;for &lt;/span&gt;4.15.0-34-generic
+Building initial module &lt;span class=&quot;k&quot;&gt;for &lt;/span&gt;4.15.0-34-generic
+Done.
+bbswitch:
+Running module version sanity check.
+ - Original module
+   - No original module exists within this kernel
+ - Installation
+   - Installing to /lib/modules/4.15.0-34-generic/updates/dkms/
+depmod....
+DKMS: install completed.
+Setting up nvidia-prime &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;0.8.2&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; ...
+Setting up screen-resolution-extra &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;0.17.1.1~16.04.1&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; ...
+Setting up nvidia-settings &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;361.42-0ubuntu1&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; ...
+Setting up vdpau-driver-all:amd64 &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;1.1.1-3ubuntu1&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; ...
+Processing triggers &lt;span class=&quot;k&quot;&gt;for &lt;/span&gt;libc-bin &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;2.23-0ubuntu10&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; ...
+Processing triggers &lt;span class=&quot;k&quot;&gt;for &lt;/span&gt;initramfs-tools &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;0.122ubuntu8.11&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; ...
+update-initramfs: Generating /boot/initrd.img-4.15.0-34-generic
+Processing triggers &lt;span class=&quot;k&quot;&gt;for &lt;/span&gt;shim-signed &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;1.33.1~16.04.1+13-0ubuntu2&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; ...
+Secure Boot not enabled on this system.
+Processing triggers &lt;span class=&quot;k&quot;&gt;for &lt;/span&gt;ureadahead &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;0.100.0-19&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; ...
+Processing triggers &lt;span class=&quot;k&quot;&gt;for &lt;/span&gt;dbus &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;1.10.6-1ubuntu3.3&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; ...
+iot@iotg-ml-2:~/Downloads&lt;span class=&quot;err&quot;&gt;$&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;Wow, it passed! Now let’s check if we can see Tesla-P4 device properly?&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;iot@iotg-ml-2:~/Downloads&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;nvidia-smi 
+Thu Sep 27 11:30:37 2018       
++-----------------------------------------------------------------------------+
+| NVIDIA-SMI 384.130                Driver Version: 384.130                   |
+|-------------------------------+----------------------+----------------------+
+| GPU  Name        Persistence-M| Bus-Id        Disp.A | Volatile Uncorr. ECC |
+| Fan  Temp  Perf  Pwr:Usage/Cap|         Memory-Usage | GPU-Util  Compute M. |
+|&lt;span class=&quot;o&quot;&gt;===============================&lt;/span&gt;+&lt;span class=&quot;o&quot;&gt;======================&lt;/span&gt;+&lt;span class=&quot;o&quot;&gt;======================&lt;/span&gt;|
+|   0  Tesla P4            Off  | 00000000:D8:00.0 Off |                    0 |
+| N/A   37C    P0    23W /  75W |      0MiB /  7606MiB |      0%      Default |
++-------------------------------+----------------------+----------------------+
+ 
++-----------------------------------------------------------------------------+
+| Processes:                                                       GPU Memory |
+|  GPU       PID   Type   Process name                             Usage      |
+|&lt;span class=&quot;o&quot;&gt;=============================================================================&lt;/span&gt;|
+|  No running processes found                                                 |
++-----------------------------------------------------------------------------+
+iot@iotg-ml-2:~/Downloads&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;Very nice! we can see Tesla-P4.&lt;/p&gt;
+
+&lt;p&gt;As it turns out version 384.130 is installed, it means we can use cuda version 9.0
+Based on: https://stackoverflow.com/questions/30820513/what-is-the-correct-version-of-cuda-for-my-nvidia-driver/30820690#30820690
+CUDA 9.2:396.xx
+CUDA 9.1:387.xx
+CUDA 9.0:384.xx
+CUDA 8.0375.xx(GA2)
+CUDA 8.0:367.4x
+CUDA 7.5:352.xx  &lt;/p&gt;
+
+&lt;p&gt;After driver is installed, I rebooted the box, and X window display is still working!&lt;/p&gt;
+
+&lt;h4 id=&quot;step3-install-cuda-version-90&quot;&gt;Step#3 Install Cuda version 9.0&lt;/h4&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;iot@iotg-ml-2:~/Downloads&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;sudo&lt;/span&gt; ./cuda_9.0.176_384.81_linux.run &lt;span class=&quot;nt&quot;&gt;--no-opengl-libs&lt;/span&gt;
+...
+Install the CUDA 9.0 Samples?
+&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;y&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;es/&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;n&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;o/&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;q&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;uit: y
+ 
+Enter CUDA Samples Location
+
+ &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt; default is /home/iot &lt;span class=&quot;o&quot;&gt;]&lt;/span&gt;: 
+ 
+Installing the CUDA Toolkit &lt;span class=&quot;k&quot;&gt;in&lt;/span&gt; /usr/local/cuda-9.0 ...
+Missing recommended library: libGLU.so
+Missing recommended library: libX11.so
+Missing recommended library: libXi.so
+Missing recommended library: libXmu.so
+ 
+Installing the CUDA Samples &lt;span class=&quot;k&quot;&gt;in&lt;/span&gt; /home/iot ...
+Copying samples to /home/iot/NVIDIA_CUDA-9.0_Samples now...
+Finished copying samples.
+ 
+&lt;span class=&quot;o&quot;&gt;===========&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; Summary &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;===========&lt;/span&gt;
+ 
+Driver:   Not Selected
+Toolkit:  Installed &lt;span class=&quot;k&quot;&gt;in&lt;/span&gt; /usr/local/cuda-9.0
+Samples:  Installed &lt;span class=&quot;k&quot;&gt;in&lt;/span&gt; /home/iot, but missing recommended libraries
+ 
+Please make sure that
+ -   PATH includes /usr/local/cuda-9.0/bin
+ -   LD_LIBRARY_PATH includes /usr/local/cuda-9.0/lib64, or, add /usr/local/cuda-9.0/lib64 to /etc/ld.so.conf and run ldconfig as root
+ 
+To uninstall the CUDA Toolkit, run the uninstall script &lt;span class=&quot;k&quot;&gt;in&lt;/span&gt; /usr/local/cuda-9.0/bin
+ 
+Please see CUDA_Installation_Guide_Linux.pdf &lt;span class=&quot;k&quot;&gt;in&lt;/span&gt; /usr/local/cuda-9.0/doc/pdf &lt;span class=&quot;k&quot;&gt;for &lt;/span&gt;detailed information on setting up CUDA.
+ 
+&lt;span class=&quot;k&quot;&gt;***&lt;/span&gt;WARNING: Incomplete installation! This installation did not install the CUDA Driver. A driver of version at least 384.00 is required &lt;span class=&quot;k&quot;&gt;for &lt;/span&gt;CUDA 9.0 functionality to work.
+To install the driver using this installer, run the following &lt;span class=&quot;nb&quot;&gt;command&lt;/span&gt;, replacing &amp;lt;CudaInstaller&amp;gt; with the name of this run file:
+    &lt;span class=&quot;nb&quot;&gt;sudo&lt;/span&gt; &amp;lt;CudaInstaller&amp;gt;.run &lt;span class=&quot;nt&quot;&gt;-silent&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;-driver&lt;/span&gt;
+ 
+Logfile is /tmp/cuda_install_2263.log
+iot@iotg-ml-2:~/Downloads&lt;span class=&quot;err&quot;&gt;$&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;Verify CUDA software is running fine by using the provided sample application device query:&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;iot@iotg-ml-2:~/NVIDIA_CUDA-9.0_Samples&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;pwd&lt;/span&gt;
+/home/iot/NVIDIA_CUDA-9.0_Samples
+iot@iotg-ml-2:~/NVIDIA_CUDA-9.0_Samples&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;ls
+&lt;/span&gt;0_Simple     2_Graphics  4_Finance      6_Advanced       bin     EULA.txt
+1_Utilities  3_Imaging   5_Simulations  7_CUDALibraries  common  Makefile
+iot@iotg-ml-2:~/NVIDIA_CUDA-9.0_Samples&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;make
+...
+...
+...
+iot@iotg-ml-2:~/NVIDIA_CUDA-9.0_Samples/bin/x86_64/linux/release&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;./deviceQuery
+
+./deviceQuery Starting...
+ 
+ CUDA Device Query &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;Runtime API&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; version &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;CUDART static linking&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+ 
+Detected 1 CUDA Capable device&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;s&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+ 
+Device 0: &lt;span class=&quot;s2&quot;&gt;&quot;Tesla P4&quot;&lt;/span&gt;
+  CUDA Driver Version / Runtime Version          9.0 / 9.0
+  CUDA Capability Major/Minor version number:    6.1
+  Total amount of global memory:                 7606 MBytes &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;7975862272 bytes&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+  &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;20&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; Multiprocessors, &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;128&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; CUDA Cores/MP:     2560 CUDA Cores
+  GPU Max Clock rate:                            1114 MHz &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;1.11 GHz&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+  Memory Clock rate:                             3003 Mhz
+  Memory Bus Width:                              256-bit
+  L2 Cache Size:                                 2097152 bytes
+  Maximum Texture Dimension Size &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;x,y,z&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;         &lt;span class=&quot;nv&quot;&gt;1D&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=(&lt;/span&gt;131072&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;, &lt;span class=&quot;nv&quot;&gt;2D&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=(&lt;/span&gt;131072, 65536&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;, &lt;span class=&quot;nv&quot;&gt;3D&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=(&lt;/span&gt;16384, 16384, 16384&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+  Maximum Layered 1D Texture Size, &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;num&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; layers  &lt;span class=&quot;nv&quot;&gt;1D&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=(&lt;/span&gt;32768&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;, 2048 layers
+  Maximum Layered 2D Texture Size, &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;num&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; layers  &lt;span class=&quot;nv&quot;&gt;2D&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=(&lt;/span&gt;32768, 32768&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;, 2048 layers
+  Total amount of constant memory:               65536 bytes
+  Total amount of shared memory per block:       49152 bytes
+  Total number of registers available per block: 65536
+  Warp size:                                     32
+  Maximum number of threads per multiprocessor:  2048
+  Maximum number of threads per block:           1024
+  Max dimension size of a thread block &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;x,y,z&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;: &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;1024, 1024, 64&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+  Max dimension size of a grid size    &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;x,y,z&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;: &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;2147483647, 65535, 65535&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+  Maximum memory pitch:                          2147483647 bytes
+  Texture alignment:                             512 bytes
+  Concurrent copy and kernel execution:          Yes with 2 copy engine&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;s&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+  Run &lt;span class=&quot;nb&quot;&gt;time &lt;/span&gt;limit on kernels:                     No
+  Integrated GPU sharing Host Memory:            No
+  Support host page-locked memory mapping:       Yes
+  Alignment requirement &lt;span class=&quot;k&quot;&gt;for &lt;/span&gt;Surfaces:            Yes
+  Device has ECC support:                        Enabled
+  Device supports Unified Addressing &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;UVA&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;:      Yes
+  Supports Cooperative Kernel Launch:            Yes
+  Supports MultiDevice Co-op Kernel Launch:      Yes
+  Device PCI Domain ID / Bus ID / location ID:   0 / 216 / 0
+  Compute Mode:
+     &amp;lt; Default &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;multiple host threads can use ::cudaSetDevice&lt;span class=&quot;o&quot;&gt;()&lt;/span&gt; with device simultaneously&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt;
+ 
+deviceQuery, CUDA Driver &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; CUDART, CUDA Driver Version &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; 9.0, CUDA Runtime Version &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; 9.0, NumDevs &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; 1
+Result &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; PASS
+iot@iotg-ml-2:~/NVIDIA_CUDA-9.0_Samples/bin/x86_64/linux/release&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;All looks cool so far!&lt;/p&gt;
+
+&lt;h4 id=&quot;step4-install-nvidia-cuda-deep-neural-network-library-cudnn-version-714&quot;&gt;Step#4 Install NVIDIA CUDA® Deep Neural Network library (cuDNN) version 7.1.4&lt;/h4&gt;
+&lt;p&gt;Ref: 
+https://medium.com/@zhanwenchen/install-cuda-9-2-and-cudnn-7-1-for-tensorflow-pytorch-gpu-on-ubuntu-16-04-1822ab4b2421&lt;/p&gt;
+
+&lt;p&gt;https://developer.nvidia.com/rdp/cudnn-archive
+Download cuDNN v7.1.4 (May 16, 2018), for CUDA 9.0
+cuDNN v7.1.4 Runtime Library for Ubuntu16.04 (Deb)
+cuDNN v7.1.4 Developer Library for Ubuntu16.04 (Deb)
+cuDNN v7.1.4 Code Samples and User Guide for Ubuntu16.04 (Deb)&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;iot@iotg-ml-2:~/Downloads&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;ls&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;-l&lt;/span&gt;
+
+total 3781372
+&lt;span class=&quot;nt&quot;&gt;-rwxr-xr-x&lt;/span&gt; 1 iot iot   97546170 Sep 26 22:44 cuda_8.0.61.2_linux.run
+&lt;span class=&quot;nt&quot;&gt;-rwxr-xr-x&lt;/span&gt; 1 iot iot 1465528129 Sep 26 22:45 cuda_8.0.61_375.26_linux.run
+&lt;span class=&quot;nt&quot;&gt;-rwxr-xr-x&lt;/span&gt; 1 iot iot  116529155 Sep 27 12:04 cuda_9.0.176.1_linux.run
+&lt;span class=&quot;nt&quot;&gt;-rwxr-xr-x&lt;/span&gt; 1 iot iot   72212159 Sep 27 12:04 cuda_9.0.176.2_linux.run
+&lt;span class=&quot;nt&quot;&gt;-rwxr-xr-x&lt;/span&gt; 1 iot iot 1643293725 Sep 27 12:04 cuda_9.0.176_384.81_linux.run
+&lt;span class=&quot;nt&quot;&gt;-rwxr-xr-x&lt;/span&gt; 1 iot iot   76500577 Sep 27 12:04 cuda_9.0.176.3_linux.run
+&lt;span class=&quot;nt&quot;&gt;-rwxr-xr-x&lt;/span&gt; 1 iot iot   77497173 Sep 27 12:04 cuda_9.0.176.4_linux.run
+&lt;span class=&quot;nt&quot;&gt;-rwxr-xr-x&lt;/span&gt; 1 iot iot  126202024 Sep 27 15:11 libcudnn7_7.1.4.18-1+cuda9.0_amd64.deb
+&lt;span class=&quot;nt&quot;&gt;-rwxr-xr-x&lt;/span&gt; 1 iot iot  116411616 Sep 27 15:11 libcudnn7-dev_7.1.4.18-1+cuda9.0_amd64.deb
+&lt;span class=&quot;nt&quot;&gt;-rwxr-xr-x&lt;/span&gt; 1 iot iot    4491360 Sep 27 15:11 libcudnn7-doc_7.1.4.18-1+cuda9.0_amd64.deb
+&lt;span class=&quot;nt&quot;&gt;-rwxrwxr-x&lt;/span&gt; 1 iot iot   75886564 Nov 16  2016 NVIDIA-Linux-x86_64-375.20.run
+iot@iotg-ml-2:~/Downloads&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;sudo &lt;/span&gt;dpkg &lt;span class=&quot;nt&quot;&gt;-i&lt;/span&gt; libcudnn7_7.1.4.18-1+cuda9.0_amd64.deb
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;sudo&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;]&lt;/span&gt; password &lt;span class=&quot;k&quot;&gt;for &lt;/span&gt;iot: 
+Selecting previously unselected package libcudnn7.
+&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;Reading database ... 221264 files and directories currently installed.&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+Preparing to unpack libcudnn7_7.1.4.18-1+cuda9.0_amd64.deb ...
+Unpacking libcudnn7 &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;7.1.4.18-1+cuda9.0&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; ...
+Setting up libcudnn7 &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;7.1.4.18-1+cuda9.0&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; ...
+Processing triggers &lt;span class=&quot;k&quot;&gt;for &lt;/span&gt;libc-bin &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;2.23-0ubuntu10&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; ...
+iot@iotg-ml-2:~/Downloads&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;sudo &lt;/span&gt;dpkg &lt;span class=&quot;nt&quot;&gt;-i&lt;/span&gt; libcudnn7-dev_7.1.4.18-1+cuda9.0_amd64.deb
+Selecting previously unselected package libcudnn7-dev.
+&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;Reading database ... 221271 files and directories currently installed.&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+Preparing to unpack libcudnn7-dev_7.1.4.18-1+cuda9.0_amd64.deb ...
+Unpacking libcudnn7-dev &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;7.1.4.18-1+cuda9.0&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; ...
+Setting up libcudnn7-dev &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;7.1.4.18-1+cuda9.0&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; ...
+update-alternatives: using /usr/include/x86_64-linux-gnu/cudnn_v7.h to provide /usr/include/cudnn.h &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;libcudnn&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;in &lt;/span&gt;auto mode
+iot@iotg-ml-2:~/Downloads&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;sudo &lt;/span&gt;dpkg &lt;span class=&quot;nt&quot;&gt;-i&lt;/span&gt; libcudnn7-doc_7.1.4.18-1+cuda9.0_amd64.deb
+Selecting previously unselected package libcudnn7-doc.
+&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;Reading database ... 221277 files and directories currently installed.&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+Preparing to unpack libcudnn7-doc_7.1.4.18-1+cuda9.0_amd64.deb ...
+Unpacking libcudnn7-doc &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;7.1.4.18-1+cuda9.0&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; ...
+Setting up libcudnn7-doc &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;7.1.4.18-1+cuda9.0&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; ...
+iot@iotg-ml-2:~/Downloads&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;
+ 
+After successful installation, we can verify &lt;span class=&quot;k&quot;&gt;if &lt;/span&gt;it is working:
+ 
+iot@iotg-ml-2:~&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;cp &lt;span class=&quot;nt&quot;&gt;-r&lt;/span&gt; /usr/src/cudnn_samples_v7/ &lt;span class=&quot;nb&quot;&gt;.&lt;/span&gt;
+iot@iotg-ml-2:~&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;cd &lt;/span&gt;cudnn_samples_v7/
+iot@iotg-ml-2:~/cudnn_samples_v7&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;ls
+&lt;/span&gt;conv_sample  mnistCUDNN  RNN
+iot@iotg-ml-2:~/cudnn_samples_v7&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;cd &lt;/span&gt;mnistCUDNN/
+iot@iotg-ml-2:~/cudnn_samples_v7/mnistCUDNN&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;ls
+&lt;/span&gt;data  error_util.h  fp16_dev.cu  fp16_dev.h  fp16_emu.cpp  fp16_emu.h  FreeImage  gemv.h  Makefile  mnistCUDNN.cpp  readme.txt
+iot@iotg-ml-2:~/cudnn_samples_v7/mnistCUDNN&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;make clean &lt;span class=&quot;o&quot;&gt;&amp;amp;&amp;amp;&lt;/span&gt; make
+rm &lt;span class=&quot;nt&quot;&gt;-rf&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;*&lt;/span&gt;o
+rm &lt;span class=&quot;nt&quot;&gt;-rf&lt;/span&gt; mnistCUDNN
+/usr/local/cuda/bin/nvcc &lt;span class=&quot;nt&quot;&gt;-ccbin&lt;/span&gt; g++ &lt;span class=&quot;nt&quot;&gt;-I&lt;/span&gt;/usr/local/cuda/include &lt;span class=&quot;nt&quot;&gt;-IFreeImage&lt;/span&gt;/include  &lt;span class=&quot;nt&quot;&gt;-m64&lt;/span&gt;    &lt;span class=&quot;nt&quot;&gt;-gencode&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;arch&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;compute_30,code&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;sm_30 &lt;span class=&quot;nt&quot;&gt;-gencode&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;arch&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;compute_35,code&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;sm_35 &lt;span class=&quot;nt&quot;&gt;-gencode&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;arch&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;compute_50,code&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;sm_50 &lt;span class=&quot;nt&quot;&gt;-gencode&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;arch&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;compute_53,code&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;sm_53 &lt;span class=&quot;nt&quot;&gt;-gencode&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;arch&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;compute_53,code&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;compute_53 &lt;span class=&quot;nt&quot;&gt;-o&lt;/span&gt; fp16_dev.o &lt;span class=&quot;nt&quot;&gt;-c&lt;/span&gt; fp16_dev.cu
+g++ &lt;span class=&quot;nt&quot;&gt;-I&lt;/span&gt;/usr/local/cuda/include &lt;span class=&quot;nt&quot;&gt;-IFreeImage&lt;/span&gt;/include   &lt;span class=&quot;nt&quot;&gt;-o&lt;/span&gt; fp16_emu.o &lt;span class=&quot;nt&quot;&gt;-c&lt;/span&gt; fp16_emu.cpp
+g++ &lt;span class=&quot;nt&quot;&gt;-I&lt;/span&gt;/usr/local/cuda/include &lt;span class=&quot;nt&quot;&gt;-IFreeImage&lt;/span&gt;/include   &lt;span class=&quot;nt&quot;&gt;-o&lt;/span&gt; mnistCUDNN.o &lt;span class=&quot;nt&quot;&gt;-c&lt;/span&gt; mnistCUDNN.cpp
+/usr/local/cuda/bin/nvcc &lt;span class=&quot;nt&quot;&gt;-ccbin&lt;/span&gt; g++   &lt;span class=&quot;nt&quot;&gt;-m64&lt;/span&gt;      &lt;span class=&quot;nt&quot;&gt;-gencode&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;arch&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;compute_30,code&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;sm_30 &lt;span class=&quot;nt&quot;&gt;-gencode&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;arch&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;compute_35,code&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;sm_35 &lt;span class=&quot;nt&quot;&gt;-gencode&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;arch&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;compute_50,code&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;sm_50 &lt;span class=&quot;nt&quot;&gt;-gencode&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;arch&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;compute_53,code&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;sm_53 &lt;span class=&quot;nt&quot;&gt;-gencode&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;arch&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;compute_53,code&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;compute_53 &lt;span class=&quot;nt&quot;&gt;-o&lt;/span&gt; mnistCUDNN fp16_dev.o fp16_emu.o mnistCUDNN.o  &lt;span class=&quot;nt&quot;&gt;-LFreeImage&lt;/span&gt;/lib/linux/x86_64 &lt;span class=&quot;nt&quot;&gt;-LFreeImage&lt;/span&gt;/lib/linux &lt;span class=&quot;nt&quot;&gt;-lcudart&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;-lcublas&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;-lcudnn&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;-lfreeimage&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;-lstdc&lt;/span&gt;++ &lt;span class=&quot;nt&quot;&gt;-lm&lt;/span&gt;
+iot@iotg-ml-2:~/cudnn_samples_v7/mnistCUDNN&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;./mnistCUDNN 
+cudnnGetVersion&lt;span class=&quot;o&quot;&gt;()&lt;/span&gt; : 7104 , CUDNN_VERSION from cudnn.h : 7104 &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;7.1.4&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+Host compiler version : GCC 5.4.0
+There are 1 CUDA capable devices on your machine :
+device 0 : sms 20  Capabilities 6.1, SmClock 1113.5 Mhz, MemSize &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;Mb&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; 7606, MemClock 3003.0 Mhz, &lt;span class=&quot;nv&quot;&gt;Ecc&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;1, &lt;span class=&quot;nv&quot;&gt;boardGroupID&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;0
+Using device 0
+ 
+Testing single precision
+Loading image data/one_28x28.pgm
+Performing forward propagation ...
+Testing cudnnGetConvolutionForwardAlgorithm ...
+Fastest algorithm is Algo 1
+Testing cudnnFindConvolutionForwardAlgorithm ...
+^^^^ CUDNN_STATUS_SUCCESS &lt;span class=&quot;k&quot;&gt;for &lt;/span&gt;Algo 0: 0.050176 &lt;span class=&quot;nb&quot;&gt;time &lt;/span&gt;requiring 0 memory
+^^^^ CUDNN_STATUS_SUCCESS &lt;span class=&quot;k&quot;&gt;for &lt;/span&gt;Algo 1: 0.052224 &lt;span class=&quot;nb&quot;&gt;time &lt;/span&gt;requiring 3464 memory
+^^^^ CUDNN_STATUS_SUCCESS &lt;span class=&quot;k&quot;&gt;for &lt;/span&gt;Algo 2: 0.073728 &lt;span class=&quot;nb&quot;&gt;time &lt;/span&gt;requiring 57600 memory
+^^^^ CUDNN_STATUS_SUCCESS &lt;span class=&quot;k&quot;&gt;for &lt;/span&gt;Algo 7: 0.140288 &lt;span class=&quot;nb&quot;&gt;time &lt;/span&gt;requiring 2057744 memory
+^^^^ CUDNN_STATUS_SUCCESS &lt;span class=&quot;k&quot;&gt;for &lt;/span&gt;Algo 5: 0.189440 &lt;span class=&quot;nb&quot;&gt;time &lt;/span&gt;requiring 203008 memory
+Resulting weights from Softmax:
+0.0000000 0.9999399 0.0000000 0.0000000 0.0000561 0.0000000 0.0000012 0.0000017 0.0000010 0.0000000 
+Loading image data/three_28x28.pgm
+Performing forward propagation ...
+Resulting weights from Softmax:
+0.0000000 0.0000000 0.0000000 0.9999288 0.0000000 0.0000711 0.0000000 0.0000000 0.0000000 0.0000000 
+Loading image data/five_28x28.pgm
+Performing forward propagation ...
+Resulting weights from Softmax:
+0.0000000 0.0000008 0.0000000 0.0000002 0.0000000 0.9999820 0.0000154 0.0000000 0.0000012 0.0000006 
+ 
+
+Result of classification: 1 3 5
+ 
+Test passed!
+ 
+Testing half precision &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;math &lt;span class=&quot;k&quot;&gt;in &lt;/span&gt;single precision&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+Loading image data/one_28x28.pgm
+Performing forward propagation ...
+Testing cudnnGetConvolutionForwardAlgorithm ...
+Fastest algorithm is Algo 1
+Testing cudnnFindConvolutionForwardAlgorithm ...
+^^^^ CUDNN_STATUS_SUCCESS &lt;span class=&quot;k&quot;&gt;for &lt;/span&gt;Algo 0: 0.041888 &lt;span class=&quot;nb&quot;&gt;time &lt;/span&gt;requiring 0 memory
+^^^^ CUDNN_STATUS_SUCCESS &lt;span class=&quot;k&quot;&gt;for &lt;/span&gt;Algo 1: 0.046080 &lt;span class=&quot;nb&quot;&gt;time &lt;/span&gt;requiring 3464 memory
+^^^^ CUDNN_STATUS_SUCCESS &lt;span class=&quot;k&quot;&gt;for &lt;/span&gt;Algo 2: 0.073728 &lt;span class=&quot;nb&quot;&gt;time &lt;/span&gt;requiring 28800 memory
+^^^^ CUDNN_STATUS_SUCCESS &lt;span class=&quot;k&quot;&gt;for &lt;/span&gt;Algo 7: 0.133088 &lt;span class=&quot;nb&quot;&gt;time &lt;/span&gt;requiring 2057744 memory
+^^^^ CUDNN_STATUS_SUCCESS &lt;span class=&quot;k&quot;&gt;for &lt;/span&gt;Algo 5: 0.207904 &lt;span class=&quot;nb&quot;&gt;time &lt;/span&gt;requiring 203008 memory
+Resulting weights from Softmax:
+0.0000001 1.0000000 0.0000001 0.0000000 0.0000563 0.0000001 0.0000012 0.0000017 0.0000010 0.0000001 
+Loading image data/three_28x28.pgm
+Performing forward propagation ...
+Resulting weights from Softmax:
+0.0000000 0.0000000 0.0000000 1.0000000 0.0000000 0.0000714 0.0000000 0.0000000 0.0000000 0.0000000 
+Loading image data/five_28x28.pgm
+Performing forward propagation ...
+Resulting weights from Softmax:
+0.0000000 0.0000008 0.0000000 0.0000002 0.0000000 1.0000000 0.0000154 0.0000000 0.0000012 0.0000006 
+ 
+Result of classification: 1 3 5
+ 
+Test passed!
+iot@iotg-ml-2:~/cudnn_samples_v7/mnistCUDNN&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;h4 id=&quot;step5-install-tensorflow-tensorflow_gpu-1100&quot;&gt;Step#5 Install TensorFlow: tensorflow_gpu-1.10.0&lt;/h4&gt;
+
+&lt;h6 id=&quot;step51-install-bazel-version-0152-first&quot;&gt;Step#5.1 install bazel version 0.15.2 first&lt;/h6&gt;
+&lt;p&gt;https://docs.bazel.build/versions/master/install-ubuntu.html&lt;/p&gt;
+
+&lt;p&gt;Using installer binary to install:&lt;/p&gt;
+&lt;ol&gt;
+  &lt;li&gt;sudo apt-get install pkg-config zip g++ zlib1g-dev unzip python&lt;/li&gt;
+  &lt;li&gt;https://github.com/bazelbuild/bazel/releases:&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h6 id=&quot;step52-install-nccl&quot;&gt;Step#5.2 install NCCL&lt;/h6&gt;
+&lt;p&gt;https://developer.nvidia.com/nccl/nccl-legacy-downloads&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;iot@iotg-ml-2:~/Downloads&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;sudo &lt;/span&gt;apt-key add /var/nccl-repo-2.2.13-ga-cuda9.0/7fa2af80.pub
+OK
+iot@iotg-ml-2:~/Downloads&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;ls&lt;/span&gt; /usr/local/cuda/
+bin  extras   jre    libnsight  nsightee_plugins  nvvm       samples  src    version.txt
+doc  include  lib64  libnvvp    nvml              pkgconfig  share    tools
+iot@iotg-ml-2:~/Downloads&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;sudo &lt;/span&gt;dpkg &lt;span class=&quot;nt&quot;&gt;-i&lt;/span&gt; nccl-repo-ubuntu1604-2.2.13-ga-cuda9.0_1-1_amd64.deb 
+&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;Reading database ... 224455 files and directories currently installed.&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+Preparing to unpack nccl-repo-ubuntu1604-2.2.13-ga-cuda9.0_1-1_amd64.deb ...
+Unpacking nccl-repo-ubuntu1604-2.2.13-ga-cuda9.0 &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;1-1&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; over &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;1-1&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; ...
+Setting up nccl-repo-ubuntu1604-2.2.13-ga-cuda9.0 &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;1-1&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; ...
+iot@iotg-ml-2:~/Downloads&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;
+ 
+iot@iotg-ml-2:~/Downloads&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;cd&lt;/span&gt; /usr/local/cuda
+iot@iotg-ml-2:/usr/local/cuda&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;sudo tar &lt;/span&gt;xvf ~/Downloads/nccl_2.2.13-1+cuda9.0_x86_64.txz 
+nccl_2.2.13-1+cuda9.0_x86_64/include/
+nccl_2.2.13-1+cuda9.0_x86_64/include/nccl.h
+nccl_2.2.13-1+cuda9.0_x86_64/lib/
+nccl_2.2.13-1+cuda9.0_x86_64/lib/libnccl.so.2.2.13
+nccl_2.2.13-1+cuda9.0_x86_64/lib/libnccl_static.a
+nccl_2.2.13-1+cuda9.0_x86_64/lib/libnccl.so
+nccl_2.2.13-1+cuda9.0_x86_64/lib/libnccl.so.2
+nccl_2.2.13-1+cuda9.0_x86_64/COPYRIGHT.txt
+nccl_2.2.13-1+cuda9.0_x86_64/NCCL-SLA.txt
+iot@iotg-ml-2:/usr/local/cuda&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;h6 id=&quot;step53-buid-tensorflow&quot;&gt;Step#5.3 Buid Tensorflow&lt;/h6&gt;
+&lt;p&gt;https://www.tensorflow.org/install/source#tested_source_configurations&lt;/p&gt;
+
+&lt;p&gt;sudo apt-get install git python-dev python-pip
+sudo apt-get insall openjdk-8-jdk
+pip install -U –user pip six numpy wheel mock
+pip install -U –user keras_applications==1.0.5 –no-deps
+pip install -U –user keras_preprocessing==1.0.3 –no-deps&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;iot@iotg-ml-2:~/&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;git clone https://github.com/tensorflow/tensorflow.git
+iot@iotg-ml-2:~/&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;cd &lt;/span&gt;tensorflow &lt;span class=&quot;o&quot;&gt;&amp;amp;&amp;amp;&lt;/span&gt; git checkout r1.10
+
+iot@iotg-ml-2:~/tensorflow&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;./configure 
+WARNING: Running Bazel server needs to be killed, because the startup options are different.
+WARNING: ignoring http_proxy &lt;span class=&quot;k&quot;&gt;in &lt;/span&gt;environment.
+WARNING: &lt;span class=&quot;nt&quot;&gt;--batch&lt;/span&gt; mode is deprecated. Please instead explicitly shut down your Bazel server using the &lt;span class=&quot;nb&quot;&gt;command&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;bazel shutdown&quot;&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;.&lt;/span&gt;
+You have bazel 0.15.0 installed.
+Please specify the location of python. &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;Default is /usr/bin/python]: 
+ 
+ 
+Found possible Python library paths:
+  /usr/local/lib/python2.7/dist-packages
+  /usr/lib/python2.7/dist-packages
+Please input the desired Python library path to use.  Default is &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;/usr/local/lib/python2.7/dist-packages]
+ 
+Do you wish to build TensorFlow with jemalloc as malloc support? &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;Y/n]: y
+jemalloc as malloc support will be enabled &lt;span class=&quot;k&quot;&gt;for &lt;/span&gt;TensorFlow.
+ 
+Do you wish to build TensorFlow with Google Cloud Platform support? &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;Y/n]: y
+Google Cloud Platform support will be enabled &lt;span class=&quot;k&quot;&gt;for &lt;/span&gt;TensorFlow.
+ 
+Do you wish to build TensorFlow with Hadoop File System support? &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;Y/n]: y
+Hadoop File System support will be enabled &lt;span class=&quot;k&quot;&gt;for &lt;/span&gt;TensorFlow.
+ 
+Do you wish to build TensorFlow with Amazon AWS Platform support? &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;Y/n]: y
+Amazon AWS Platform support will be enabled &lt;span class=&quot;k&quot;&gt;for &lt;/span&gt;TensorFlow.
+ 
+Do you wish to build TensorFlow with Apache Kafka Platform support? &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;Y/n]: y
+Apache Kafka Platform support will be enabled &lt;span class=&quot;k&quot;&gt;for &lt;/span&gt;TensorFlow.
+ 
+Do you wish to build TensorFlow with XLA JIT support? &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;y/N]: n
+No XLA JIT support will be enabled &lt;span class=&quot;k&quot;&gt;for &lt;/span&gt;TensorFlow.
+ 
+Do you wish to build TensorFlow with GDR support? &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;y/N]: n
+No GDR support will be enabled &lt;span class=&quot;k&quot;&gt;for &lt;/span&gt;TensorFlow.
+ 
+Do you wish to build TensorFlow with VERBS support? &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;y/N]: n
+No VERBS support will be enabled &lt;span class=&quot;k&quot;&gt;for &lt;/span&gt;TensorFlow.
+ 
+Do you wish to build TensorFlow with OpenCL SYCL support? &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;y/N]: n
+No OpenCL SYCL support will be enabled &lt;span class=&quot;k&quot;&gt;for &lt;/span&gt;TensorFlow.
+ 
+Do you wish to build TensorFlow with CUDA support? &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;y/N]: y
+CUDA support will be enabled &lt;span class=&quot;k&quot;&gt;for &lt;/span&gt;TensorFlow.
+ 
+Please specify the CUDA SDK version you want to use. &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;Leave empty to default to CUDA 9.0]: 9.0
+ 
+ 
+Please specify the location where CUDA 9.0 toolkit is installed. Refer to README.md &lt;span class=&quot;k&quot;&gt;for &lt;/span&gt;more details. &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;Default is /usr/local/cuda]: 
+ 
+Please specify the cuDNN version you want to use. &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;Leave empty to default to cuDNN 7.0]: 7.1
+ 
+Please specify the location where cuDNN 7 library is installed. Refer to README.md &lt;span class=&quot;k&quot;&gt;for &lt;/span&gt;more details. &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;Default is /usr/local/cuda]:
+
+Do you wish to build TensorFlow with TensorRT support? &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;y/N]: n
+No TensorRT support will be enabled &lt;span class=&quot;k&quot;&gt;for &lt;/span&gt;TensorFlow.
+
+Please specify the NCCL version you want to use. If NCCL 2.2 is not installed, &lt;span class=&quot;k&quot;&gt;then &lt;/span&gt;you can use version 1.3 that can be fetched automatically but it may have worse performance with multiple GPUs. &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;Default is 2.2]: 
+
+Please specify the location where NCCL 2 library is installed. Refer to README.md &lt;span class=&quot;k&quot;&gt;for &lt;/span&gt;more details. &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;Default is /usr/local/cuda]:/usr/local/cuda/nccl_2.2.13-1+cuda9.0_x86_64
+
+Please specify a list of comma-separated Cuda compute capabilities you want to build with.
+You can find the compute capability of your device at: https://developer.nvidia.com/cuda-gpus.
+Please note that each additional compute capability significantly increases your build &lt;span class=&quot;nb&quot;&gt;time &lt;/span&gt;and binary size. &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;Default is: 6.1]
+
+Do you want to use clang as CUDA compiler? &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;y/N]: n
+nvcc will be used as CUDA compiler.
+
+Please specify which gcc should be used by nvcc as the host compiler. &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;Default is /usr/bin/gcc]: 
+
+Do you wish to build TensorFlow with MPI support? &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;y/N]: N
+No MPI support will be enabled &lt;span class=&quot;k&quot;&gt;for &lt;/span&gt;TensorFlow.
+ 
+Please specify optimization flags to use during compilation when bazel option &lt;span class=&quot;s2&quot;&gt;&quot;--config=opt&quot;&lt;/span&gt; is specified &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;Default is &lt;span class=&quot;nt&quot;&gt;-march&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;native]: 
+
+Would you like to interactively configure ./WORKSPACE &lt;span class=&quot;k&quot;&gt;for &lt;/span&gt;Android builds? &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;y/N]: N
+Not configuring the WORKSPACE &lt;span class=&quot;k&quot;&gt;for &lt;/span&gt;Android builds.
+
+Preconfigured Bazel build configs. You can use any of the below by adding &lt;span class=&quot;s2&quot;&gt;&quot;--config=&amp;lt;&amp;gt;&quot;&lt;/span&gt; to your build command. See tools/bazel.rc &lt;span class=&quot;k&quot;&gt;for &lt;/span&gt;more details.
+&lt;span class=&quot;nt&quot;&gt;--config&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;mkl         	&lt;span class=&quot;c&quot;&gt;# Build with MKL support.&lt;/span&gt;
+&lt;span class=&quot;nt&quot;&gt;--config&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;monolithic  &lt;span class=&quot;c&quot;&gt;# Config for mostly static monolithic build.&lt;/span&gt;
+Configuration finished
+
+iot@iotg-ml-2:~/tensorflow&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;
+iot@iotg-ml-2:~/tensorflow&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt; bazel build &lt;span class=&quot;nt&quot;&gt;--config&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;opt &lt;span class=&quot;nt&quot;&gt;--config&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;cuda //tensorflow/tools/pip_package:build_pip_package 
+...
+
+Target //tensorflow/tools/pip_package:build_pip_package up-to-date:
+  bazel-bin/tensorflow/tools/pip_package/build_pip_package
+INFO: Elapsed &lt;span class=&quot;nb&quot;&gt;time&lt;/span&gt;: 233.016s, Critical Path: 179.72s
+INFO: 949 processes: 949 local.
+INFO: Build completed successfully, 952 total actions
+iot@iotg-ml-2:~/tensorflow&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;./bazel-bin/tensorflow/tools/pip_package/build_pip_package /tmp/tensorflow_pkg
+Thu Sep 27 17:52:45 PDT 2018 : &lt;span class=&quot;o&quot;&gt;===&lt;/span&gt; Preparing sources &lt;span class=&quot;k&quot;&gt;in &lt;/span&gt;dir: /tmp/tmp.WxMRTJEqdr
+~/tensorflow ~/tensorflow
+~/tensorflow
+Thu Sep 27 17:53:02 PDT 2018 : &lt;span class=&quot;o&quot;&gt;===&lt;/span&gt; Building wheel
+warning: no files found matching &lt;span class=&quot;s1&quot;&gt;'*.dll'&lt;/span&gt; under directory &lt;span class=&quot;s1&quot;&gt;'*'&lt;/span&gt;
+warning: no files found matching &lt;span class=&quot;s1&quot;&gt;'*.lib'&lt;/span&gt; under directory &lt;span class=&quot;s1&quot;&gt;'*'&lt;/span&gt;
+warning: no files found matching &lt;span class=&quot;s1&quot;&gt;'*.h'&lt;/span&gt; under directory &lt;span class=&quot;s1&quot;&gt;'tensorflow/include/tensorflow'&lt;/span&gt;
+warning: no files found matching &lt;span class=&quot;s1&quot;&gt;'*'&lt;/span&gt; under directory &lt;span class=&quot;s1&quot;&gt;'tensorflow/include/Eigen'&lt;/span&gt;
+warning: no files found matching &lt;span class=&quot;s1&quot;&gt;'*.h'&lt;/span&gt; under directory &lt;span class=&quot;s1&quot;&gt;'tensorflow/include/google'&lt;/span&gt;
+warning: no files found matching &lt;span class=&quot;s1&quot;&gt;'*'&lt;/span&gt; under directory &lt;span class=&quot;s1&quot;&gt;'tensorflow/include/third_party'&lt;/span&gt;
+warning: no files found matching &lt;span class=&quot;s1&quot;&gt;'*'&lt;/span&gt; under directory &lt;span class=&quot;s1&quot;&gt;'tensorflow/include/unsupported'&lt;/span&gt;
+Thu Sep 27 17:53:18 PDT 2018 : &lt;span class=&quot;o&quot;&gt;===&lt;/span&gt; Output wheel file is &lt;span class=&quot;k&quot;&gt;in&lt;/span&gt;: /tmp/tensorflow_pkg
+iot@iotg-ml-2:~/tensorflow&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;ls&lt;/span&gt; /tmp/tensorflow_pkg
+tensorflow-1.10.1-cp27-cp27mu-linux_x86_64.whl
+
+iot@iotg-ml-2:~/tensorflow&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;file /tmp/tensorflow_pkg/tensorflow-1.10.1-cp27-cp27mu-linux_x86_64.whl 
+/tmp/tensorflow_pkg/tensorflow-1.10.1-cp27-cp27mu-linux_x86_64.whl: Zip archive data, at least v2.0 to extract
+iot@iotg-ml-2:~/tensorflow&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;
+&lt;span class=&quot;nb&quot;&gt;sudo&lt;/span&gt; /home/iot/.local/bin/pip install h5py
+&lt;span class=&quot;nb&quot;&gt;sudo&lt;/span&gt; /home/iot/.local/bin/pip install keras
+
+iot@iotg-ml-2:~/tensorflow&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;sudo&lt;/span&gt; /home/iot/.local/bin/pip install tensorflow-1.10.1-cp27-cp27mu-linux_x86_64.whl &lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;h3 id=&quot;give-a-drive-test&quot;&gt;Give a drive test!!!&lt;/h3&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;iot@iotg-ml-2:~&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;python
+Python 2.7.12 &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;default, Dec  4 2017, 14:50:18&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; 
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;GCC 5.4.0 20160609] on linux2
+Type &lt;span class=&quot;s2&quot;&gt;&quot;help&quot;&lt;/span&gt;, &lt;span class=&quot;s2&quot;&gt;&quot;copyright&quot;&lt;/span&gt;, &lt;span class=&quot;s2&quot;&gt;&quot;credits&quot;&lt;/span&gt; or &lt;span class=&quot;s2&quot;&gt;&quot;license&quot;&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;for &lt;/span&gt;more information.
+&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; import tensorflow as tf
+&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; mnist &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; tf.keras.datasets.mnist
+&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;x_train, y_train&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;,&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;x_test, y_test&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; mnist.load_data&lt;span class=&quot;o&quot;&gt;()&lt;/span&gt;
+Downloading data from https://storage.googleapis.com/tensorflow/tf-keras-datasets/mnist.npz
+11493376/11490434 &lt;span class=&quot;o&quot;&gt;[==============================]&lt;/span&gt; - 8s 1us/step
+11501568/11490434 &lt;span class=&quot;o&quot;&gt;[==============================]&lt;/span&gt; - 8s 1us/step
+&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; x_train, x_test &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; x_train / 255.0, x_test / 255.0
+&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; model &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; tf.keras.models.Sequential&lt;span class=&quot;o&quot;&gt;([&lt;/span&gt;
+...   tf.keras.layers.Flatten&lt;span class=&quot;o&quot;&gt;()&lt;/span&gt;,
+...   tf.keras.layers.Dense&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;512, &lt;span class=&quot;nv&quot;&gt;activation&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;tf.nn.relu&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;,
+...   tf.keras.layers.Dropout&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;0.2&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;,
+...   tf.keras.layers.Dense&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;10, &lt;span class=&quot;nv&quot;&gt;activation&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;tf.nn.softmax&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+... &lt;span class=&quot;o&quot;&gt;])&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;TensorFlow dependacy chart:
+https://www.tensorflow.org/install/source#tested_source_configurations (at the end of page)&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/uploads/ucs/tensorflow-version-deps.jpg&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;</content><author><name></name></author><summary type="html">Machine Learning has been a very hot field. Big players like Amazon, Google, they host machine learning infrastructure in the cloud, which is very nice thing, except it can be very expensive to use it. I’m always curious if I can build one by myself: a relative powerful machine learning platform. The following shows what I achieved using UCS220-M5 with Tesla-P4 GPU. [ default is /home/iot ]:</summary></entry><entry><title type="html">SPI flash support in embedded Linux box</title><link href="http://localhost:4000/2017/08/05/SPI-Support-embedded-box.html" rel="alternate" type="text/html" title="SPI flash support in embedded Linux box" /><published>2017-08-05T00:00:00-07:00</published><updated>2017-08-05T00:00:00-07:00</updated><id>http://localhost:4000/2017/08/05/SPI-Support-embedded-box</id><content type="html" xml:base="http://localhost:4000/2017/08/05/SPI-Support-embedded-box.html">&lt;p&gt;Serial Peripheral Interface (SPI) flash memory is often used in an embedded Linux box to hold bootloader. During very initial board bringup, SPI flash memory needs to be programmed properly using device like Dediprog, otherwise the box won’t boot. After the box is up running linux, often there is need to access SPI flash, e.g. upgrade new version of bootloader from linux. I will share what needs to be done for that.&lt;/p&gt;
 
 &lt;p&gt;&lt;img src=&quot;/uploads/linux/linux-spi.jpg&quot; alt=&quot;Linux SPI&quot; /&gt;&lt;/p&gt;
 
@@ -1511,196 +2191,4 @@ There is a utility tool “mkimage” to transform vmlinux into uImage. The uIma
     uint64_t res4&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;		        /&lt;span class=&quot;k&quot;&gt;*&lt;/span&gt; reserved &lt;span class=&quot;k&quot;&gt;*&lt;/span&gt;/
     uint32_t ih_magic&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;	                /&lt;span class=&quot;k&quot;&gt;*&lt;/span&gt; 0x644d5241 Magic number, little endian, &lt;span class=&quot;s2&quot;&gt;&quot;ARM&lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\x&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;64&quot;&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;*&lt;/span&gt;/
     uint32_t res5&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;			/&lt;span class=&quot;k&quot;&gt;*&lt;/span&gt; reserved &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;used &lt;span class=&quot;k&quot;&gt;for &lt;/span&gt;PE COFF offset&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;*&lt;/span&gt;/
-&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt; arm64_image_header_t&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;</content><author><name></name></author><summary type="html">Linux kernel presents in different forms depending on the actual context.</summary></entry><entry><title type="html">Create docker container image</title><link href="http://localhost:4000/2017/03/04/docker-container-image-creation.html" rel="alternate" type="text/html" title="Create docker container image" /><published>2017-03-04T00:00:00-08:00</published><updated>2017-03-04T00:00:00-08:00</updated><id>http://localhost:4000/2017/03/04/docker-container-image-creation</id><content type="html" xml:base="http://localhost:4000/2017/03/04/docker-container-image-creation.html">&lt;p&gt;Docker is growing with amazing features, and it becomes a platform to deploy services even in embedded linux enviroment. The container image creation is an important part of process.
-Docker has done great job to manage the container image to make it to be in layer fashion, this is especially important for storage efficiency.&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;/uploads/linux/docker_container_image_layers.png&quot; alt=&quot;docker install&quot; /&gt;&lt;/p&gt;
-
-&lt;p&gt;The following post shows what I did to create a scratch hello image and a minimal linux image based on alpine using Dockerfile.&lt;/p&gt;
-
-&lt;!--more--&gt;
-&lt;p&gt;Dockerfile is the way docker has defined to create docker container image. It is kind of like GNU Makefile to build binary application from C source code. It has a set of simple instructions. For details, check &lt;a href=&quot;https://docs.docker.com/engine/reference/builder/&quot;&gt;Dockerfile reference&lt;/a&gt; and &lt;a href=&quot;https://docs.docker.com/engine/userguide/eng-image/dockerfile_best-practices/&quot;&gt;best Dockerfile practice&lt;/a&gt;&lt;/p&gt;
-
-&lt;p&gt;(There is another way to create a tar file and use “docker import “ to create a container name. But here I only use Dockerfile to create.)&lt;/p&gt;
-
-&lt;p&gt;Inside Dockerfile, each line docker build will create a layer. Layer is marked with checksum,it is used for file systme overlay to avoid duplication of same content across containers. More details, check &lt;a href=&quot;https://docs.docker.com/engine/userguide/storagedriver/imagesandcontainers/&quot;&gt;here&lt;/a&gt;.&lt;/p&gt;
-
-&lt;h1 id=&quot;hello-image-from-scratch&quot;&gt;hello image from scratch&lt;/h1&gt;
-&lt;p&gt;Objective: create a minimum container image to show “Hello from Docker by WENWEI WENG”.&lt;/p&gt;
-
-&lt;p&gt;How: Docker has a minimal image “scratch”, which is empty. It can be used as a starting point for building containers. Using the “scratch” image as a base to tell the build process that I want the next command in the Dockerfile to be the first filesystem layer in my image. From there, I add a static linked executable “hello” binary.&lt;/p&gt;
-
-&lt;h2 id=&quot;helloc-file&quot;&gt;hello.c file:&lt;/h2&gt;
-
-&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;iot@sg-ucs-1:~/temp-docker/hello-world&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;cat &lt;/span&gt;hello.c 
-&lt;span class=&quot;c&quot;&gt;#include &amp;lt;sys/syscall.h&amp;gt;&lt;/span&gt;
-
-&lt;span class=&quot;c&quot;&gt;#ifndef DOCKER_IMAGE&lt;/span&gt;
-	&lt;span class=&quot;c&quot;&gt;#define DOCKER_IMAGE &quot;hello-world&quot;&lt;/span&gt;
-&lt;span class=&quot;c&quot;&gt;#endif&lt;/span&gt;
-
-&lt;span class=&quot;c&quot;&gt;#ifndef DOCKER_GREETING&lt;/span&gt;
-	&lt;span class=&quot;c&quot;&gt;#define DOCKER_GREETING &quot;Hello from Docker by WENWEI WENG!&quot;&lt;/span&gt;
-&lt;span class=&quot;c&quot;&gt;#endif&lt;/span&gt;
-
-const char message[] &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;
-	&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\n&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;
-	DOCKER_GREETING &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\n&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;
-	&lt;span class=&quot;s2&quot;&gt;&quot;This message shows that a simple hellow world built from scratch is working.&lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\n&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;
-	&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\n&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
-
-void _start&lt;span class=&quot;o&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
-	syscall&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;SYS_write, 1, message, sizeof&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;message&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; - 1&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
-	syscall&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;SYS_exit, 0&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
-&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
-
-iot@sg-ucs-1:~/temp-docker/hello-world&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
-
-&lt;p&gt;it is good to notice that to print hello, printf() is not used, instead use syscall(), because printf() requires libc, which it needs to be avoided in this case. it is needed to build and linked statically like below.&lt;/p&gt;
-
-&lt;h2 id=&quot;build-helloc&quot;&gt;Build hello.c&lt;/h2&gt;
-
-&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;gcc &lt;span class=&quot;nt&quot;&gt;-o&lt;/span&gt; hello &lt;span class=&quot;nt&quot;&gt;-static&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;-nostartfiles&lt;/span&gt; hello.c
-hello.c: In &lt;span class=&quot;k&quot;&gt;function &lt;/span&gt;_start:
-hello.c:36:2: warning: implicit declaration of &lt;span class=&quot;k&quot;&gt;function &lt;/span&gt;syscall &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;-Wimplicit-function-declaration&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;]&lt;/span&gt;
-  syscall&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;SYS_write, 1, message, sizeof&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;message&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; - 1&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
-  ^
-iot@sg-ucs-1:~/temp-docker/hello-world&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;file hello
-hello: ELF 64-bit LSB executable, x86-64, version 1 &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;SYSV&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;, statically linked, BuildID[sha1]&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;03031e04b4ccc726db7a44f84460e2f95834a9c8, not stripped
-iot@sg-ucs-1:~/temp-docker/hello-world&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;ldd hello
-	not a dynamic executable
-iot@sg-ucs-1:~/temp-docker/hello-world&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
-
-&lt;h2 id=&quot;dockerfile&quot;&gt;Dockerfile:&lt;/h2&gt;
-
-&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;iot@sg-ucs-1:~/temp-docker/hello-world&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;cat &lt;/span&gt;Dockerfile 
-FROM scratch
-ADD hello /
-CMD &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;/hello&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;]&lt;/span&gt;
-iot@sg-ucs-1:~/temp-docker/hello-world&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
-
-&lt;h2 id=&quot;build-container-image&quot;&gt;Build container image&lt;/h2&gt;
-
-&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;iot@sg-ucs-1:~/temp-docker/hello-world&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;sudo &lt;/span&gt;docker build &lt;span class=&quot;nt&quot;&gt;-t&lt;/span&gt; hello &lt;span class=&quot;nb&quot;&gt;.&lt;/span&gt;
-Sending build context to Docker daemon 6.144 kB
-Step 1 : FROM scratch
- &lt;span class=&quot;nt&quot;&gt;---&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; 
-Step 2 : ADD hello /
- &lt;span class=&quot;nt&quot;&gt;---&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; f246c1ebded0
-Removing intermediate container b8f2e862b305
-Step 3 : CMD /hello
- &lt;span class=&quot;nt&quot;&gt;---&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; Running &lt;span class=&quot;k&quot;&gt;in &lt;/span&gt;2590c17b439c
- &lt;span class=&quot;nt&quot;&gt;---&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; c47cc50ca9c3
-Removing intermediate container 2590c17b439c
-Successfully built c47cc50ca9c3
-iot@sg-ucs-1:~/temp-docker/hello-world&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;sudo &lt;/span&gt;docker images
-REPOSITORY          TAG                 IMAGE ID            CREATED             VIRTUAL SIZE
-hello               latest              c47cc50ca9c3        7 seconds ago       2.064 kB
-&amp;lt;none&amp;gt;              &amp;lt;none&amp;gt;              366a6281a9f6        3 minutes ago       2.752 kB
-&amp;lt;none&amp;gt;              &amp;lt;none&amp;gt;              b2fa06955e3a        10 hours ago        123.1 MB
-elasticsearch       latest              9bd9659e5b46        3 days ago          351.3 MB
-jetty               latest              6544cee122fe        3 days ago          318.9 MB
-nginx               latest              cb2a085838a2        4 days ago          181.8 MB
-mongo               latest              a1112943ce27        4 days ago          402.2 MB
-golang              latest              0f5f664883a2        4 days ago          696.6 MB
-debian              latest              81d47ee3898e        5 days ago          123.1 MB
-debian              jessie              81d47ee3898e        5 days ago          123.1 MB
-ubuntu              xenial              e37d367c3507        5 days ago          130 MB
-ubuntu              trusty              a437f423d026        5 days ago          188 MB
-ubuntu              12.04               8436209beb19        5 days ago          103.6 MB
-fedora              latest              b083ce60cff6        2 weeks ago         230.3 MB
-registry            latest              c78f4fd8bf90        6 weeks ago         33.2 MB
-busybox             latest              1911ea24d99d        7 weeks ago         1.11 MB
-centos              latest              2785d012ae3e        11 weeks ago        191.8 MB
-iot@sg-ucs-1:~/temp-docker/hello-world&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;sudo &lt;/span&gt;docker run &lt;span class=&quot;nt&quot;&gt;--rm&lt;/span&gt; hello
-
-Hello from Docker by WENWEI WENG!
-This message shows that a simple hellow world built from scratch is working.
-
-iot@sg-ucs-1:~/temp-docker/hello-world&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
-
-&lt;h1 id=&quot;build-a-minimal-linux-image-with-a-file-named-test-alpine-wengtxt&quot;&gt;Build a minimal linux image with a file named “test-alpine-weng.txt”&lt;/h1&gt;
-&lt;p&gt;Objective: a minimal linux image with a file named “test-alpine-weng.txt”&lt;/p&gt;
-
-&lt;p&gt;How: starting with “alpine” image as base, add file “test-alpine-weng.txt””.&lt;/p&gt;
-
-&lt;h2 id=&quot;create-the-file-test-alpine-wengtxt&quot;&gt;create the file “test-alpine-weng.txt”&lt;/h2&gt;
-
-&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;iot@sg-ucs-1:~/temp-docker/alpine-weng&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;cat &lt;/span&gt;test-alpine-weng.txt 
-adding a new file into alpine base image by Wenwei Weng.
-
-iot@sg-ucs-1:~/temp-docker/alpine-weng&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
-
-&lt;h2 id=&quot;dockerfile-1&quot;&gt;Dockerfile&lt;/h2&gt;
-
-&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;iot@sg-ucs-1:~/temp-docker/alpine-weng&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;cat &lt;/span&gt;Dockerfile 
-FROM alpine 
-ADD test-alpine-weng.txt /
-CMD &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;cat /test-alpine-weng.txt&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;]&lt;/span&gt;
-
-iot@sg-ucs-1:~/temp-docker/alpine-weng&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
-
-&lt;h2 id=&quot;build-container-image-and-run&quot;&gt;Build container image and run&lt;/h2&gt;
-
-&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;iot@sg-ucs-1:~/temp-docker/alpine-weng&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;sudo &lt;/span&gt;docker build &lt;span class=&quot;nt&quot;&gt;-t&lt;/span&gt; alpine-weng &lt;span class=&quot;nb&quot;&gt;.&lt;/span&gt;
-Sending build context to Docker daemon 3.072 kB
-Step 1 : FROM scratch
- &lt;span class=&quot;nt&quot;&gt;---&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; 
-Step 2 : ADD test-alpine-weng.txt /
- &lt;span class=&quot;nt&quot;&gt;---&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; 481b37eca163
-Removing intermediate container 76feaa4e8422
-Step 3 : CMD &lt;span class=&quot;nb&quot;&gt;cat&lt;/span&gt; /test-alpine-weng.txt
- &lt;span class=&quot;nt&quot;&gt;---&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; Running &lt;span class=&quot;k&quot;&gt;in &lt;/span&gt;ac76f3fc697a
- &lt;span class=&quot;nt&quot;&gt;---&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; 0a6ea5edd612
-Removing intermediate container ac76f3fc697a
-Successfully built 0a6ea5edd612
-iot@sg-ucs-1:~/temp-docker/alpine-weng&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;vi Dockerfile 
-iot@sg-ucs-1:~/temp-docker/alpine-weng&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;sudo &lt;/span&gt;docker build &lt;span class=&quot;nt&quot;&gt;-t&lt;/span&gt; alpine-weng &lt;span class=&quot;nb&quot;&gt;.&lt;/span&gt;
-Sending build context to Docker daemon 3.072 kB
-Step 1 : FROM alpine
- &lt;span class=&quot;nt&quot;&gt;---&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; 031b4db7df57
-Step 2 : ADD test-alpine-weng.txt /
- &lt;span class=&quot;nt&quot;&gt;---&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; 3a4198f8c17b
-Removing intermediate container 0e51f073610c
-Step 3 : CMD &lt;span class=&quot;nb&quot;&gt;cat&lt;/span&gt; /test-alpine-weng.txt
- &lt;span class=&quot;nt&quot;&gt;---&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; Running &lt;span class=&quot;k&quot;&gt;in &lt;/span&gt;bd34e7f24c95
- &lt;span class=&quot;nt&quot;&gt;---&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; 5bb6c4a478c8
-Removing intermediate container bd34e7f24c95
-Successfully built 5bb6c4a478c8
-iot@sg-ucs-1:~/temp-docker/alpine-weng&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;sudo &lt;/span&gt;docker images
-REPOSITORY          TAG                 IMAGE ID            CREATED             VIRTUAL SIZE
-alpine-weng         latest              5bb6c4a478c8        17 seconds ago      3.988 MB
-&amp;lt;none&amp;gt;              &amp;lt;none&amp;gt;              0a6ea5edd612        41 seconds ago      58 B
-hello               latest              c47cc50ca9c3        5 minutes ago       2.064 kB
-&amp;lt;none&amp;gt;              &amp;lt;none&amp;gt;              366a6281a9f6        8 minutes ago       2.752 kB
-&amp;lt;none&amp;gt;              &amp;lt;none&amp;gt;              b2fa06955e3a        10 hours ago        123.1 MB
-alpine              latest              031b4db7df57        27 hours ago        3.987 MB
-elasticsearch       latest              9bd9659e5b46        3 days ago          351.3 MB
-jetty               latest              6544cee122fe        3 days ago          318.9 MB
-nginx               latest              cb2a085838a2        4 days ago          181.8 MB
-mongo               latest              a1112943ce27        4 days ago          402.2 MB
-golang              latest              0f5f664883a2        4 days ago          696.6 MB
-debian              jessie              81d47ee3898e        5 days ago          123.1 MB
-debian              latest              81d47ee3898e        5 days ago          123.1 MB
-ubuntu              xenial              e37d367c3507        5 days ago          130 MB
-ubuntu              trusty              a437f423d026        5 days ago          188 MB
-ubuntu              12.04               8436209beb19        5 days ago          103.6 MB
-fedora              latest              b083ce60cff6        2 weeks ago         230.3 MB
-registry            latest              c78f4fd8bf90        6 weeks ago         33.2 MB
-busybox             latest              1911ea24d99d        7 weeks ago         1.11 MB
-centos              latest              2785d012ae3e        11 weeks ago        191.8 MB
-iot@sg-ucs-1:~/temp-docker/alpine-weng&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;sudo &lt;/span&gt;docker run &lt;span class=&quot;nt&quot;&gt;--rm&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;-it&lt;/span&gt; alpine-weng /bin/sh
-/ &lt;span class=&quot;c&quot;&gt;# ls&lt;/span&gt;
-bin                   lib                   root                  sys                   var
-dev                   media                 run                   test-alpine-weng.txt
-etc                   mnt                   sbin                  tmp
-home                  proc                  srv                   usr
-/ &lt;span class=&quot;c&quot;&gt;# cat test-alpine-weng.txt &lt;/span&gt;
-adding a new file into alpine base image by Wenwei Weng.
-
-/ &lt;span class=&quot;c&quot;&gt;#  exit&lt;/span&gt;
-iot@sg-ucs-1:~/temp-docker/alpine-weng&lt;span class=&quot;err&quot;&gt;$&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
-
-&lt;h1 id=&quot;reference&quot;&gt;Reference&lt;/h1&gt;
-
-&lt;p&gt;For more details, check &lt;a href=&quot;https://docs.docker.com/engine/userguide/eng-image/baseimages/&quot;&gt;docker docs&lt;/a&gt;.&lt;/p&gt;</content><author><name></name></author><summary type="html">Docker is growing with amazing features, and it becomes a platform to deploy services even in embedded linux enviroment. The container image creation is an important part of process. Docker has done great job to manage the container image to make it to be in layer fashion, this is especially important for storage efficiency.</summary></entry></feed>
+&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt; arm64_image_header_t&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;</content><author><name></name></author><summary type="html">Linux kernel presents in different forms depending on the actual context.</summary></entry></feed>

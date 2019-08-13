@@ -76,6 +76,8 @@
 	<div class='post-description'>
 		<ul class='older-posts'>
 			
+				<li><a href='/2017/08/02/RTC-Support-embedded-box.html'>RTC support in embedded Linux box</a></li>
+			
 				<li><a href='/2017/07/21/ARMv8-UEFI-manual-boot.html'>UEFI ARM Linux boot</a></li>
 			
 				<li><a href='/2017/05/21/udev-rule.html'>Linux udev rule to create persistent device name</a></li>
@@ -85,8 +87,6 @@
 				<li><a href='/2017/03/24/ARMv8-manual-boot.html'>Marvell ARMADA 7K Linux boot using u-boot</a></li>
 			
 				<li><a href='/2017/03/20/linux-initrd-initramfs.html'>Linux initrd and initramfs</a></li>
-			
-				<li><a href='/2017/03/17/linux-kernel-image.html'>Linux Kernel image in different forms</a></li>
 			
 		</ul>
 	</div>
