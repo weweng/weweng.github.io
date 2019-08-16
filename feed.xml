@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.8.5">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2019-08-12T17:54:50-07:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Your awesome title</title><subtitle>Write an awesome description for your new site here. You can edit this line in _config.yml. It will appear in your document head meta (for Google search results) and in your feed.xml site description.</subtitle><entry><title type="html">Jekyll update for my blog site</title><link href="http://localhost:4000/2019/08/12/Jekyll-Update-blog-site.html" rel="alternate" type="text/html" title="Jekyll update for my blog site" /><published>2019-08-12T00:00:00-07:00</published><updated>2019-08-12T00:00:00-07:00</updated><id>http://localhost:4000/2019/08/12/Jekyll-Update-blog-site</id><content type="html" xml:base="http://localhost:4000/2019/08/12/Jekyll-Update-blog-site.html">&lt;p&gt;My blog site was shutdown for quite a while for certain reasons. However I strongly feel this is a good way for me to capture what I learned along the way and share with anyone who might feel helpful for them. Thanks to all people who provided postivie feedback. After clearup the issue and I finally decide to continue working on my blog site. First thing I do is to update my blog development enviroment which is Jekyll, installed in ubuntu 16.04 VM.&lt;/p&gt;
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.8.5">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2019-08-16T15:55:22-07:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Your awesome title</title><subtitle>Write an awesome description for your new site here. You can edit this line in _config.yml. It will appear in your document head meta (for Google search results) and in your feed.xml site description.</subtitle><entry><title type="html">Jekyll update for my blog site</title><link href="http://localhost:4000/2019/08/12/Jekyll-Update-blog-site.html" rel="alternate" type="text/html" title="Jekyll update for my blog site" /><published>2019-08-12T00:00:00-07:00</published><updated>2019-08-12T00:00:00-07:00</updated><id>http://localhost:4000/2019/08/12/Jekyll-Update-blog-site</id><content type="html" xml:base="http://localhost:4000/2019/08/12/Jekyll-Update-blog-site.html">&lt;p&gt;My blog site was shutdown for quite a while for certain reasons. However I strongly feel this is a good way for me to capture what I learned along the way and share with anyone who might feel helpful for them. Thanks to all people who provided postivie feedback. After clearup the issue and I finally decide to continue working on my blog site. First thing I do is to update my blog development enviroment which is Jekyll, installed in ubuntu 16.04 VM.&lt;/p&gt;
 
 &lt;p&gt;&lt;img src=&quot;/uploads/jekyll.jpg&quot; alt=&quot;Jekyll on Ubuntu&quot; /&gt; 
 &lt;!--more--&gt;&lt;/p&gt;
@@ -782,7 +782,162 @@ Downloading data from https://storage.googleapis.com/tensorflow/tf-keras-dataset
 &lt;p&gt;TensorFlow dependacy chart:
 https://www.tensorflow.org/install/source#tested_source_configurations (at the end of page)&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&quot;/uploads/ucs/tensorflow-version-deps.jpg&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;</content><author><name></name></author><summary type="html">Machine Learning has been a very hot field. Big players like Amazon, Google, they host machine learning infrastructure in the cloud, which is very nice thing, except it can be very expensive to use it. I’m always curious if I can build one by myself: a relative powerful machine learning platform. The following shows what I achieved using UCS220-M5 with Tesla-P4 GPU. [ default is /home/iot ]:</summary></entry><entry><title type="html">SPI flash support in embedded Linux box</title><link href="http://localhost:4000/2017/08/05/SPI-Support-embedded-box.html" rel="alternate" type="text/html" title="SPI flash support in embedded Linux box" /><published>2017-08-05T00:00:00-07:00</published><updated>2017-08-05T00:00:00-07:00</updated><id>http://localhost:4000/2017/08/05/SPI-Support-embedded-box</id><content type="html" xml:base="http://localhost:4000/2017/08/05/SPI-Support-embedded-box.html">&lt;p&gt;Serial Peripheral Interface (SPI) flash memory is often used in an embedded Linux box to hold bootloader. During very initial board bringup, SPI flash memory needs to be programmed properly using device like Dediprog, otherwise the box won’t boot. After the box is up running linux, often there is need to access SPI flash, e.g. upgrade new version of bootloader from linux. I will share what needs to be done for that.&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;/uploads/ucs/tensorflow-version-deps.jpg&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;</content><author><name></name></author><summary type="html">Machine Learning has been a very hot field. Big players like Amazon, Google, they host machine learning infrastructure in the cloud, which is very nice thing, except it can be very expensive to use it. I’m always curious if I can build one by myself: a relative powerful machine learning platform. The following shows what I achieved using UCS220-M5 with Tesla-P4 GPU. [ default is /home/iot ]:</summary></entry><entry><title type="html">GPU Programming With CUDA</title><link href="http://localhost:4000/2018/01/27/GPU-Programming-With-CUDA.html" rel="alternate" type="text/html" title="GPU Programming With CUDA" /><published>2018-01-27T00:00:00-08:00</published><updated>2018-01-27T00:00:00-08:00</updated><id>http://localhost:4000/2018/01/27/GPU-Programming-With-CUDA</id><content type="html" xml:base="http://localhost:4000/2018/01/27/GPU-Programming-With-CUDA.html">&lt;p&gt;Parallel computing using general purpose GPU is really taking off with advancement of technology from Nvidia, AMD, Intel. Especially Nvidia is dominating the field with variety of GPU offering and also software infrastructure CUDA (initially called as Compute Unified Device Architecture), which is a parallel computing platform and application programming interface (API) model. In this article, I share how GPU programming with CUDA looks like using UCS server with Nvidia GPU GRID K1&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/uploads/linux/gpu-programming-cuda.jpg&quot; alt=&quot;GPU Programming with CUDA&quot; /&gt;&lt;/p&gt;
+
+&lt;!--more--&gt;
+&lt;h2 id=&quot;gpu-programming-model&quot;&gt;GPU Programming model&lt;/h2&gt;
+
+&lt;p&gt;First introducing two terminologies:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Host: The CPU (e.g. x86, ARM) and its memory (host memory)&lt;/li&gt;
+  &lt;li&gt;Device: The GPU (e.g. Nvidia GPU) and its memory (device memory).&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;There will be host code, which is executed in host CPU (e.g. x86); and there will be device code, which is loaded in host and push into GPU to run. The following diagram shows programming model and execution flow.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/uploads/linux/gpu-programming-cuda-model.jpg&quot; alt=&quot;GPU Programming with CUDA model&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;The basic hello world code is shown below:&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt; &lt;span class=&quot;nb&quot;&gt;cat &lt;/span&gt;hello.cu
+
+__global__ void mykernel&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;void&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+
+&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+
+int main&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;void&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+    mykernel&lt;span class=&quot;o&quot;&gt;&amp;lt;&amp;lt;&amp;lt;&lt;/span&gt;1,1&amp;gt;&amp;gt;&amp;gt;&lt;span class=&quot;o&quot;&gt;()&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+    &lt;span class=&quot;nb&quot;&gt;printf&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;Hello World!&lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\n&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;return &lt;/span&gt;0&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;The host code is same as usual, but the device code is marked with a new keyword “&lt;strong&gt;global&lt;/strong&gt;”.
+host code invokes device code almost same as usual, except it adds «1,1» which means using one block and one thread, which isn’t interesting at all. Let’s trying something more interesting.&lt;/p&gt;
+
+&lt;h2 id=&quot;running-an-example-of-vector-additions-using-mutiple-block-and-multiple-threads&quot;&gt;Running an example of vector additions using mutiple block and multiple threads&lt;/h2&gt;
+
+&lt;p&gt;The main advantage of GPU computing is to have huge numbers of parallel executions. For that, CUDA introduces:&lt;/p&gt;
+&lt;ul&gt;
+  &lt;li&gt;Block: On the device, each block can execute in parallel, each block has index of “blockIdx.x”&lt;/li&gt;
+  &lt;li&gt;Thread: a block can be split into parallel threads, each thread has index of “threadIdx.x”&lt;/li&gt;
+  &lt;li&gt;Combining block with thread: the index is “threadIdx.x + blockIdx.x * blockDim.x”&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;img src=&quot;/uploads/linux/gpu-programming-block-thread.jpg&quot; alt=&quot;GPU block thread index access&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;The below code creates two input arrays, which holds random integers, and the third array to hold result of addition, which is to be done by GPU.&lt;/p&gt;
+
+&lt;p&gt;First make sure we have Nvidia GPU GRID K1 and Nvidia compiler in place:&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;iot@iotg-ml-1:~/cuda-ex&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;nvidia-smi 
+Fri Jun  2 06:41:22 2017       
++-----------------------------------------------------------------------------+
+| NVIDIA-SMI 367.124                Driver Version: 367.124                   |
+|-------------------------------+----------------------+----------------------+
+| GPU  Name        Persistence-M| Bus-Id        Disp.A | Volatile Uncorr. ECC |
+| Fan  Temp  Perf  Pwr:Usage/Cap|         Memory-Usage | GPU-Util  Compute M. |
+|&lt;span class=&quot;o&quot;&gt;===============================&lt;/span&gt;+&lt;span class=&quot;o&quot;&gt;======================&lt;/span&gt;+&lt;span class=&quot;o&quot;&gt;======================&lt;/span&gt;|
+|   0  GRID K1             Off  | 0000:85:00.0     Off |                  N/A |
+| N/A   34C    P0    13W /  31W |      0MiB /  4036MiB |      0%      Default |
++-------------------------------+----------------------+----------------------+
+|   1  GRID K1             Off  | 0000:86:00.0     Off |                  N/A |
+| N/A   35C    P0    13W /  31W |      0MiB /  4036MiB |      0%      Default |
++-------------------------------+----------------------+----------------------+
+|   2  GRID K1             Off  | 0000:87:00.0     Off |                  N/A |
+| N/A   27C    P0    13W /  31W |      0MiB /  4036MiB |      0%      Default |
++-------------------------------+----------------------+----------------------+
+|   3  GRID K1             Off  | 0000:88:00.0     Off |                  N/A |
+| N/A   30C    P0    12W /  31W |      0MiB /  4036MiB |      0%      Default |
++-------------------------------+----------------------+----------------------+
+                                                                               
++-----------------------------------------------------------------------------+
+| Processes:                                                       GPU Memory |
+|  GPU       PID  Type  Process name                               Usage      |
+|&lt;span class=&quot;o&quot;&gt;=============================================================================&lt;/span&gt;|
+|  No running processes found                                                 |
++-----------------------------------------------------------------------------+
+iot@iotg-ml-1:~/cuda-ex&lt;span class=&quot;err&quot;&gt;$&lt;/span&gt;
+iot@iotg-ml-1:~/cuda-ex&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;which nvcc
+/usr/local/cuda/bin/nvcc
+iot@iotg-ml-1:~/cuda-ex&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;nvcc &lt;span class=&quot;nt&quot;&gt;--version&lt;/span&gt;
+nvcc: NVIDIA &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;R&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; Cuda compiler driver
+Copyright &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;c&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; 2005-2016 NVIDIA Corporation
+Built on Sun_Sep__4_22:14:01_CDT_2016
+Cuda compilation tools, release 8.0, V8.0.44
+iot@iotg-ml-1:~/cuda-ex&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;Now let’s try following example:&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;iot@iotg-ml-1:~/cuda-ex&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;cat &lt;/span&gt;gpu-add-vector.cu 
+&lt;span class=&quot;c&quot;&gt;#include &amp;lt;stdio.h&amp;gt;&lt;/span&gt;
+
+&lt;span class=&quot;c&quot;&gt;#define N (2048*2048)&lt;/span&gt;
+&lt;span class=&quot;c&quot;&gt;#define THREADS_PER_BLOCK 512&lt;/span&gt;
+
+__global__ void add&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;int &lt;span class=&quot;k&quot;&gt;*&lt;/span&gt;a, int &lt;span class=&quot;k&quot;&gt;*&lt;/span&gt;b, int &lt;span class=&quot;k&quot;&gt;*&lt;/span&gt;c, int n&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+	int index &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; threadIdx.x + blockIdx.x &lt;span class=&quot;k&quot;&gt;*&lt;/span&gt; blockDim.x&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+	&lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;index &amp;lt; n&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+		c[index] &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; a[index] + b[index]&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+
+int main&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;void&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+	int &lt;span class=&quot;k&quot;&gt;*&lt;/span&gt;a, &lt;span class=&quot;k&quot;&gt;*&lt;/span&gt;b, &lt;span class=&quot;k&quot;&gt;*&lt;/span&gt;c&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;	// host copies of a, b, c
+	int &lt;span class=&quot;k&quot;&gt;*&lt;/span&gt;d_a, &lt;span class=&quot;k&quot;&gt;*&lt;/span&gt;d_b, &lt;span class=&quot;k&quot;&gt;*&lt;/span&gt;d_c&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt; // device copies of a, b, c
+	int size &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; N &lt;span class=&quot;k&quot;&gt;*&lt;/span&gt; sizeof&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;int&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+	int i&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+
+	// Alloc space &lt;span class=&quot;k&quot;&gt;for &lt;/span&gt;device copies of a, b, c
+	cudaMalloc&lt;span class=&quot;o&quot;&gt;((&lt;/span&gt;void &lt;span class=&quot;k&quot;&gt;**&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;&amp;amp;d_a, size&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+	cudaMalloc&lt;span class=&quot;o&quot;&gt;((&lt;/span&gt;void &lt;span class=&quot;k&quot;&gt;**&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;&amp;amp;d_b, size&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+	cudaMalloc&lt;span class=&quot;o&quot;&gt;((&lt;/span&gt;void &lt;span class=&quot;k&quot;&gt;**&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;&amp;amp;d_c, size&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+	// Alloc space &lt;span class=&quot;k&quot;&gt;for &lt;/span&gt;host copies of a, b, c and setup input values
+	a &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;int &lt;span class=&quot;k&quot;&gt;*&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;malloc&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;size&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;  &lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;i &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; 0&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt; i &amp;lt; N&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt; i++&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;  a[i] &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; rand&lt;span class=&quot;o&quot;&gt;()&lt;/span&gt;/10&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+	b &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;int &lt;span class=&quot;k&quot;&gt;*&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;malloc&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;size&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;  &lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;i &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; 0&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt; i &amp;lt; N&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt; i++&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;  b[i] &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; rand&lt;span class=&quot;o&quot;&gt;()&lt;/span&gt;/10&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+	c &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;int &lt;span class=&quot;k&quot;&gt;*&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;malloc&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;size&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+	
+	// Copy inputs to device
+	cudaMemcpy&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;d_a, a, size, cudaMemcpyHostToDevice&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+	cudaMemcpy&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;d_b, b, size, cudaMemcpyHostToDevice&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+	
+	// Launch add&lt;span class=&quot;o&quot;&gt;()&lt;/span&gt; kernel on GPU
+	add&lt;span class=&quot;o&quot;&gt;&amp;lt;&amp;lt;&amp;lt;&lt;/span&gt;N/THREADS_PER_BLOCK,THREADS_PER_BLOCK&amp;gt;&amp;gt;&amp;gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;d_a, d_b, d_c, N&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+	
+	// Copy result back to host
+	cudaMemcpy&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;c, d_c, size, cudaMemcpyDeviceToHost&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+	
+	// Verify the result
+	&lt;span class=&quot;nb&quot;&gt;printf&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\n&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt; Verifying the result:&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;i &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; 0&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt; i &amp;lt; N&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt; i++&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+	  &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;((&lt;/span&gt;a[i] + b[i]&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;!=&lt;/span&gt; c[i]&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+	    &lt;span class=&quot;nb&quot;&gt;printf&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;Failed at %d: a=%d, b=%d, c=%d &lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\n&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;, i, a[i], b[i], c[i]&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+	    &lt;span class=&quot;nb&quot;&gt;break&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+	  &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+	&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;i &lt;span class=&quot;o&quot;&gt;==&lt;/span&gt; N&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;printf&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;PASSED!&lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\n\n&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+
+	// Cleanup
+	free&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;a&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt; free&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;b&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt; free&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;c&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+	cudaFree&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;d_a&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt; cudaFree&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;d_b&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt; cudaFree&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;d_c&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+	
+	&lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;0&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+
+iot@iotg-ml-1:~/cuda-ex&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;nvcc gpu-add-vector.cu &lt;span class=&quot;nt&quot;&gt;-o&lt;/span&gt; gpu-add-vector
+nvcc warning : The &lt;span class=&quot;s1&quot;&gt;'compute_20'&lt;/span&gt;, &lt;span class=&quot;s1&quot;&gt;'sm_20'&lt;/span&gt;, and &lt;span class=&quot;s1&quot;&gt;'sm_21'&lt;/span&gt; architectures are deprecated, and may be removed &lt;span class=&quot;k&quot;&gt;in &lt;/span&gt;a future release &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;Use &lt;span class=&quot;nt&quot;&gt;-Wno-deprecated-gpu-targets&lt;/span&gt; to suppress warning&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;.&lt;/span&gt;
+iot@iotg-ml-1:~/cuda-ex&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;./gpu-add-vector 
+
+ Verifying the result:PASSED!
+ 
+iot@iotg-ml-1:~/cuda-ex&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;h1 id=&quot;reference&quot;&gt;Reference:&lt;/h1&gt;
+&lt;ul&gt;
+  &lt;li&gt;https://www.nvidia.com/docs/IO/116711/sc11-cuda-c-basics.pdf&lt;/li&gt;
+  &lt;li&gt;https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html&lt;/li&gt;
+&lt;/ul&gt;</content><author><name></name></author><summary type="html">Parallel computing using general purpose GPU is really taking off with advancement of technology from Nvidia, AMD, Intel. Especially Nvidia is dominating the field with variety of GPU offering and also software infrastructure CUDA (initially called as Compute Unified Device Architecture), which is a parallel computing platform and application programming interface (API) model. In this article, I share how GPU programming with CUDA looks like using UCS server with Nvidia GPU GRID K1</summary></entry><entry><title type="html">SPI flash support in embedded Linux box</title><link href="http://localhost:4000/2017/08/05/SPI-Support-embedded-box.html" rel="alternate" type="text/html" title="SPI flash support in embedded Linux box" /><published>2017-08-05T00:00:00-07:00</published><updated>2017-08-05T00:00:00-07:00</updated><id>http://localhost:4000/2017/08/05/SPI-Support-embedded-box</id><content type="html" xml:base="http://localhost:4000/2017/08/05/SPI-Support-embedded-box.html">&lt;p&gt;Serial Peripheral Interface (SPI) flash memory is often used in an embedded Linux box to hold bootloader. During very initial board bringup, SPI flash memory needs to be programmed properly using device like Dediprog, otherwise the box won’t boot. After the box is up running linux, often there is need to access SPI flash, e.g. upgrade new version of bootloader from linux. I will share what needs to be done for that.&lt;/p&gt;
 
 &lt;p&gt;&lt;img src=&quot;/uploads/linux/linux-spi.jpg&quot; alt=&quot;Linux SPI&quot; /&gt;&lt;/p&gt;
 
@@ -2138,57 +2293,4 @@ mkimage &lt;span class=&quot;nt&quot;&gt;-A&lt;/span&gt; arm64 &lt;span class=&q
 &lt;p&gt;initramfs.cpip.gz, it cal also embedded into kernel directly to make just one binary.&lt;/p&gt;
 
 &lt;h1 id=&quot;reference&quot;&gt;Reference&lt;/h1&gt;
-&lt;p&gt;https://www.kernel.org/doc/Documentation/filesystems/ramfs-rootfs-initramfs.txt&lt;/p&gt;</content><author><name></name></author><summary type="html">After Linux kernel boots, it looks for root file system, which can be initrd or initramfs. They are two different ways.</summary></entry><entry><title type="html">Linux Kernel image in different forms</title><link href="http://localhost:4000/2017/03/17/linux-kernel-image.html" rel="alternate" type="text/html" title="Linux Kernel image in different forms" /><published>2017-03-17T00:00:00-07:00</published><updated>2017-03-17T00:00:00-07:00</updated><id>http://localhost:4000/2017/03/17/linux-kernel-image</id><content type="html" xml:base="http://localhost:4000/2017/03/17/linux-kernel-image.html">&lt;p&gt;Linux kernel presents in different forms depending on the actual context.&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;/uploads/linux/linux-kernel-image.jpg&quot; alt=&quot;linux kernel image&quot; /&gt;&lt;/p&gt;
-
-&lt;!--more--&gt;
-
-&lt;h1 id=&quot;vmlinux&quot;&gt;vmlinux&lt;/h1&gt;
-
-&lt;p&gt;vmlinux, the name comes from the fact that “linux” supports virtual memory. It is typically in ELF format, created by linker. This file is needed when debugging kernel. In order to boot linux kernel, vmlinux image has to be transformed into different from based on processor type.&lt;/p&gt;
-
-&lt;h1 id=&quot;vmlinuxbin&quot;&gt;vmlinux.bin&lt;/h1&gt;
-&lt;p&gt;this is binary form of kernel image, which is created by using objdump from vmlinux image.&lt;/p&gt;
-
-&lt;h1 id=&quot;bzimage&quot;&gt;bzImage&lt;/h1&gt;
-&lt;p&gt;This is bootable image for x86 processor. The following picture well describe the actaul content of bzImage.&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;/uploads/linux/linux-kernel-bzimage.jpg&quot; alt=&quot;linux kernel bzImage&quot; /&gt;&lt;/p&gt;
-
-&lt;p&gt;It contains concatenated bootsect.o + setup.o + misc.o + piggy.o&lt;/p&gt;
-
-&lt;h1 id=&quot;uimage&quot;&gt;uImage&lt;/h1&gt;
-&lt;p&gt;This is bootable image for a processor, which uses u-boot as bootloader. THe processors are like ARM (32-bit), PowerPC, MIPS.
-There is a utility tool “mkimage” to transform vmlinux into uImage. The uImage has the following header in the beginning of image.&lt;/p&gt;
-
-&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;typedef struct uimage_header &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
-    uint32_t    ih_magic&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;           /&lt;span class=&quot;k&quot;&gt;*&lt;/span&gt; Image Header Magic Number &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;BE&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;*&lt;/span&gt;/
-    uint32_t    ih_hcrc&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;            /&lt;span class=&quot;k&quot;&gt;*&lt;/span&gt; Image Header CRC Checksum &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;BE&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;*&lt;/span&gt;/
-    uint32_t    ih_time&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;            /&lt;span class=&quot;k&quot;&gt;*&lt;/span&gt; Image Creation Timestamp &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;BE&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;*&lt;/span&gt;/
-    uint32_t    ih_size&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;            /&lt;span class=&quot;k&quot;&gt;*&lt;/span&gt; Image Data Size &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;BE&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;*&lt;/span&gt;/
-    uint32_t    ih_load&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;            /&lt;span class=&quot;k&quot;&gt;*&lt;/span&gt; Data  Load  Address &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;BE&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;*&lt;/span&gt;/
-    uint32_t    ih_ep&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;              /&lt;span class=&quot;k&quot;&gt;*&lt;/span&gt; Entry Point Address &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;BE&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;*&lt;/span&gt;/
-    uint32_t    ih_dcrc&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;            /&lt;span class=&quot;k&quot;&gt;*&lt;/span&gt; Image Data CRC Checksum &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;BE&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;*&lt;/span&gt;/
-    uint8_t     ih_os&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;              /&lt;span class=&quot;k&quot;&gt;*&lt;/span&gt; Operating System     &lt;span class=&quot;k&quot;&gt;*&lt;/span&gt;/
-    uint8_t     ih_arch&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;            /&lt;span class=&quot;k&quot;&gt;*&lt;/span&gt; CPU architecture     &lt;span class=&quot;k&quot;&gt;*&lt;/span&gt;/
-    uint8_t     ih_type&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;            /&lt;span class=&quot;k&quot;&gt;*&lt;/span&gt; Image Type           &lt;span class=&quot;k&quot;&gt;*&lt;/span&gt;/
-    uint8_t     ih_comp&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;            /&lt;span class=&quot;k&quot;&gt;*&lt;/span&gt; Compression Type     &lt;span class=&quot;k&quot;&gt;*&lt;/span&gt;/
-    uint8_t     ih_name[IH_NMLEN]&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;  /&lt;span class=&quot;k&quot;&gt;*&lt;/span&gt; Image Name       &lt;span class=&quot;k&quot;&gt;*&lt;/span&gt;/
-&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt; uimage_header_t&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
-
-&lt;h1 id=&quot;image&quot;&gt;Image&lt;/h1&gt;
-&lt;p&gt;This a relatively new format for ARMV8 64-bit processor. It can also created by using “mkimage” tool.&lt;/p&gt;
-
-&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;typedef struct arm64_image_header &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
-    uint32_t ih_code0&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;			/&lt;span class=&quot;k&quot;&gt;*&lt;/span&gt; Executable code &lt;span class=&quot;k&quot;&gt;*&lt;/span&gt;/
-    uint32_t ih_code1&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;			/&lt;span class=&quot;k&quot;&gt;*&lt;/span&gt; Executable code &lt;span class=&quot;k&quot;&gt;*&lt;/span&gt;/
-    uint64_t ih_text_offset&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;		/&lt;span class=&quot;k&quot;&gt;*&lt;/span&gt; Image load offset, little endian &lt;span class=&quot;k&quot;&gt;*&lt;/span&gt;/
-    uint64_t ih_image_size&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;		/&lt;span class=&quot;k&quot;&gt;*&lt;/span&gt; Effective Image size, little endian &lt;span class=&quot;k&quot;&gt;*&lt;/span&gt;/
-    uint64_t ih_flags&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;			/&lt;span class=&quot;k&quot;&gt;*&lt;/span&gt; kernel flags, little endian &lt;span class=&quot;k&quot;&gt;*&lt;/span&gt;/
-    uint64_t res2&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;		        /&lt;span class=&quot;k&quot;&gt;*&lt;/span&gt; reserved &lt;span class=&quot;k&quot;&gt;*&lt;/span&gt;/
-    uint64_t res3&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;		        /&lt;span class=&quot;k&quot;&gt;*&lt;/span&gt; reserved &lt;span class=&quot;k&quot;&gt;*&lt;/span&gt;/
-    uint64_t res4&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;		        /&lt;span class=&quot;k&quot;&gt;*&lt;/span&gt; reserved &lt;span class=&quot;k&quot;&gt;*&lt;/span&gt;/
-    uint32_t ih_magic&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;	                /&lt;span class=&quot;k&quot;&gt;*&lt;/span&gt; 0x644d5241 Magic number, little endian, &lt;span class=&quot;s2&quot;&gt;&quot;ARM&lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\x&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;64&quot;&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;*&lt;/span&gt;/
-    uint32_t res5&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;			/&lt;span class=&quot;k&quot;&gt;*&lt;/span&gt; reserved &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;used &lt;span class=&quot;k&quot;&gt;for &lt;/span&gt;PE COFF offset&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;*&lt;/span&gt;/
-&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt; arm64_image_header_t&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;</content><author><name></name></author><summary type="html">Linux kernel presents in different forms depending on the actual context.</summary></entry></feed>
+&lt;p&gt;https://www.kernel.org/doc/Documentation/filesystems/ramfs-rootfs-initramfs.txt&lt;/p&gt;</content><author><name></name></author><summary type="html">After Linux kernel boots, it looks for root file system, which can be initrd or initramfs. They are two different ways.</summary></entry></feed>
