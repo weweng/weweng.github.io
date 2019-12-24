@@ -1,4 +1,666 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.8.5">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2019-08-17T23:33:00-07:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Your awesome title</title><subtitle>Write an awesome description for your new site here. You can edit this line in _config.yml. It will appear in your document head meta (for Google search results) and in your feed.xml site description.</subtitle><entry><title type="html">Jekyll update for my blog site</title><link href="http://localhost:4000/2019/08/12/Jekyll-Update-blog-site.html" rel="alternate" type="text/html" title="Jekyll update for my blog site" /><published>2019-08-12T00:00:00-07:00</published><updated>2019-08-12T00:00:00-07:00</updated><id>http://localhost:4000/2019/08/12/Jekyll-Update-blog-site</id><content type="html" xml:base="http://localhost:4000/2019/08/12/Jekyll-Update-blog-site.html">&lt;p&gt;My blog site was shutdown for quite a while for certain reasons. However I strongly feel this is a good way for me to capture what I learned along the way and share with anyone who might feel helpful for them. Thanks to all people who provided postivie feedback. After clearup the issue and I finally decide to continue working on my blog site. First thing I do is to update my blog development enviroment which is Jekyll, installed in ubuntu 16.04 VM.&lt;/p&gt;
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.8.5">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2019-12-24T10:30:54-08:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Your awesome title</title><subtitle>Write an awesome description for your new site here. You can edit this line in _config.yml. It will appear in your document head meta (for Google search results) and in your feed.xml site description.</subtitle><entry><title type="html">IP Multicast Routing Configuration</title><link href="http://localhost:4000/2019/09/07/Networking-Multicast.html" rel="alternate" type="text/html" title="IP Multicast Routing Configuration" /><published>2019-09-07T00:00:00-07:00</published><updated>2019-09-07T00:00:00-07:00</updated><id>http://localhost:4000/2019/09/07/Networking-Multicast</id><content type="html" xml:base="http://localhost:4000/2019/09/07/Networking-Multicast.html">&lt;p&gt;Multicast routing is an important aspect of IP routing. It can be used to distribute data (for example, audio/video streaming broadcasts) to multiple recipients in a very efficient way.
+&lt;img src=&quot;/uploads/networking/multicast-end2end.jpg&quot; alt=&quot;Multicast End to End&quot; /&gt;
+&lt;!--more--&gt;&lt;/p&gt;
+&lt;h2 id=&quot;two-key-protocols-of-multicast-routing&quot;&gt;Two key protocols of multicast routing&lt;/h2&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Multicast Group Membership Discovery protocol: used by clients (receivers) to advertise their group membership to a local multicast router so that they can join and leave multicast groups. The main Multicast Group Membership Discovery protocols are Internet Group Management Protocol (IGMP) for IPv4 and Multicast Listener Discovery (MLD) for IPv6.&lt;/li&gt;
+  &lt;li&gt;Multicast Routing Protocol: used to communicate between multicast routers and enables them to calculate the multicast distribution tree of clients. Protocol Independent Multicast (PIM) is the most important Multicast Routing Protocol. It operates three different modes: dense, sparse and sparse-dense.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;ipv4-multicast-address&quot;&gt;IPV4 Multicast address&lt;/h2&gt;
+
+&lt;p&gt;The “classful” IP addressing scheme sets aside a full one-sixteenth of the address space for multicast addresses: Class D. Multicast addresses are identified by the pattern “1110” in the first four bits, which corresponds to a first octet of 224 to 239. So, the full range of multicast addresses is from 224.0.0.0 to 239.255.255.255. See below diagram for further classification:&lt;/p&gt;
+
+&lt;p&gt;Below are examples of using IGMP and PIM (under three different modes) to enable muticast routing.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/uploads/networking/multicast-ipaddress.jpg&quot; alt=&quot;Multicast IPv4 address &quot; /&gt;&lt;/p&gt;
+
+&lt;h2 id=&quot;a-simple-multicast-ip-network-topology&quot;&gt;A simple multicast IP Network Topology&lt;/h2&gt;
+
+&lt;p&gt;&lt;img src=&quot;/uploads/networking/multicast-network-topo.jpg&quot; alt=&quot;Multicast network topology&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;There are three routers (R1, R2, R3), plus one Multicast sender and one Muticast client/receiver.
+For convience, I use Cisco IOL image. The basic underlying routing is static route:&lt;/p&gt;
+
+&lt;h3 id=&quot;muticast-sender-interface-and-basic-routing&quot;&gt;Muticast Sender: interface and basic routing&lt;/h3&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;Mcast-Snd#show ip interface brief 
+Interface              IP-Address      OK? Method Status                Protocol
+Ethernet0/0            10.1.1.10       YES TFTP   up                    up      
+Mcast-Snd#
+Mcast-Snd#show ip route
+Codes: L - &lt;span class=&quot;nb&quot;&gt;local&lt;/span&gt;, C - connected, S - static, R - RIP, M - mobile, B - BGP
+       D - EIGRP, EX - EIGRP external, O - OSPF, IA - OSPF inter area 
+       N1 - OSPF NSSA external &lt;span class=&quot;nb&quot;&gt;type &lt;/span&gt;1, N2 - OSPF NSSA external &lt;span class=&quot;nb&quot;&gt;type &lt;/span&gt;2
+       E1 - OSPF external &lt;span class=&quot;nb&quot;&gt;type &lt;/span&gt;1, E2 - OSPF external &lt;span class=&quot;nb&quot;&gt;type &lt;/span&gt;2
+       i - IS-IS, su - IS-IS summary, L1 - IS-IS level-1, L2 - IS-IS level-2
+       ia - IS-IS inter area, &lt;span class=&quot;k&quot;&gt;*&lt;/span&gt; - candidate default, U - per-user static route
+       o - ODR, P - periodic downloaded static route, H - NHRP, l - LISP
+       + - replicated route, % - next hop override
+
+Gateway of last resort is not &lt;span class=&quot;nb&quot;&gt;set
+
+      &lt;/span&gt;10.0.0.0/8 is variably subnetted, 3 subnets, 3 masks
+S        10.0.0.0/8 &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;1/0] via 10.1.1.1
+C        10.1.1.0/24 is directly connected, Ethernet0/0
+L        10.1.1.10/32 is directly connected, Ethernet0/0
+Mcast-Snd#&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;h3 id=&quot;muticast-receiver-interface-and-basic-routing&quot;&gt;Muticast Receiver: interface and basic routing&lt;/h3&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;Mcast-Rcv#show ip interface brief 
+Interface              IP-Address      OK? Method Status                Protocol
+Ethernet0/0            10.1.5.100      YES TFTP   up                    up      
+Mcast-Rcv#show ip route           
+Codes: L - &lt;span class=&quot;nb&quot;&gt;local&lt;/span&gt;, C - connected, S - static, R - RIP, M - mobile, B - BGP
+       D - EIGRP, EX - EIGRP external, O - OSPF, IA - OSPF inter area 
+       N1 - OSPF NSSA external &lt;span class=&quot;nb&quot;&gt;type &lt;/span&gt;1, N2 - OSPF NSSA external &lt;span class=&quot;nb&quot;&gt;type &lt;/span&gt;2
+       E1 - OSPF external &lt;span class=&quot;nb&quot;&gt;type &lt;/span&gt;1, E2 - OSPF external &lt;span class=&quot;nb&quot;&gt;type &lt;/span&gt;2
+       i - IS-IS, su - IS-IS summary, L1 - IS-IS level-1, L2 - IS-IS level-2
+       ia - IS-IS inter area, &lt;span class=&quot;k&quot;&gt;*&lt;/span&gt; - candidate default, U - per-user static route
+       o - ODR, P - periodic downloaded static route, H - NHRP, l - LISP
+       + - replicated route, % - next hop override
+
+Gateway of last resort is not &lt;span class=&quot;nb&quot;&gt;set
+
+      &lt;/span&gt;10.0.0.0/8 is variably subnetted, 3 subnets, 3 masks
+S        10.0.0.0/8 &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;1/0] via 10.1.5.3
+C        10.1.5.0/24 is directly connected, Ethernet0/0
+L        10.1.5.100/32 is directly connected, Ethernet0/0
+Mcast-Rcv#&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;h3 id=&quot;muticast-router-1-interface-and-basic-routing&quot;&gt;Muticast Router #1: interface and basic routing&lt;/h3&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;R1#show ip interface brief 
+Interface              IP-Address      OK? Method Status                Protocol
+Ethernet0/0            10.1.1.1        YES TFTP   up                    up      
+Ethernet1/0            10.1.2.1        YES TFTP   up                    up      
+Ethernet2/0            10.1.3.1        YES TFTP   up                    up      
+R1#show ip route           
+Codes: L - &lt;span class=&quot;nb&quot;&gt;local&lt;/span&gt;, C - connected, S - static, R - RIP, M - mobile, B - BGP
+       D - EIGRP, EX - EIGRP external, O - OSPF, IA - OSPF inter area 
+       N1 - OSPF NSSA external &lt;span class=&quot;nb&quot;&gt;type &lt;/span&gt;1, N2 - OSPF NSSA external &lt;span class=&quot;nb&quot;&gt;type &lt;/span&gt;2
+       E1 - OSPF external &lt;span class=&quot;nb&quot;&gt;type &lt;/span&gt;1, E2 - OSPF external &lt;span class=&quot;nb&quot;&gt;type &lt;/span&gt;2
+       i - IS-IS, su - IS-IS summary, L1 - IS-IS level-1, L2 - IS-IS level-2
+       ia - IS-IS inter area, &lt;span class=&quot;k&quot;&gt;*&lt;/span&gt; - candidate default, U - per-user static route
+       o - ODR, P - periodic downloaded static route, H - NHRP, l - LISP
+       + - replicated route, % - next hop override
+
+Gateway of last resort is not &lt;span class=&quot;nb&quot;&gt;set
+
+      &lt;/span&gt;10.0.0.0/8 is variably subnetted, 8 subnets, 2 masks
+C        10.1.1.0/24 is directly connected, Ethernet0/0
+L        10.1.1.1/32 is directly connected, Ethernet0/0
+C        10.1.2.0/24 is directly connected, Ethernet1/0
+L        10.1.2.1/32 is directly connected, Ethernet1/0
+C        10.1.3.0/24 is directly connected, Ethernet2/0
+L        10.1.3.1/32 is directly connected, Ethernet2/0
+S        10.1.4.0/24 &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;1/0] via 10.1.3.3
+S        10.1.5.0/24 &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;1/0] via 10.1.3.3
+R1#&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;h3 id=&quot;muticast-router-2-interface-and-basic-routing&quot;&gt;Muticast Router #2: interface and basic routing&lt;/h3&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;R2#show ip interface brief 
+Interface              IP-Address      OK? Method Status                Protocol
+Ethernet0/0            10.1.2.2        YES TFTP   up                    up      
+Ethernet1/0            10.1.4.2        YES TFTP   up                    up      
+R2#show ip route
+Codes: L - &lt;span class=&quot;nb&quot;&gt;local&lt;/span&gt;, C - connected, S - static, R - RIP, M - mobile, B - BGP
+       D - EIGRP, EX - EIGRP external, O - OSPF, IA - OSPF inter area 
+       N1 - OSPF NSSA external &lt;span class=&quot;nb&quot;&gt;type &lt;/span&gt;1, N2 - OSPF NSSA external &lt;span class=&quot;nb&quot;&gt;type &lt;/span&gt;2
+       E1 - OSPF external &lt;span class=&quot;nb&quot;&gt;type &lt;/span&gt;1, E2 - OSPF external &lt;span class=&quot;nb&quot;&gt;type &lt;/span&gt;2
+       i - IS-IS, su - IS-IS summary, L1 - IS-IS level-1, L2 - IS-IS level-2
+       ia - IS-IS inter area, &lt;span class=&quot;k&quot;&gt;*&lt;/span&gt; - candidate default, U - per-user static route
+       o - ODR, P - periodic downloaded static route, H - NHRP, l - LISP
+       + - replicated route, % - next hop override
+
+Gateway of last resort is not &lt;span class=&quot;nb&quot;&gt;set
+
+      &lt;/span&gt;10.0.0.0/8 is variably subnetted, 7 subnets, 2 masks
+S        10.1.1.0/24 &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;1/0] via 10.1.2.1
+C        10.1.2.0/24 is directly connected, Ethernet0/0
+L        10.1.2.2/32 is directly connected, Ethernet0/0
+S        10.1.3.0/24 &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;1/0] via 10.1.2.1
+C        10.1.4.0/24 is directly connected, Ethernet1/0
+L        10.1.4.2/32 is directly connected, Ethernet1/0
+S        10.1.5.0/24 &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;1/0] via 10.1.4.3
+R2#&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;h3 id=&quot;muticast-router-3-interface-and-basic-routing&quot;&gt;Muticast Router #3: interface and basic routing&lt;/h3&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;R3#show ip interface brief 
+Interface              IP-Address      OK? Method Status                Protocol
+Ethernet0/0            10.1.3.3        YES TFTP   up                    up      
+Ethernet1/0            10.1.4.3        YES TFTP   up                    up      
+Ethernet2/0            10.1.5.3        YES TFTP   up                    up      
+R3#show ip route
+Codes: L - &lt;span class=&quot;nb&quot;&gt;local&lt;/span&gt;, C - connected, S - static, R - RIP, M - mobile, B - BGP
+       D - EIGRP, EX - EIGRP external, O - OSPF, IA - OSPF inter area 
+       N1 - OSPF NSSA external &lt;span class=&quot;nb&quot;&gt;type &lt;/span&gt;1, N2 - OSPF NSSA external &lt;span class=&quot;nb&quot;&gt;type &lt;/span&gt;2
+       E1 - OSPF external &lt;span class=&quot;nb&quot;&gt;type &lt;/span&gt;1, E2 - OSPF external &lt;span class=&quot;nb&quot;&gt;type &lt;/span&gt;2
+       i - IS-IS, su - IS-IS summary, L1 - IS-IS level-1, L2 - IS-IS level-2
+       ia - IS-IS inter area, &lt;span class=&quot;k&quot;&gt;*&lt;/span&gt; - candidate default, U - per-user static route
+       o - ODR, P - periodic downloaded static route, H - NHRP, l - LISP
+       + - replicated route, % - next hop override
+
+Gateway of last resort is not &lt;span class=&quot;nb&quot;&gt;set
+
+      &lt;/span&gt;10.0.0.0/8 is variably subnetted, 8 subnets, 2 masks
+S        10.1.1.0/24 &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;1/0] via 10.1.3.1
+S        10.1.2.0/24 &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;1/0] via 10.1.3.1
+C        10.1.3.0/24 is directly connected, Ethernet0/0
+L        10.1.3.3/32 is directly connected, Ethernet0/0
+C        10.1.4.0/24 is directly connected, Ethernet1/0
+L        10.1.4.3/32 is directly connected, Ethernet1/0
+C        10.1.5.0/24 is directly connected, Ethernet2/0
+L        10.1.5.3/32 is directly connected, Ethernet2/0
+R3#&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;h2 id=&quot;configuration-of-dense-mode&quot;&gt;Configuration of dense mode&lt;/h2&gt;
+&lt;h3 id=&quot;first-configure-all-three-routers-r1-r2-r3-to-enable-pim-dense-mode&quot;&gt;First configure all three Routers R1, R2, R3 to enable PIM dense-mode&lt;/h3&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;R1#show run
+Building configuration...
+...
+&lt;span class=&quot;o&quot;&gt;!&lt;/span&gt;
+ip multicast-routing 
+ip cef
+no ipv6 cef
+&lt;span class=&quot;o&quot;&gt;!&lt;/span&gt;
+interface Ethernet0/0
+ ip address 10.1.1.1 255.255.255.0
+ ip pim dense-mode
+&lt;span class=&quot;o&quot;&gt;!&lt;/span&gt;
+interface Ethernet1/0
+ ip address 10.1.2.1 255.255.255.0
+ ip pim dense-mode
+&lt;span class=&quot;o&quot;&gt;!&lt;/span&gt;         
+interface Ethernet2/0
+ ip address 10.1.3.1 255.255.255.0
+ ip pim dense-mode
+&lt;span class=&quot;o&quot;&gt;!&lt;/span&gt;         
+&lt;span class=&quot;o&quot;&gt;!&lt;/span&gt;         
+ip forward-protocol nd
+&lt;span class=&quot;o&quot;&gt;!&lt;/span&gt;         
+&lt;span class=&quot;o&quot;&gt;!&lt;/span&gt;         
+no ip http server
+ip route 10.1.4.0 255.255.255.0 10.1.3.3
+ip route 10.1.5.0 255.255.255.0 10.1.3.3
+...&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;Router R2:&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;R2#show running-config 
+Building configuration...
+...
+&lt;span class=&quot;o&quot;&gt;!&lt;/span&gt;
+ip multicast-routing 
+ip cef
+...
+&lt;span class=&quot;o&quot;&gt;!&lt;/span&gt;
+interface Ethernet0/0
+ ip address 10.1.2.2 255.255.255.0
+ ip pim dense-mode
+&lt;span class=&quot;o&quot;&gt;!&lt;/span&gt;         
+interface Ethernet1/0
+ ip address 10.1.4.2 255.255.255.0
+ ip pim dense-mode
+&lt;span class=&quot;o&quot;&gt;!&lt;/span&gt;   
+&lt;span class=&quot;o&quot;&gt;!&lt;/span&gt;         
+ip forward-protocol nd
+&lt;span class=&quot;o&quot;&gt;!&lt;/span&gt;         
+ip route 10.1.1.0 255.255.255.0 10.1.2.1
+ip route 10.1.3.0 255.255.255.0 10.1.2.1
+ip route 10.1.4.0 255.255.255.0 Ethernet1/0
+ip route 10.1.5.0 255.255.255.0 10.1.4.3
+&lt;span class=&quot;o&quot;&gt;!&lt;/span&gt;    &lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;Router R3:&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;R3#show running-config 
+Building configuration...
+
+Current configuration : 1576 bytes
+...
+&lt;span class=&quot;o&quot;&gt;!&lt;/span&gt;
+ip multicast-routing 
+ip cef
+...
+&lt;span class=&quot;o&quot;&gt;!&lt;/span&gt;         
+interface Ethernet0/0
+ ip address 10.1.3.3 255.255.255.0
+ ip pim dense-mode
+&lt;span class=&quot;o&quot;&gt;!&lt;/span&gt;         
+interface Ethernet1/0
+ ip address 10.1.4.3 255.255.255.0
+ ip pim dense-mode
+&lt;span class=&quot;o&quot;&gt;!&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;!&lt;/span&gt;         
+interface Ethernet2/0
+ ip address 10.1.5.3 255.255.255.0
+ ip pim dense-mode
+&lt;span class=&quot;o&quot;&gt;!&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;!&lt;/span&gt;         
+ip forward-protocol nd
+&lt;span class=&quot;o&quot;&gt;!&lt;/span&gt;                 
+no ip http server
+ip route 10.1.1.0 255.255.255.0 10.1.3.1
+ip route 10.1.2.0 255.255.255.0 10.1.3.1
+ip route 10.1.4.0 255.255.255.0 Ethernet1/0
+&lt;span class=&quot;o&quot;&gt;!&lt;/span&gt;
+...&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;h3 id=&quot;multicast-receiverclient-to-register-into-a-multicast-group-in-this-case-to-join-239111&quot;&gt;Multicast Receiver/Client to register into a multicast group, in this case to join 239.1.1.1:&lt;/h3&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;Mcast-Rcv#conf t
+Enter configuration commands, one per line.  End with CNTL/Z.
+Mcast-Rcv&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;config&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;c&quot;&gt;#interface Ethernet0/0&lt;/span&gt;
+Mcast-Rcv&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;config-if&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;c&quot;&gt;#ip igmp join-group 239.1.1.1&lt;/span&gt;
+Mcast-Rcv&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;config-if&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;c&quot;&gt;#&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;h3 id=&quot;multicast-sender-can-ping-to-receiver-with-239111&quot;&gt;Multicast Sender can ping to receiver with 239.1.1.1&lt;/h3&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;Mcast-Snd#ping 239.1.1.1 repeat 1000
+Type escape sequence to abort.
+Sending 3, 100-byte ICMP Echos to 239.1.1.1, timeout is 2 seconds:
+
+Reply to request 0 from 10.1.5.100, 1 ms
+Reply to request 1 from 10.1.5.100, 1 ms
+Reply to request 2 from 10.1.5.100, 4 ms
+...&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;h3 id=&quot;now-we-can-check-the-multicast-routing-table-of-each-router&quot;&gt;Now we can check the multicast routing table of each router&lt;/h3&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;R1#show ip mroute 
+IP Multicast Routing Table
+Flags: D - Dense, S - Sparse, B - Bidir Group, s - SSM Group, C - Connected,
+       L - Local, P - Pruned, R - RP-bit &lt;span class=&quot;nb&quot;&gt;set&lt;/span&gt;, F - Register flag,
+       T - SPT-bit &lt;span class=&quot;nb&quot;&gt;set&lt;/span&gt;, J - Join SPT, M - MSDP created entry, E - Extranet,
+       X - Proxy Join Timer Running, A - Candidate &lt;span class=&quot;k&quot;&gt;for &lt;/span&gt;MSDP Advertisement,
+       U - URD, I - Received Source Specific Host Report, 
+       Z - Multicast Tunnel, z - MDT-data group sender, 
+       Y - Joined MDT-data group, y - Sending to MDT-data group, 
+       G - Received BGP C-Mroute, g - Sent BGP C-Mroute, 
+       Q - Received BGP S-A Route, q - Sent BGP S-A Route, 
+       V - RD &amp;amp; Vector, v - Vector
+Outgoing interface flags: H - Hardware switched, A - Assert winner
+ Timers: Uptime/Expires
+ Interface state: Interface, Next-Hop or VCD, State/Mode
+
+&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;*&lt;/span&gt;, 239.1.1.1&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;, 00:02:09/stopped, RP 0.0.0.0, flags: D
+  Incoming interface: Null, RPF nbr 0.0.0.0
+  Outgoing interface list:
+    Ethernet2/0, Forward/Dense, 00:02:09/stopped
+    Ethernet1/0, Forward/Dense, 00:02:09/stopped
+    Ethernet0/0, Forward/Dense, 00:02:09/stopped
+
+&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;10.1.1.10, 239.1.1.1&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;, 00:02:09/00:00:50, flags: T
+  Incoming interface: Ethernet0/0, RPF nbr 10.1.1.10
+  Outgoing interface list:
+    Ethernet1/0, Prune/Dense, 00:02:09/00:00:50
+    Ethernet2/0, Forward/Dense, 00:02:09/stopped
+
+&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;*&lt;/span&gt;, 224.0.1.40&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;, 04:53:49/00:02:28, RP 0.0.0.0, flags: DCL
+  Incoming interface: Null, RPF nbr 0.0.0.0
+  Outgoing interface list:
+    Ethernet2/0, Forward/Dense, 04:52:57/stopped
+    Ethernet1/0, Forward/Dense, 04:53:17/stopped
+    Ethernet0/0, Forward/Dense, 04:53:49/stopped
+
+Note: From the above output of &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;10.1.1.10, 239.1.1.1&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;, it is shown that packet comes &lt;span class=&quot;k&quot;&gt;in 
+&lt;/span&gt;from Ethernet0/0, outgoing interface is Ethernet2/0, which is &lt;span class=&quot;k&quot;&gt;in &lt;/span&gt;Forward state. 
+Ethernet1/0 is pruned.
+
+R1#
+R2#show ip mroute 
+IP Multicast Routing Table
+Flags: D - Dense, S - Sparse, B - Bidir Group, s - SSM Group, C - Connected,
+       L - Local, P - Pruned, R - RP-bit &lt;span class=&quot;nb&quot;&gt;set&lt;/span&gt;, F - Register flag,
+       T - SPT-bit &lt;span class=&quot;nb&quot;&gt;set&lt;/span&gt;, J - Join SPT, M - MSDP created entry, E - Extranet,
+       X - Proxy Join Timer Running, A - Candidate &lt;span class=&quot;k&quot;&gt;for &lt;/span&gt;MSDP Advertisement,
+       U - URD, I - Received Source Specific Host Report, 
+       Z - Multicast Tunnel, z - MDT-data group sender, 
+       Y - Joined MDT-data group, y - Sending to MDT-data group, 
+       G - Received BGP C-Mroute, g - Sent BGP C-Mroute, 
+       Q - Received BGP S-A Route, q - Sent BGP S-A Route, 
+       V - RD &amp;amp; Vector, v - Vector
+Outgoing interface flags: H - Hardware switched, A - Assert winner
+ Timers: Uptime/Expires
+ Interface state: Interface, Next-Hop or VCD, State/Mode
+
+&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;*&lt;/span&gt;, 239.1.1.1&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;, 00:02:43/stopped, RP 0.0.0.0, flags: D
+  Incoming interface: Null, RPF nbr 0.0.0.0
+  Outgoing interface list:
+    Ethernet1/0, Forward/Dense, 00:02:43/stopped
+    Ethernet0/0, Forward/Dense, 00:02:43/stopped
+
+&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;10.1.1.10, 239.1.1.1&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;, 00:02:43/00:00:16, flags: PT
+  Incoming interface: Ethernet0/0, RPF nbr 10.1.2.1
+  Outgoing interface list:
+    Ethernet1/0, Prune/Dense, 00:02:43/00:00:16
+
+&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;*&lt;/span&gt;, 224.0.1.40&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;, 04:53:51/00:02:54, RP 0.0.0.0, flags: DCL
+  Incoming interface: Null, RPF nbr 0.0.0.0
+  Outgoing interface list:
+    Ethernet1/0, Forward/Dense, 04:53:28/stopped
+    Ethernet0/0, Forward/Dense, 04:53:51/stopped
+
+R2#
+
+R3#show ip mroute
+IP Multicast Routing Table
+Flags: D - Dense, S - Sparse, B - Bidir Group, s - SSM Group, C - Connected,
+       L - Local, P - Pruned, R - RP-bit &lt;span class=&quot;nb&quot;&gt;set&lt;/span&gt;, F - Register flag,
+       T - SPT-bit &lt;span class=&quot;nb&quot;&gt;set&lt;/span&gt;, J - Join SPT, M - MSDP created entry, E - Extranet,
+       X - Proxy Join Timer Running, A - Candidate &lt;span class=&quot;k&quot;&gt;for &lt;/span&gt;MSDP Advertisement,
+       U - URD, I - Received Source Specific Host Report, 
+       Z - Multicast Tunnel, z - MDT-data group sender, 
+       Y - Joined MDT-data group, y - Sending to MDT-data group, 
+       G - Received BGP C-Mroute, g - Sent BGP C-Mroute, 
+       Q - Received BGP S-A Route, q - Sent BGP S-A Route, 
+       V - RD &amp;amp; Vector, v - Vector
+Outgoing interface flags: H - Hardware switched, A - Assert winner
+ Timers: Uptime/Expires
+ Interface state: Interface, Next-Hop or VCD, State/Mode
+
+&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;*&lt;/span&gt;, 239.1.1.1&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;, 04:48:33/stopped, RP 0.0.0.0, flags: DC
+  Incoming interface: Null, RPF nbr 0.0.0.0
+  Outgoing interface list:
+    Ethernet2/0, Forward/Dense, 04:48:33/stopped
+    Ethernet1/0, Forward/Dense, 04:48:33/stopped
+    Ethernet0/0, Forward/Dense, 04:48:33/stopped
+
+&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;10.1.1.10, 239.1.1.1&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;, 00:03:14/00:02:45, flags: T
+  Incoming interface: Ethernet0/0, RPF nbr 10.1.3.1
+  Outgoing interface list:
+    Ethernet1/0, Prune/Dense, 00:00:05/00:02:54, A
+    Ethernet2/0, Forward/Dense, 00:03:14/stopped
+
+&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;*&lt;/span&gt;, 224.0.1.40&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;, 04:54:02/00:02:28, RP 0.0.0.0, flags: DCL
+  Incoming interface: Null, RPF nbr 0.0.0.0
+  Outgoing interface list:
+    Ethernet1/0, Forward/Dense, 04:53:59/stopped
+    Ethernet0/0, Forward/Dense, 04:54:02/stopped
+
+R3#
+
+Note: From entry of &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;10.1.1.10, 239.1.1.1&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;, the packet comes &lt;span class=&quot;k&quot;&gt;in &lt;/span&gt;from Ethernet0/0, 
+forward to Ethernet2/0, which is connected to Multicast Receiver, which requests 
+to join multicast group 239.1.1.1.&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;Dense mode works in a flood and prune mode, which can cause a lot traffic in the network.
+Next, let check sparse mode of PIM.&lt;/p&gt;
+
+&lt;h2 id=&quot;configuration-of-sparse-mode&quot;&gt;Configuration of sparse mode&lt;/h2&gt;
+&lt;p&gt;PIM sparse mode works through a Rendezvous Point (RP), which is a router in a multicast network domain that acts as a shared root for a multicast shared tree. In sparse mode only, RP needs to be configured in each muticast router manually. In our case, Router 2 is used as RP, using its loopback 0 IP address 2.2.2.2.&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;R2#conf t
+Enter configuration commands, one per line.  End with CNTL/Z.
+R2&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;config&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;c&quot;&gt;#interface loopback 0&lt;/span&gt;
+R2&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;config-if&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;c&quot;&gt;#ip address 2.2.2.2 255.255.255.255&lt;/span&gt;
+R2&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;config-if&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;c&quot;&gt;#exit&lt;/span&gt;
+R2&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;config&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;c&quot;&gt;#ip pim rp-address 2.2.2.2&lt;/span&gt;
+R2&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;config&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;c&quot;&gt;#interface Ethernet0/0&lt;/span&gt;
+R2&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;config-if&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;c&quot;&gt;#ip pim sparse-mode&lt;/span&gt;
+R2&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;config-if&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;c&quot;&gt;#interface Ethernet1/0&lt;/span&gt;
+R2&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;config-if&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;c&quot;&gt;#ip pim sparse-mode&lt;/span&gt;
+R2&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;config-if&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;c&quot;&gt;#interface loopback 0&lt;/span&gt;
+R2&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;config-if&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;c&quot;&gt;#ip pim sparse-mode&lt;/span&gt;
+R2&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;config-if&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;c&quot;&gt;#end&lt;/span&gt;
+R2#
+
+R1#conf t
+Enter configuration commands, one per line.  End with CNTL/Z.
+R1&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;config&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;c&quot;&gt;#ip route 2.2.2.2 255.255.255.255 10.1.2.2&lt;/span&gt;
+R1&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;config&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;c&quot;&gt;#ip pim rp-address 2.2.2.2&lt;/span&gt;
+R1&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;config&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;c&quot;&gt;#&lt;/span&gt;
+R1&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;config&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;c&quot;&gt;#interface Ethernet 0/0&lt;/span&gt;
+R1&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;config-if&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;c&quot;&gt;#ip pim sparse-mode&lt;/span&gt;
+R1&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;config-if&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;c&quot;&gt;#interface Ethernet 1/0&lt;/span&gt;
+R1&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;config-if&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;c&quot;&gt;#ip pim sparse-mode&lt;/span&gt;
+R1&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;config-if&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;c&quot;&gt;#interface Ethernet 2/0&lt;/span&gt;
+R1&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;config-if&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;c&quot;&gt;#ip pim sparse-mode&lt;/span&gt;
+R1&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;config-if&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;c&quot;&gt;#end&lt;/span&gt;
+R1#
+
+R3#conf t
+Enter configuration commands, one per line.  End with CNTL/Z.
+R3&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;config&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;c&quot;&gt;#ip route 2.2.2.2 255.255.255.255 10.1.4.2&lt;/span&gt;
+R3&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;config&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;c&quot;&gt;#interface Ethernet 0/0&lt;/span&gt;
+R3&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;config-if&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;c&quot;&gt;#ip pim sparse-mode &lt;/span&gt;
+R3&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;config-if&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;c&quot;&gt;#interface Ethernet 1/0&lt;/span&gt;
+R3&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;config-if&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;c&quot;&gt;#ip pim sparse-mode    &lt;/span&gt;
+R3&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;config-if&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;c&quot;&gt;#interface Ethernet 2/0&lt;/span&gt;
+R3&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;config-if&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;c&quot;&gt;#ip pim sparse-mode    &lt;/span&gt;
+R3&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;config-if&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;c&quot;&gt;#end&lt;/span&gt;
+R3#&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;h2 id=&quot;configuration-of-sparse-dense-mode&quot;&gt;Configuration of sparse-dense mode&lt;/h2&gt;
+&lt;p&gt;When the number of multicast router is large, it is not easy to configue RP node for every router. There is easier way to do so, which is let router auto discovery RP by running sparse-dense mode. This essentially means that use dense mode to discover RP, but return to sparse mode to establish distribution tree.&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;R1#conf t
+Enter configuration commands, one per line.  End with CNTL/Z.
+R1&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;config&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;c&quot;&gt;#no ip pim rp-address 2.2.2.2&lt;/span&gt;
+R1&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;config&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;c&quot;&gt;#interface Ethernet 0/0&lt;/span&gt;
+R1&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;config-if&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;c&quot;&gt;#ip pim sparse-dense-mode &lt;/span&gt;
+R1&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;config-if&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;c&quot;&gt;#interface Ethernet 1/0   &lt;/span&gt;
+R1&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;config-if&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;c&quot;&gt;#ip pim sparse-dense-mode &lt;/span&gt;
+R1&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;config-if&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;c&quot;&gt;#interface Ethernet 2/0   &lt;/span&gt;
+R1&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;config-if&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;c&quot;&gt;#ip pim sparse-dense-mode &lt;/span&gt;
+R1&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;config-if&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;c&quot;&gt;#end&lt;/span&gt;
+R1#
+
+R3#conf t
+Enter configuration commands, one per line.  End with CNTL/Z.
+R3&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;config&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;c&quot;&gt;#no ip pim rp-address 2.2.2.2&lt;/span&gt;
+R3&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;config&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;c&quot;&gt;#interface Ethernet 0/0&lt;/span&gt;
+R3&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;config-if&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;c&quot;&gt;#ip pim sparse-dense-mode &lt;/span&gt;
+R3&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;config-if&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;c&quot;&gt;#interface Ethernet 1/0      &lt;/span&gt;
+R3&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;config-if&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;c&quot;&gt;#ip pim sparse-dense-mode &lt;/span&gt;
+R3&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;config-if&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;c&quot;&gt;#interface Ethernet 2/0   &lt;/span&gt;
+R3&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;config-if&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;c&quot;&gt;#ip pim sparse-dense-mode &lt;/span&gt;
+R3&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;config-if&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;c&quot;&gt;#end&lt;/span&gt;
+R3#
+
+In Router &lt;span class=&quot;c&quot;&gt;#2, we will configure it as RP by announce and discover.&lt;/span&gt;
+R2#conf t
+R2&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;config&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;c&quot;&gt;#no ip pim rp-address 2.2.2.2&lt;/span&gt;
+R2&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;config&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;c&quot;&gt;#interface Ethernet 0/0&lt;/span&gt;
+R2&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;config-if&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;c&quot;&gt;#ip pim sparse-dense-mode &lt;/span&gt;
+R2&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;config-if&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;c&quot;&gt;#interface Ethernet 1/0   &lt;/span&gt;
+R2&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;config-if&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;c&quot;&gt;#ip pim sparse-dense-mode &lt;/span&gt;
+R2&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;config-if&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;c&quot;&gt;#interface loopback 0&lt;/span&gt;
+R2&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;config-if&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;c&quot;&gt;#ip pim sparse-dense-mode &lt;/span&gt;
+R2&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;config-if&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;c&quot;&gt;#exit&lt;/span&gt;
+R2&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;config&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;c&quot;&gt;#ip pim send-rp-announce lo 0 scope 16 &lt;/span&gt;
+R2&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;config&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;c&quot;&gt;#ip pim send-rp-discovery scope 16&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;With above configuration, we can check each router’s multicast routing tabl&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;R1#show ip mroute 
+IP Multicast Routing Table
+Flags: D - Dense, S - Sparse, B - Bidir Group, s - SSM Group, C - Connected,
+       L - Local, P - Pruned, R - RP-bit &lt;span class=&quot;nb&quot;&gt;set&lt;/span&gt;, F - Register flag,
+       T - SPT-bit &lt;span class=&quot;nb&quot;&gt;set&lt;/span&gt;, J - Join SPT, M - MSDP created entry, E - Extranet,
+       X - Proxy Join Timer Running, A - Candidate &lt;span class=&quot;k&quot;&gt;for &lt;/span&gt;MSDP Advertisement,
+       U - URD, I - Received Source Specific Host Report, 
+       Z - Multicast Tunnel, z - MDT-data group sender, 
+       Y - Joined MDT-data group, y - Sending to MDT-data group, 
+       G - Received BGP C-Mroute, g - Sent BGP C-Mroute, 
+       Q - Received BGP S-A Route, q - Sent BGP S-A Route, 
+       V - RD &amp;amp; Vector, v - Vector
+Outgoing interface flags: H - Hardware switched, A - Assert winner
+ Timers: Uptime/Expires
+ Interface state: Interface, Next-Hop or VCD, State/Mode
+
+&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;*&lt;/span&gt;, 239.1.1.1&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;, 00:02:52/stopped, RP 2.2.2.2, flags: SPF
+  Incoming interface: Ethernet1/0, RPF nbr 10.1.2.2
+  Outgoing interface list: Null
+
+&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;10.1.1.10, 239.1.1.1&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;, 00:02:52/00:00:07, flags: FT
+  Incoming interface: Ethernet0/0, RPF nbr 0.0.0.0, Registering
+  Outgoing interface list:
+    Ethernet2/0, Forward/Sparse-Dense, 00:02:52/00:02:36
+    Ethernet1/0, Forward/Sparse-Dense, 00:02:52/00:02:36
+
+&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;*&lt;/span&gt;, 224.0.1.39&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;, 00:06:48/stopped, RP 0.0.0.0, flags: DC
+  Incoming interface: Null, RPF nbr 0.0.0.0
+  Outgoing interface list:
+    Ethernet2/0, Forward/Sparse-Dense, 00:06:48/stopped
+    Ethernet1/0, Forward/Sparse-Dense, 00:06:48/stopped
+
+&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;2.2.2.2, 224.0.1.39&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;, 00:06:48/00:02:00, flags: PT
+  Incoming interface: Ethernet1/0, RPF nbr 10.1.2.2
+  Outgoing interface list:
+    Ethernet2/0, Prune/Sparse-Dense, 00:02:48/00:00:13
+
+&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;*&lt;/span&gt;, 224.0.1.40&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;, 00:11:54/stopped, RP 0.0.0.0, flags: DCL
+  Incoming interface: Null, RPF nbr 0.0.0.0
+  Outgoing interface list:
+    Ethernet1/0, Forward/Sparse-Dense, 00:11:04/stopped
+    Ethernet2/0, Forward/Sparse-Dense, 00:11:05/stopped
+    Ethernet0/0, Forward/Sparse-Dense, 00:11:54/stopped
+
+&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;10.1.4.2, 224.0.1.40&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;, 00:05:48/00:02:09, flags: LT
+  Incoming interface: Ethernet2/0, RPF nbr 10.1.3.3
+  Outgoing interface list:
+    Ethernet0/0, Forward/Sparse-Dense, 00:05:48/stopped
+    Ethernet1/0, Prune/Sparse-Dense, 00:01:50/00:01:09
+
+&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;10.1.2.2, 224.0.1.40&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;, 00:05:48/00:02:09, flags: LT
+  Incoming interface: Ethernet1/0, RPF nbr 10.1.2.2
+  Outgoing interface list:
+    Ethernet0/0, Forward/Sparse-Dense, 00:05:48/stopped
+    Ethernet2/0, Forward/Sparse-Dense, 00:05:48/stopped
+
+R1#&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;R2#show ip mroute 
+IP Multicast Routing Table
+Flags: D - Dense, S - Sparse, B - Bidir Group, s - SSM Group, C - Connected,
+       L - Local, P - Pruned, R - RP-bit &lt;span class=&quot;nb&quot;&gt;set&lt;/span&gt;, F - Register flag,
+       T - SPT-bit &lt;span class=&quot;nb&quot;&gt;set&lt;/span&gt;, J - Join SPT, M - MSDP created entry, E - Extranet,
+       X - Proxy Join Timer Running, A - Candidate &lt;span class=&quot;k&quot;&gt;for &lt;/span&gt;MSDP Advertisement,
+       U - URD, I - Received Source Specific Host Report, 
+       Z - Multicast Tunnel, z - MDT-data group sender, 
+       Y - Joined MDT-data group, y - Sending to MDT-data group, 
+       G - Received BGP C-Mroute, g - Sent BGP C-Mroute, 
+       Q - Received BGP S-A Route, q - Sent BGP S-A Route, 
+       V - RD &amp;amp; Vector, v - Vector
+Outgoing interface flags: H - Hardware switched, A - Assert winner
+ Timers: Uptime/Expires
+ Interface state: Interface, Next-Hop or VCD, State/Mode
+
+&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;*&lt;/span&gt;, 239.1.1.1&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;, 00:05:05/00:03:20, RP 2.2.2.2, flags: S
+  Incoming interface: Null, RPF nbr 0.0.0.0
+  Outgoing interface list:
+    Ethernet1/0, Forward/Sparse-Dense, 00:05:05/00:03:20
+
+&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;10.1.1.10, 239.1.1.1&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;, 00:02:09/00:00:50, flags: 
+  Incoming interface: Ethernet0/0, RPF nbr 10.1.2.1
+  Outgoing interface list:
+    Ethernet1/0, Forward/Sparse-Dense, 00:02:09/00:03:20
+
+&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;*&lt;/span&gt;, 224.0.1.39&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;, 00:06:05/stopped, RP 0.0.0.0, flags: DCL
+  Incoming interface: Null, RPF nbr 0.0.0.0
+  Outgoing interface list:
+    Loopback0, Forward/Sparse-Dense, 00:05:42/stopped
+    Ethernet1/0, Forward/Sparse-Dense, 00:06:05/stopped
+    Ethernet0/0, Forward/Sparse-Dense, 00:06:05/stopped
+
+&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;2.2.2.2, 224.0.1.39&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;, 00:06:05/00:02:54, flags: LT
+  Incoming interface: Loopback0, RPF nbr 0.0.0.0
+  Outgoing interface list:
+    Ethernet0/0, Forward/Sparse-Dense, 00:05:42/stopped
+    Ethernet1/0, Forward/Sparse-Dense, 00:05:42/stopped
+
+&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;*&lt;/span&gt;, 224.0.1.40&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;, 00:08:46/stopped, RP 0.0.0.0, flags: DCL
+  Incoming interface: Null, RPF nbr 0.0.0.0
+  Outgoing interface list:
+    Ethernet0/0, Forward/Sparse-Dense, 00:08:46/stopped
+
+&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;10.1.4.2, 224.0.1.40&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;, 00:01:07/00:01:52, flags: LT
+  Incoming interface: Ethernet1/0, RPF nbr 0.0.0.0
+  Outgoing interface list:
+    Ethernet0/0, Forward/Sparse-Dense, 00:01:07/stopped, A
+
+&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;10.1.2.2, 224.0.1.40&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;, 00:05:05/00:01:48, flags: PLT
+  Incoming interface: Ethernet0/0, RPF nbr 0.0.0.0
+  Outgoing interface list: Null
+
+R2#&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;R3#show ip mroute 
+IP Multicast Routing Table
+Flags: D - Dense, S - Sparse, B - Bidir Group, s - SSM Group, C - Connected,
+       L - Local, P - Pruned, R - RP-bit &lt;span class=&quot;nb&quot;&gt;set&lt;/span&gt;, F - Register flag,
+       T - SPT-bit &lt;span class=&quot;nb&quot;&gt;set&lt;/span&gt;, J - Join SPT, M - MSDP created entry, E - Extranet,
+       X - Proxy Join Timer Running, A - Candidate &lt;span class=&quot;k&quot;&gt;for &lt;/span&gt;MSDP Advertisement,
+       U - URD, I - Received Source Specific Host Report, 
+       Z - Multicast Tunnel, z - MDT-data group sender, 
+       Y - Joined MDT-data group, y - Sending to MDT-data group, 
+       G - Received BGP C-Mroute, g - Sent BGP C-Mroute, 
+       Q - Received BGP S-A Route, q - Sent BGP S-A Route, 
+       V - RD &amp;amp; Vector, v - Vector
+Outgoing interface flags: H - Hardware switched, A - Assert winner
+ Timers: Uptime/Expires
+ Interface state: Interface, Next-Hop or VCD, State/Mode
+
+&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;*&lt;/span&gt;, 239.1.1.1&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;, 00:08:41/stopped, RP 2.2.2.2, flags: SJC
+  Incoming interface: Ethernet1/0, RPF nbr 10.1.4.2
+  Outgoing interface list:
+    Ethernet2/0, Forward/Sparse-Dense, 00:08:41/00:02:21
+
+&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;10.1.1.10, 239.1.1.1&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;, 00:01:21/00:01:38, flags: J
+  Incoming interface: Ethernet0/0, RPF nbr 10.1.3.1
+  Outgoing interface list:
+    Ethernet2/0, Forward/Sparse-Dense, 00:01:21/00:02:21
+
+&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;*&lt;/span&gt;, 224.0.1.39&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;, 00:05:17/stopped, RP 0.0.0.0, flags: DC
+  Incoming interface: Null, RPF nbr 0.0.0.0
+  Outgoing interface list:
+    Ethernet1/0, Forward/Sparse-Dense, 00:05:17/stopped
+    Ethernet0/0, Forward/Sparse-Dense, 00:05:17/stopped
+
+&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;2.2.2.2, 224.0.1.39&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;, 00:05:17/00:01:47, flags: PTX
+  Incoming interface: Ethernet1/0, RPF nbr 10.1.4.2
+  Outgoing interface list:
+    Ethernet0/0, Prune/Sparse-Dense, 00:01:17/00:01:44, A
+
+&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;*&lt;/span&gt;, 224.0.1.40&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;, 05:58:01/stopped, RP 0.0.0.0, flags: DCL
+  Incoming interface: Null, RPF nbr 0.0.0.0
+  Outgoing interface list:
+    Ethernet1/0, Forward/Sparse-Dense, 05:57:57/stopped
+    Ethernet0/0, Forward/Sparse-Dense, 05:58:01/stopped
+
+&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;10.1.2.2, 224.0.1.40&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;, 00:04:17/00:02:40, flags: LT
+  Incoming interface: Ethernet0/0, RPF nbr 10.1.3.1
+  Outgoing interface list:
+    Ethernet1/0, Forward/Sparse-Dense, 00:04:17/stopped
+          
+&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;10.1.4.2, 224.0.1.40&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;, 00:04:17/00:02:40, flags: LT
+  Incoming interface: Ethernet1/0, RPF nbr 10.1.4.2
+  Outgoing interface list:
+    Ethernet0/0, Forward/Sparse-Dense, 00:04:17/stopped
+
+R3#
+
+Mcast-Snd#ping 239.1.1.1
+Type escape sequence to abort.
+Sending 1, 100-byte ICMP Echos to 239.1.1.1, timeout is 2 seconds:
+
+Reply to request 0 from 10.1.5.100, 28 ms
+Mcast-Snd#ping 239.1.1.1 repeat 10
+Type escape sequence to abort.
+Sending 10, 100-byte ICMP Echos to 239.1.1.1, timeout is 2 seconds:
+
+Reply to request 0 from 10.1.5.100, 28 ms
+Reply to request 1 from 10.1.5.100, 1 ms&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;The above lab is based on below excellent youtube video from Kevin Wallace:
+https://www.youtube.com/watch?v=Gjt2L9jAYNA&lt;/p&gt;</content><author><name></name></author><summary type="html">Multicast routing is an important aspect of IP routing. It can be used to distribute data (for example, audio/video streaming broadcasts) to multiple recipients in a very efficient way. Two key protocols of multicast routing</summary></entry><entry><title type="html">Jekyll update for my blog site</title><link href="http://localhost:4000/2019/08/12/Jekyll-Update-blog-site.html" rel="alternate" type="text/html" title="Jekyll update for my blog site" /><published>2019-08-12T00:00:00-07:00</published><updated>2019-08-12T00:00:00-07:00</updated><id>http://localhost:4000/2019/08/12/Jekyll-Update-blog-site</id><content type="html" xml:base="http://localhost:4000/2019/08/12/Jekyll-Update-blog-site.html">&lt;p&gt;My blog site was shutdown for quite a while for certain reasons. However I strongly feel this is a good way for me to capture what I learned along the way and share with anyone who might feel helpful for them. Thanks to all people who provided postivie feedback. After clearup the issue and I finally decide to continue working on my blog site. First thing I do is to update my blog development enviroment which is Jekyll, installed in ubuntu 16.04 VM.&lt;/p&gt;
 
 &lt;p&gt;&lt;img src=&quot;/uploads/jekyll.jpg&quot; alt=&quot;Jekyll on Ubuntu&quot; /&gt; 
 &lt;!--more--&gt;&lt;/p&gt;
@@ -2216,81 +2878,4 @@ Accumulated &lt;span class=&quot;nb&quot;&gt;time&lt;/span&gt;:
 &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    0.000000] efi: Getting EFI parameters from FDT:
 &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    0.000000] efi: UEFI not found.
 &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    0.000000] cma: Reserved 128 MiB at 0x0000000078000000
-...&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;</content><author><name></name></author><summary type="html">For the last few days, I have been working on build new image for a new platform at work. I found out it is useful to able to boot manually with kernel, dtb, initramfs from u-boot. By doing this, if the thing doesn’t work, we can change any one of them to identify which one has issue.</summary></entry><entry><title type="html">Linux initrd and initramfs</title><link href="http://localhost:4000/2017/03/20/linux-initrd-initramfs.html" rel="alternate" type="text/html" title="Linux initrd and initramfs" /><published>2017-03-20T00:00:00-07:00</published><updated>2017-03-20T00:00:00-07:00</updated><id>http://localhost:4000/2017/03/20/linux-initrd-initramfs</id><content type="html" xml:base="http://localhost:4000/2017/03/20/linux-initrd-initramfs.html">&lt;p&gt;After Linux kernel boots, it looks for root file system, which can be initrd or initramfs. They are two different ways.&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;/uploads/linux/linux-initrd-initramfs-comp.jpg&quot; alt=&quot;linux init rootfs&quot; /&gt;&lt;/p&gt;
-
-&lt;!--more--&gt;
-
-&lt;h1 id=&quot;initrd&quot;&gt;initrd&lt;/h1&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;ramdev block device is created. It is a ram-based block device, that is a simulated hard disk that uses memory instead of physical disks.&lt;/li&gt;
-  &lt;li&gt;
-    &lt;table&gt;
-      &lt;tbody&gt;
-        &lt;tr&gt;
-          &lt;td&gt;The initrd file is read and unzipped into the device, as if you did zcat initrd&lt;/td&gt;
-          &lt;td&gt;dd of=/dev/ram0 or something similar.&lt;/td&gt;
-        &lt;/tr&gt;
-      &lt;/tbody&gt;
-    &lt;/table&gt;
-  &lt;/li&gt;
-  &lt;li&gt;The initrd contains an image of a filesystem, so now you can mount the filesystem as usual: mount /dev/ram0 /root. Naturally, filesystems need a driver, so if you use ext2, the ext2 driver has to be compiled in-kernel.&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;Example to create ramdisk image:&lt;/p&gt;
-
-&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt; &lt;span class=&quot;nb&quot;&gt;cat &lt;/span&gt;createramdisk.sh
-&lt;span class=&quot;c&quot;&gt;#!/bin/bash&lt;/span&gt;
-
-&lt;span class=&quot;nv&quot;&gt;RDSIZE&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;400000
-&lt;span class=&quot;nv&quot;&gt;BLKSIZE&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;1024
-&lt;span class=&quot;c&quot;&gt;# create raw disk image first&lt;/span&gt;
-dd &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;/dev/zero &lt;span class=&quot;nv&quot;&gt;of&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;/tmp/ramdisk.img &lt;span class=&quot;nv&quot;&gt;bs&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$BLKSIZE&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;count&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$RDSIZE&lt;/span&gt;
-
-&lt;span class=&quot;c&quot;&gt;# format it to ext2&lt;/span&gt;
-/sbin/mke2fs &lt;span class=&quot;nt&quot;&gt;-F&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;-m&lt;/span&gt; 0 &lt;span class=&quot;nt&quot;&gt;-b&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;$BLKSIZE&lt;/span&gt; /tmp/ramdisk.img &lt;span class=&quot;nv&quot;&gt;$RDSIZE&lt;/span&gt;
-
-&lt;span class=&quot;c&quot;&gt;# mount it&lt;/span&gt;
-mkdir /mnt/initrd-disk
-mount /tmp/ramdisk.img /mnt/initrd-disk &lt;span class=&quot;nt&quot;&gt;-t&lt;/span&gt; ext2 &lt;span class=&quot;nt&quot;&gt;-o&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;loop&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;/dev/loop0
-
-&lt;span class=&quot;c&quot;&gt;# copy context into ramdisk image&lt;/span&gt;
-cp &lt;span class=&quot;nt&quot;&gt;-rf&lt;/span&gt; /mnt/marvell/&lt;span class=&quot;k&quot;&gt;*&lt;/span&gt; /mnt/initrd-disk/
-
-&lt;span class=&quot;c&quot;&gt;# umount and force it write into ramdisk image&lt;/span&gt;
-umount /mnt/initrd-disk/
-
-&lt;span class=&quot;c&quot;&gt;# zip it&lt;/span&gt;
-gzip &lt;span class=&quot;nt&quot;&gt;-9&lt;/span&gt; /tmp/ramdisk.img
-mv /tmp/ramdisk.img.gz &lt;span class=&quot;nb&quot;&gt;.&lt;/span&gt;
-
-&lt;span class=&quot;c&quot;&gt;#since it is for u-boot to use, it has to be converted to add a header in front&lt;/span&gt;
-mkimage &lt;span class=&quot;nt&quot;&gt;-A&lt;/span&gt; arm64 &lt;span class=&quot;nt&quot;&gt;-T&lt;/span&gt; ramdisk &lt;span class=&quot;nt&quot;&gt;-C&lt;/span&gt; gzip &lt;span class=&quot;nt&quot;&gt;-n&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;Sparrow Ramdisk Image&quot;&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;-d&lt;/span&gt; ramdisk.img.gz uRamdisk&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
-
-&lt;h1 id=&quot;initramfs&quot;&gt;initramfs&lt;/h1&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;A tmpfs is mounted: mount -t tmpfs nodev /root. The tmpfs doesn’t need a driver, it is always on-kernel. No device needed, no additional drivers.&lt;/li&gt;
-  &lt;li&gt;
-    &lt;table&gt;
-      &lt;tbody&gt;
-        &lt;tr&gt;
-          &lt;td&gt;The initramfs is uncompressed directly into this new filesystem: zcat initramfs&lt;/td&gt;
-          &lt;td&gt;cpio -i, or similar.&lt;/td&gt;
-        &lt;/tr&gt;
-      &lt;/tbody&gt;
-    &lt;/table&gt;
-  &lt;/li&gt;
-  &lt;li&gt;Sometimes it can be very confusing because it is still called initrd in many places although it is a initramfs, particularly in boot loaders, as for them it is just a BLOB. The difference is made by the OS when it boots.&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;Create initramfs is a lot simpler, prepare a directory, and holding all needed files inside it, then:&lt;/p&gt;
-
-&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;find &lt;span class=&quot;nb&quot;&gt;.&lt;/span&gt; | cpio &lt;span class=&quot;nt&quot;&gt;-o&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;-H&lt;/span&gt; newc | gzip | initramfs.cpio.gz&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
-
-&lt;p&gt;initramfs.cpip.gz, it cal also embedded into kernel directly to make just one binary.&lt;/p&gt;
-
-&lt;h1 id=&quot;reference&quot;&gt;Reference&lt;/h1&gt;
-&lt;p&gt;https://www.kernel.org/doc/Documentation/filesystems/ramfs-rootfs-initramfs.txt&lt;/p&gt;</content><author><name></name></author><summary type="html">After Linux kernel boots, it looks for root file system, which can be initrd or initramfs. They are two different ways.</summary></entry></feed>
+...&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;</content><author><name></name></author><summary type="html">For the last few days, I have been working on build new image for a new platform at work. I found out it is useful to able to boot manually with kernel, dtb, initramfs from u-boot. By doing this, if the thing doesn’t work, we can change any one of them to identify which one has issue.</summary></entry></feed>

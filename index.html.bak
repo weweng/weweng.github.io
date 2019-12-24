@@ -76,6 +76,8 @@
 	<div class='post-description'>
 		<ul class='older-posts'>
 			
+				<li><a href='/2018/01/27/GPU-Programming-With-CUDA.html'>GPU Programming With CUDA</a></li>
+			
 				<li><a href='/2017/08/05/SPI-Support-embedded-box.html'>SPI flash support in embedded Linux box</a></li>
 			
 				<li><a href='/2017/08/02/RTC-Support-embedded-box.html'>RTC support in embedded Linux box</a></li>
@@ -85,8 +87,6 @@
 				<li><a href='/2017/05/21/udev-rule.html'>Linux udev rule to create persistent device name</a></li>
 			
 				<li><a href='/2017/04/27/UCS-install.html'>Make a high end UCS Server for fast build</a></li>
-			
-				<li><a href='/2017/03/24/ARMv8-manual-boot.html'>Marvell ARMADA 7K Linux boot using u-boot</a></li>
 			
 		</ul>
 	</div>
