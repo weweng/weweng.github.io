@@ -3,7 +3,7 @@
 	<title>weweng.github.io</title>
 	<link href='http://weweng.github.io/'/>
 	<link type='application/atom+xml' rel='self' href='http://weweng.github.io/atom.xml'/>
-	<updated>2019-12-24T10:30:54-08:00</updated>
+	<updated>2019-12-24T10:48:31-08:00</updated>
 	<id>http://weweng.github.io/</id>
 
 	<author>
@@ -13,7 +13,7 @@
 
 	
 	<entry>
-		<title>IP Multicast Routing Configuration</title>
+		<title>Networking - IP Multicast Routing Configuration</title>
 		<link type='text/html' href='http://weweng.github.io/2019/09/07/Networking-Multicast.html'/>
 		<id>http://weweng.github.io/2019/09/07/Networking-Multicast.html</id>
 		<updated>2019-09-07T00:00:00-07:00</updated>
