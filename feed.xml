@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.8.5">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2019-12-25T19:05:49-08:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Your awesome title</title><subtitle>Write an awesome description for your new site here. You can edit this line in _config.yml. It will appear in your document head meta (for Google search results) and in your feed.xml site description.</subtitle><entry><title type="html">Networking - IP BGP Routing Configuration</title><link href="http://localhost:4000/2019/10/17/Networking-BGP.html" rel="alternate" type="text/html" title="Networking - IP BGP Routing Configuration" /><published>2019-10-17T00:00:00-07:00</published><updated>2019-10-17T00:00:00-07:00</updated><id>http://localhost:4000/2019/10/17/Networking-BGP</id><content type="html" xml:base="http://localhost:4000/2019/10/17/Networking-BGP.html">&lt;p&gt;BGP routing is an important aspect of IP routing, which is the only one exterior gayeway routing protocol. There are two flavors: iBGP and eBGP, depennding on if the beighbors are in the same AS.
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.8.5">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2019-12-25T20:22:18-08:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Your awesome title</title><subtitle>Write an awesome description for your new site here. You can edit this line in _config.yml. It will appear in your document head meta (for Google search results) and in your feed.xml site description.</subtitle><entry><title type="html">Networking - IP BGP Routing Configuration</title><link href="http://localhost:4000/2019/10/17/Networking-BGP.html" rel="alternate" type="text/html" title="Networking - IP BGP Routing Configuration" /><published>2019-10-17T00:00:00-07:00</published><updated>2019-10-17T00:00:00-07:00</updated><id>http://localhost:4000/2019/10/17/Networking-BGP</id><content type="html" xml:base="http://localhost:4000/2019/10/17/Networking-BGP.html">&lt;p&gt;BGP routing is an important aspect of IP routing, which is the only one exterior gayeway routing protocol. There are two flavors: iBGP and eBGP, depennding on if the beighbors are in the same AS.
 Especially EBGP, this is the routing protocol which routes the entire internet, connects between different ISPs, enterprise networks.
 &lt;img src=&quot;/uploads/networking/bgp-isp.jpg&quot; alt=&quot;BGP routing between ISP&quot; /&gt;
 &lt;!--more--&gt;&lt;/p&gt;
@@ -1402,7 +1402,247 @@ Reply to request 0 from 10.1.5.100, 28 ms
 Reply to request 1 from 10.1.5.100, 1 ms&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
 
 &lt;p&gt;The above lab is based on below excellent youtube video:
-&lt;a href=&quot;https://www.youtube.com/watch?v=Gjt2L9jAYNA&quot;&gt; Multicast from Kevin Wallace&lt;/a&gt;&lt;/p&gt;</content><author><name></name></author><summary type="html">Multicast routing is an important aspect of IP routing. It can be used to distribute data (for example, audio/video streaming broadcasts) to multiple recipients in a very efficient way. Two key protocols of multicast routing</summary></entry><entry><title type="html">Jekyll update for my blog site</title><link href="http://localhost:4000/2019/08/12/Jekyll-Update-blog-site.html" rel="alternate" type="text/html" title="Jekyll update for my blog site" /><published>2019-08-12T00:00:00-07:00</published><updated>2019-08-12T00:00:00-07:00</updated><id>http://localhost:4000/2019/08/12/Jekyll-Update-blog-site</id><content type="html" xml:base="http://localhost:4000/2019/08/12/Jekyll-Update-blog-site.html">&lt;p&gt;My blog site was shutdown for quite a while for certain reasons. However I strongly feel this is a good way for me to capture what I learned along the way and share with anyone who might feel helpful for them. Thanks to all people who provided postivie feedback. After clearup the issue and I finally decide to continue working on my blog site. First thing I do is to update my blog development enviroment which is Jekyll, installed in ubuntu 16.04 VM.&lt;/p&gt;
+&lt;a href=&quot;https://www.youtube.com/watch?v=Gjt2L9jAYNA&quot;&gt; Multicast from Kevin Wallace&lt;/a&gt;&lt;/p&gt;</content><author><name></name></author><summary type="html">Multicast routing is an important aspect of IP routing. It can be used to distribute data (for example, audio/video streaming broadcasts) to multiple recipients in a very efficient way. Two key protocols of multicast routing</summary></entry><entry><title type="html">Networking - OSPF Routing with Quagga</title><link href="http://localhost:4000/2019/08/27/Quagga.html" rel="alternate" type="text/html" title="Networking - OSPF Routing with Quagga" /><published>2019-08-27T00:00:00-07:00</published><updated>2019-08-27T00:00:00-07:00</updated><id>http://localhost:4000/2019/08/27/Quagga</id><content type="html" xml:base="http://localhost:4000/2019/08/27/Quagga.html">&lt;p&gt;Quagga is a very popular open source routing software. It supports all main IGP protocols like RIP, OSFP, IS-IS, also EGP protocol like BGP.
+&lt;img src=&quot;/uploads/networking/quagga-opensource.jpg&quot; alt=&quot;Open source Routing&quot; /&gt;
+I thought it is interesting to try it out…
+&lt;!--more--&gt;&lt;/p&gt;
+&lt;h2 id=&quot;quagga-software-architecture&quot;&gt;Quagga software architecture&lt;/h2&gt;
+
+&lt;p&gt;&lt;img src=&quot;/uploads/networking/quagga-arch.jpg&quot; alt=&quot;Quagga Software architecture&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;The Quagga architecture consists of a core daemon (zebra) which is an abstraction layer to the underlying Unix kernel and presents the Zserv API over a Unix-domain socket or TCP socket to Quagga clients. The Zserv clients typically implement a routing protocol and communicate routing updates to the zebra daemon.
+Existing Zserv clients are:&lt;/p&gt;
+&lt;ul&gt;
+  &lt;li&gt;ospfd, implementing Open Shortest Path First (OSPFv2)&lt;/li&gt;
+  &lt;li&gt;bgpd, implementing Border Gateway Protocol (BGPv4+), including address family support for IP multicast and IPv6&lt;/li&gt;
+  &lt;li&gt;ripd, implementing Routing Information Protocol (RIP) version 1 and 2;&lt;/li&gt;
+  &lt;li&gt;isisd, implementing Intermediate System to Intermediate System (IS-IS)&lt;/li&gt;
+  &lt;li&gt;ospf6d, implementing Open Shortest Path First (OSPFv3) for IPv6&lt;/li&gt;
+  &lt;li&gt;ripngd, implementing Routing Information Protocol (RIPng) for IPv6&lt;/li&gt;
+  &lt;li&gt;pimd, implementing Protocol Independent Multicast (PIM-SSM) for Source-specific multicast&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;install-quagga-in-ubuntu&quot;&gt;Install Quagga in ubuntu&lt;/h2&gt;
+&lt;p&gt;Qugga source code can be downloaded from  http://download.savannah.gnu.org/releases/quagga/. It can be built from source easily. However for popular linux distribution like ubuntu, it already has binary in the main repo. So the life is easier.&lt;/p&gt;
+
+&lt;p&gt;Steps to install in ubuntu:&lt;/p&gt;
+&lt;ul&gt;
+  &lt;li&gt;sudo apt install quagga quagga-doc&lt;/li&gt;
+  &lt;li&gt;Enable linux IPv4 packet forwarding in /etc/sysctl.conf : net.ipv4.ip_forward=1&lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;Setup config for quagga:
+cp /usr/share/doc/quagga-core/examples/vtysh.conf.sample /etc/quagga/vtysh.conf
+cp /usr/share/doc/quagga-core/examples/zebra.conf.sample /etc/quagga/zebra.conf
+cp /usr/share/doc/quagga-core/examples/bgpd.conf.sample /etc/quagga/bgpd.conf
+cp /usr/share/doc/quagga-core/examples/ospfd.conf.sample /etc/quagga/ospf.conf&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;sudo chown quagga:quagga /etc/quagga/*.conf&lt;/li&gt;
+  &lt;li&gt;sudo chown quagga:quaggavty /etc/quagga/vtysh.conf&lt;/li&gt;
+  &lt;li&gt;sudo chmod 640 /etc/quagga/*.conf&lt;/li&gt;
+  &lt;li&gt;Run zebra and needed routing daemon
+sudo service zebra start
+sudo service zebra status
+sudo service bgpd start
+sudo service ospfd start
+sudo service bgpd status&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;console-access&quot;&gt;“Console” access:&lt;/h2&gt;
+&lt;p&gt;-zebra:  telnet localhost 2601 
+-ripd:   telnet localhost 2602 
+-ripngd: telnet localhost 2603 
+-ospfd:  telnet localhost 2604 
+-bgpd:   telnet localhost 2605
+-vtysh:  sudo vtysh&lt;/p&gt;
+
+&lt;p&gt;the default password is zebra.&lt;/p&gt;
+
+&lt;h2 id=&quot;quagga--network-topology&quot;&gt;Quagga  network topology&lt;/h2&gt;
+&lt;p&gt;I created four virtualBox VMs and have internal networks connect them as below:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/uploads/networking/quagga-network.jpg&quot; alt=&quot;Quagga test network&quot; /&gt;&lt;/p&gt;
+
+&lt;h2 id=&quot;run-ospf-using-quagga&quot;&gt;Run OSPF using Quagga&lt;/h2&gt;
+
+&lt;p&gt;Quagga-Master:&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;xterm# &lt;span class=&quot;nb&quot;&gt;sudo &lt;/span&gt;vtysh
+
+Quagga-Master# show running-config 
+Building configuration...
+
+Current configuration:
+&lt;span class=&quot;o&quot;&gt;!&lt;/span&gt;
+hostname Router
+hostname ospfd
+log stdout
+hostname bgpd
+hostname Quagga-Master
+&lt;span class=&quot;o&quot;&gt;!&lt;/span&gt;
+password zebra
+&lt;span class=&quot;nb&quot;&gt;enable &lt;/span&gt;password zebra
+&lt;span class=&quot;o&quot;&gt;!&lt;/span&gt;
+interface enp0s3
+&lt;span class=&quot;o&quot;&gt;!&lt;/span&gt;
+interface enp0s8
+ ip address 11.1.1.1/24
+&lt;span class=&quot;o&quot;&gt;!&lt;/span&gt;
+interface enp0s9
+ ip address 22.1.1.1/24
+&lt;span class=&quot;o&quot;&gt;!&lt;/span&gt;
+interface enp0s10
+ ip address 33.1.1.1/24
+&lt;span class=&quot;o&quot;&gt;!&lt;/span&gt;
+interface lo
+&lt;span class=&quot;o&quot;&gt;!&lt;/span&gt;
+router bgp 7675
+ bgp router-id 33.1.1.1
+&lt;span class=&quot;o&quot;&gt;!&lt;/span&gt;
+ address-family ipv6
+ exit-address-family
+ &lt;span class=&quot;nb&quot;&gt;exit&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;!&lt;/span&gt;
+router ospf
+&lt;span class=&quot;o&quot;&gt;!&lt;/span&gt;
+ip forwarding
+&lt;span class=&quot;o&quot;&gt;!&lt;/span&gt;
+line vty
+&lt;span class=&quot;o&quot;&gt;!&lt;/span&gt;
+end
+Quagga-Master#
+Quagga-Master# conf t
+Quagga-Master&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;config&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;c&quot;&gt;# router ospf&lt;/span&gt;
+Quagga-Master&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;config-router&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;c&quot;&gt;# network 11.1.1.0 &lt;/span&gt;
+% There is no matched command.
+Quagga-Master&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;config-router&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;c&quot;&gt;# network 11.1.1.0/24 &lt;/span&gt;
+  area  Set the OSPF area ID
+Quagga-Master&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;config-router&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;c&quot;&gt;# network 11.1.1.0/24 area 0&lt;/span&gt;
+Quagga-Master&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;config-router&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;c&quot;&gt;# network 22.1.1.0/24 area 0&lt;/span&gt;
+Quagga-Master&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;config-router&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;c&quot;&gt;# network 33.1.1.0/24 area 0&lt;/span&gt;
+Quagga-Master&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;config-router&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;c&quot;&gt;# end&lt;/span&gt;
+Quagga-Master# &lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;Quagga-1:&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;Quagga-1# show running-config 
+Building configuration...
+
+Current configuration:
+&lt;span class=&quot;o&quot;&gt;!&lt;/span&gt;
+hostname Router
+hostname ospfd
+log stdout
+hostname bgpd
+hostname Quagga-1
+&lt;span class=&quot;o&quot;&gt;!&lt;/span&gt;
+password zebra
+&lt;span class=&quot;nb&quot;&gt;enable &lt;/span&gt;password zebra
+&lt;span class=&quot;o&quot;&gt;!&lt;/span&gt;
+interface enp0s3
+&lt;span class=&quot;o&quot;&gt;!&lt;/span&gt;
+interface enp0s8
+ ip address 11.1.1.2/24
+&lt;span class=&quot;o&quot;&gt;!&lt;/span&gt;
+interface enp0s9
+ ip address 111.1.1.1/24
+&lt;span class=&quot;o&quot;&gt;!&lt;/span&gt;
+interface lo
+&lt;span class=&quot;o&quot;&gt;!&lt;/span&gt;
+ip forwarding
+&lt;span class=&quot;o&quot;&gt;!&lt;/span&gt;
+line vty
+&lt;span class=&quot;o&quot;&gt;!&lt;/span&gt;
+end
+Quagga-1# 
+Quagga-1# conf t
+Quagga-1&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;config&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;c&quot;&gt;# router ospf&lt;/span&gt;
+Quagga-1&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;config-router&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;c&quot;&gt;# network 11.1.1.0/24 area 0&lt;/span&gt;
+Quagga-1&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;config-router&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;c&quot;&gt;# network 111.1.1.0/24 area 0&lt;/span&gt;
+Quagga-1&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;config-router&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;c&quot;&gt;# end&lt;/span&gt;
+Quagga-1# &lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;Quagga-2:&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;Quagga-2# show running-config 
+Building configuration...
+
+Current configuration:
+&lt;span class=&quot;o&quot;&gt;!&lt;/span&gt;
+hostname Router
+hostname ospfd
+log stdout
+hostname bgpd
+hostname Quagga-2
+&lt;span class=&quot;o&quot;&gt;!&lt;/span&gt;
+password zebra
+&lt;span class=&quot;nb&quot;&gt;enable &lt;/span&gt;password zebra
+&lt;span class=&quot;o&quot;&gt;!&lt;/span&gt;
+interface enp0s3
+&lt;span class=&quot;o&quot;&gt;!&lt;/span&gt;
+interface enp0s8
+ ip address 22.1.1.2/24
+&lt;span class=&quot;o&quot;&gt;!&lt;/span&gt;
+interface enp0s9
+ ip address 122.1.1.1/24
+&lt;span class=&quot;o&quot;&gt;!&lt;/span&gt;
+interface lo
+&lt;span class=&quot;o&quot;&gt;!&lt;/span&gt;
+ip forwarding
+&lt;span class=&quot;o&quot;&gt;!&lt;/span&gt;
+line vty
+&lt;span class=&quot;o&quot;&gt;!&lt;/span&gt;
+end
+Quagga-2# 
+Quagga-2# conf t
+Quagga-2&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;config&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;c&quot;&gt;# router ospf &lt;/span&gt;
+Quagga-2&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;config-router&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;c&quot;&gt;# network 22.1.1.0/24 area 0&lt;/span&gt;
+Quagga-2&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;config-router&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;c&quot;&gt;# network 122.1.1.0/24 area 0&lt;/span&gt;
+Quagga-2&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;config-router&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;c&quot;&gt;# end&lt;/span&gt;
+Quagga-2#&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;Quagga-3:&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;Quagga-3# show run
+Building configuration...
+
+Current configuration:
+&lt;span class=&quot;o&quot;&gt;!&lt;/span&gt;
+hostname Router
+hostname ospfd
+log stdout
+hostname bgpd
+hostname Quagga-3
+&lt;span class=&quot;o&quot;&gt;!&lt;/span&gt;
+password zebra
+&lt;span class=&quot;nb&quot;&gt;enable &lt;/span&gt;password zebra
+&lt;span class=&quot;o&quot;&gt;!&lt;/span&gt;
+interface enp0s3
+&lt;span class=&quot;o&quot;&gt;!&lt;/span&gt;
+interface enp0s8
+ ip address 33.1.1.2/24
+&lt;span class=&quot;o&quot;&gt;!&lt;/span&gt;
+interface enp0s9
+ ip address 133.1.1.1/24
+&lt;span class=&quot;o&quot;&gt;!&lt;/span&gt;
+interface lo
+&lt;span class=&quot;o&quot;&gt;!&lt;/span&gt;
+ip forwarding
+&lt;span class=&quot;o&quot;&gt;!&lt;/span&gt;
+line vty
+&lt;span class=&quot;o&quot;&gt;!&lt;/span&gt;
+end
+Quagga-3# 
+Quagga-3# conf t
+Quagga-3&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;config&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;c&quot;&gt;# router ospf&lt;/span&gt;
+Quagga-3&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;config-router&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;c&quot;&gt;# network 33.1.1.0/24 area 0&lt;/span&gt;
+Quagga-3&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;config-router&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;c&quot;&gt;# network 133.1.1.0/24 area 0&lt;/span&gt;
+Quagga-3&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;config-router&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;c&quot;&gt;# end&lt;/span&gt;
+Quagga-3# &lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;h2 id=&quot;check-the-routing-table-and-try-to-ping&quot;&gt;Check the routing table and try to ping&lt;/h2&gt;
+
+&lt;p&gt;The above lab is based on below excellent youtube video:
+&lt;a href=&quot;https://www.youtube.com/watch?v=Gjt2L9jAYNA&quot;&gt; Multicast from Kevin Wallace&lt;/a&gt;&lt;/p&gt;</content><author><name></name></author><summary type="html">Quagga is a very popular open source routing software. It supports all main IGP protocols like RIP, OSFP, IS-IS, also EGP protocol like BGP. I thought it is interesting to try it out… Quagga software architecture</summary></entry><entry><title type="html">Jekyll update for my blog site</title><link href="http://localhost:4000/2019/08/12/Jekyll-Update-blog-site.html" rel="alternate" type="text/html" title="Jekyll update for my blog site" /><published>2019-08-12T00:00:00-07:00</published><updated>2019-08-12T00:00:00-07:00</updated><id>http://localhost:4000/2019/08/12/Jekyll-Update-blog-site</id><content type="html" xml:base="http://localhost:4000/2019/08/12/Jekyll-Update-blog-site.html">&lt;p&gt;My blog site was shutdown for quite a while for certain reasons. However I strongly feel this is a good way for me to capture what I learned along the way and share with anyone who might feel helpful for them. Thanks to all people who provided postivie feedback. After clearup the issue and I finally decide to continue working on my blog site. First thing I do is to update my blog development enviroment which is Jekyll, installed in ubuntu 16.04 VM.&lt;/p&gt;
 
 &lt;p&gt;&lt;img src=&quot;/uploads/jekyll.jpg&quot; alt=&quot;Jekyll on Ubuntu&quot; /&gt; 
 &lt;!--more--&gt;&lt;/p&gt;
@@ -3453,64 +3693,4 @@ KERNEL - the kernel uevent&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
 # Reference:
 http://reactivated.net/writing_udev_rules.html
 
-&lt;/ul&gt;&lt;/ul&gt;</content><author><name></name></author><summary type="html">udev is targeted at Linux kernels 2.6 and beyond to provide a userspace solution for a dynamic /dev directory, with persistent device naming. The previous /dev implementation, devfs, is now deprecated, and udev is seen as the successor.</summary></entry><entry><title type="html">Make a high end UCS Server for fast build</title><link href="http://localhost:4000/2017/04/27/UCS-install.html" rel="alternate" type="text/html" title="Make a high end UCS Server for fast build" /><published>2017-04-27T00:00:00-07:00</published><updated>2017-04-27T00:00:00-07:00</updated><id>http://localhost:4000/2017/04/27/UCS-install</id><content type="html" xml:base="http://localhost:4000/2017/04/27/UCS-install.html">&lt;p&gt;Cisco IOS has been growing significantly over the last ten years. The source code is reaching 10GB, and build time is taking long depending on the build machine capacity. To make development time efficient, it is critical to cut down the image build time. This week, I spent some time to make a high end of UCS server for IOS image build.&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;/uploads/ucs/ddr-cpu-hs.jpg&quot; alt=&quot;High End UCS Server&quot; /&gt;&lt;/p&gt;
-
-&lt;!--more--&gt;
-&lt;h1 id=&quot;what-parts-needed-the-below-picture-shows-required-parts&quot;&gt;What parts needed: the below picture shows required parts:&lt;/h1&gt;
-
-&lt;p&gt;&lt;img src=&quot;/uploads/ucs/parts.jpg&quot; alt=&quot;UCS server parts&quot; /&gt;&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;Chassis: UCS 240 M3&lt;/li&gt;
-  &lt;li&gt;Power Supply Unit (PSU)&lt;/li&gt;
-  &lt;li&gt;Two Heat sinks for CPU heat dispatch&lt;/li&gt;
-  &lt;li&gt;24x16GB DDR3 RAM&lt;/li&gt;
-  &lt;li&gt;Two Intel Xeon E5 2697V2 CPU&lt;/li&gt;
-  &lt;li&gt;Raid Controller: LSI 9271-8i MegaRaid&lt;/li&gt;
-  &lt;li&gt;3x2TB HDD&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h1 id=&quot;install-psu&quot;&gt;Install PSU&lt;/h1&gt;
-&lt;p&gt;UCS 240 M3 chassis has two PSU slots for redundancy. However I install only one PSU.&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;/uploads/ucs/psu-install.jpg&quot; alt=&quot;PSU parts&quot; /&gt;&lt;/p&gt;
-
-&lt;h1 id=&quot;install-raid-controller-lsi-9271-8i-megaraid&quot;&gt;Install Raid Controller LSI 9271-8i MegaRaid&lt;/h1&gt;
-&lt;p&gt;UCS 240 M3 chassis comes with on-board raid controller, somehow it doesn’t work well. Raid controller is a way of virtualize hard disk drive, it provides different level of disk redundacies (R0, R3, R5, R6). For UCS, it needs to be installed in one of PCI riser.Inside PCI riser, I also install a 4 ports GE NIC cards&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;/uploads/ucs/raider.jpg&quot; alt=&quot;raid part&quot; /&gt;&lt;/p&gt;
-
-&lt;h1 id=&quot;install-hard-disk-drive&quot;&gt;Install Hard Disk Drive&lt;/h1&gt;
-&lt;p&gt;UCS 240 M3 has 12 slots for hard disk drive. In this box, I install 3 2TB HDD.&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;/uploads/ucs/6T-hdd.jpg&quot; alt=&quot;HDD part&quot; /&gt;&lt;/p&gt;
-
-&lt;h1 id=&quot;install-cpu&quot;&gt;Install CPU&lt;/h1&gt;
-&lt;p&gt;The chassis has two CPU sockets. I have two Intel Xeon E5 2697V2. Each one has 12 physical cores. With hyperthreading enabled, there are total 48 virtuals cores available.&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;/uploads/ucs/CPU.jpg&quot; alt=&quot;CPU part&quot; /&gt;&lt;/p&gt;
-
-&lt;h1 id=&quot;install-ddr3&quot;&gt;Install DDR3&lt;/h1&gt;
-&lt;p&gt;The chassis has 24 slots for DDR3 DRAM (Channels: A, B, C, D, E, F; each channel has three banks)&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;/uploads/ucs/ddr-cpu.jpg&quot; alt=&quot;DDR part&quot; /&gt;&lt;/p&gt;
-
-&lt;h1 id=&quot;install-head-sink&quot;&gt;Install head sink&lt;/h1&gt;
-&lt;p&gt;Heat sink is required for each CPU. before installing heat sink, make sure to apply grease evenly on the top surface of processor.&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;/uploads/ucs/ddr-cpu-hs.jpg&quot; alt=&quot;cpu-hs-ddr part&quot; /&gt;&lt;/p&gt;
-
-&lt;p&gt;Now hardware is ready. In order to work, there are two low level software configuration required:&lt;/p&gt;
-
-&lt;h2 id=&quot;enable-raid-controller-and-4-ports-nic-card-inside-bios&quot;&gt;Enable Raid controller and 4 Ports NIC card inside BIOS&lt;/h2&gt;
-&lt;p&gt;During box boots up, press F2 to enter BIOS, and go to “Advanced” menu, then PCI configuration to enable Raid Controller (slot#3) and NIC card (Slot#2)
-&lt;img src=&quot;/uploads/ucs/bios-raider.jpg&quot; alt=&quot;bios raid&quot; /&gt;&lt;/p&gt;
-
-&lt;p&gt;After configuration is done, press F10 to save and exit, and reboot box.&lt;/p&gt;
-
-&lt;h2 id=&quot;configure-virtual-drive-by-raid-controller-from-webbios&quot;&gt;Configure virtual drive by Raid controller from webBIOS&lt;/h2&gt;
-&lt;p&gt;After Raid controller is enabled, during boot up, it will come with a stage to let you press “Ctrl+H” to enter into WebBIOS to configure Raid controller. Please use the configuration wizard to follow steps.&lt;/p&gt;
-
-&lt;p&gt;After All those hardwork, the box is ready to install linux !!!&lt;/p&gt;</content><author><name></name></author><summary type="html">Cisco IOS has been growing significantly over the last ten years. The source code is reaching 10GB, and build time is taking long depending on the build machine capacity. To make development time efficient, it is critical to cut down the image build time. This week, I spent some time to make a high end of UCS server for IOS image build.</summary></entry></feed>
+&lt;/ul&gt;&lt;/ul&gt;</content><author><name></name></author><summary type="html">udev is targeted at Linux kernels 2.6 and beyond to provide a userspace solution for a dynamic /dev directory, with persistent device naming. The previous /dev implementation, devfs, is now deprecated, and udev is seen as the successor.</summary></entry></feed>

@@ -3,7 +3,7 @@
 	<title>weweng.github.io</title>
 	<link href='http://weweng.github.io/'/>
 	<link type='application/atom+xml' rel='self' href='http://weweng.github.io/atom.xml'/>
-	<updated>2019-12-25T19:05:49-08:00</updated>
+	<updated>2019-12-25T20:22:18-08:00</updated>
 	<id>http://weweng.github.io/</id>
 
 	<author>
@@ -42,6 +42,23 @@ Especially EBGP, this is the routing protocol which routes the entire internet, 
 
 		<content type='html'>&lt;p&gt;Multicast routing is an important aspect of IP routing. It can be used to distribute data (for example, audio/video streaming broadcasts) to multiple recipients in a very efficient way.
 &lt;img src=&quot;/uploads/networking/multicast-end2end.jpg&quot; alt=&quot;Multicast End to End&quot; /&gt;
+</content>
+	</entry>
+  
+	<entry>
+		<title>Networking - OSPF Routing with Quagga</title>
+		<link type='text/html' href='http://weweng.github.io/2019/08/27/Quagga.html'/>
+		<id>http://weweng.github.io/2019/08/27/Quagga.html</id>
+		<updated>2019-08-27T00:00:00-07:00</updated>
+
+		<author>
+			<name>Wenwei Weng</name>
+			<uri>http://weweng.github.io/</uri>
+		</author>
+
+		<content type='html'>&lt;p&gt;Quagga is a very popular open source routing software. It supports all main IGP protocols like RIP, OSFP, IS-IS, also EGP protocol like BGP.
+&lt;img src=&quot;/uploads/networking/quagga-opensource.jpg&quot; alt=&quot;Open source Routing&quot; /&gt;
+I thought it is interesting to try it out…
 </content>
 	</entry>
   
@@ -258,26 +275,6 @@ Docker has done great job to manage the container image to make it to be in laye
 &lt;p&gt;&lt;img src=&quot;/uploads/linux/docker_container_image_layers.png&quot; alt=&quot;docker install&quot; /&gt;&lt;/p&gt;
 
 &lt;p&gt;The following post shows what I did to create a scratch hello image and a minimal linux image based on alpine using Dockerfile.&lt;/p&gt;
-
-</content>
-	</entry>
-  
-	<entry>
-		<title>Install docker from binary distribution</title>
-		<link type='text/html' href='http://weweng.github.io/2017/02/27/docker-binary-install.html'/>
-		<id>http://weweng.github.io/2017/02/27/docker-binary-install.html</id>
-		<updated>2017-02-27T00:00:00-08:00</updated>
-
-		<author>
-			<name>Wenwei Weng</name>
-			<uri>http://weweng.github.io/</uri>
-		</author>
-
-		<content type='html'>&lt;p&gt;Docker is growing with amazing features, and it becomes a platform to deploy services even in embedded linux enviroment. There are different ways to install docker, one approach is to install using the pre-built binary distribution.&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;/uploads/linux/install-docker-binary.jpg&quot; alt=&quot;docker install&quot; /&gt;&lt;/p&gt;
-
-&lt;p&gt;The following post shows what I did under ubuntu 16.04.&lt;/p&gt;
 
 </content>
 	</entry>
