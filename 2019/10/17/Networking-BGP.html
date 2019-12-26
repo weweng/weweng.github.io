@@ -813,7 +813,9 @@ R5#</code></pre></figure>
   <li>When we try to ping 50.1.1.1 from R1, it fails without specify soure IP. This is because the default source IP of packet will be R1 WAN IP which is eith 1.1.1.1 or 4.4.4.2, which are not advetized to R5 (outsider), so it couldn’t reply ping packet. Howerver if we specify source IP as LAN (10.0.0.0) of R1, ping works, because R5 has route to 10.0.0.0, the next hop is 33.33.33.33, which R3. From R3, it surely knows how to get to R1 through OSPF route. Very nice!</li>
 </ul>
 
-<p>I found below BGP youtube video is excellent:
+<p>BGP is kind of simple but very powerful. It was started for ipv4 only, then later it gets extended to support mutiple protocol like ipv6, L2VPN, L3VPN, called as MP-BGP. It is backward compatible though. One of very popular use is in MPLS VPN network. MP-BGP is configured in PE routers to form iBGP, support vpnv4/vpnv6 address, so that PEs can exchange prefixes info needed by MPLS VPN, e.g. RD, labels etc. A good example can be found <a href="https://www.noction.com/blog/bgp-mpls-layer3-vpn-practical-configuration">here</a>.</p>
+
+<p>Reference: BGP youtube video:
 <a href="https://www.youtube.com/watch?v=G0qDnqOKwOE&amp;list=PLJqb_j53o7BiVPaFGQxEHhGx-ximMukwH"> BGP Video By Sikandar Shaik</a></p>
 
 
