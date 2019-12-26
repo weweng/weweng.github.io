@@ -101,31 +101,40 @@ Existing Zserv clients are:</p>
 <ul>
   <li>sudo apt install quagga quagga-doc</li>
   <li>Enable linux IPv4 packet forwarding in /etc/sysctl.conf : net.ipv4.ip_forward=1</li>
-  <li>
-    <p>Setup config for quagga:
-cp /usr/share/doc/quagga-core/examples/vtysh.conf.sample /etc/quagga/vtysh.conf
-cp /usr/share/doc/quagga-core/examples/zebra.conf.sample /etc/quagga/zebra.conf
-cp /usr/share/doc/quagga-core/examples/bgpd.conf.sample /etc/quagga/bgpd.conf
-cp /usr/share/doc/quagga-core/examples/ospfd.conf.sample /etc/quagga/ospf.conf</p>
-  </li>
+  <li>Setup config for quagga:</li>
+</ul>
+
+<ol>
+  <li>cp /usr/share/doc/quagga-core/examples/vtysh.conf.sample /etc/quagga/vtysh.conf</li>
+  <li>cp /usr/share/doc/quagga-core/examples/zebra.conf.sample /etc/quagga/zebra.conf</li>
+  <li>cp /usr/share/doc/quagga-core/examples/bgpd.conf.sample /etc/quagga/bgpd.conf</li>
+  <li>cp /usr/share/doc/quagga-core/examples/ospfd.conf.sample /etc/quagga/ospf.conf</li>
+</ol>
+
+<ul>
   <li>sudo chown quagga:quagga /etc/quagga/*.conf</li>
   <li>sudo chown quagga:quaggavty /etc/quagga/vtysh.conf</li>
   <li>sudo chmod 640 /etc/quagga/*.conf</li>
   <li>Run zebra and needed routing daemon
-sudo service zebra start
-sudo service zebra status
-sudo service bgpd start
-sudo service ospfd start
-sudo service bgpd status</li>
+    <ol>
+      <li>sudo service zebra start</li>
+      <li>sudo service zebra status</li>
+      <li>sudo service bgpd start</li>
+      <li>sudo service ospfd start</li>
+      <li>sudo service bgpd status</li>
+    </ol>
+  </li>
 </ul>
 
 <h2 id="console-access">“Console” access:</h2>
-<p>-zebra:  telnet localhost 2601 
--ripd:   telnet localhost 2602 
--ripngd: telnet localhost 2603 
--ospfd:  telnet localhost 2604 
--bgpd:   telnet localhost 2605
--vtysh:  sudo vtysh</p>
+<ul>
+  <li>zebra:  telnet localhost 2601</li>
+  <li>ripd:   telnet localhost 2602</li>
+  <li>ripngd: telnet localhost 2603</li>
+  <li>ospfd:  telnet localhost 2604</li>
+  <li>bgpd:   telnet localhost 2605</li>
+  <li>vtysh:  sudo vtysh</li>
+</ul>
 
 <p>the default password is zebra.</p>
 
@@ -313,8 +322,102 @@ Quagga-3# </code></pre></figure>
 
 <h2 id="check-the-routing-table-and-try-to-ping">Check the routing table and try to ping</h2>
 
-<p>The above lab is based on below excellent youtube video:
-<a href="https://www.youtube.com/watch?v=Gjt2L9jAYNA"> Multicast from Kevin Wallace</a></p>
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">Quagga-Master# show ip ospf neighbor 
+
+Neighbor ID     Pri State           Dead Time Address         Interface         
+   RXmtL RqstL DBsmL
+111.1.1.1         1 Full/Backup       38.280s 11.1.1.2        enp0s8:11.1.1.1   
+       0     0     0
+22.1.1.2          1 Full/Backup       38.846s 22.1.1.2        enp0s9:22.1.1.1   
+       0     0     0
+133.1.1.1         1 Full/Backup       38.905s 33.1.1.2        enp0s10:33.1.1.1  
+       0     0     0
+Quagga-Master# show ip route
+Codes: K - kernel route, C - connected, S - static, R - RIP,
+       O - OSPF, I - IS-IS, B - BGP, P - PIM, A - Babel, N - NHRP,
+       <span class="o">&gt;</span> - selected route, <span class="k">*</span> - FIB route
+
+C&gt;<span class="k">*</span> 10.0.2.0/24 is directly connected, enp0s3
+O   11.1.1.0/24 <span class="o">[</span>110/10] is directly connected, enp0s8, 00:16:16
+C&gt;<span class="k">*</span> 11.1.1.0/24 is directly connected, enp0s8
+O   22.1.1.0/24 <span class="o">[</span>110/10] is directly connected, enp0s9, 00:16:10
+C&gt;<span class="k">*</span> 22.1.1.0/24 is directly connected, enp0s9
+O   33.1.1.0/24 <span class="o">[</span>110/10] is directly connected, enp0s10, 00:16:05
+C&gt;<span class="k">*</span> 33.1.1.0/24 is directly connected, enp0s10
+O&gt;<span class="k">*</span> 111.1.1.0/24 <span class="o">[</span>110/20] via 11.1.1.2, enp0s8, 00:00:09
+C&gt;<span class="k">*</span> 127.0.0.0/8 is directly connected, lo
+O&gt;<span class="k">*</span> 133.1.1.0/24 <span class="o">[</span>110/20] via 33.1.1.2, enp0s10, 00:00:02
+K&gt;<span class="k">*</span> 169.254.0.0/16 is directly connected, enp0s10
+Quagga-Master# 
+Quagga-Master# ping 133.1.1.1
+PING 133.1.1.1 <span class="o">(</span>133.1.1.1<span class="o">)</span> 56<span class="o">(</span>84<span class="o">)</span> bytes of data.
+64 bytes from 133.1.1.1: <span class="nv">icmp_seq</span><span class="o">=</span>1 <span class="nv">ttl</span><span class="o">=</span>64 <span class="nb">time</span><span class="o">=</span>0.379 ms
+64 bytes from 133.1.1.1: <span class="nv">icmp_seq</span><span class="o">=</span>2 <span class="nv">ttl</span><span class="o">=</span>64 <span class="nb">time</span><span class="o">=</span>0.330 ms
+64 bytes from 133.1.1.1: <span class="nv">icmp_seq</span><span class="o">=</span>3 <span class="nv">ttl</span><span class="o">=</span>64 <span class="nb">time</span><span class="o">=</span>0.345 ms
+^C
+<span class="nt">---</span> 133.1.1.1 ping statistics <span class="nt">---</span>
+3 packets transmitted, 3 received, 0% packet loss, <span class="nb">time </span>2044ms
+rtt min/avg/max/mdev <span class="o">=</span> 0.330/0.351/0.379/0.025 ms
+Quagga-Master# ping 22.1.1.1
+PING 22.1.1.1 <span class="o">(</span>22.1.1.1<span class="o">)</span> 56<span class="o">(</span>84<span class="o">)</span> bytes of data.
+64 bytes from 22.1.1.1: <span class="nv">icmp_seq</span><span class="o">=</span>1 <span class="nv">ttl</span><span class="o">=</span>64 <span class="nb">time</span><span class="o">=</span>0.017 ms
+64 bytes from 22.1.1.1: <span class="nv">icmp_seq</span><span class="o">=</span>2 <span class="nv">ttl</span><span class="o">=</span>64 <span class="nb">time</span><span class="o">=</span>0.028 ms
+64 bytes from 22.1.1.1: <span class="nv">icmp_seq</span><span class="o">=</span>3 <span class="nv">ttl</span><span class="o">=</span>64 <span class="nb">time</span><span class="o">=</span>0.030 ms
+^C
+<span class="nt">---</span> 22.1.1.1 ping statistics <span class="nt">---</span>
+3 packets transmitted, 3 received, 0% packet loss, <span class="nb">time </span>2037ms
+rtt min/avg/max/mdev <span class="o">=</span> 0.017/0.025/0.030/0.005 ms
+Quagga-Master# 
+
+Quagga-1# show ip ospf neighbor 
+
+Neighbor ID     Pri State           Dead Time Address         Interface         
+   RXmtL RqstL DBsmL
+33.1.1.1          1 Full/DR           39.851s 11.1.1.1        enp0s8:11.1.1.2   
+       0     0     0
+Quagga-1# show ip route 
+Codes: K - kernel route, C - connected, S - static, R - RIP,
+       O - OSPF, I - IS-IS, B - BGP, P - PIM, A - Babel, N - NHRP,
+       <span class="o">&gt;</span> - selected route, <span class="k">*</span> - FIB route
+
+C&gt;<span class="k">*</span> 10.0.2.0/24 is directly connected, enp0s3
+O   11.1.1.0/24 <span class="o">[</span>110/10] is directly connected, enp0s8, 00:07:52
+C&gt;<span class="k">*</span> 11.1.1.0/24 is directly connected, enp0s8
+O&gt;<span class="k">*</span> 22.1.1.0/24 <span class="o">[</span>110/20] via 11.1.1.1, enp0s8, 00:07:42
+O&gt;<span class="k">*</span> 33.1.1.0/24 <span class="o">[</span>110/20] via 11.1.1.1, enp0s8, 00:07:42
+O   111.1.1.0/24 <span class="o">[</span>110/10] is directly connected, enp0s9, 00:00:10
+C&gt;<span class="k">*</span> 111.1.1.0/24 is directly connected, enp0s9
+C&gt;<span class="k">*</span> 127.0.0.0/8 is directly connected, lo
+O&gt;<span class="k">*</span> 133.1.1.0/24 <span class="o">[</span>110/30] via 11.1.1.1, enp0s8, 00:00:07
+K&gt;<span class="k">*</span> 169.254.0.0/16 is directly connected, enp0s8
+Quagga-1# ping 133.1.1.1
+PING 133.1.1.1 <span class="o">(</span>133.1.1.1<span class="o">)</span> 56<span class="o">(</span>84<span class="o">)</span> bytes of data.
+64 bytes from 133.1.1.1: <span class="nv">icmp_seq</span><span class="o">=</span>1 <span class="nv">ttl</span><span class="o">=</span>63 <span class="nb">time</span><span class="o">=</span>0.563 ms
+64 bytes from 133.1.1.1: <span class="nv">icmp_seq</span><span class="o">=</span>2 <span class="nv">ttl</span><span class="o">=</span>63 <span class="nb">time</span><span class="o">=</span>0.527 ms
+^C
+<span class="nt">---</span> 133.1.1.1 ping statistics <span class="nt">---</span>
+2 packets transmitted, 2 received, 0% packet loss, <span class="nb">time </span>1017ms
+rtt min/avg/max/mdev <span class="o">=</span> 0.527/0.545/0.563/0.018 ms
+Quagga-1# </code></pre></figure>
+
+<p>Check the routing table in linux kernel:</p>
+
+<p>Quagga-master VM: we can see it matches with what we see from “show ip route” below:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">ubuntu1804-1@ubuntu18041-VirtualBox:~<span class="nv">$ </span>route
+Kernel IP routing table
+Destination     Gateway         Genmask         Flags Metric Ref    Use Iface
+default         _gateway        0.0.0.0         UG    103    0        0 enp0s3
+10.0.2.0        0.0.0.0         255.255.255.0   U     103    0        0 enp0s3
+11.1.1.0        0.0.0.0         255.255.255.0   U     0      0        0 enp0s8
+22.1.1.0        0.0.0.0         255.255.255.0   U     0      0        0 enp0s9
+33.1.1.0        0.0.0.0         255.255.255.0   U     0      0        0 enp0s10
+111.1.1.0       11.1.1.2        255.255.255.0   UG    20     0        0 enp0s8
+133.1.1.0       33.1.1.2        255.255.255.0   UG    20     0        0 enp0s10
+link-local      0.0.0.0         255.255.0.0     U     1000   0        0 enp0s10
+ubuntu1804-1@ubuntu18041-VirtualBox:~<span class="nv">$ </span></code></pre></figure>
+
+<p>As we can see, it is pretty easy to set up a linux box as router!</p>
 
 
 	</div>

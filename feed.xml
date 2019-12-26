@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.8.5">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2019-12-25T20:22:18-08:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Your awesome title</title><subtitle>Write an awesome description for your new site here. You can edit this line in _config.yml. It will appear in your document head meta (for Google search results) and in your feed.xml site description.</subtitle><entry><title type="html">Networking - IP BGP Routing Configuration</title><link href="http://localhost:4000/2019/10/17/Networking-BGP.html" rel="alternate" type="text/html" title="Networking - IP BGP Routing Configuration" /><published>2019-10-17T00:00:00-07:00</published><updated>2019-10-17T00:00:00-07:00</updated><id>http://localhost:4000/2019/10/17/Networking-BGP</id><content type="html" xml:base="http://localhost:4000/2019/10/17/Networking-BGP.html">&lt;p&gt;BGP routing is an important aspect of IP routing, which is the only one exterior gayeway routing protocol. There are two flavors: iBGP and eBGP, depennding on if the beighbors are in the same AS.
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.8.5">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2019-12-25T20:38:09-08:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Your awesome title</title><subtitle>Write an awesome description for your new site here. You can edit this line in _config.yml. It will appear in your document head meta (for Google search results) and in your feed.xml site description.</subtitle><entry><title type="html">Networking - IP BGP Routing Configuration</title><link href="http://localhost:4000/2019/10/17/Networking-BGP.html" rel="alternate" type="text/html" title="Networking - IP BGP Routing Configuration" /><published>2019-10-17T00:00:00-07:00</published><updated>2019-10-17T00:00:00-07:00</updated><id>http://localhost:4000/2019/10/17/Networking-BGP</id><content type="html" xml:base="http://localhost:4000/2019/10/17/Networking-BGP.html">&lt;p&gt;BGP routing is an important aspect of IP routing, which is the only one exterior gayeway routing protocol. There are two flavors: iBGP and eBGP, depennding on if the beighbors are in the same AS.
 Especially EBGP, this is the routing protocol which routes the entire internet, connects between different ISPs, enterprise networks.
 &lt;img src=&quot;/uploads/networking/bgp-isp.jpg&quot; alt=&quot;BGP routing between ISP&quot; /&gt;
 &lt;!--more--&gt;&lt;/p&gt;
@@ -1429,31 +1429,40 @@ Existing Zserv clients are:&lt;/p&gt;
 &lt;ul&gt;
   &lt;li&gt;sudo apt install quagga quagga-doc&lt;/li&gt;
   &lt;li&gt;Enable linux IPv4 packet forwarding in /etc/sysctl.conf : net.ipv4.ip_forward=1&lt;/li&gt;
-  &lt;li&gt;
-    &lt;p&gt;Setup config for quagga:
-cp /usr/share/doc/quagga-core/examples/vtysh.conf.sample /etc/quagga/vtysh.conf
-cp /usr/share/doc/quagga-core/examples/zebra.conf.sample /etc/quagga/zebra.conf
-cp /usr/share/doc/quagga-core/examples/bgpd.conf.sample /etc/quagga/bgpd.conf
-cp /usr/share/doc/quagga-core/examples/ospfd.conf.sample /etc/quagga/ospf.conf&lt;/p&gt;
-  &lt;/li&gt;
+  &lt;li&gt;Setup config for quagga:&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;cp /usr/share/doc/quagga-core/examples/vtysh.conf.sample /etc/quagga/vtysh.conf&lt;/li&gt;
+  &lt;li&gt;cp /usr/share/doc/quagga-core/examples/zebra.conf.sample /etc/quagga/zebra.conf&lt;/li&gt;
+  &lt;li&gt;cp /usr/share/doc/quagga-core/examples/bgpd.conf.sample /etc/quagga/bgpd.conf&lt;/li&gt;
+  &lt;li&gt;cp /usr/share/doc/quagga-core/examples/ospfd.conf.sample /etc/quagga/ospf.conf&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;ul&gt;
   &lt;li&gt;sudo chown quagga:quagga /etc/quagga/*.conf&lt;/li&gt;
   &lt;li&gt;sudo chown quagga:quaggavty /etc/quagga/vtysh.conf&lt;/li&gt;
   &lt;li&gt;sudo chmod 640 /etc/quagga/*.conf&lt;/li&gt;
   &lt;li&gt;Run zebra and needed routing daemon
-sudo service zebra start
-sudo service zebra status
-sudo service bgpd start
-sudo service ospfd start
-sudo service bgpd status&lt;/li&gt;
+    &lt;ol&gt;
+      &lt;li&gt;sudo service zebra start&lt;/li&gt;
+      &lt;li&gt;sudo service zebra status&lt;/li&gt;
+      &lt;li&gt;sudo service bgpd start&lt;/li&gt;
+      &lt;li&gt;sudo service ospfd start&lt;/li&gt;
+      &lt;li&gt;sudo service bgpd status&lt;/li&gt;
+    &lt;/ol&gt;
+  &lt;/li&gt;
 &lt;/ul&gt;
 
 &lt;h2 id=&quot;console-access&quot;&gt;“Console” access:&lt;/h2&gt;
-&lt;p&gt;-zebra:  telnet localhost 2601 
--ripd:   telnet localhost 2602 
--ripngd: telnet localhost 2603 
--ospfd:  telnet localhost 2604 
--bgpd:   telnet localhost 2605
--vtysh:  sudo vtysh&lt;/p&gt;
+&lt;ul&gt;
+  &lt;li&gt;zebra:  telnet localhost 2601&lt;/li&gt;
+  &lt;li&gt;ripd:   telnet localhost 2602&lt;/li&gt;
+  &lt;li&gt;ripngd: telnet localhost 2603&lt;/li&gt;
+  &lt;li&gt;ospfd:  telnet localhost 2604&lt;/li&gt;
+  &lt;li&gt;bgpd:   telnet localhost 2605&lt;/li&gt;
+  &lt;li&gt;vtysh:  sudo vtysh&lt;/li&gt;
+&lt;/ul&gt;
 
 &lt;p&gt;the default password is zebra.&lt;/p&gt;
 
@@ -1641,8 +1650,102 @@ Quagga-3# &lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
 
 &lt;h2 id=&quot;check-the-routing-table-and-try-to-ping&quot;&gt;Check the routing table and try to ping&lt;/h2&gt;
 
-&lt;p&gt;The above lab is based on below excellent youtube video:
-&lt;a href=&quot;https://www.youtube.com/watch?v=Gjt2L9jAYNA&quot;&gt; Multicast from Kevin Wallace&lt;/a&gt;&lt;/p&gt;</content><author><name></name></author><summary type="html">Quagga is a very popular open source routing software. It supports all main IGP protocols like RIP, OSFP, IS-IS, also EGP protocol like BGP. I thought it is interesting to try it out… Quagga software architecture</summary></entry><entry><title type="html">Jekyll update for my blog site</title><link href="http://localhost:4000/2019/08/12/Jekyll-Update-blog-site.html" rel="alternate" type="text/html" title="Jekyll update for my blog site" /><published>2019-08-12T00:00:00-07:00</published><updated>2019-08-12T00:00:00-07:00</updated><id>http://localhost:4000/2019/08/12/Jekyll-Update-blog-site</id><content type="html" xml:base="http://localhost:4000/2019/08/12/Jekyll-Update-blog-site.html">&lt;p&gt;My blog site was shutdown for quite a while for certain reasons. However I strongly feel this is a good way for me to capture what I learned along the way and share with anyone who might feel helpful for them. Thanks to all people who provided postivie feedback. After clearup the issue and I finally decide to continue working on my blog site. First thing I do is to update my blog development enviroment which is Jekyll, installed in ubuntu 16.04 VM.&lt;/p&gt;
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;Quagga-Master# show ip ospf neighbor 
+
+Neighbor ID     Pri State           Dead Time Address         Interface         
+   RXmtL RqstL DBsmL
+111.1.1.1         1 Full/Backup       38.280s 11.1.1.2        enp0s8:11.1.1.1   
+       0     0     0
+22.1.1.2          1 Full/Backup       38.846s 22.1.1.2        enp0s9:22.1.1.1   
+       0     0     0
+133.1.1.1         1 Full/Backup       38.905s 33.1.1.2        enp0s10:33.1.1.1  
+       0     0     0
+Quagga-Master# show ip route
+Codes: K - kernel route, C - connected, S - static, R - RIP,
+       O - OSPF, I - IS-IS, B - BGP, P - PIM, A - Babel, N - NHRP,
+       &lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; - selected route, &lt;span class=&quot;k&quot;&gt;*&lt;/span&gt; - FIB route
+
+C&amp;gt;&lt;span class=&quot;k&quot;&gt;*&lt;/span&gt; 10.0.2.0/24 is directly connected, enp0s3
+O   11.1.1.0/24 &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;110/10] is directly connected, enp0s8, 00:16:16
+C&amp;gt;&lt;span class=&quot;k&quot;&gt;*&lt;/span&gt; 11.1.1.0/24 is directly connected, enp0s8
+O   22.1.1.0/24 &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;110/10] is directly connected, enp0s9, 00:16:10
+C&amp;gt;&lt;span class=&quot;k&quot;&gt;*&lt;/span&gt; 22.1.1.0/24 is directly connected, enp0s9
+O   33.1.1.0/24 &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;110/10] is directly connected, enp0s10, 00:16:05
+C&amp;gt;&lt;span class=&quot;k&quot;&gt;*&lt;/span&gt; 33.1.1.0/24 is directly connected, enp0s10
+O&amp;gt;&lt;span class=&quot;k&quot;&gt;*&lt;/span&gt; 111.1.1.0/24 &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;110/20] via 11.1.1.2, enp0s8, 00:00:09
+C&amp;gt;&lt;span class=&quot;k&quot;&gt;*&lt;/span&gt; 127.0.0.0/8 is directly connected, lo
+O&amp;gt;&lt;span class=&quot;k&quot;&gt;*&lt;/span&gt; 133.1.1.0/24 &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;110/20] via 33.1.1.2, enp0s10, 00:00:02
+K&amp;gt;&lt;span class=&quot;k&quot;&gt;*&lt;/span&gt; 169.254.0.0/16 is directly connected, enp0s10
+Quagga-Master# 
+Quagga-Master# ping 133.1.1.1
+PING 133.1.1.1 &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;133.1.1.1&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; 56&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;84&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; bytes of data.
+64 bytes from 133.1.1.1: &lt;span class=&quot;nv&quot;&gt;icmp_seq&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;1 &lt;span class=&quot;nv&quot;&gt;ttl&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;64 &lt;span class=&quot;nb&quot;&gt;time&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;0.379 ms
+64 bytes from 133.1.1.1: &lt;span class=&quot;nv&quot;&gt;icmp_seq&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;2 &lt;span class=&quot;nv&quot;&gt;ttl&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;64 &lt;span class=&quot;nb&quot;&gt;time&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;0.330 ms
+64 bytes from 133.1.1.1: &lt;span class=&quot;nv&quot;&gt;icmp_seq&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;3 &lt;span class=&quot;nv&quot;&gt;ttl&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;64 &lt;span class=&quot;nb&quot;&gt;time&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;0.345 ms
+^C
+&lt;span class=&quot;nt&quot;&gt;---&lt;/span&gt; 133.1.1.1 ping statistics &lt;span class=&quot;nt&quot;&gt;---&lt;/span&gt;
+3 packets transmitted, 3 received, 0% packet loss, &lt;span class=&quot;nb&quot;&gt;time &lt;/span&gt;2044ms
+rtt min/avg/max/mdev &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; 0.330/0.351/0.379/0.025 ms
+Quagga-Master# ping 22.1.1.1
+PING 22.1.1.1 &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;22.1.1.1&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; 56&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;84&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; bytes of data.
+64 bytes from 22.1.1.1: &lt;span class=&quot;nv&quot;&gt;icmp_seq&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;1 &lt;span class=&quot;nv&quot;&gt;ttl&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;64 &lt;span class=&quot;nb&quot;&gt;time&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;0.017 ms
+64 bytes from 22.1.1.1: &lt;span class=&quot;nv&quot;&gt;icmp_seq&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;2 &lt;span class=&quot;nv&quot;&gt;ttl&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;64 &lt;span class=&quot;nb&quot;&gt;time&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;0.028 ms
+64 bytes from 22.1.1.1: &lt;span class=&quot;nv&quot;&gt;icmp_seq&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;3 &lt;span class=&quot;nv&quot;&gt;ttl&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;64 &lt;span class=&quot;nb&quot;&gt;time&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;0.030 ms
+^C
+&lt;span class=&quot;nt&quot;&gt;---&lt;/span&gt; 22.1.1.1 ping statistics &lt;span class=&quot;nt&quot;&gt;---&lt;/span&gt;
+3 packets transmitted, 3 received, 0% packet loss, &lt;span class=&quot;nb&quot;&gt;time &lt;/span&gt;2037ms
+rtt min/avg/max/mdev &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; 0.017/0.025/0.030/0.005 ms
+Quagga-Master# 
+
+Quagga-1# show ip ospf neighbor 
+
+Neighbor ID     Pri State           Dead Time Address         Interface         
+   RXmtL RqstL DBsmL
+33.1.1.1          1 Full/DR           39.851s 11.1.1.1        enp0s8:11.1.1.2   
+       0     0     0
+Quagga-1# show ip route 
+Codes: K - kernel route, C - connected, S - static, R - RIP,
+       O - OSPF, I - IS-IS, B - BGP, P - PIM, A - Babel, N - NHRP,
+       &lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; - selected route, &lt;span class=&quot;k&quot;&gt;*&lt;/span&gt; - FIB route
+
+C&amp;gt;&lt;span class=&quot;k&quot;&gt;*&lt;/span&gt; 10.0.2.0/24 is directly connected, enp0s3
+O   11.1.1.0/24 &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;110/10] is directly connected, enp0s8, 00:07:52
+C&amp;gt;&lt;span class=&quot;k&quot;&gt;*&lt;/span&gt; 11.1.1.0/24 is directly connected, enp0s8
+O&amp;gt;&lt;span class=&quot;k&quot;&gt;*&lt;/span&gt; 22.1.1.0/24 &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;110/20] via 11.1.1.1, enp0s8, 00:07:42
+O&amp;gt;&lt;span class=&quot;k&quot;&gt;*&lt;/span&gt; 33.1.1.0/24 &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;110/20] via 11.1.1.1, enp0s8, 00:07:42
+O   111.1.1.0/24 &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;110/10] is directly connected, enp0s9, 00:00:10
+C&amp;gt;&lt;span class=&quot;k&quot;&gt;*&lt;/span&gt; 111.1.1.0/24 is directly connected, enp0s9
+C&amp;gt;&lt;span class=&quot;k&quot;&gt;*&lt;/span&gt; 127.0.0.0/8 is directly connected, lo
+O&amp;gt;&lt;span class=&quot;k&quot;&gt;*&lt;/span&gt; 133.1.1.0/24 &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;110/30] via 11.1.1.1, enp0s8, 00:00:07
+K&amp;gt;&lt;span class=&quot;k&quot;&gt;*&lt;/span&gt; 169.254.0.0/16 is directly connected, enp0s8
+Quagga-1# ping 133.1.1.1
+PING 133.1.1.1 &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;133.1.1.1&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; 56&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;84&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; bytes of data.
+64 bytes from 133.1.1.1: &lt;span class=&quot;nv&quot;&gt;icmp_seq&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;1 &lt;span class=&quot;nv&quot;&gt;ttl&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;63 &lt;span class=&quot;nb&quot;&gt;time&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;0.563 ms
+64 bytes from 133.1.1.1: &lt;span class=&quot;nv&quot;&gt;icmp_seq&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;2 &lt;span class=&quot;nv&quot;&gt;ttl&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;63 &lt;span class=&quot;nb&quot;&gt;time&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;0.527 ms
+^C
+&lt;span class=&quot;nt&quot;&gt;---&lt;/span&gt; 133.1.1.1 ping statistics &lt;span class=&quot;nt&quot;&gt;---&lt;/span&gt;
+2 packets transmitted, 2 received, 0% packet loss, &lt;span class=&quot;nb&quot;&gt;time &lt;/span&gt;1017ms
+rtt min/avg/max/mdev &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; 0.527/0.545/0.563/0.018 ms
+Quagga-1# &lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;Check the routing table in linux kernel:&lt;/p&gt;
+
+&lt;p&gt;Quagga-master VM: we can see it matches with what we see from “show ip route” below:&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;ubuntu1804-1@ubuntu18041-VirtualBox:~&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;route
+Kernel IP routing table
+Destination     Gateway         Genmask         Flags Metric Ref    Use Iface
+default         _gateway        0.0.0.0         UG    103    0        0 enp0s3
+10.0.2.0        0.0.0.0         255.255.255.0   U     103    0        0 enp0s3
+11.1.1.0        0.0.0.0         255.255.255.0   U     0      0        0 enp0s8
+22.1.1.0        0.0.0.0         255.255.255.0   U     0      0        0 enp0s9
+33.1.1.0        0.0.0.0         255.255.255.0   U     0      0        0 enp0s10
+111.1.1.0       11.1.1.2        255.255.255.0   UG    20     0        0 enp0s8
+133.1.1.0       33.1.1.2        255.255.255.0   UG    20     0        0 enp0s10
+link-local      0.0.0.0         255.255.0.0     U     1000   0        0 enp0s10
+ubuntu1804-1@ubuntu18041-VirtualBox:~&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;As we can see, it is pretty easy to set up a linux box as router!&lt;/p&gt;</content><author><name></name></author><summary type="html">Quagga is a very popular open source routing software. It supports all main IGP protocols like RIP, OSFP, IS-IS, also EGP protocol like BGP. I thought it is interesting to try it out… Quagga software architecture</summary></entry><entry><title type="html">Jekyll update for my blog site</title><link href="http://localhost:4000/2019/08/12/Jekyll-Update-blog-site.html" rel="alternate" type="text/html" title="Jekyll update for my blog site" /><published>2019-08-12T00:00:00-07:00</published><updated>2019-08-12T00:00:00-07:00</updated><id>http://localhost:4000/2019/08/12/Jekyll-Update-blog-site</id><content type="html" xml:base="http://localhost:4000/2019/08/12/Jekyll-Update-blog-site.html">&lt;p&gt;My blog site was shutdown for quite a while for certain reasons. However I strongly feel this is a good way for me to capture what I learned along the way and share with anyone who might feel helpful for them. Thanks to all people who provided postivie feedback. After clearup the issue and I finally decide to continue working on my blog site. First thing I do is to update my blog development enviroment which is Jekyll, installed in ubuntu 16.04 VM.&lt;/p&gt;
 
 &lt;p&gt;&lt;img src=&quot;/uploads/jekyll.jpg&quot; alt=&quot;Jekyll on Ubuntu&quot; /&gt; 
 &lt;!--more--&gt;&lt;/p&gt;
