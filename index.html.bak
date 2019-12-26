@@ -76,6 +76,8 @@
 	<div class='post-description'>
 		<ul class='older-posts'>
 			
+				<li><a href='/2018/09/08/UCS220-M5-ML-platform.html'>Building a Machine Learning platform using UCS 220 M5 with Tesla P4 GPU</a></li>
+			
 				<li><a href='/2018/01/27/GPU-Programming-With-CUDA.html'>GPU Programming With CUDA</a></li>
 			
 				<li><a href='/2017/08/05/SPI-Support-embedded-box.html'>SPI flash support in embedded Linux box</a></li>
@@ -85,8 +87,6 @@
 				<li><a href='/2017/07/21/ARMv8-UEFI-manual-boot.html'>UEFI ARM Linux boot</a></li>
 			
 				<li><a href='/2017/05/21/udev-rule.html'>Linux udev rule to create persistent device name</a></li>
-			
-				<li><a href='/2017/04/27/UCS-install.html'>Make a high end UCS Server for fast build</a></li>
 			
 		</ul>
 	</div>

@@ -1,4 +1,744 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.8.5">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2019-12-24T10:48:31-08:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Your awesome title</title><subtitle>Write an awesome description for your new site here. You can edit this line in _config.yml. It will appear in your document head meta (for Google search results) and in your feed.xml site description.</subtitle><entry><title type="html">Networking - IP Multicast Routing Configuration</title><link href="http://localhost:4000/2019/09/07/Networking-Multicast.html" rel="alternate" type="text/html" title="Networking - IP Multicast Routing Configuration" /><published>2019-09-07T00:00:00-07:00</published><updated>2019-09-07T00:00:00-07:00</updated><id>http://localhost:4000/2019/09/07/Networking-Multicast</id><content type="html" xml:base="http://localhost:4000/2019/09/07/Networking-Multicast.html">&lt;p&gt;Multicast routing is an important aspect of IP routing. It can be used to distribute data (for example, audio/video streaming broadcasts) to multiple recipients in a very efficient way.
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.8.5">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2019-12-25T17:17:44-08:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Your awesome title</title><subtitle>Write an awesome description for your new site here. You can edit this line in _config.yml. It will appear in your document head meta (for Google search results) and in your feed.xml site description.</subtitle><entry><title type="html">Networking - IP BGP Routing Configuration</title><link href="http://localhost:4000/2019/10/17/Networking-BGP.html" rel="alternate" type="text/html" title="Networking - IP BGP Routing Configuration" /><published>2019-10-17T00:00:00-07:00</published><updated>2019-10-17T00:00:00-07:00</updated><id>http://localhost:4000/2019/10/17/Networking-BGP</id><content type="html" xml:base="http://localhost:4000/2019/10/17/Networking-BGP.html">&lt;p&gt;BGP routing is an important aspect of IP routing, which is the only one exterior gayeway routing protocol. There are two flavors: iBGP and eBGP, depennding on if the beighbors are in the same AS.
+Especially EBGP, this is the routing protocol which routes the entire internet, connects between different ISPs, enterprise networks.
+&lt;img src=&quot;/uploads/networking/bgp-isp.jpg&quot; alt=&quot;BGP routing between ISP&quot; /&gt;
+&lt;!--more--&gt;&lt;/p&gt;
+&lt;h2 id=&quot;bgp-routing&quot;&gt;BGP routing&lt;/h2&gt;
+&lt;p&gt;The Internet is comprised of two parts: the internal fine-grained portions managed by an IGP such as OSPF, and the interconnections of those autonomous systems (AS) via BGP.
+BGP Basics:&lt;/p&gt;
+&lt;ul&gt;
+  &lt;li&gt;The current version of BGP is BGP version 4, based on RFC4271.&lt;/li&gt;
+  &lt;li&gt;BGP is the path-vector protocol that provides routing information for autonomous systems on the Internet via its AS-Path attribute.&lt;/li&gt;
+  &lt;li&gt;BGP is a Layer 4 protocol that sits on top of TCP, using port 179.&lt;/li&gt;
+  &lt;li&gt;BGP establises route by manually forming neighbors/Peers, exchange routing information between neighbors. Use “show ip bgp neighbor” or “show ip bgp summary” to see neighbors. The neighbors are not necessary to be physically connected neighbor, it can be logical neighbor, as long as it is IP reachable, with the help of IGP such as OSPF.&lt;/li&gt;
+  &lt;li&gt;BGP establishes its BGP database after receiving the routing information from neighbors. The database can be examnined by “show ip bgp”.&lt;/li&gt;
+  &lt;li&gt;BGP can insert BGP routes into router’s routing table depending on the weigh of route. By default, EBGP route has weight 20, IBGP route is 200, comparing to OSFP route is 100. These are well designed number, which we will see how important is.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;configure-bgp-routing&quot;&gt;Configure BGP routing&lt;/h2&gt;
+
+&lt;p&gt;Below is the network topology of two Autonomous Systems 500 and 600. I created the network by running Cisco IOL image.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/uploads/networking/bgp-routing-topo.jpg&quot; alt=&quot;BGP routing network topology&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Some highlights:&lt;/p&gt;
+&lt;ul&gt;
+  &lt;li&gt;Each router has a loopback 0 interface, e.g. R1 has loopback0 with ip address 11.11.11.11; R2 has loopback 0 with ip address 22.22.22.22.&lt;/li&gt;
+  &lt;li&gt;Each router has serial connections as WAN link, and Ethernet interface as LAN. WAN link is not supposed to be seen outside of AS, only LAN network is needed.&lt;/li&gt;
+  &lt;li&gt;OSPF will be used as IGP&lt;/li&gt;
+  &lt;li&gt;Loopback IP address will be used as neighbor address so that we can have redundancy especially in the case between R3 and R5.&lt;/li&gt;
+  &lt;li&gt;IBGP will use full mesh instead of route reflector.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Following shows the IP address of each router.&lt;/p&gt;
+
+&lt;p&gt;R1:&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;R1#show ip interface brief 
+Interface              IP-Address      OK? Method Status                Protocol
+Ethernet0/0            10.1.1.1        YES NVRAM  up                    up      
+Serial1/0              4.4.4.2         YES NVRAM  up                    up      
+Serial2/0              1.1.1.1         YES NVRAM  up                    up      
+Loopback0              11.11.11.11     YES manual up                    up      
+R1#&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;R2:&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;R2#show ip interface brief 
+Interface              IP-Address      OK? Method Status                Protocol
+Ethernet0/0            20.1.1.1        YES NVRAM  up                    up      
+Serial1/0              2.2.2.1         YES NVRAM  up                    up      
+Serial2/0              1.1.1.2         YES NVRAM  up                    up      
+Loopback0              22.22.22.22     YES manual up                    up      
+R2#&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;R3:&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;R3#show ip interface brief 
+Interface              IP-Address      OK? Method Status                Protocol
+Ethernet0/0            30.1.1.1        YES NVRAM  up                    up      
+Serial1/0              2.2.2.2         YES NVRAM  up                    up      
+Serial2/0              3.3.3.1         YES NVRAM  up                    up      
+Serial3/0              5.5.5.1         YES NVRAM  up                    up      
+Serial4/0              6.6.6.1         YES manual up                    up      
+Loopback0              33.33.33.33     YES manual up                    up      
+R3#&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;R4:&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;R4#show ip interface brief 
+Interface              IP-Address      OK? Method Status                Protocol
+Ethernet0/0            40.1.1.1        YES NVRAM  up                    up      
+Serial1/0              3.3.3.2         YES NVRAM  up                    up      
+Serial2/0              4.4.4.1         YES NVRAM  up                    up      
+Loopback0              44.44.44.44     YES manual up                    up      
+R4#&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;R5:&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;R5#show ip interface brief 
+Interface              IP-Address      OK? Method Status                Protocol
+Ethernet0/0            50.1.1.1        YES NVRAM  up                    up      
+Serial1/0              5.5.5.2         YES NVRAM  up                    up      
+Serial2/0              6.6.6.2         YES manual up                    up      
+Loopback0              55.55.55.55     YES NVRAM  up                    up      
+R5#&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;h3 id=&quot;configure-ospf-as-igp-for-as-500&quot;&gt;Configure OSPF as IGP for AS-500&lt;/h3&gt;
+
+&lt;p&gt;R1:&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;R1#show run | s ospf
+router ospf 100
+ network 1.0.0.0 0.255.255.255 area 0
+ network 4.0.0.0 0.255.255.255 area 0
+ network 10.0.0.0 0.255.255.255 area 0
+ network 11.11.11.11 0.0.0.0 area 0
+R1#
+R1#show ip ospf neighbor 
+
+Neighbor ID     Pri   State           Dead Time   Address         Interface
+40.1.1.1          0   FULL/  -        00:00:30    4.4.4.1         Serial1/0
+20.1.1.1          0   FULL/  -        00:00:31    1.1.1.2         Serial2/0
+R1#show ip route ospf
+Codes: L - &lt;span class=&quot;nb&quot;&gt;local&lt;/span&gt;, C - connected, S - static, R - RIP, M - mobile, B - BGP
+       D - EIGRP, EX - EIGRP external, O - OSPF, IA - OSPF inter area 
+       N1 - OSPF NSSA external &lt;span class=&quot;nb&quot;&gt;type &lt;/span&gt;1, N2 - OSPF NSSA external &lt;span class=&quot;nb&quot;&gt;type &lt;/span&gt;2
+       E1 - OSPF external &lt;span class=&quot;nb&quot;&gt;type &lt;/span&gt;1, E2 - OSPF external &lt;span class=&quot;nb&quot;&gt;type &lt;/span&gt;2
+       i - IS-IS, su - IS-IS summary, L1 - IS-IS level-1, L2 - IS-IS level-2
+       ia - IS-IS inter area, &lt;span class=&quot;k&quot;&gt;*&lt;/span&gt; - candidate default, U - per-user static route
+       o - ODR, P - periodic downloaded static route, H - NHRP, l - LISP
+       + - replicated route, % - next hop override
+
+Gateway of last resort is not &lt;span class=&quot;nb&quot;&gt;set
+
+&lt;/span&gt;O     2.0.0.0/8 &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;110/128] via 1.1.1.2, 03:56:15, Serial2/0
+O     3.0.0.0/8 &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;110/128] via 4.4.4.1, 03:56:15, Serial1/0
+O     20.0.0.0/8 &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;110/74] via 1.1.1.2, 03:56:15, Serial2/0
+      22.0.0.0/32 is subnetted, 1 subnets
+O        22.22.22.22 &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;110/65] via 1.1.1.2, 03:51:47, Serial2/0
+O     30.0.0.0/8 &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;110/138] via 4.4.4.1, 03:56:15, Serial1/0
+                 &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;110/138] via 1.1.1.2, 03:56:15, Serial2/0
+      33.0.0.0/32 is subnetted, 1 subnets
+O        33.33.33.33 &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;110/129] via 4.4.4.1, 03:51:05, Serial1/0
+                     &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;110/129] via 1.1.1.2, 03:51:05, Serial2/0
+O     40.0.0.0/8 &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;110/74] via 4.4.4.1, 03:56:15, Serial1/0
+      44.0.0.0/32 is subnetted, 1 subnets
+O        44.44.44.44 &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;110/65] via 4.4.4.1, 03:50:12, Serial1/0
+R1#&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;R2:&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;R2#show running-config | s ospf
+router ospf 100
+ network 1.0.0.0 0.255.255.255 area 0
+ network 2.0.0.0 0.255.255.255 area 0
+ network 20.0.0.0 0.255.255.255 area 0
+ network 22.22.22.22 0.0.0.0 area 0
+R2#
+R2#show running-config | s ospf
+router ospf 100
+ network 1.0.0.0 0.255.255.255 area 0
+ network 2.0.0.0 0.255.255.255 area 0
+ network 20.0.0.0 0.255.255.255 area 0
+ network 22.22.22.22 0.0.0.0 area 0
+R2#show ip ospf neighbor 
+
+Neighbor ID     Pri   State           Dead Time   Address         Interface
+30.1.1.1          0   FULL/  -        00:00:38    2.2.2.2         Serial1/0
+10.1.1.1          0   FULL/  -        00:00:31    1.1.1.1         Serial2/0
+R2#show ip route ospf
+Codes: L - &lt;span class=&quot;nb&quot;&gt;local&lt;/span&gt;, C - connected, S - static, R - RIP, M - mobile, B - BGP
+       D - EIGRP, EX - EIGRP external, O - OSPF, IA - OSPF inter area 
+       N1 - OSPF NSSA external &lt;span class=&quot;nb&quot;&gt;type &lt;/span&gt;1, N2 - OSPF NSSA external &lt;span class=&quot;nb&quot;&gt;type &lt;/span&gt;2
+       E1 - OSPF external &lt;span class=&quot;nb&quot;&gt;type &lt;/span&gt;1, E2 - OSPF external &lt;span class=&quot;nb&quot;&gt;type &lt;/span&gt;2
+       i - IS-IS, su - IS-IS summary, L1 - IS-IS level-1, L2 - IS-IS level-2
+       ia - IS-IS inter area, &lt;span class=&quot;k&quot;&gt;*&lt;/span&gt; - candidate default, U - per-user static route
+       o - ODR, P - periodic downloaded static route, H - NHRP, l - LISP
+       + - replicated route, % - next hop override
+
+Gateway of last resort is not &lt;span class=&quot;nb&quot;&gt;set
+
+&lt;/span&gt;O     3.0.0.0/8 &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;110/128] via 2.2.2.2, 03:59:33, Serial1/0
+O     4.0.0.0/8 &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;110/128] via 1.1.1.1, 03:59:43, Serial2/0
+O     10.0.0.0/8 &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;110/74] via 1.1.1.1, 03:59:43, Serial2/0
+      11.0.0.0/32 is subnetted, 1 subnets
+O        11.11.11.11 &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;110/65] via 1.1.1.1, 03:55:50, Serial2/0
+O     30.0.0.0/8 &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;110/74] via 2.2.2.2, 03:59:33, Serial1/0
+      33.0.0.0/32 is subnetted, 1 subnets
+O        33.33.33.33 &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;110/65] via 2.2.2.2, 03:54:24, Serial1/0
+O     40.0.0.0/8 &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;110/138] via 2.2.2.2, 03:59:33, Serial1/0
+                 &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;110/138] via 1.1.1.1, 03:59:33, Serial2/0
+      44.0.0.0/32 is subnetted, 1 subnets
+O        44.44.44.44 &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;110/129] via 2.2.2.2, 03:53:31, Serial1/0
+                     &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;110/129] via 1.1.1.1, 03:53:31, Serial2/0
+R2#&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;R3:&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;R3#show running-config | s ospf
+router ospf 100
+ network 2.0.0.0 0.255.255.255 area 0
+ network 3.0.0.0 0.255.255.255 area 0
+ network 30.0.0.0 0.255.255.255 area 0
+ network 33.33.33.33 0.0.0.0 area 0
+R3#show ip ospf neighbor
+
+Neighbor ID     Pri   State           Dead Time   Address         Interface
+40.1.1.1          0   FULL/  -        00:00:30    3.3.3.2         Serial2/0
+20.1.1.1          0   FULL/  -        00:00:31    2.2.2.1         Serial1/0
+R3#show ip route ospf
+Codes: L - &lt;span class=&quot;nb&quot;&gt;local&lt;/span&gt;, C - connected, S - static, R - RIP, M - mobile, B - BGP
+       D - EIGRP, EX - EIGRP external, O - OSPF, IA - OSPF inter area 
+       N1 - OSPF NSSA external &lt;span class=&quot;nb&quot;&gt;type &lt;/span&gt;1, N2 - OSPF NSSA external &lt;span class=&quot;nb&quot;&gt;type &lt;/span&gt;2
+       E1 - OSPF external &lt;span class=&quot;nb&quot;&gt;type &lt;/span&gt;1, E2 - OSPF external &lt;span class=&quot;nb&quot;&gt;type &lt;/span&gt;2
+       i - IS-IS, su - IS-IS summary, L1 - IS-IS level-1, L2 - IS-IS level-2
+       ia - IS-IS inter area, &lt;span class=&quot;k&quot;&gt;*&lt;/span&gt; - candidate default, U - per-user static route
+       o - ODR, P - periodic downloaded static route, H - NHRP, l - LISP
+       + - replicated route, % - next hop override
+
+Gateway of last resort is not &lt;span class=&quot;nb&quot;&gt;set
+
+&lt;/span&gt;O     1.0.0.0/8 &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;110/128] via 2.2.2.1, 04:00:56, Serial1/0
+O     4.0.0.0/8 &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;110/128] via 3.3.3.2, 04:00:46, Serial2/0
+O     10.0.0.0/8 &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;110/138] via 3.3.3.2, 04:00:46, Serial2/0
+                 &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;110/138] via 2.2.2.1, 04:00:56, Serial1/0
+      11.0.0.0/32 is subnetted, 1 subnets
+O        11.11.11.11 &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;110/129] via 3.3.3.2, 03:57:04, Serial2/0
+                     &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;110/129] via 2.2.2.1, 03:57:04, Serial1/0
+O     20.0.0.0/8 &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;110/74] via 2.2.2.1, 04:00:56, Serial1/0
+      22.0.0.0/32 is subnetted, 1 subnets
+O        22.22.22.22 &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;110/65] via 2.2.2.1, 03:56:20, Serial1/0
+O     40.0.0.0/8 &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;110/74] via 3.3.3.2, 04:00:46, Serial2/0
+      44.0.0.0/32 is subnetted, 1 subnets
+O        44.44.44.44 &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;110/65] via 3.3.3.2, 03:54:45, Serial2/0
+R3#&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;R4:&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;R4#show running | se ospf
+router ospf 100
+ network 3.0.0.0 0.255.255.255 area 0
+ network 4.0.0.0 0.255.255.255 area 0
+ network 40.0.0.0 0.255.255.255 area 0
+ network 44.44.44.44 0.0.0.0 area 0
+R4#show ip ospf neighbor
+
+Neighbor ID     Pri   State           Dead Time   Address         Interface
+10.1.1.1          0   FULL/  -        00:00:30    4.4.4.2         Serial2/0
+30.1.1.1          0   FULL/  -        00:00:31    3.3.3.1         Serial1/0
+R4#show ip route ospf
+Codes: L - &lt;span class=&quot;nb&quot;&gt;local&lt;/span&gt;, C - connected, S - static, R - RIP, M - mobile, B - BGP
+       D - EIGRP, EX - EIGRP external, O - OSPF, IA - OSPF inter area 
+       N1 - OSPF NSSA external &lt;span class=&quot;nb&quot;&gt;type &lt;/span&gt;1, N2 - OSPF NSSA external &lt;span class=&quot;nb&quot;&gt;type &lt;/span&gt;2
+       E1 - OSPF external &lt;span class=&quot;nb&quot;&gt;type &lt;/span&gt;1, E2 - OSPF external &lt;span class=&quot;nb&quot;&gt;type &lt;/span&gt;2
+       i - IS-IS, su - IS-IS summary, L1 - IS-IS level-1, L2 - IS-IS level-2
+       ia - IS-IS inter area, &lt;span class=&quot;k&quot;&gt;*&lt;/span&gt; - candidate default, U - per-user static route
+       o - ODR, P - periodic downloaded static route, H - NHRP, l - LISP
+       + - replicated route, % - next hop override
+
+Gateway of last resort is not &lt;span class=&quot;nb&quot;&gt;set
+
+&lt;/span&gt;O     1.0.0.0/8 &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;110/128] via 4.4.4.2, 04:02:06, Serial2/0
+O     2.0.0.0/8 &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;110/128] via 3.3.3.1, 04:02:16, Serial1/0
+O     10.0.0.0/8 &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;110/74] via 4.4.4.2, 04:02:06, Serial2/0
+      11.0.0.0/32 is subnetted, 1 subnets
+O        11.11.11.11 &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;110/65] via 4.4.4.2, 03:58:25, Serial2/0
+O     20.0.0.0/8 &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;110/138] via 4.4.4.2, 04:02:06, Serial2/0
+                 &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;110/138] via 3.3.3.1, 04:02:16, Serial1/0
+      22.0.0.0/32 is subnetted, 1 subnets
+O        22.22.22.22 &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;110/129] via 4.4.4.2, 03:57:41, Serial2/0
+                     &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;110/129] via 3.3.3.1, 03:57:41, Serial1/0
+O     30.0.0.0/8 &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;110/74] via 3.3.3.1, 04:02:16, Serial1/0
+      33.0.0.0/32 is subnetted, 1 subnets
+O        33.33.33.33 &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;110/65] via 3.3.3.1, 03:56:59, Serial1/0
+R4#&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;With above configuration, we should be able to ping from any router inside AS-500 to ping any interface IP inside AS-500.&lt;/p&gt;
+
+&lt;p&gt;If we don’t need to communicate outside, that is good enough. But that is not the internet about. we want to connect anywhere in the world! BGP comes to help for that!&lt;/p&gt;
+
+&lt;h3 id=&quot;configure-ibgp-for-as-500-plus-ebg-for-r3&quot;&gt;configure iBGP for AS-500, plus EBG for R3&lt;/h3&gt;
+
+&lt;p&gt;R1: only advertise LAN network, which is 10.0.0.0. No WAN interface exposed.
+peer-group “bgp-pgrp1” is created to apply to all three iBGP neighbors R2, R3, R4. we do the similar in R2, R3 and R4.&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;R1#show running-config | s bgp
+router bgp 500
+ bgp log-neighbor-changes
+ network 10.0.0.0
+ neighbor bgp-pgrp1 peer-group
+ neighbor bgp-pgrp1 remote-as 500
+ neighbor bgp-pgrp1 update-source Loopback0
+ neighbor bgp-pgrp1 version 4
+ neighbor bgp-pgrp1 next-hop-self
+ neighbor 22.22.22.22 peer-group bgp-pgrp1
+ neighbor 33.33.33.33 peer-group bgp-pgrp1
+ neighbor 44.44.44.44 peer-group bgp-pgrp1
+R1#&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;R2: only advertise LAN network, which is 20.0.0.0.&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;R2#show run | se bgp
+router bgp 500
+ bgp log-neighbor-changes
+ network 20.0.0.0
+ neighbor bgp-pgrp1 peer-group
+ neighbor bgp-pgrp1 remote-as 500
+ neighbor bgp-pgrp1 update-source Loopback0
+ neighbor bgp-pgrp1 version 4
+ neighbor bgp-pgrp1 next-hop-self
+ neighbor 11.11.11.11 peer-group bgp-pgrp1
+ neighbor 33.33.33.33 peer-group bgp-pgrp1
+ neighbor 44.44.44.44 peer-group bgp-pgrp1
+R2#&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;R4: only advertise LAN network, which is 40.0.0.0.&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;R4#show run | s bgp
+router bgp 500
+ bgp log-neighbor-changes
+ network 40.0.0.0
+ neighbor bgp-pgrp1 peer-group
+ neighbor bgp-pgrp1 remote-as 500
+ neighbor bgp-pgrp1 update-source Loopback0
+ neighbor bgp-pgrp1 version 4
+ neighbor bgp-pgrp1 next-hop-self
+ neighbor 11.11.11.11 peer-group bgp-pgrp1
+ neighbor 22.22.22.22 peer-group bgp-pgrp1
+ neighbor 33.33.33.33 peer-group bgp-pgrp1
+R4#&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;R3:only advertise LAN network, which is 30.0.0.0. Here R% is added as EBGP neighbor
+using loopback address 55.55.55.55 with remote-as 600. Also we need configure ebgp-multihop=2 as we use lookback interface, it takes two hops to reach R5 from R3.
+Another important thing is next-hop-self, which says when it advertise route
+(e.g. 50.0.0.0) from R5 to R1, R2, R4, it will use 33.33.33.33 as next hop address.&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;R3#show running-config | s bgp
+router bgp 500
+ bgp log-neighbor-changes
+ network 30.0.0.0
+ neighbor bgp-pgrp1 peer-group
+ neighbor bgp-pgrp1 remote-as 500
+ neighbor bgp-pgrp1 update-source Loopback0
+ neighbor bgp-pgrp1 version 4
+ neighbor bgp-pgrp1 next-hop-self
+ neighbor 11.11.11.11 peer-group bgp-pgrp1
+ neighbor 22.22.22.22 peer-group bgp-pgrp1
+ neighbor 44.44.44.44 peer-group bgp-pgrp1
+ neighbor 55.55.55.55 remote-as 600
+ neighbor 55.55.55.55 ebgp-multihop 2
+ neighbor 55.55.55.55 update-source Loopback0
+R3#&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;R5: only advertise LAN network, which is 50.0.0.0.&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;R5#show running-config  | s bgp
+router bgp 600
+ bgp log-neighbor-changes
+ network 50.0.0.0
+ neighbor 33.33.33.33 remote-as 500
+ neighbor 33.33.33.33 ebgp-multihop 2
+ neighbor 33.33.33.33 update-source Loopback0
+R5#&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;h3 id=&quot;check-bgp-neighor-and-datebase&quot;&gt;Check BGP neighor and datebase&lt;/h3&gt;
+&lt;p&gt;R1:&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;R1#show ip bgp summary 
+BGP router identifier 11.11.11.11, &lt;span class=&quot;nb&quot;&gt;local &lt;/span&gt;AS number 500
+BGP table version is 6, main routing table version 6
+5 network entries using 700 bytes of memory
+5 path entries using 380 bytes of memory
+3/3 BGP path/bestpath attribute entries using 408 bytes of memory
+1 BGP AS-PATH entries using 24 bytes of memory
+0 BGP route-map cache entries using 0 bytes of memory
+0 BGP filter-list cache entries using 0 bytes of memory
+BGP using 1512 total bytes of memory
+BGP activity 24/19 prefixes, 34/29 paths, scan interval 60 secs
+
+Neighbor        V           AS MsgRcvd MsgSent   TblVer  InQ OutQ Up/Down  State/PfxRcd
+22.22.22.22     4          500     124     124        6    0    0 01:49:47        1
+33.33.33.33     4          500     125     126        6    0    0 01:50:00        2
+44.44.44.44     4          500     125     125        6    0    0 01:49:51        1
+R1#show ip bgp         
+BGP table version is 6, &lt;span class=&quot;nb&quot;&gt;local &lt;/span&gt;router ID is 11.11.11.11
+Status codes: s suppressed, d damped, h &lt;span class=&quot;nb&quot;&gt;history&lt;/span&gt;, &lt;span class=&quot;k&quot;&gt;*&lt;/span&gt; valid, &lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; best, i - internal, 
+              r RIB-failure, S Stale, m multipath, b backup-path, f RT-Filter, 
+              x best-external, a additional-path, c RIB-compressed, 
+Origin codes: i - IGP, e - EGP, ? - incomplete
+RPKI validation codes: V valid, I invalid, N Not found
+
+     Network          Next Hop            Metric LocPrf Weight Path
+ &lt;span class=&quot;k&quot;&gt;*&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt;  10.0.0.0         0.0.0.0                  0         32768 i
+ r&amp;gt;i 20.0.0.0         22.22.22.22              0    100      0 i
+ r&amp;gt;i 30.0.0.0         33.33.33.33              0    100      0 i
+ r&amp;gt;i 40.0.0.0         44.44.44.44              0    100      0 i
+ &lt;span class=&quot;k&quot;&gt;*&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt;i 50.0.0.0         33.33.33.33              0    100      0 600 i
+R1#&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;R2:&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;R2#show ip bgp summary 
+BGP router identifier 22.22.22.22, &lt;span class=&quot;nb&quot;&gt;local &lt;/span&gt;AS number 500
+BGP table version is 6, main routing table version 6
+5 network entries using 700 bytes of memory
+5 path entries using 380 bytes of memory
+3/3 BGP path/bestpath attribute entries using 408 bytes of memory
+1 BGP AS-PATH entries using 24 bytes of memory
+0 BGP route-map cache entries using 0 bytes of memory
+0 BGP filter-list cache entries using 0 bytes of memory
+BGP using 1512 total bytes of memory
+BGP activity 22/17 prefixes, 23/18 paths, scan interval 60 secs
+
+Neighbor        V           AS MsgRcvd MsgSent   TblVer  InQ OutQ Up/Down  State/PfxRcd
+11.11.11.11     4          500     125     125        6    0    0 01:50:41        1
+33.33.33.33     4          500     128     126        6    0    0 01:50:41        2
+44.44.44.44     4          500     126     126        6    0    0 01:50:41        1
+R2#show ip bgp         
+BGP table version is 6, &lt;span class=&quot;nb&quot;&gt;local &lt;/span&gt;router ID is 22.22.22.22
+Status codes: s suppressed, d damped, h &lt;span class=&quot;nb&quot;&gt;history&lt;/span&gt;, &lt;span class=&quot;k&quot;&gt;*&lt;/span&gt; valid, &lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; best, i - internal, 
+              r RIB-failure, S Stale, m multipath, b backup-path, f RT-Filter, 
+              x best-external, a additional-path, c RIB-compressed, 
+Origin codes: i - IGP, e - EGP, ? - incomplete
+RPKI validation codes: V valid, I invalid, N Not found
+
+     Network          Next Hop            Metric LocPrf Weight Path
+ r&amp;gt;i 10.0.0.0         11.11.11.11              0    100      0 i
+ &lt;span class=&quot;k&quot;&gt;*&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt;  20.0.0.0         0.0.0.0                  0         32768 i
+ r&amp;gt;i 30.0.0.0         33.33.33.33              0    100      0 i
+ r&amp;gt;i 40.0.0.0         44.44.44.44              0    100      0 i
+ &lt;span class=&quot;k&quot;&gt;*&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt;i 50.0.0.0         33.33.33.33              0    100      0 600 i
+R2#&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;R3:&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;R3#show ip bgp summary 
+BGP router identifier 33.33.33.33, &lt;span class=&quot;nb&quot;&gt;local &lt;/span&gt;AS number 500
+BGP table version is 6, main routing table version 6
+5 network entries using 700 bytes of memory
+5 path entries using 380 bytes of memory
+3/3 BGP path/bestpath attribute entries using 408 bytes of memory
+1 BGP AS-PATH entries using 24 bytes of memory
+0 BGP route-map cache entries using 0 bytes of memory
+0 BGP filter-list cache entries using 0 bytes of memory
+BGP using 1512 total bytes of memory
+BGP activity 24/19 prefixes, 35/30 paths, scan interval 60 secs
+
+Neighbor        V           AS MsgRcvd MsgSent   TblVer  InQ OutQ Up/Down  State/PfxRcd
+11.11.11.11     4          500     129     127        6    0    0 01:52:06        1
+22.22.22.22     4          500     128     129        6    0    0 01:51:53        1
+44.44.44.44     4          500     126     130        6    0    0 01:51:58        1
+55.55.55.55     4          600     128     126        6    0    0 01:52:09        1
+R3#show ip bgp         
+BGP table version is 6, &lt;span class=&quot;nb&quot;&gt;local &lt;/span&gt;router ID is 33.33.33.33
+Status codes: s suppressed, d damped, h &lt;span class=&quot;nb&quot;&gt;history&lt;/span&gt;, &lt;span class=&quot;k&quot;&gt;*&lt;/span&gt; valid, &lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; best, i - internal, 
+              r RIB-failure, S Stale, m multipath, b backup-path, f RT-Filter, 
+              x best-external, a additional-path, c RIB-compressed, 
+Origin codes: i - IGP, e - EGP, ? - incomplete
+RPKI validation codes: V valid, I invalid, N Not found
+
+     Network          Next Hop            Metric LocPrf Weight Path
+ r&amp;gt;i 10.0.0.0         11.11.11.11              0    100      0 i
+ r&amp;gt;i 20.0.0.0         22.22.22.22              0    100      0 i
+ &lt;span class=&quot;k&quot;&gt;*&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt;  30.0.0.0         0.0.0.0                  0         32768 i
+ r&amp;gt;i 40.0.0.0         44.44.44.44              0    100      0 i
+ &lt;span class=&quot;k&quot;&gt;*&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt;  50.0.0.0         55.55.55.55              0             0 600 i
+R3#&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;R4:&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;R4#show ip bgp summary 
+BGP router identifier 44.44.44.44, &lt;span class=&quot;nb&quot;&gt;local &lt;/span&gt;AS number 500
+BGP table version is 6, main routing table version 6
+5 network entries using 700 bytes of memory
+5 path entries using 380 bytes of memory
+3/3 BGP path/bestpath attribute entries using 408 bytes of memory
+1 BGP AS-PATH entries using 24 bytes of memory
+0 BGP route-map cache entries using 0 bytes of memory
+0 BGP filter-list cache entries using 0 bytes of memory
+BGP using 1512 total bytes of memory
+BGP activity 22/17 prefixes, 23/18 paths, scan interval 60 secs
+
+Neighbor        V           AS MsgRcvd MsgSent   TblVer  InQ OutQ Up/Down  State/PfxRcd
+11.11.11.11     4          500     128     128        6    0    0 01:52:27        1
+22.22.22.22     4          500     128     128        6    0    0 01:52:22        1
+33.33.33.33     4          500     131     126        6    0    0 01:52:27        2
+R4#show ip bgp         
+BGP table version is 6, &lt;span class=&quot;nb&quot;&gt;local &lt;/span&gt;router ID is 44.44.44.44
+Status codes: s suppressed, d damped, h &lt;span class=&quot;nb&quot;&gt;history&lt;/span&gt;, &lt;span class=&quot;k&quot;&gt;*&lt;/span&gt; valid, &lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; best, i - internal, 
+              r RIB-failure, S Stale, m multipath, b backup-path, f RT-Filter, 
+              x best-external, a additional-path, c RIB-compressed, 
+Origin codes: i - IGP, e - EGP, ? - incomplete
+RPKI validation codes: V valid, I invalid, N Not found
+
+     Network          Next Hop            Metric LocPrf Weight Path
+ r&amp;gt;i 10.0.0.0         11.11.11.11              0    100      0 i
+ r&amp;gt;i 20.0.0.0         22.22.22.22              0    100      0 i
+ r&amp;gt;i 30.0.0.0         33.33.33.33              0    100      0 i
+ &lt;span class=&quot;k&quot;&gt;*&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt;  40.0.0.0         0.0.0.0                  0         32768 i
+ &lt;span class=&quot;k&quot;&gt;*&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt;i 50.0.0.0         33.33.33.33              0    100      0 600 i
+R4#&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;R5:&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;R5#show ip bgp summary 
+BGP router identifier 55.55.55.55, &lt;span class=&quot;nb&quot;&gt;local &lt;/span&gt;AS number 600
+BGP table version is 14, main routing table version 14
+5 network entries using 700 bytes of memory
+5 path entries using 380 bytes of memory
+3/3 BGP path/bestpath attribute entries using 408 bytes of memory
+1 BGP AS-PATH entries using 24 bytes of memory
+0 BGP route-map cache entries using 0 bytes of memory
+0 BGP filter-list cache entries using 0 bytes of memory
+BGP using 1512 total bytes of memory
+BGP activity 26/21 prefixes, 33/28 paths, scan interval 60 secs
+
+Neighbor        V           AS MsgRcvd MsgSent   TblVer  InQ OutQ Up/Down  State/PfxRcd
+33.33.33.33     4          500     128     129       14    0    0 01:53:17        4
+R5#show ip bgp         
+BGP table version is 14, &lt;span class=&quot;nb&quot;&gt;local &lt;/span&gt;router ID is 55.55.55.55
+Status codes: s suppressed, d damped, h &lt;span class=&quot;nb&quot;&gt;history&lt;/span&gt;, &lt;span class=&quot;k&quot;&gt;*&lt;/span&gt; valid, &lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; best, i - internal, 
+              r RIB-failure, S Stale, m multipath, b backup-path, f RT-Filter, 
+              x best-external, a additional-path, c RIB-compressed, 
+Origin codes: i - IGP, e - EGP, ? - incomplete
+RPKI validation codes: V valid, I invalid, N Not found
+
+     Network          Next Hop            Metric LocPrf Weight Path
+ &lt;span class=&quot;k&quot;&gt;*&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt;  10.0.0.0         33.33.33.33                            0 500 i
+ &lt;span class=&quot;k&quot;&gt;*&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt;  20.0.0.0         33.33.33.33                            0 500 i
+ &lt;span class=&quot;k&quot;&gt;*&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt;  30.0.0.0         33.33.33.33              0             0 500 i
+ &lt;span class=&quot;k&quot;&gt;*&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt;  40.0.0.0         33.33.33.33                            0 500 i
+ &lt;span class=&quot;k&quot;&gt;*&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt;  50.0.0.0         0.0.0.0                  0         32768 i
+R5#&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;h3 id=&quot;check-routing-table-and-veirify&quot;&gt;check routing table and veirify&lt;/h3&gt;
+
+&lt;p&gt;R1:&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;R1#show ip route 
+Codes: L - &lt;span class=&quot;nb&quot;&gt;local&lt;/span&gt;, C - connected, S - static, R - RIP, M - mobile, B - BGP
+       D - EIGRP, EX - EIGRP external, O - OSPF, IA - OSPF inter area 
+       N1 - OSPF NSSA external &lt;span class=&quot;nb&quot;&gt;type &lt;/span&gt;1, N2 - OSPF NSSA external &lt;span class=&quot;nb&quot;&gt;type &lt;/span&gt;2
+       E1 - OSPF external &lt;span class=&quot;nb&quot;&gt;type &lt;/span&gt;1, E2 - OSPF external &lt;span class=&quot;nb&quot;&gt;type &lt;/span&gt;2
+       i - IS-IS, su - IS-IS summary, L1 - IS-IS level-1, L2 - IS-IS level-2
+       ia - IS-IS inter area, &lt;span class=&quot;k&quot;&gt;*&lt;/span&gt; - candidate default, U - per-user static route
+       o - ODR, P - periodic downloaded static route, H - NHRP, l - LISP
+       + - replicated route, % - next hop override
+
+Gateway of last resort is not &lt;span class=&quot;nb&quot;&gt;set
+
+      &lt;/span&gt;1.0.0.0/8 is variably subnetted, 2 subnets, 2 masks
+C        1.0.0.0/8 is directly connected, Serial2/0
+L        1.1.1.1/32 is directly connected, Serial2/0
+O     2.0.0.0/8 &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;110/128] via 1.1.1.2, 04:20:45, Serial2/0
+O     3.0.0.0/8 &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;110/128] via 4.4.4.1, 04:20:45, Serial1/0
+      4.0.0.0/8 is variably subnetted, 2 subnets, 2 masks
+C        4.0.0.0/8 is directly connected, Serial1/0
+L        4.4.4.2/32 is directly connected, Serial1/0
+      10.0.0.0/8 is variably subnetted, 2 subnets, 2 masks
+C        10.0.0.0/8 is directly connected, Ethernet0/0
+L        10.1.1.1/32 is directly connected, Ethernet0/0
+      11.0.0.0/32 is subnetted, 1 subnets
+C        11.11.11.11 is directly connected, Loopback0
+O     20.0.0.0/8 &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;110/74] via 1.1.1.2, 04:20:45, Serial2/0
+      22.0.0.0/32 is subnetted, 1 subnets
+O        22.22.22.22 &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;110/65] via 1.1.1.2, 04:16:17, Serial2/0
+O     30.0.0.0/8 &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;110/138] via 4.4.4.1, 04:20:45, Serial1/0
+                 &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;110/138] via 1.1.1.2, 04:20:45, Serial2/0
+      33.0.0.0/32 is subnetted, 1 subnets
+O        33.33.33.33 &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;110/129] via 4.4.4.1, 04:15:35, Serial1/0
+                     &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;110/129] via 1.1.1.2, 04:15:35, Serial2/0
+O     40.0.0.0/8 &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;110/74] via 4.4.4.1, 04:20:45, Serial1/0
+      44.0.0.0/32 is subnetted, 1 subnets
+O        44.44.44.44 &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;110/65] via 4.4.4.1, 04:14:42, Serial1/0
+B     50.0.0.0/8 &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;200/0] via 33.33.33.33, 01:53:05
+R1#
+R1#ping 50.1.1.1
+Type escape sequence to abort.
+Sending 5, 100-byte ICMP Echos to 50.1.1.1, timeout is 2 seconds:
+.....
+Success rate is 0 percent &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;0/5&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+R1#ping 50.1.1.1 &lt;span class=&quot;nb&quot;&gt;source &lt;/span&gt;10.1.1.1
+Type escape sequence to abort.
+Sending 5, 100-byte ICMP Echos to 50.1.1.1, timeout is 2 seconds:
+Packet sent with a &lt;span class=&quot;nb&quot;&gt;source &lt;/span&gt;address of 10.1.1.1 
+&lt;span class=&quot;o&quot;&gt;!!!!!&lt;/span&gt;
+Success rate is 100 percent &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;5/5&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;, round-trip min/avg/max &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; 24/26/32 ms
+R1#&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;R2:&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;R2#show ip route 
+Codes: L - &lt;span class=&quot;nb&quot;&gt;local&lt;/span&gt;, C - connected, S - static, R - RIP, M - mobile, B - BGP
+       D - EIGRP, EX - EIGRP external, O - OSPF, IA - OSPF inter area 
+       N1 - OSPF NSSA external &lt;span class=&quot;nb&quot;&gt;type &lt;/span&gt;1, N2 - OSPF NSSA external &lt;span class=&quot;nb&quot;&gt;type &lt;/span&gt;2
+       E1 - OSPF external &lt;span class=&quot;nb&quot;&gt;type &lt;/span&gt;1, E2 - OSPF external &lt;span class=&quot;nb&quot;&gt;type &lt;/span&gt;2
+       i - IS-IS, su - IS-IS summary, L1 - IS-IS level-1, L2 - IS-IS level-2
+       ia - IS-IS inter area, &lt;span class=&quot;k&quot;&gt;*&lt;/span&gt; - candidate default, U - per-user static route
+       o - ODR, P - periodic downloaded static route, H - NHRP, l - LISP
+       + - replicated route, % - next hop override
+
+Gateway of last resort is not &lt;span class=&quot;nb&quot;&gt;set
+
+      &lt;/span&gt;1.0.0.0/8 is variably subnetted, 2 subnets, 2 masks
+C        1.0.0.0/8 is directly connected, Serial2/0
+L        1.1.1.2/32 is directly connected, Serial2/0
+      2.0.0.0/8 is variably subnetted, 2 subnets, 2 masks
+C        2.0.0.0/8 is directly connected, Serial1/0
+L        2.2.2.1/32 is directly connected, Serial1/0
+O     3.0.0.0/8 &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;110/128] via 2.2.2.2, 04:23:05, Serial1/0
+O     4.0.0.0/8 &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;110/128] via 1.1.1.1, 04:23:15, Serial2/0
+O     10.0.0.0/8 &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;110/74] via 1.1.1.1, 04:23:15, Serial2/0
+      11.0.0.0/32 is subnetted, 1 subnets
+O        11.11.11.11 &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;110/65] via 1.1.1.1, 04:19:22, Serial2/0
+      20.0.0.0/8 is variably subnetted, 2 subnets, 2 masks
+C        20.0.0.0/8 is directly connected, Ethernet0/0
+L        20.1.1.1/32 is directly connected, Ethernet0/0
+      22.0.0.0/32 is subnetted, 1 subnets
+C        22.22.22.22 is directly connected, Loopback0
+O     30.0.0.0/8 &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;110/74] via 2.2.2.2, 04:23:05, Serial1/0
+      33.0.0.0/32 is subnetted, 1 subnets
+O        33.33.33.33 &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;110/65] via 2.2.2.2, 04:17:56, Serial1/0
+O     40.0.0.0/8 &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;110/138] via 2.2.2.2, 04:23:05, Serial1/0
+                 &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;110/138] via 1.1.1.1, 04:23:05, Serial2/0
+      44.0.0.0/32 is subnetted, 1 subnets
+O        44.44.44.44 &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;110/129] via 2.2.2.2, 04:17:03, Serial1/0
+                     &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;110/129] via 1.1.1.1, 04:17:03, Serial2/0
+B     50.0.0.0/8 &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;200/0] via 33.33.33.33, 01:55:25
+R2#&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;R3:&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;R3#show ip route 
+Codes: L - &lt;span class=&quot;nb&quot;&gt;local&lt;/span&gt;, C - connected, S - static, R - RIP, M - mobile, B - BGP
+       D - EIGRP, EX - EIGRP external, O - OSPF, IA - OSPF inter area 
+       N1 - OSPF NSSA external &lt;span class=&quot;nb&quot;&gt;type &lt;/span&gt;1, N2 - OSPF NSSA external &lt;span class=&quot;nb&quot;&gt;type &lt;/span&gt;2
+       E1 - OSPF external &lt;span class=&quot;nb&quot;&gt;type &lt;/span&gt;1, E2 - OSPF external &lt;span class=&quot;nb&quot;&gt;type &lt;/span&gt;2
+       i - IS-IS, su - IS-IS summary, L1 - IS-IS level-1, L2 - IS-IS level-2
+       ia - IS-IS inter area, &lt;span class=&quot;k&quot;&gt;*&lt;/span&gt; - candidate default, U - per-user static route
+       o - ODR, P - periodic downloaded static route, H - NHRP, l - LISP
+       + - replicated route, % - next hop override
+
+Gateway of last resort is not &lt;span class=&quot;nb&quot;&gt;set
+
+&lt;/span&gt;O     1.0.0.0/8 &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;110/128] via 2.2.2.1, 04:23:46, Serial1/0
+      2.0.0.0/8 is variably subnetted, 2 subnets, 2 masks
+C        2.0.0.0/8 is directly connected, Serial1/0
+L        2.2.2.2/32 is directly connected, Serial1/0
+      3.0.0.0/8 is variably subnetted, 2 subnets, 2 masks
+C        3.0.0.0/8 is directly connected, Serial2/0
+L        3.3.3.1/32 is directly connected, Serial2/0
+O     4.0.0.0/8 &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;110/128] via 3.3.3.2, 04:23:36, Serial2/0
+      5.0.0.0/8 is variably subnetted, 2 subnets, 2 masks
+C        5.0.0.0/8 is directly connected, Serial3/0
+L        5.5.5.1/32 is directly connected, Serial3/0
+      6.0.0.0/8 is variably subnetted, 2 subnets, 2 masks
+C        6.6.6.0/24 is directly connected, Serial4/0
+L        6.6.6.1/32 is directly connected, Serial4/0
+O     10.0.0.0/8 &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;110/138] via 3.3.3.2, 04:23:36, Serial2/0
+                 &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;110/138] via 2.2.2.1, 04:23:46, Serial1/0
+      11.0.0.0/32 is subnetted, 1 subnets
+O        11.11.11.11 &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;110/129] via 3.3.3.2, 04:19:54, Serial2/0
+                     &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;110/129] via 2.2.2.1, 04:19:54, Serial1/0
+O     20.0.0.0/8 &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;110/74] via 2.2.2.1, 04:23:46, Serial1/0
+      22.0.0.0/32 is subnetted, 1 subnets
+O        22.22.22.22 &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;110/65] via 2.2.2.1, 04:19:10, Serial1/0
+      30.0.0.0/8 is variably subnetted, 2 subnets, 2 masks
+C        30.0.0.0/8 is directly connected, Ethernet0/0
+L        30.1.1.1/32 is directly connected, Ethernet0/0
+      33.0.0.0/32 is subnetted, 1 subnets
+C        33.33.33.33 is directly connected, Loopback0
+O     40.0.0.0/8 &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;110/74] via 3.3.3.2, 04:23:36, Serial2/0
+      44.0.0.0/32 is subnetted, 1 subnets
+O        44.44.44.44 &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;110/65] via 3.3.3.2, 04:17:35, Serial2/0
+B     50.0.0.0/8 &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;20/0] via 55.55.55.55, 01:56:03
+      55.0.0.0/32 is subnetted, 1 subnets
+S        55.55.55.55 &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;1/0] via 5.5.5.2
+R3#&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;R4:&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;R4#show ip route 
+Codes: L - &lt;span class=&quot;nb&quot;&gt;local&lt;/span&gt;, C - connected, S - static, R - RIP, M - mobile, B - BGP
+       D - EIGRP, EX - EIGRP external, O - OSPF, IA - OSPF inter area 
+       N1 - OSPF NSSA external &lt;span class=&quot;nb&quot;&gt;type &lt;/span&gt;1, N2 - OSPF NSSA external &lt;span class=&quot;nb&quot;&gt;type &lt;/span&gt;2
+       E1 - OSPF external &lt;span class=&quot;nb&quot;&gt;type &lt;/span&gt;1, E2 - OSPF external &lt;span class=&quot;nb&quot;&gt;type &lt;/span&gt;2
+       i - IS-IS, su - IS-IS summary, L1 - IS-IS level-1, L2 - IS-IS level-2
+       ia - IS-IS inter area, &lt;span class=&quot;k&quot;&gt;*&lt;/span&gt; - candidate default, U - per-user static route
+       o - ODR, P - periodic downloaded static route, H - NHRP, l - LISP
+       + - replicated route, % - next hop override
+
+Gateway of last resort is not &lt;span class=&quot;nb&quot;&gt;set
+
+&lt;/span&gt;O     1.0.0.0/8 &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;110/128] via 4.4.4.2, 04:24:36, Serial2/0
+O     2.0.0.0/8 &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;110/128] via 3.3.3.1, 04:24:46, Serial1/0
+      3.0.0.0/8 is variably subnetted, 2 subnets, 2 masks
+C        3.0.0.0/8 is directly connected, Serial1/0
+L        3.3.3.2/32 is directly connected, Serial1/0
+      4.0.0.0/8 is variably subnetted, 2 subnets, 2 masks
+C        4.0.0.0/8 is directly connected, Serial2/0
+L        4.4.4.1/32 is directly connected, Serial2/0
+O     10.0.0.0/8 &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;110/74] via 4.4.4.2, 04:24:36, Serial2/0
+      11.0.0.0/32 is subnetted, 1 subnets
+O        11.11.11.11 &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;110/65] via 4.4.4.2, 04:20:55, Serial2/0
+O     20.0.0.0/8 &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;110/138] via 4.4.4.2, 04:24:36, Serial2/0
+                 &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;110/138] via 3.3.3.1, 04:24:46, Serial1/0
+      22.0.0.0/32 is subnetted, 1 subnets
+O        22.22.22.22 &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;110/129] via 4.4.4.2, 04:20:11, Serial2/0
+                     &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;110/129] via 3.3.3.1, 04:20:11, Serial1/0
+O     30.0.0.0/8 &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;110/74] via 3.3.3.1, 04:24:46, Serial1/0
+      33.0.0.0/32 is subnetted, 1 subnets
+O        33.33.33.33 &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;110/65] via 3.3.3.1, 04:19:29, Serial1/0
+      40.0.0.0/8 is variably subnetted, 2 subnets, 2 masks
+C        40.0.0.0/8 is directly connected, Ethernet0/0
+L        40.1.1.1/32 is directly connected, Ethernet0/0
+      44.0.0.0/32 is subnetted, 1 subnets
+C        44.44.44.44 is directly connected, Loopback0
+B     50.0.0.0/8 &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;200/0] via 33.33.33.33, 01:56:58
+R4# &lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;R5:&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;R5#show ip route 
+Codes: L - &lt;span class=&quot;nb&quot;&gt;local&lt;/span&gt;, C - connected, S - static, R - RIP, M - mobile, B - BGP
+       D - EIGRP, EX - EIGRP external, O - OSPF, IA - OSPF inter area 
+       N1 - OSPF NSSA external &lt;span class=&quot;nb&quot;&gt;type &lt;/span&gt;1, N2 - OSPF NSSA external &lt;span class=&quot;nb&quot;&gt;type &lt;/span&gt;2
+       E1 - OSPF external &lt;span class=&quot;nb&quot;&gt;type &lt;/span&gt;1, E2 - OSPF external &lt;span class=&quot;nb&quot;&gt;type &lt;/span&gt;2
+       i - IS-IS, su - IS-IS summary, L1 - IS-IS level-1, L2 - IS-IS level-2
+       ia - IS-IS inter area, &lt;span class=&quot;k&quot;&gt;*&lt;/span&gt; - candidate default, U - per-user static route
+       o - ODR, P - periodic downloaded static route, H - NHRP, l - LISP
+       + - replicated route, % - next hop override
+
+Gateway of last resort is not &lt;span class=&quot;nb&quot;&gt;set
+
+      &lt;/span&gt;5.0.0.0/8 is variably subnetted, 2 subnets, 2 masks
+C        5.0.0.0/8 is directly connected, Serial1/0
+L        5.5.5.2/32 is directly connected, Serial1/0
+      6.0.0.0/8 is variably subnetted, 2 subnets, 2 masks
+C        6.6.6.0/24 is directly connected, Serial2/0
+L        6.6.6.2/32 is directly connected, Serial2/0
+B     10.0.0.0/8 &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;20/0] via 33.33.33.33, 01:54:11
+B     20.0.0.0/8 &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;20/0] via 33.33.33.33, 01:54:11
+B     30.0.0.0/8 &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;20/0] via 33.33.33.33, 01:54:42
+      33.0.0.0/32 is subnetted, 1 subnets
+S        33.33.33.33 &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;1/0] via 5.5.5.1
+B     40.0.0.0/8 &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;20/0] via 33.33.33.33, 01:54:11
+      50.0.0.0/8 is variably subnetted, 2 subnets, 2 masks
+C        50.0.0.0/8 is directly connected, Ethernet0/0
+L        50.1.1.1/32 is directly connected, Ethernet0/0
+      55.0.0.0/32 is subnetted, 1 subnets
+C        55.55.55.55 is directly connected, Loopback0
+R5#&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;Some highlights:&lt;/p&gt;
+&lt;ul&gt;
+  &lt;li&gt;For R1, R2, R3, R4, with BGP in place, BGP adds a new route for 50.0.0.0/8 network on top of OSPF routes.&lt;/li&gt;
+  &lt;li&gt;The next hop of 50.0.0.0 is 33.33.33.33, which is R3 loopback 0 IP, which is very important, as we don’t need to know WAN IP of R5, which is usually not available as it belongs to another AS/organization.&lt;/li&gt;
+  &lt;li&gt;When we try to ping 50.1.1.1 from R1, it fails without specify soure IP. This is because the default source IP of packet will be R1 WAN IP which is eith 1.1.1.1 or 4.4.4.2, which are not advetized to R5 (outsider), so it couldn’t reply ping packet. Howerver if we specify source IP as LAN (10.0.0.0) of R1, ping works, because R5 has route to 10.0.0.0, the next hop is 33.33.33.33, which R3. From R3, it surely knows how to get to R1 through OSPF route. Very nice!&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;I found below BGP youtube video is excellent:
+&lt;a href=&quot;https://www.youtube.com/watch?v=G0qDnqOKwOE&amp;amp;list=PLJqb_j53o7BiVPaFGQxEHhGx-ximMukwH&quot;&gt; BGP Video By Sikandar Shaik&lt;/a&gt;&lt;/p&gt;</content><author><name></name></author><summary type="html">BGP routing is an important aspect of IP routing, which is the only one exterior gayeway routing protocol. There are two flavors: iBGP and eBGP, depennding on if the beighbors are in the same AS. Especially EBGP, this is the routing protocol which routes the entire internet, connects between different ISPs, enterprise networks. BGP routing The Internet is comprised of two parts: the internal fine-grained portions managed by an IGP such as OSPF, and the interconnections of those autonomous systems (AS) via BGP. BGP Basics: The current version of BGP is BGP version 4, based on RFC4271. BGP is the path-vector protocol that provides routing information for autonomous systems on the Internet via its AS-Path attribute. BGP is a Layer 4 protocol that sits on top of TCP, using port 179. BGP establises route by manually forming neighbors/Peers, exchange routing information between neighbors. Use “show ip bgp neighbor” or “show ip bgp summary” to see neighbors. The neighbors are not necessary to be physically connected neighbor, it can be logical neighbor, as long as it is IP reachable, with the help of IGP such as OSPF. BGP establishes its BGP database after receiving the routing information from neighbors. The database can be examnined by “show ip bgp”. BGP can insert BGP routes into router’s routing table depending on the weigh of route. By default, EBGP route has weight 20, IBGP route is 200, comparing to OSFP route is 100. These are well designed number, which we will see how important is.</summary></entry><entry><title type="html">Networking - IP Multicast Routing Configuration</title><link href="http://localhost:4000/2019/09/07/Networking-Multicast.html" rel="alternate" type="text/html" title="Networking - IP Multicast Routing Configuration" /><published>2019-09-07T00:00:00-07:00</published><updated>2019-09-07T00:00:00-07:00</updated><id>http://localhost:4000/2019/09/07/Networking-Multicast</id><content type="html" xml:base="http://localhost:4000/2019/09/07/Networking-Multicast.html">&lt;p&gt;Multicast routing is an important aspect of IP routing. It can be used to distribute data (for example, audio/video streaming broadcasts) to multiple recipients in a very efficient way.
 &lt;img src=&quot;/uploads/networking/multicast-end2end.jpg&quot; alt=&quot;Multicast End to End&quot; /&gt;
 &lt;!--more--&gt;&lt;/p&gt;
 &lt;h2 id=&quot;two-key-protocols-of-multicast-routing&quot;&gt;Two key protocols of multicast routing&lt;/h2&gt;
@@ -2771,111 +3511,4 @@ http://reactivated.net/writing_udev_rules.html
 &lt;h2 id=&quot;configure-virtual-drive-by-raid-controller-from-webbios&quot;&gt;Configure virtual drive by Raid controller from webBIOS&lt;/h2&gt;
 &lt;p&gt;After Raid controller is enabled, during boot up, it will come with a stage to let you press “Ctrl+H” to enter into WebBIOS to configure Raid controller. Please use the configuration wizard to follow steps.&lt;/p&gt;
 
-&lt;p&gt;After All those hardwork, the box is ready to install linux !!!&lt;/p&gt;</content><author><name></name></author><summary type="html">Cisco IOS has been growing significantly over the last ten years. The source code is reaching 10GB, and build time is taking long depending on the build machine capacity. To make development time efficient, it is critical to cut down the image build time. This week, I spent some time to make a high end of UCS server for IOS image build.</summary></entry><entry><title type="html">Marvell ARMADA 7K Linux boot using u-boot</title><link href="http://localhost:4000/2017/03/24/ARMv8-manual-boot.html" rel="alternate" type="text/html" title="Marvell ARMADA 7K Linux boot using u-boot" /><published>2017-03-24T00:00:00-07:00</published><updated>2017-03-24T00:00:00-07:00</updated><id>http://localhost:4000/2017/03/24/ARMv8-manual-boot</id><content type="html" xml:base="http://localhost:4000/2017/03/24/ARMv8-manual-boot.html">&lt;p&gt;For the last few days, I have been working on build new image for a new platform at work. I found out it is useful to able to boot manually with kernel, dtb, initramfs from u-boot. By doing this, if the thing doesn’t work, we can change any one of them to identify which one has issue.&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;/uploads/linux/armada7k-boot-linux-steps.jpg&quot; alt=&quot;armada7k boot manually&quot; /&gt;&lt;/p&gt;
-
-&lt;!--more--&gt;
-&lt;p&gt;First you need prepare kernel image as “Image” format, device tree blob (dtb file), and initramfs.&lt;/p&gt;
-
-&lt;p&gt;If you have initramfs file in cpio.gz format, you need do following:&lt;/p&gt;
-
-&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;&lt;span class=&quot;c&quot;&gt;#since it is for u-boot to use, it has to be converted to add a header in front&lt;/span&gt;
-mkimage &lt;span class=&quot;nt&quot;&gt;-A&lt;/span&gt; arm64 &lt;span class=&quot;nt&quot;&gt;-T&lt;/span&gt; ramdisk &lt;span class=&quot;nt&quot;&gt;-C&lt;/span&gt; gzip &lt;span class=&quot;nt&quot;&gt;-n&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;Sparrow Ramdisk Image&quot;&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;-d&lt;/span&gt; initramfs.cpio.gz initramfs.cpio.gz.uRamdisk&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
-
-&lt;p&gt;When all three images are ready, and loaded them into SD card,&lt;/p&gt;
-
-&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt; 
-
-&lt;span class=&quot;c&quot;&gt;#check what files are in SD card partition#1 &lt;/span&gt;
-Marvell&amp;gt;&amp;gt;  fatls mmc 0:1
- 14472704   image-armv8le-a70x0-a80x0-ga-17.02.2 
-    25563   armada-7040-db-a-armv8le-a70x0-a80x0-ga-17.02.2.dtb 
- 94229849   initramfs.igz 
- 304035328   initramfs.cpio 
-   407653   ramdisk.img.gz 
- 97505226   uramdisk 
-    21008   armada-7040-tsn-h-sgmii.dtb.cisco 
- 12466176   image-4.4.27-a7040-16.07.8.cisco 
-  3815722   initramfs.arm64.ir909.ramfs.cpio.gz 
-  3815786   initramfs.arm64.ir909.filesystem 
-  4758592   u_rootfs-buildroot-2015.11-16.08.0.ext2 
-  1794156   uramdisk-armv8-tiny-le 
-  3866681   initramfs.arm64.uramdisk 
-  3815786   initramfs.arm64.ramfs.cpio.gz.uramdisk 
- 13428224   image.new 
- 12651270   initramfs.arm64.ir909.ramfs.new.cpio.gz 
- 12651334   initramfs.arm64.ir909.ramfs.new.cpio.gz.uramdisk 
-    25740   devicetree-image-armada-7040-db-a.new.dtb 
-
-18 file&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;s&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;, 0 dir&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;s&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
-
-&lt;span class=&quot;c&quot;&gt;# load dtb file&lt;/span&gt;
-Marvell&amp;gt;&amp;gt;  fatload mmc 0:1 &lt;span class=&quot;nv&quot;&gt;$fdt_addr&lt;/span&gt; devicetree-image-armada-7040-db-a.new.dtb
-reading devicetree-image-armada-7040-db-a.new.dtb
-25740 bytes &lt;span class=&quot;nb&quot;&gt;read &lt;/span&gt;&lt;span class=&quot;k&quot;&gt;in &lt;/span&gt;40 ms &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;627.9 KiB/s&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
-
-&lt;span class=&quot;c&quot;&gt;#load image file&lt;/span&gt;
-Marvell&amp;gt;&amp;gt; fatload mmc 0:1 &lt;span class=&quot;nv&quot;&gt;$kernel_addr&lt;/span&gt; image.new
-reading image.new
-13428224 bytes &lt;span class=&quot;nb&quot;&gt;read &lt;/span&gt;&lt;span class=&quot;k&quot;&gt;in &lt;/span&gt;2736 ms &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;4.7 MiB/s&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
-Marvell&amp;gt;&amp;gt; setenv ramfs_addr 0x12000000
-Marvell&amp;gt;&amp;gt; fatload mmc 0:1 &lt;span class=&quot;nv&quot;&gt;$ramfs_addr&lt;/span&gt; initramfs.arm64.ramfs.new.cpio.gz.uramdisk
-reading initramfs.arm64.ir909.ramfs.new.cpio.gz.uramdisk
-12651334 bytes &lt;span class=&quot;nb&quot;&gt;read &lt;/span&gt;&lt;span class=&quot;k&quot;&gt;in &lt;/span&gt;2587 ms &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;4.7 MiB/s&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
-
-&lt;span class=&quot;c&quot;&gt;# set console&lt;/span&gt;
-Marvell&amp;gt;&amp;gt; setenv bootargs &lt;span class=&quot;nv&quot;&gt;console&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;ttyS0,115200
-Marvell&amp;gt;&amp;gt; booti &lt;span class=&quot;nv&quot;&gt;$kernel_addr&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;$ramfs_addr&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;$fdt_addr&lt;/span&gt;
-&lt;span class=&quot;c&quot;&gt;## Current stack ends at 0x3f970fd0 *  ramdisk: cmdline image address = 0x12000000&lt;/span&gt;
-&lt;span class=&quot;c&quot;&gt;## Loading init Ramdisk from Legacy Image at 12000000 ...&lt;/span&gt;
-   Image Name:   Sparrow Ramdisk Image
-   Created:      2017-03-23  23:52:49 UTC
-   Image Type:   AArch64 Linux RAMDisk Image &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;gzip compressed&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
-   Data Size:    12651270 Bytes &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; 12.1 MiB
-   Load Address: 00000000
-   Entry Point:  00000000
-   Verifying Checksum ... OK
-   ramdisk start &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; 0x12000040, ramdisk end &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; 0x12c10b46
-&lt;span class=&quot;c&quot;&gt;## Flattened Device Tree blob at 01000000&lt;/span&gt;
-   Booting using the fdt blob at 0x1000000
-using: FDT
-&lt;span class=&quot;c&quot;&gt;## initrd_high = 0xffffffffffffffff, copy_to_ram = 1&lt;/span&gt;
-   Loading Ramdisk to 3ed5f000, end 3f96fb06 ... OK
-   ramdisk load start &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; 0x3ed5f000, ramdisk load end &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; 0x3f96fb06
-   Using Device Tree &lt;span class=&quot;k&quot;&gt;in &lt;/span&gt;place at 0000000001000000, end 000000000100948b
-&lt;span class=&quot;c&quot;&gt;## Transferring control to Linux (at address 80000)...&lt;/span&gt;
-
-Starting kernel ...
-
-Timer summary &lt;span class=&quot;k&quot;&gt;in &lt;/span&gt;microseconds:
-       Mark    Elapsed  Stage
-          0          0  reset
-    987,000    987,000  &lt;span class=&quot;nv&quot;&gt;id&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;64
-  1,188,000    201,000  &lt;span class=&quot;nv&quot;&gt;id&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;65
-  1,214,000     26,000  main_loop
-  4,236,000  3,022,000  &lt;span class=&quot;nv&quot;&gt;id&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;80
-  4,236,000          0  tftp_start
-  4,236,000          0  eth_start
-  4,245,000      9,000  &lt;span class=&quot;nv&quot;&gt;id&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;81
-  4,245,000          0  tftp_done
-  4,258,000     13,000  bootm_start
-160,127,000155,869,000  &lt;span class=&quot;nv&quot;&gt;id&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;9
-160,127,000          0  &lt;span class=&quot;nv&quot;&gt;id&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;10
-162,117,000  1,990,000  &lt;span class=&quot;nv&quot;&gt;id&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;11
-162,135,000     18,000  &lt;span class=&quot;nv&quot;&gt;id&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;12
-166,294,000  4,159,000  &lt;span class=&quot;nv&quot;&gt;id&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;15
-166,296,000      2,000  start_kernel
-769,189,068,930,788,833,6769,189,068,914,159,233,6  board_init_f
-
-Accumulated &lt;span class=&quot;nb&quot;&gt;time&lt;/span&gt;:
-&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    0.000000] Booting Linux on physical CPU 0x0
-&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    0.000000] Initializing cgroup subsys cpuset
-&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    0.000000] Initializing cgroup subsys cpu
-&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    0.000000] Initializing cgroup subsys cpuacct
-&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    0.000000] Linux version 4.4.51-armada-17.02.2  &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;xelinux@xe-linux-bld2&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;gcc version 5.3.0 &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;GCC&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;c&quot;&gt;#1 SMP Wed Mar 22 05:447&lt;/span&gt;
-&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    0.000000] Boot CPU: AArch64 Processor &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;410fd081]
-&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    0.000000] efi: Getting EFI parameters from FDT:
-&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    0.000000] efi: UEFI not found.
-&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;    0.000000] cma: Reserved 128 MiB at 0x0000000078000000
-...&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;</content><author><name></name></author><summary type="html">For the last few days, I have been working on build new image for a new platform at work. I found out it is useful to able to boot manually with kernel, dtb, initramfs from u-boot. By doing this, if the thing doesn’t work, we can change any one of them to identify which one has issue.</summary></entry></feed>
+&lt;p&gt;After All those hardwork, the box is ready to install linux !!!&lt;/p&gt;</content><author><name></name></author><summary type="html">Cisco IOS has been growing significantly over the last ten years. The source code is reaching 10GB, and build time is taking long depending on the build machine capacity. To make development time efficient, it is critical to cut down the image build time. This week, I spent some time to make a high end of UCS server for IOS image build.</summary></entry></feed>
