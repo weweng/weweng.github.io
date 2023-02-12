@@ -1,0 +1,971 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>Linux disk management (1) - basics and using fdisk</title>
+  <meta name="description" content="In Linux world, disk management is an important area. To know how to use the disk, there are a few basic concepts need to be well understood. The key tool to...">
+  
+  <meta name="author" content="Wenwei Weng">
+  <meta name="copyright" content="&copy; Wenwei Weng 2023">
+  
+
+  <!-- External libraries -->
+  <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css">
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.9.0/styles/monokai-sublime.min.css">
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/lightbox2/2.7.1/css/lightbox.css">
+
+  <!-- Favicon and other icons (made with http://www.favicon-generator.org/) -->
+  <link rel="shortcut icon" href="/assets/icons/favicon.ico" type="image/x-icon">
+  <link rel="icon" href="/assets/icons/favicon.ico" type="image/x-icon">
+  <link rel="apple-touch-icon" sizes="57x57" href="/assets/icons/apple-icon-57x57.png">
+  <link rel="apple-touch-icon" sizes="60x60" href="/assets/icons/apple-icon-60x60.png">
+  <link rel="apple-touch-icon" sizes="72x72" href="/assets/icons/apple-icon-72x72.png">
+  <link rel="apple-touch-icon" sizes="76x76" href="/assets/icons/apple-icon-76x76.png">
+  <link rel="apple-touch-icon" sizes="114x114" href="/assets/icons/apple-icon-114x114.png">
+  <link rel="apple-touch-icon" sizes="120x120" href="/assets/icons/apple-icon-120x120.png">
+  <link rel="apple-touch-icon" sizes="144x144" href="/assets/icons/apple-icon-144x144.png">
+  <link rel="apple-touch-icon" sizes="152x152" href="/assets/icons/apple-icon-152x152.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/assets/icons/apple-icon-180x180.png">
+  <link rel="icon" type="image/png" sizes="192x192"  href="/assets/icons/android-icon-192x192.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/assets/icons/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="96x96" href="/assets/icons/favicon-96x96.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/assets/icons/favicon-16x16.png">
+  <link rel="manifest" href="/assets/icons/manifest.json">
+  <meta name="msapplication-TileColor" content="#ffffff">
+  <meta name="msapplication-TileImage" content="/assets/icons/ms-icon-144x144.png">
+  <meta name="theme-color" content="#ffffff">
+
+  
+
+  
+
+  
+
+  <!-- Site styles -->
+  <link rel="stylesheet" href="/css/main.css">
+  <link rel="canonical" href="http://localhost:4000/linux/2016/07/27/Linux-fdisk.html">
+	<link rel="alternate" type="application/rss+xml" title="Wenwei Weng's Blog" href="http://localhost:4000/feed.xml" />
+	
+	<!-- Tooltips -->
+	<script type="text/javascript">
+		window.tooltips = []
+	</script>
+</head>
+
+
+  <body>
+
+    <header class="navigation" role="banner">
+  <div class="navigation-wrapper">
+    <a href="/" class="logo">
+      
+      <img src="/assets/avatar.png" alt="Wenwei Weng's Blog">
+      
+    </a>
+    <a href="javascript:void(0)" class="navigation-menu-button" id="js-mobile-menu">
+      <i class="fa fa-bars"></i>
+    </a>
+    <nav role="navigation">
+      <ul id="js-navigation-menu" class="navigation-menu show">
+				
+	
+	<li class="nav-link"><a href="/about/">About</a>
+	
+
+	
+
+	
+
+	
+	<li class="nav-link"><a href="/posts/">Posts</a>
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+      </ul>
+    </nav>
+  </div>
+</header>
+
+
+    <div class="page-content">
+        <div class="post">
+
+<div class="post-header-container " >
+  <div class="scrim ">
+    <header class="post-header">
+      <h1 class="title">Linux disk management (1) - basics and using fdisk</h1>
+      <p class="info">by <strong>Wenwei Weng</strong></p>
+    </header>
+  </div>
+</div>
+
+<div class="wrapper">
+
+ <span class="page-divider">
+  <span class="one"></span>
+  <span class="two"></span>
+</span>
+ 
+
+<section class="post-meta">
+  <div class="post-date">July 27, 2016</div>
+  <div class="post-categories">
+  in 
+    
+    <a href="/category/Linux">Linux</a>
+    
+  
+  </div>
+</section>
+
+<article class="post-content">
+  <p>In Linux world, disk management is an important area. To know how to use the disk, there are a few basic concepts need to be well understood. The key tool to administrate disk is fdisk.</p>
+
+<p><img src="/uploads/linux/fdisk.jpg" alt="Linux fdisk" /></p>
+
+<!--more-->
+
+<h1 id="basic-concepts">Basic concepts</h1>
+<h2 id="1-naming-conventions">1. naming conventions</h2>
+<p>Linux has the different naming conventions for IDE drives, SCSI Disks, SD card.</p>
+<ul>
+ <li>IDE drives: device names are like /dev/hda, /dev/hdb. </li>
+ <li>SCSI Drives: device names would be /dev/sda, /dev/sdb. </li>
+ <li>SD card: device names would be /dev/mmcblk0, /dev/mmcblk1. </li>
+</ul>
+<p>Note: USB storage device is detected as SCSI drives.
+Also there is a special device file /dev/loop[0-7], which can be used to link to a disk file. we will cover it in another post.</p>
+
+<h2 id="2-partitioning">2. partitioning</h2>
+<p>There are two different partition types: <b>primary</b> and <b>extended</b> partition. On one physical disk, it can have up to 4 primary partitions only. In order to have more partitions to be created, extended partition is introduced. Inside the extended partition, the <b>logical</b> partition can be created. There is no limit of number of logical partitions to be created inside an extended partition.</p>
+
+<h2 id="3-file-systems">3. file systems</h2>
+<p>A filesystem is the methods and data structures that an operating system uses to keep track of files on a partition. In Linux, there are a number of different file systems supported for disk: FAT, ext2, ext3, ext4. To find what are all supported file systems in a running linux, do “cat /proc/filesystems”.</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">weng@weng-u1604:~<span class="nv">$ </span><span class="nb">cat</span> /proc/filesystems
+nodev	sysfs
+nodev	rootfs
+nodev	ramfs
+nodev	bdev
+nodev	proc
+nodev	cpuset
+nodev	cgroup
+nodev	tmpfs
+nodev	devtmpfs
+nodev	debugfs
+nodev	tracefs
+nodev	securityfs
+nodev	sockfs
+nodev	pipefs
+nodev	devpts
+	ext3
+	ext2
+	ext4
+nodev	hugetlbfs
+	vfat
+nodev	ecryptfs
+	fuseblk
+nodev	fuse
+nodev	fusectl
+nodev	pstore
+nodev	mqueue
+nodev	autofs
+nodev	vboxsf
+weng@weng-u1604:~<span class="err">$</span></code></pre></figure>
+
+<hr />
+
+<h1 id="administrate-tool-fdisk">Administrate tool: fdisk</h1>
+<p>There are many disk administrating tools to edit disk partitions: most popular tool is fdisk.</p>
+
+<p><a href="http://gparted.org/">GParted</a> is a fancy tool, can create, resize partitions. Here we focus on “fdisk” tool as it is avaiable in most linux enviroment.</p>
+
+<h2 id="1-find-the-list-of-existing-hard-disks">1. Find the list of existing hard disks</h2>
+
+<p>Below is output from my ubuntu 16.04 VM running inside VirtualBox.</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">weng@weng-u1604:~<span class="nv">$ </span><span class="nb">sudo </span>fdisk <span class="nt">-l</span>
+Disk /dev/sda: 200 GiB, 214748364800 bytes, 419430400 sectors
+Units: sectors of 1 <span class="k">*</span> 512 <span class="o">=</span> 512 bytes
+Sector size <span class="o">(</span>logical/physical<span class="o">)</span>: 512 bytes / 512 bytes
+I/O size <span class="o">(</span>minimum/optimal<span class="o">)</span>: 512 bytes / 512 bytes
+Disklabel <span class="nb">type</span>: dos
+Disk identifier: 0x6bd39d03
+
+Device     Boot     Start       End   Sectors  Size Id Type
+/dev/sda1  <span class="k">*</span>         2048 411043839 411041792  196G 83 Linux
+/dev/sda2       411045886 419428351   8382466    4G  5 Extended
+/dev/sda5       411045888 419428351   8382464    4G 82 Linux swap / Solaris
+weng@weng-u1604:~<span class="nv">$ </span></code></pre></figure>
+
+<p>In this case, the majority space is allocated in primary parition “/dev/sda1”, and “/dev/sda2” is created as a extended partition, which has a logical partition “/dev/sda5” used as swap space.</p>
+
+<p>Another example below from a centos box, which has a 1 T SCSI hard drive and a 1GB USB memory stick inserted.</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="o">[</span>root@sg-centos-hv1 scratch]# fdisk <span class="nt">-l</span>
+
+Disk /dev/sda: 1000.2 GB, 1000204886016 bytes
+255 heads, 63 sectors/track, 121601 cylinders
+Units <span class="o">=</span> cylinders of 16065 <span class="k">*</span> 512 <span class="o">=</span> 8225280 bytes
+Sector size <span class="o">(</span>logical/physical<span class="o">)</span>: 512 bytes / 512 bytes
+I/O size <span class="o">(</span>minimum/optimal<span class="o">)</span>: 512 bytes / 512 bytes
+Disk identifier: 0x000afcd6
+
+   Device Boot      Start         End      Blocks   Id  System
+/dev/sda1   <span class="k">*</span>           1          64      512000   83  Linux
+/dev/sda2              64      121602   976248832   8e  Linux LVM
+
+Disk /dev/mapper/vg_sgcentoshv1-lv_root: 53.7 GB, 53687091200 bytes
+255 heads, 63 sectors/track, 6527 cylinders
+Units <span class="o">=</span> cylinders of 16065 <span class="k">*</span> 512 <span class="o">=</span> 8225280 bytes
+Sector size <span class="o">(</span>logical/physical<span class="o">)</span>: 512 bytes / 512 bytes
+I/O size <span class="o">(</span>minimum/optimal<span class="o">)</span>: 512 bytes / 512 bytes
+Disk identifier: 0x00000000
+
+
+Disk /dev/mapper/vg_sgcentoshv1-lv_swap: 25.3 GB, 25341984768 bytes
+255 heads, 63 sectors/track, 3080 cylinders
+Units <span class="o">=</span> cylinders of 16065 <span class="k">*</span> 512 <span class="o">=</span> 8225280 bytes
+Sector size <span class="o">(</span>logical/physical<span class="o">)</span>: 512 bytes / 512 bytes
+I/O size <span class="o">(</span>minimum/optimal<span class="o">)</span>: 512 bytes / 512 bytes
+Disk identifier: 0x00000000
+
+
+Disk /dev/mapper/vg_sgcentoshv1-lv_home: 920.6 GB, 920645533696 bytes
+255 heads, 63 sectors/track, 111928 cylinders
+Units <span class="o">=</span> cylinders of 16065 <span class="k">*</span> 512 <span class="o">=</span> 8225280 bytes
+Sector size <span class="o">(</span>logical/physical<span class="o">)</span>: 512 bytes / 512 bytes
+I/O size <span class="o">(</span>minimum/optimal<span class="o">)</span>: 512 bytes / 512 bytes
+Disk identifier: 0x00000000
+
+
+Disk /dev/sdb: 1037 MB, 1037041664 bytes
+185 heads, 1 sectors/track, 10948 cylinders
+Units <span class="o">=</span> cylinders of 185 <span class="k">*</span> 512 <span class="o">=</span> 94720 bytes
+Sector size <span class="o">(</span>logical/physical<span class="o">)</span>: 512 bytes / 512 bytes
+I/O size <span class="o">(</span>minimum/optimal<span class="o">)</span>: 512 bytes / 512 bytes
+Disk identifier: 0xc3072e18
+
+   Device Boot      Start         End      Blocks   Id  System
+/dev/sdb1   <span class="k">*</span>           1       10584      978943+   6  FAT16
+<span class="o">[</span>root@sg-centos-hv1 scratch]# fdisk <span class="nt">-l</span> /dev/sdb
+
+Disk /dev/sdb: 1037 MB, 1037041664 bytes
+185 heads, 1 sectors/track, 10948 cylinders
+Units <span class="o">=</span> cylinders of 185 <span class="k">*</span> 512 <span class="o">=</span> 94720 bytes
+Sector size <span class="o">(</span>logical/physical<span class="o">)</span>: 512 bytes / 512 bytes
+I/O size <span class="o">(</span>minimum/optimal<span class="o">)</span>: 512 bytes / 512 bytes
+Disk identifier: 0xc3072e18
+
+   Device Boot      Start         End      Blocks   Id  System
+/dev/sdb1   <span class="k">*</span>           1       10584      978943+   6  FAT16
+<span class="o">[</span>root@sg-centos-hv1 scratch]#</code></pre></figure>
+
+<p>Some explanantions: there are two physical disks detected as “/dev/sda”, and “dev/sdb”.</p>
+<ul>
+<li>"/dev/sda" is the 1T SCSI hard drive, it has one primary partition "/dev/sda1" which is marked bootable; there is second primary partition, which is configured to be usd by Logical Volume Manager (LVM). Inside this partition, there is one Volume Group, which has three Logical Volume created. See next post for details regarding LVM.</li>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="o">[</span>root@sg-centos-hv1 scratch]# vgdisplay
+  <span class="nt">---</span> Volume group <span class="nt">---</span>
+  VG Name               vg_sgcentoshv1
+  System ID
+  Format                lvm2
+  Metadata Areas        1
+  Metadata Sequence No  4
+  VG Access             <span class="nb">read</span>/write
+  VG Status             resizable
+  MAX LV                0
+  Cur LV                3
+  Open LV               3
+  Max PV                0
+  Cur PV                1
+  Act PV                1
+  VG Size               931.02 GiB
+  PE Size               4.00 MiB
+  Total PE              238341
+  Alloc PE / Size       238341 / 931.02 GiB
+  Free  PE / Size       0 / 0
+  VG UUID               3CQarS-xJz8-rzmI-2nxh-j4pK-qUFr-wrRXki
+
+<span class="o">[</span>root@sg-centos-hv1 scratch]# lvdisplay
+  <span class="nt">---</span> Logical volume <span class="nt">---</span>
+  LV Path                /dev/vg_sgcentoshv1/lv_root
+  LV Name                lv_root
+  VG Name                vg_sgcentoshv1
+  LV UUID                ebnL5k-Gmac-6gqE-PPF5-9925-qRUM-VH24Co
+  LV Write Access        <span class="nb">read</span>/write
+  LV Creation host, <span class="nb">time </span>sg-centos-hv1.cisco.com, 2014-10-02 14:50:57 <span class="nt">-0700</span>
+  LV Status              available
+  <span class="c"># open                 1</span>
+  LV Size                50.00 GiB
+  Current LE             12800
+  Segments               1
+  Allocation             inherit
+  Read ahead sectors     auto
+  - currently <span class="nb">set </span>to     256
+  Block device           253:0
+
+  <span class="nt">---</span> Logical volume <span class="nt">---</span>
+  LV Path                /dev/vg_sgcentoshv1/lv_home
+  LV Name                lv_home
+  VG Name                vg_sgcentoshv1
+  LV UUID                qZYut3-A0vR-uKrO-fNR6-22Jp-oa0z-NqmfKy
+  LV Write Access        <span class="nb">read</span>/write
+  LV Creation host, <span class="nb">time </span>sg-centos-hv1.cisco.com, 2014-10-02 14:51:23 <span class="nt">-0700</span>
+  LV Status              available
+  <span class="c"># open                 1</span>
+  LV Size                857.42 GiB
+  Current LE             219499
+  Segments               1
+  Allocation             inherit
+  Read ahead sectors     auto
+  - currently <span class="nb">set </span>to     256
+  Block device           253:2
+
+  <span class="nt">---</span> Logical volume <span class="nt">---</span>
+  LV Path                /dev/vg_sgcentoshv1/lv_swap
+  LV Name                lv_swap
+  VG Name                vg_sgcentoshv1
+  LV UUID                BpTs4P-7cIH-C1ee-tajj-lqx2-I2Pq-A9gy3s
+  LV Write Access        <span class="nb">read</span>/write
+  LV Creation host, <span class="nb">time </span>sg-centos-hv1.cisco.com, 2014-10-02 14:58:08 <span class="nt">-0700</span>
+  LV Status              available
+  <span class="c"># open                 1</span>
+  LV Size                23.60 GiB
+  Current LE             6042
+  Segments               1
+  Allocation             inherit
+  Read ahead sectors     auto
+  - currently <span class="nb">set </span>to     256
+  Block device           253:1
+
+<span class="o">[</span>root@sg-centos-hv1 scratch]#</code></pre></figure>
+
+
+<li>"/dev/sdb" is 1GB USB memory stick, which has FAT16 file system. It will be used in the following to do some fdisk exercise. </li>
+</ul>
+
+<h2 id="2-create-partitions-interactively">2. Create partitions interactively</h2>
+
+<h3 id="21-first-delete-the-existing-partition-which-takes-all-the-space">2.1 First delete the existing partition which takes all the space.</h3>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="o">[</span>root@sg-centos-hv1 scratch]# fdisk /dev/sdb
+
+WARNING: DOS-compatible mode is deprecated. It<span class="s1">'s strongly recommended to
+         switch off the mode (command '</span>c<span class="s1">') and change display units to
+         sectors (command '</span>u<span class="s1">').
+
+Command (m for help): p
+
+Disk /dev/sdb: 1037 MB, 1037041664 bytes
+185 heads, 1 sectors/track, 10948 cylinders
+Units = cylinders of 185 * 512 = 94720 bytes
+Sector size (logical/physical): 512 bytes / 512 bytes
+I/O size (minimum/optimal): 512 bytes / 512 bytes
+Disk identifier: 0xc3072e18
+
+   Device Boot      Start         End      Blocks   Id  System
+/dev/sdb1   *           1       10584      978943+   6  FAT16
+
+Command (m for help): d
+Selected partition 1
+
+Command (m for help): p
+
+Disk /dev/sdb: 1037 MB, 1037041664 bytes
+185 heads, 1 sectors/track, 10948 cylinders
+Units = cylinders of 185 * 512 = 94720 bytes
+Sector size (logical/physical): 512 bytes / 512 bytes
+I/O size (minimum/optimal): 512 bytes / 512 bytes
+Disk identifier: 0xc3072e18
+
+   Device Boot      Start         End      Blocks   Id  System</span></code></pre></figure>
+
+<h3 id="22-create-three-primary-partitions-and-one-extended-partition">2.2 Create three primary partitions and one extended partition</h3>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">Command <span class="o">(</span>m <span class="k">for </span><span class="nb">help</span><span class="o">)</span>: n
+Command action
+   e   extended
+   p   primary partition <span class="o">(</span>1-4<span class="o">)</span>
+p
+Partition number <span class="o">(</span>1-4<span class="o">)</span>: 1
+First cylinder <span class="o">(</span>1-10948, default 1<span class="o">)</span>:
+Using default value 1
+Last cylinder, +cylinders or +size<span class="o">{</span>K,M,G<span class="o">}</span> <span class="o">(</span>1-10948, default 10948<span class="o">)</span>: +100M
+
+Command <span class="o">(</span>m <span class="k">for </span><span class="nb">help</span><span class="o">)</span>: p
+
+Disk /dev/sdb: 1037 MB, 1037041664 bytes
+185 heads, 1 sectors/track, 10948 cylinders
+Units <span class="o">=</span> cylinders of 185 <span class="k">*</span> 512 <span class="o">=</span> 94720 bytes
+Sector size <span class="o">(</span>logical/physical<span class="o">)</span>: 512 bytes / 512 bytes
+I/O size <span class="o">(</span>minimum/optimal<span class="o">)</span>: 512 bytes / 512 bytes
+Disk identifier: 0xc3072e18
+
+   Device Boot      Start         End      Blocks   Id  System
+/dev/sdb1               1        1108      102489+  83  Linux
+
+Command <span class="o">(</span>m <span class="k">for </span><span class="nb">help</span><span class="o">)</span>: n
+Command action
+   e   extended
+   p   primary partition <span class="o">(</span>1-4<span class="o">)</span>
+p
+Partition number <span class="o">(</span>1-4<span class="o">)</span>: 2
+First cylinder <span class="o">(</span>1109-10948, default 1109<span class="o">)</span>:
+Using default value 1109
+Last cylinder, +cylinders or +size<span class="o">{</span>K,M,G<span class="o">}</span> <span class="o">(</span>1109-10948, default 10948<span class="o">)</span>: +200M
+
+Command <span class="o">(</span>m <span class="k">for </span><span class="nb">help</span><span class="o">)</span>: n
+Command action
+   e   extended
+   p   primary partition <span class="o">(</span>1-4<span class="o">)</span>
+p
+Partition number <span class="o">(</span>1-4<span class="o">)</span>: 3
+First cylinder <span class="o">(</span>3324-10948, default 3324<span class="o">)</span>:
+Using default value 3324
+Last cylinder, +cylinders or +size<span class="o">{</span>K,M,G<span class="o">}</span> <span class="o">(</span>3324-10948, default 10948<span class="o">)</span>: +100M
+
+Command <span class="o">(</span>m <span class="k">for </span><span class="nb">help</span><span class="o">)</span>: n
+Command action
+   e   extended
+   p   primary partition <span class="o">(</span>1-4<span class="o">)</span>
+e
+Selected partition 4
+First cylinder <span class="o">(</span>4432-10948, default 4432<span class="o">)</span>:
+Using default value 4432
+Last cylinder, +cylinders or +size<span class="o">{</span>K,M,G<span class="o">}</span> <span class="o">(</span>4432-10948, default 10948<span class="o">)</span>:
+Using default value 10948
+
+Command <span class="o">(</span>m <span class="k">for </span><span class="nb">help</span><span class="o">)</span>: p
+
+Disk /dev/sdb: 1037 MB, 1037041664 bytes
+185 heads, 1 sectors/track, 10948 cylinders
+Units <span class="o">=</span> cylinders of 185 <span class="k">*</span> 512 <span class="o">=</span> 94720 bytes
+Sector size <span class="o">(</span>logical/physical<span class="o">)</span>: 512 bytes / 512 bytes
+I/O size <span class="o">(</span>minimum/optimal<span class="o">)</span>: 512 bytes / 512 bytes
+Disk identifier: 0xc3072e18
+
+   Device Boot      Start         End      Blocks   Id  System
+/dev/sdb1               1        1108      102489+  83  Linux
+/dev/sdb2            1109        3323      204887+  83  Linux
+/dev/sdb3            3324        4431      102490   83  Linux
+/dev/sdb4            4432       10948      602822+   5  Extended</code></pre></figure>
+
+<h3 id="23-create-one-logical-partition-inside-extended-partition">2.3 Create one logical partition inside extended partition</h3>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">Command <span class="o">(</span>m <span class="k">for </span><span class="nb">help</span><span class="o">)</span>: n
+First cylinder <span class="o">(</span>4432-10948, default 4432<span class="o">)</span>:
+Using default value 4432
+Last cylinder, +cylinders or +size<span class="o">{</span>K,M,G<span class="o">}</span> <span class="o">(</span>4432-10948, default 10948<span class="o">)</span>: +100M
+
+Command <span class="o">(</span>m <span class="k">for </span><span class="nb">help</span><span class="o">)</span>: p
+
+Disk /dev/sdb: 1037 MB, 1037041664 bytes
+185 heads, 1 sectors/track, 10948 cylinders
+Units <span class="o">=</span> cylinders of 185 <span class="k">*</span> 512 <span class="o">=</span> 94720 bytes
+Sector size <span class="o">(</span>logical/physical<span class="o">)</span>: 512 bytes / 512 bytes
+I/O size <span class="o">(</span>minimum/optimal<span class="o">)</span>: 512 bytes / 512 bytes
+Disk identifier: 0xc3072e18
+
+   Device Boot      Start         End      Blocks   Id  System
+/dev/sdb1               1        1108      102489+  83  Linux
+/dev/sdb2            1109        3323      204887+  83  Linux
+/dev/sdb3            3324        4431      102490   83  Linux
+/dev/sdb4            4432       10948      602822+   5  Extended
+/dev/sdb5            4432        5539      102489+  83  Linux
+
+Command <span class="o">(</span>m <span class="k">for </span><span class="nb">help</span><span class="o">)</span>: n
+First cylinder <span class="o">(</span>5540-10948, default 5540<span class="o">)</span>:
+Using default value 5540
+Last cylinder, +cylinders or +size<span class="o">{</span>K,M,G<span class="o">}</span> <span class="o">(</span>5540-10948, default 10948<span class="o">)</span>:
+Using default value 10948
+
+Command <span class="o">(</span>m <span class="k">for </span><span class="nb">help</span><span class="o">)</span>: p
+
+Disk /dev/sdb: 1037 MB, 1037041664 bytes
+185 heads, 1 sectors/track, 10948 cylinders
+Units <span class="o">=</span> cylinders of 185 <span class="k">*</span> 512 <span class="o">=</span> 94720 bytes
+Sector size <span class="o">(</span>logical/physical<span class="o">)</span>: 512 bytes / 512 bytes
+I/O size <span class="o">(</span>minimum/optimal<span class="o">)</span>: 512 bytes / 512 bytes
+Disk identifier: 0xc3072e18
+
+   Device Boot      Start         End      Blocks   Id  System
+/dev/sdb1               1        1108      102489+  83  Linux
+/dev/sdb2            1109        3323      204887+  83  Linux
+/dev/sdb3            3324        4431      102490   83  Linux
+/dev/sdb4            4432       10948      602822+   5  Extended
+/dev/sdb5            4432        5539      102489+  83  Linux
+/dev/sdb6            5540       10948      500332   83  Linux</code></pre></figure>
+
+<h3 id="24-save-the-partition-tables-and-recheck-the-table">2.4 Save the partition tables and recheck the table</h3>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">Command <span class="o">(</span>m <span class="k">for </span><span class="nb">help</span><span class="o">)</span>: w
+The partition table has been altered!
+
+Calling ioctl<span class="o">()</span> to re-read partition table.
+Syncing disks.
+<span class="o">[</span>root@sg-centos-hv1 scratch]# fdisk <span class="nt">-l</span> /dev/sdb
+
+Disk /dev/sdb: 1037 MB, 1037041664 bytes
+185 heads, 1 sectors/track, 10948 cylinders
+Units <span class="o">=</span> cylinders of 185 <span class="k">*</span> 512 <span class="o">=</span> 94720 bytes
+Sector size <span class="o">(</span>logical/physical<span class="o">)</span>: 512 bytes / 512 bytes
+I/O size <span class="o">(</span>minimum/optimal<span class="o">)</span>: 512 bytes / 512 bytes
+Disk identifier: 0xc3072e18
+
+   Device Boot      Start         End      Blocks   Id  System
+/dev/sdb1               1        1108      102489+  83  Linux
+/dev/sdb2            1109        3323      204887+  83  Linux
+/dev/sdb3            3324        4431      102490   83  Linux
+/dev/sdb4            4432       10948      602822+   5  Extended
+/dev/sdb5            4432        5539      102489+  83  Linux
+/dev/sdb6            5540       10948      500332   83  Linux
+<span class="o">[</span>root@sg-centos-hv1 scratch]#</code></pre></figure>
+
+<h2 id="3-create-partitions-through-shell-script">3. Create partitions through shell script</h2>
+
+<p>Soemtimes it is needed to do disk partition in an automatic way. See below that all above steps can be automated:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="o">[</span>root@sg-centos-hv1 scratch]# <span class="nv">D</span><span class="o">=</span><span class="s2">"p</span><span class="se">\n</span><span class="s2">d</span><span class="se">\n</span><span class="s2">p</span><span class="se">\n</span><span class="s2">"</span>
+<span class="o">[</span>root@sg-centos-hv1 scratch]# <span class="nv">P1</span><span class="o">=</span><span class="s2">"n</span><span class="se">\n</span><span class="s2">p</span><span class="se">\n</span><span class="s2">1</span><span class="se">\n\n</span><span class="s2">+100M</span><span class="se">\n</span><span class="s2">"</span>
+<span class="o">[</span>root@sg-centos-hv1 scratch]# <span class="nv">P2</span><span class="o">=</span><span class="s2">"n</span><span class="se">\n</span><span class="s2">p</span><span class="se">\n</span><span class="s2">2</span><span class="se">\n\n</span><span class="s2">+100M</span><span class="se">\n</span><span class="s2">"</span>
+<span class="o">[</span>root@sg-centos-hv1 scratch]# <span class="nv">P3</span><span class="o">=</span><span class="s2">"n</span><span class="se">\n</span><span class="s2">p</span><span class="se">\n</span><span class="s2">3</span><span class="se">\n\n</span><span class="s2">+100M</span><span class="se">\n</span><span class="s2">"</span>
+<span class="o">[</span>root@sg-centos-hv1 scratch]# <span class="nv">P4</span><span class="o">=</span><span class="s2">"n</span><span class="se">\n</span><span class="s2">e</span><span class="se">\n\n\n</span><span class="s2">"</span>
+<span class="o">[</span>root@sg-centos-hv1 scratch]# <span class="nv">P5</span><span class="o">=</span><span class="s2">"n</span><span class="se">\n\n</span><span class="s2">+100M</span><span class="se">\n</span><span class="s2">"</span>
+<span class="o">[</span>root@sg-centos-hv1 scratch]# <span class="nv">P6</span><span class="o">=</span><span class="s2">"n</span><span class="se">\n\n\n</span><span class="s2">"</span>
+<span class="o">[</span>root@sg-centos-hv1 scratch]# <span class="nv">FINAL</span><span class="o">=</span><span class="s2">"p</span><span class="se">\n</span><span class="s2">w</span><span class="se">\n</span><span class="s2">q</span><span class="se">\n</span><span class="s2">"</span>
+<span class="o">[</span>root@sg-centos-hv1 scratch]# <span class="nb">echo</span> <span class="nt">-e</span> <span class="nv">$D$P1$P2$P3$P4$P5$P6$FINAL</span> | fdisk /dev/sdb
+
+WARNING: DOS-compatible mode is deprecated. It<span class="s1">'s strongly recommended to
+         switch off the mode (command '</span>c<span class="s1">') and change display units to
+         sectors (command '</span>u<span class="s1">').
+
+Command (m for help):
+Disk /dev/sdb: 1037 MB, 1037041664 bytes
+32 heads, 62 sectors/track, 1020 cylinders
+Units = cylinders of 1984 * 512 = 1015808 bytes
+Sector size (logical/physical): 512 bytes / 512 bytes
+I/O size (minimum/optimal): 512 bytes / 512 bytes
+Disk identifier: 0xc3072e18
+
+   Device Boot      Start         End      Blocks   Id  System
+/dev/sdb1               1         104      103137   83  Linux
+
+Command (m for help): Selected partition 1
+
+Command (m for help):
+Disk /dev/sdb: 1037 MB, 1037041664 bytes
+32 heads, 62 sectors/track, 1020 cylinders
+Units = cylinders of 1984 * 512 = 1015808 bytes
+Sector size (logical/physical): 512 bytes / 512 bytes
+I/O size (minimum/optimal): 512 bytes / 512 bytes
+Disk identifier: 0xc3072e18
+
+   Device Boot      Start         End      Blocks   Id  System
+
+Command (m for help): Command action
+   e   extended
+   p   primary partition (1-4)
+Partition number (1-4): First cylinder (1-1020, default 1): Using default value 1
+Last cylinder, +cylinders or +size{K,M,G} (1-1020, default 1020):
+Command (m for help): Command action
+   e   extended
+   p   primary partition (1-4)
+Partition number (1-4): First cylinder (105-1020, default 105): Using default value 105
+Last cylinder, +cylinders or +size{K,M,G} (105-1020, default 1020):
+Command (m for help): Command action
+   e   extended
+   p   primary partition (1-4)
+Partition number (1-4): First cylinder (209-1020, default 209): Using default value 209
+Last cylinder, +cylinders or +size{K,M,G} (209-1020, default 1020):
+Command (m for help): Command action
+   e   extended
+   p   primary partition (1-4)
+Selected partition 4
+First cylinder (313-1020, default 313): Using default value 313
+Last cylinder, +cylinders or +size{K,M,G} (313-1020, default 1020): Using default value 1020
+
+Command (m for help): First cylinder (313-1020, default 313): Using default value 313
+Last cylinder, +cylinders or +size{K,M,G} (313-1020, default 1020):
+Command (m for help): First cylinder (417-1020, default 417): Using default value 417
+Last cylinder, +cylinders or +size{K,M,G} (417-1020, default 1020): Using default value 1020
+
+Command (m for help):
+Disk /dev/sdb: 1037 MB, 1037041664 bytes
+32 heads, 62 sectors/track, 1020 cylinders
+Units = cylinders of 1984 * 512 = 1015808 bytes
+Sector size (logical/physical): 512 bytes / 512 bytes
+I/O size (minimum/optimal): 512 bytes / 512 bytes
+Disk identifier: 0xc3072e18
+
+   Device Boot      Start         End      Blocks   Id  System
+/dev/sdb1               1         104      103137   83  Linux
+/dev/sdb2             105         208      103168   83  Linux
+/dev/sdb3             209         312      103168   83  Linux
+/dev/sdb4             313        1020      702336    5  Extended
+/dev/sdb5             313         416      103137   83  Linux
+/dev/sdb6             417        1020      599137   83  Linux
+
+Command (m for help): The partition table has been altered!
+
+Calling ioctl() to re-read partition table.
+Syncing disks.
+[root@sg-centos-hv1 scratch]#</span></code></pre></figure>
+
+<h2 id="4-make-file-system-on-the-partition">4. Make file system on the partition</h2>
+<p>Now the disk /dev/sdb has been partitioned nicely. To use the parition, first we need make a file system on the partition, let’s pick partition /dev/sdb2 t be ext2 file system; /dev/sdb3 to be ext3 file system, and /dev/sdb5 to be ext4 file system.</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="o">[</span>root@sg-centos-hv1 scratch]# mkfs.ext2 /dev/sdb2
+mke2fs 1.41.12 <span class="o">(</span>17-May-2010<span class="o">)</span>
+Filesystem <span class="nv">label</span><span class="o">=</span>
+OS <span class="nb">type</span>: Linux
+Block <span class="nv">size</span><span class="o">=</span>1024 <span class="o">(</span><span class="nv">log</span><span class="o">=</span>0<span class="o">)</span>
+Fragment <span class="nv">size</span><span class="o">=</span>1024 <span class="o">(</span><span class="nv">log</span><span class="o">=</span>0<span class="o">)</span>
+<span class="nv">Stride</span><span class="o">=</span>0 blocks, Stripe <span class="nv">width</span><span class="o">=</span>0 blocks
+25792 inodes, 103168 blocks
+5158 blocks <span class="o">(</span>5.00%<span class="o">)</span> reserved <span class="k">for </span>the super user
+First data <span class="nv">block</span><span class="o">=</span>1
+Maximum filesystem <span class="nv">blocks</span><span class="o">=</span>67371008
+13 block <span class="nb">groups
+</span>8192 blocks per group, 8192 fragments per group
+1984 inodes per group
+Superblock backups stored on blocks:
+        8193, 24577, 40961, 57345, 73729
+
+Writing inode tables: <span class="k">done
+</span>Writing superblocks and filesystem accounting information: <span class="k">done
+
+</span>This filesystem will be automatically checked every 39 mounts or
+180 days, whichever comes first.  Use tune2fs <span class="nt">-c</span> or <span class="nt">-i</span> to override.
+<span class="o">[</span>root@sg-centos-hv1 scratch]# mkfs.ext3 /dev/sdb3
+mke2fs 1.41.12 <span class="o">(</span>17-May-2010<span class="o">)</span>
+Filesystem <span class="nv">label</span><span class="o">=</span>
+OS <span class="nb">type</span>: Linux
+Block <span class="nv">size</span><span class="o">=</span>1024 <span class="o">(</span><span class="nv">log</span><span class="o">=</span>0<span class="o">)</span>
+Fragment <span class="nv">size</span><span class="o">=</span>1024 <span class="o">(</span><span class="nv">log</span><span class="o">=</span>0<span class="o">)</span>
+<span class="nv">Stride</span><span class="o">=</span>0 blocks, Stripe <span class="nv">width</span><span class="o">=</span>0 blocks
+25792 inodes, 103168 blocks
+5158 blocks <span class="o">(</span>5.00%<span class="o">)</span> reserved <span class="k">for </span>the super user
+First data <span class="nv">block</span><span class="o">=</span>1
+Maximum filesystem <span class="nv">blocks</span><span class="o">=</span>67371008
+13 block <span class="nb">groups
+</span>8192 blocks per group, 8192 fragments per group
+1984 inodes per group
+Superblock backups stored on blocks:
+        8193, 24577, 40961, 57345, 73729
+
+Writing inode tables: <span class="k">done
+</span>Creating journal <span class="o">(</span>4096 blocks<span class="o">)</span>: <span class="k">done
+</span>Writing superblocks and filesystem accounting information: <span class="k">done
+
+</span>This filesystem will be automatically checked every 20 mounts or
+180 days, whichever comes first.  Use tune2fs <span class="nt">-c</span> or <span class="nt">-i</span> to override.
+<span class="o">[</span>root@sg-centos-hv1 scratch]# mkfs.ext4 /dev/sdb5
+mke2fs 1.41.12 <span class="o">(</span>17-May-2010<span class="o">)</span>
+Filesystem <span class="nv">label</span><span class="o">=</span>
+OS <span class="nb">type</span>: Linux
+Block <span class="nv">size</span><span class="o">=</span>1024 <span class="o">(</span><span class="nv">log</span><span class="o">=</span>0<span class="o">)</span>
+Fragment <span class="nv">size</span><span class="o">=</span>1024 <span class="o">(</span><span class="nv">log</span><span class="o">=</span>0<span class="o">)</span>
+<span class="nv">Stride</span><span class="o">=</span>0 blocks, Stripe <span class="nv">width</span><span class="o">=</span>0 blocks
+25792 inodes, 103136 blocks
+5156 blocks <span class="o">(</span>5.00%<span class="o">)</span> reserved <span class="k">for </span>the super user
+First data <span class="nv">block</span><span class="o">=</span>1
+Maximum filesystem <span class="nv">blocks</span><span class="o">=</span>67371008
+13 block <span class="nb">groups
+</span>8192 blocks per group, 8192 fragments per group
+1984 inodes per group
+Superblock backups stored on blocks:
+        8193, 24577, 40961, 57345, 73729
+
+Writing inode tables: <span class="k">done
+</span>Creating journal <span class="o">(</span>4096 blocks<span class="o">)</span>: <span class="k">done
+</span>Writing superblocks and filesystem accounting information: <span class="k">done
+
+</span>This filesystem will be automatically checked every 31 mounts or
+180 days, whichever comes first.  Use tune2fs <span class="nt">-c</span> or <span class="nt">-i</span> to override.
+<span class="o">[</span>root@sg-centos-hv1 scratch]# mkfs.ext4 /dev/sdb4
+mke2fs 1.41.12 <span class="o">(</span>17-May-2010<span class="o">)</span>
+mkfs.ext4: inode_size <span class="o">(</span>128<span class="o">)</span> <span class="k">*</span> inodes_count <span class="o">(</span>0<span class="o">)</span> too big <span class="k">for </span>a
+        filesystem with 0 blocks, specify higher inode_ratio <span class="o">(</span><span class="nt">-i</span><span class="o">)</span>
+        or lower inode count <span class="o">(</span><span class="nt">-N</span><span class="o">)</span><span class="nb">.</span>
+
+<span class="o">[</span>root@sg-centos-hv1 scratch]#</code></pre></figure>
+
+<p>Remeber here that /dev/sdb4 is an extended partition, It can not be formated to certain file system.</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="o">[</span>root@sg-centos-hv1 scratch]# mkfs.ext4 /dev/sdb4
+mke2fs 1.41.12 <span class="o">(</span>17-May-2010<span class="o">)</span>
+mkfs.ext4: inode_size <span class="o">(</span>128<span class="o">)</span> <span class="k">*</span> inodes_count <span class="o">(</span>0<span class="o">)</span> too big <span class="k">for </span>a
+        filesystem with 0 blocks, specify higher inode_ratio <span class="o">(</span><span class="nt">-i</span><span class="o">)</span>
+        or lower inode count <span class="o">(</span><span class="nt">-N</span><span class="o">)</span><span class="nb">.</span>
+
+<span class="o">[</span>root@sg-centos-hv1 scratch]# mkfs.ext2 /dev/sdb4
+mke2fs 1.41.12 <span class="o">(</span>17-May-2010<span class="o">)</span>
+mkfs.ext2: inode_size <span class="o">(</span>128<span class="o">)</span> <span class="k">*</span> inodes_count <span class="o">(</span>0<span class="o">)</span> too big <span class="k">for </span>a
+        filesystem with 0 blocks, specify higher inode_ratio <span class="o">(</span><span class="nt">-i</span><span class="o">)</span>
+        or lower inode count <span class="o">(</span><span class="nt">-N</span><span class="o">)</span><span class="nb">.</span>
+
+<span class="o">[</span>root@sg-centos-hv1 scratch]#</code></pre></figure>
+
+<h2 id="5-mount-the-partition-for-os-to-use">5. Mount the partition for OS to use</h2>
+<p>Now the partitions /dev/sdb2 , /dev/sdb3, /dev/sdb5 are formatted with ext2, ext3, ext4 file system, they can be mounted and used.</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="o">[</span>root@sg-centos-hv1 scratch]# <span class="nb">mkdir</span> /mnt/usb2 /mnt/usb3 /mnt/usb5
+<span class="o">[</span>root@sg-centos-hv1 scratch]# mount /dev/sdb2 /mnt/usb2
+<span class="o">[</span>root@sg-centos-hv1 scratch]# mount /dev/sdb3 /mnt/usb3
+<span class="o">[</span>root@sg-centos-hv1 scratch]# mount /dev/sdb5 /mnt/usb5
+<span class="o">[</span>root@sg-centos-hv1 scratch]# <span class="nb">touch</span> /mnt/ubs2/readme2.txt
+<span class="o">[</span>root@sg-centos-hv1 scratch]# <span class="nb">touch</span> /mnt/usb2/readme2.txt
+<span class="o">[</span>root@sg-centos-hv1 scratch]# <span class="nb">touch</span> /mnt/usb3/readme3.txt
+<span class="o">[</span>root@sg-centos-hv1 scratch]# <span class="nb">touch</span> /mnt/usb5/readme5.txt
+<span class="o">[</span>root@sg-centos-hv1 scratch]# <span class="nb">ls</span> <span class="nt">-l</span>  /mnt/usb2/readme2.txt
+<span class="nt">-rw-r--r--</span><span class="nb">.</span> 1 root root 0 Aug  8 16:13 /mnt/usb2/readme2.txt
+<span class="o">[</span>root@sg-centos-hv1 scratch]# <span class="nb">ls</span> <span class="nt">-l</span>  /mnt/usb3/readme3.txt
+<span class="nt">-rw-r--r--</span><span class="nb">.</span> 1 root root 0 Aug  8 16:13 /mnt/usb3/readme3.txt
+<span class="o">[</span>root@sg-centos-hv1 scratch]# <span class="nb">ls</span> <span class="nt">-l</span>  /mnt/usb5/readme5.txt
+<span class="nt">-rw-r--r--</span><span class="nb">.</span> 1 root root 0 Aug  8 16:13 /mnt/usb5/readme5.txt
+<span class="o">[</span>root@sg-centos-hv1 scratch]# umount /mnt/usb[235]
+<span class="o">[</span>root@sg-centos-hv1 scratch]#</code></pre></figure>
+
+
+</article>
+
+
+
+
+
+<section class="rss">
+  <p class="rss-subscribe text"><strong>Subscribe <a href="/feed.xml">via RSS</a></strong></p>
+</section>
+
+<section class="share">
+  <span>Share: </span>
+  
+    
+    
+    
+    
+    
+    
+    
+    
+  
+    
+    
+    
+    
+    
+      <a href="//www.linkedin.com/shareArticle?mini=true&url=http%3A%2F%2Flocalhost%3A4000%2Flinux%2F2016%2F07%2F27%2FLinux-fdisk.html"
+        onclick="window.open(this.href, 'linkedin-share', 'width=550,height=255');return false;">
+        <i class="fa fa-linkedin-square fa-lg"></i>
+      </a>
+    
+    
+    
+    
+  
+</section>
+
+
+
+
+</div>
+</div>
+
+    </div>
+
+    <footer class="site-footer">
+
+  <div class="wrapper">
+
+    <h3 class="footer-heading">Wenwei Weng's Blog</h3>
+
+    <div class="site-navigation">
+
+      <p><strong>Site Map</strong></p>
+      <ul class="pages">
+				
+	
+	<li class="nav-link"><a href="/about/">About</a>
+	
+
+	
+
+	
+
+	
+	<li class="nav-link"><a href="/posts/">Posts</a>
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+      </ul>
+    </div>
+
+    <div class="site-contact">
+
+      <p><strong>Contact</strong></p>
+      <ul class="social-media-list">
+        <li>
+          <a href="mailto:weweng@gmail.com">
+            <i class="fa fa-envelope-o"></i>
+            <span class="username">weweng@gmail.com</span>
+          </a>
+        </li>
+
+        
+          
+          <li>
+            <a href="https://github.com/weweng" title="Fork me on GitHub">
+              <i class="fa fa-github"></i>
+              <span class="username">weweng</span>
+            </a>
+          </li>
+          
+        
+          
+          <li>
+            <a href="https://www.linkedin.com/in/wenwei-weng/" title="Connect with me on LinkedIn">
+              <i class="fa fa-linkedin"></i>
+              <span class="username">Wenwei Weng</span>
+            </a>
+          </li>
+          
+        
+
+      </ul>
+    </div>
+
+    <div class="site-signature">
+      <p class="rss-subscribe text"><strong>Subscribe <a href="/feed.xml">via RSS</a></strong></p>
+      <p class="text">A simple yet classy theme for your Jekyll based blog.
+</p>
+    </div>
+
+  </div>
+
+</footer>
+
+<!-- Scripts -->
+<script src="//code.jquery.com/jquery-3.4.1.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.10/highlight.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.1/js/lightbox.min.js"></script>
+<script src="//unpkg.com/popper.js@1"></script>
+<script src="//unpkg.com/tippy.js@5"></script>
+
+<script type="text/javascript">
+$(document).ready(function() {
+  // Default syntax highlighting
+  hljs.initHighlightingOnLoad();
+
+  // Header
+  var menuToggle = $('#js-mobile-menu').unbind();
+  $('#js-navigation-menu').removeClass("show");
+  menuToggle.on('click', function(e) {
+    e.preventDefault();
+    $('#js-navigation-menu').slideToggle(function(){
+      if($('#js-navigation-menu').is(':hidden')) {
+        $('#js-navigation-menu').removeAttr('style');
+      }
+    });
+  });
+
+	// Enable tooltips via Tippy.js
+	if (Array.isArray(window.tooltips)) {
+		window.tooltips.forEach(function(tooltip) {
+			var selector = tooltip[0];
+			var config = tooltip[1];
+			tippy(selector, config);
+		})
+	}
+});
+
+</script>
+
+
+
+
+
+
+  </body>
+
+</html>

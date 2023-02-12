@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>RTC support in embedded Linux box</title>
+  <meta name="description" content="Real Time Clock (RTC) is a small but important piece of hardware in an embedded Linux box. It saves time and keep time valid while box is in shutdown state. ...">
+  
+  <meta name="author" content="Wenwei Weng">
+  <meta name="copyright" content="&copy; Wenwei Weng 2023">
+  
+
+  <!-- External libraries -->
+  <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css">
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.9.0/styles/monokai-sublime.min.css">
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/lightbox2/2.7.1/css/lightbox.css">
+
+  <!-- Favicon and other icons (made with http://www.favicon-generator.org/) -->
+  <link rel="shortcut icon" href="/assets/icons/favicon.ico" type="image/x-icon">
+  <link rel="icon" href="/assets/icons/favicon.ico" type="image/x-icon">
+  <link rel="apple-touch-icon" sizes="57x57" href="/assets/icons/apple-icon-57x57.png">
+  <link rel="apple-touch-icon" sizes="60x60" href="/assets/icons/apple-icon-60x60.png">
+  <link rel="apple-touch-icon" sizes="72x72" href="/assets/icons/apple-icon-72x72.png">
+  <link rel="apple-touch-icon" sizes="76x76" href="/assets/icons/apple-icon-76x76.png">
+  <link rel="apple-touch-icon" sizes="114x114" href="/assets/icons/apple-icon-114x114.png">
+  <link rel="apple-touch-icon" sizes="120x120" href="/assets/icons/apple-icon-120x120.png">
+  <link rel="apple-touch-icon" sizes="144x144" href="/assets/icons/apple-icon-144x144.png">
+  <link rel="apple-touch-icon" sizes="152x152" href="/assets/icons/apple-icon-152x152.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/assets/icons/apple-icon-180x180.png">
+  <link rel="icon" type="image/png" sizes="192x192"  href="/assets/icons/android-icon-192x192.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/assets/icons/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="96x96" href="/assets/icons/favicon-96x96.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/assets/icons/favicon-16x16.png">
+  <link rel="manifest" href="/assets/icons/manifest.json">
+  <meta name="msapplication-TileColor" content="#ffffff">
+  <meta name="msapplication-TileImage" content="/assets/icons/ms-icon-144x144.png">
+  <meta name="theme-color" content="#ffffff">
+
+  
+
+  
+
+  
+
+  <!-- Site styles -->
+  <link rel="stylesheet" href="/css/main.css">
+  <link rel="canonical" href="http://localhost:4000/linux/2017/08/02/RTC-Support-embedded-box.html">
+	<link rel="alternate" type="application/rss+xml" title="Wenwei Weng's Blog" href="http://localhost:4000/feed.xml" />
+	
+	<!-- Tooltips -->
+	<script type="text/javascript">
+		window.tooltips = []
+	</script>
+</head>
+
+
+  <body>
+
+    <header class="navigation" role="banner">
+  <div class="navigation-wrapper">
+    <a href="/" class="logo">
+      
+      <img src="/assets/avatar.png" alt="Wenwei Weng's Blog">
+      
+    </a>
+    <a href="javascript:void(0)" class="navigation-menu-button" id="js-mobile-menu">
+      <i class="fa fa-bars"></i>
+    </a>
+    <nav role="navigation">
+      <ul id="js-navigation-menu" class="navigation-menu show">
+				
+	
+	<li class="nav-link"><a href="/about/">About</a>
+	
+
+	
+
+	
+
+	
+	<li class="nav-link"><a href="/posts/">Posts</a>
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+      </ul>
+    </nav>
+  </div>
+</header>
+
+
+    <div class="page-content">
+        <div class="post">
+
+<div class="post-header-container " >
+  <div class="scrim ">
+    <header class="post-header">
+      <h1 class="title">RTC support in embedded Linux box</h1>
+      <p class="info">by <strong>Wenwei Weng</strong></p>
+    </header>
+  </div>
+</div>
+
+<div class="wrapper">
+
+ <span class="page-divider">
+  <span class="one"></span>
+  <span class="two"></span>
+</span>
+ 
+
+<section class="post-meta">
+  <div class="post-date">August 2, 2017</div>
+  <div class="post-categories">
+  in 
+    
+    <a href="/category/Linux">Linux</a>
+    
+  
+  </div>
+</section>
+
+<article class="post-content">
+  <p>Real Time Clock (RTC) is a small but important piece of hardware in an embedded Linux box. It saves time and keep time valid while box is in shutdown state. When the box boots again next time, it will provide a valid time to Linux system.</p>
+
+<p><img src="/uploads/linux/linux-rtc.jpg" alt="Linux RTC" /></p>
+
+<!--more-->
+<h2 id="real-time-clock-in-linux">Real Time Clock in Linux</h2>
+<p>Two clocks are important in Linux system: a ‘hardware clock’, also known as RTC, CMOS or BIOS clock. This is the battery backed clock that keeps time even when the system is shut down. The second clock is called the ‘system clock’ or ‘kernel clock’ and is maintained by Linux OS. At boot time, the hardware clock is read and used to set the system clock. From that point onward the system clock is used to track time. Typically during the linux system shutdown process, Linux will flush its time into RTC to save it.</p>
+
+<p>For many SoC, it has RTC embedded. However in my platform an external RTC is connected to SoC through I2C bus with typical address 0x68. This external RTC cnsumes less current than embedded one.</p>
+
+<h2 id="check-the-two-clocks">Check the two clocks</h2>
+<p>The simplest commands to check two clocks are: “date” and “hwclock”</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">bash-4.3# <span class="c"># the command date can be used to check the current system time</span>
+bash-4.3# <span class="nb">date
+</span>Wed Aug  2 10:11:35 Universal 2017
+bash-4.3# <span class="c"># command hwclock can read clock from RTC device</span>
+bash-4.3# hwclock <span class="nt">-r</span>
+Fri Jan  1 01:01:49 2010  0.000000 seconds
+bash-4.3#
+bash-4.3# <span class="c"># hwclock can push the system into RTC device</span>
+bash-4.3# hwclock <span class="nt">-w</span>
+bash-4.3#
+bash-4.3# hwclock <span class="nt">-r</span>
+Wed Aug  2 10:13:19 2017  0.000000 seconds
+bash-4.3# <span class="nb">date
+</span>Wed Aug  2 10:13:22 Universal 2017
+bash-4.3# <span class="c">#Now both times are synced.</span></code></pre></figure>
+
+<p>As shown in the above command, there are two different clocks, and they can be synced using hwclock.</p>
+
+<h2 id="what-need-to-be-done-">What need to be done ?</h2>
+<p>Linux kernel is able to support mutiple RTC devices in the same time. This can be checked by “ls -l /dev/rtc*” to see how many RTC devices are registered with Linux kernel.</p>
+
+<p>What takes to make RTC devices work properly?</p>
+<ul>
+<li> Make sure hardware setup is in place, either connected through I2C, or SPI bus. </li>
+<li> Properly configured in device Tree file (DTS) to make it enabled. In my case, I need disable RTC inside SoC, and enable external RTC.</li>
+
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"> 
+bash# <span class="nb">cat </span>armada-7040-sparrow-v6.dts
+.......
+                        rtc@284000 <span class="o">{</span>
+                                compatible <span class="o">=</span> <span class="s2">"marvell,armada8k-rtc"</span><span class="p">;</span>
+                                reg <span class="o">=</span> &lt;0x284000 0x20 0x284080 0x24&gt;<span class="p">;</span>
+                                reg-names <span class="o">=</span> <span class="s2">"rtc"</span>, <span class="s2">"rtc-soc"</span><span class="p">;</span>
+                                <span class="c">#address-cells = &lt;0x1&gt;;</span>
+                                <span class="c">#size-cells = &lt;0x0&gt;;</span>
+                                interrupts <span class="o">=</span> &lt;0x0 0x4d 0x4&gt;<span class="p">;</span>
+                                status <span class="o">=</span> <span class="s2">"disabled"</span><span class="p">;</span>
+                        <span class="o">}</span><span class="p">;</span>
+.......
+                        i2c@701100 <span class="o">{</span>
+                                compatible <span class="o">=</span> <span class="s2">"marvell,mv78230-i2c"</span><span class="p">;</span>
+                                reg <span class="o">=</span> &lt;0x701100 0x20&gt;<span class="p">;</span>
+                                <span class="c">#address-cells = &lt;0x1&gt;;</span>
+                                <span class="c">#size-cells = &lt;0x0&gt;;</span>
+                                interrupts <span class="o">=</span> &lt;0x0 0x79 0x4&gt;<span class="p">;</span>
+                                timeout-ms <span class="o">=</span> &lt;0x3e8&gt;<span class="p">;</span>
+                                clocks <span class="o">=</span> &lt;0x26 0x1 0x15&gt;<span class="p">;</span>
+                                status <span class="o">=</span> <span class="s2">"okay"</span><span class="p">;</span>
+                                clock-frequency <span class="o">=</span> &lt;0x186a0&gt;<span class="p">;</span>
+                                rtc@68 <span class="o">{</span>
+                                        compatible <span class="o">=</span> <span class="s2">"dallas,ds1337"</span><span class="p">;</span>
+                                        reg <span class="o">=</span> &lt;0x68&gt;<span class="p">;</span>
+                                <span class="o">}</span><span class="p">;</span>
+
+                        <span class="o">}</span><span class="p">;</span>
+.......</code></pre></figure>
+
+
+<li> Configure Linux kernel with proper driver, and tell linux kernel the correct RTC instance to use in order to save time.</li>
+
+In the following example, DS1307 driver is enabled in kernel config, which will be the only RTC device rgistered in the system, so "rtc0" is set for system to sync to.
+
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"> 
+
+<span class="nv">CONFIG_RTC_LIB</span><span class="o">=</span>y
+<span class="nv">CONFIG_RTC_CLASS</span><span class="o">=</span>y
+<span class="nv">CONFIG_RTC_HCTOSYS</span><span class="o">=</span>y
+<span class="nv">CONFIG_RTC_HCTOSYS_DEVICE</span><span class="o">=</span><span class="s2">"rtc0"</span>
+<span class="nv">CONFIG_RTC_SYSTOHC</span><span class="o">=</span>y
+<span class="nv">CONFIG_RTC_SYSTOHC_DEVICE</span><span class="o">=</span><span class="s2">"rtc0"</span>
+<span class="c"># CONFIG_RTC_DEBUG is not set</span>
+
+<span class="c">#</span>
+<span class="c"># RTC interfaces</span>
+<span class="c">#</span>
+<span class="nv">CONFIG_RTC_INTF_SYSFS</span><span class="o">=</span>y
+<span class="nv">CONFIG_RTC_INTF_PROC</span><span class="o">=</span>y
+<span class="nv">CONFIG_RTC_INTF_DEV</span><span class="o">=</span>y
+<span class="c"># CONFIG_RTC_INTF_DEV_UIE_EMUL is not set</span>
+<span class="c"># CONFIG_RTC_DRV_TEST is not set</span>
+
+<span class="c">#</span>
+<span class="c"># I2C RTC drivers</span>
+<span class="c">#</span>
+<span class="c"># CONFIG_RTC_DRV_ABB5ZES3 is not set</span>
+<span class="c"># CONFIG_RTC_DRV_ABX80X is not set</span>
+<span class="nv">CONFIG_RTC_DRV_DS1307</span><span class="o">=</span>y
+<span class="c"># CONFIG_RTC_DRV_DS1374 is not set</span></code></pre></figure>
+
+
+</ul>
+
+<h2 id="check-the-box">Check the box…</h2>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"> 
+
+bash-4.3#  dmesg | <span class="nb">grep </span>rtc
+<span class="o">[</span>    0.000000] Kernel <span class="nb">command </span>line: Image.sparrow.rtc1337 <span class="nv">initrd</span><span class="o">=</span>initramfs-0328.cpio.gz <span class="nv">dtb</span><span class="o">=</span>armada-7040-sparrow-v6.dtb <span class="nv">console</span><span class="o">=</span>ttyS0,115200 emergency <span class="nv">init</span><span class="o">=</span>/bin/bash <span class="nv">crashkernel</span><span class="o">=</span>64M
+<span class="o">[</span>    4.157793] rtc-ds1307 0-0068: rtc core: registered ds1337 as rtc0
+<span class="o">[</span>    4.232706] rtc-ds1307 0-0068: setting system clock to 2017-08-02 10:09:01 UTC <span class="o">(</span>1501668541<span class="o">)</span>
+bash-4.3# <span class="nb">ls</span> <span class="nt">-l</span> /dev/rtc<span class="k">*</span>
+crw------- 1 0 0 253, 0 Jan  1  1970 /dev/rtc0
+bash-4.3# 
+bash-4.3# <span class="nb">date</span> <span class="o">&amp;&amp;</span> hwclock <span class="nt">-r</span>
+Wed Aug  2 10:33:25 Universal 2017
+Wed Aug  2 10:33:24 2017  0.000000 seconds
+bash-4.3#</code></pre></figure>
+
+<p>As it is shown from dmesg, external RTC is registered as “rtc0”, SoC RTC is not seen by kernel since it is disabled in DTS. Both clocks are synced.</p>
+
+
+</article>
+
+
+
+
+
+<section class="rss">
+  <p class="rss-subscribe text"><strong>Subscribe <a href="/feed.xml">via RSS</a></strong></p>
+</section>
+
+<section class="share">
+  <span>Share: </span>
+  
+    
+    
+    
+    
+    
+    
+    
+    
+  
+    
+    
+    
+    
+    
+      <a href="//www.linkedin.com/shareArticle?mini=true&url=http%3A%2F%2Flocalhost%3A4000%2Flinux%2F2017%2F08%2F02%2FRTC-Support-embedded-box.html"
+        onclick="window.open(this.href, 'linkedin-share', 'width=550,height=255');return false;">
+        <i class="fa fa-linkedin-square fa-lg"></i>
+      </a>
+    
+    
+    
+    
+  
+</section>
+
+
+
+
+</div>
+</div>
+
+    </div>
+
+    <footer class="site-footer">
+
+  <div class="wrapper">
+
+    <h3 class="footer-heading">Wenwei Weng's Blog</h3>
+
+    <div class="site-navigation">
+
+      <p><strong>Site Map</strong></p>
+      <ul class="pages">
+				
+	
+	<li class="nav-link"><a href="/about/">About</a>
+	
+
+	
+
+	
+
+	
+	<li class="nav-link"><a href="/posts/">Posts</a>
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+      </ul>
+    </div>
+
+    <div class="site-contact">
+
+      <p><strong>Contact</strong></p>
+      <ul class="social-media-list">
+        <li>
+          <a href="mailto:weweng@gmail.com">
+            <i class="fa fa-envelope-o"></i>
+            <span class="username">weweng@gmail.com</span>
+          </a>
+        </li>
+
+        
+          
+          <li>
+            <a href="https://github.com/weweng" title="Fork me on GitHub">
+              <i class="fa fa-github"></i>
+              <span class="username">weweng</span>
+            </a>
+          </li>
+          
+        
+          
+          <li>
+            <a href="https://www.linkedin.com/in/wenwei-weng/" title="Connect with me on LinkedIn">
+              <i class="fa fa-linkedin"></i>
+              <span class="username">Wenwei Weng</span>
+            </a>
+          </li>
+          
+        
+
+      </ul>
+    </div>
+
+    <div class="site-signature">
+      <p class="rss-subscribe text"><strong>Subscribe <a href="/feed.xml">via RSS</a></strong></p>
+      <p class="text">A simple yet classy theme for your Jekyll based blog.
+</p>
+    </div>
+
+  </div>
+
+</footer>
+
+<!-- Scripts -->
+<script src="//code.jquery.com/jquery-3.4.1.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.10/highlight.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.1/js/lightbox.min.js"></script>
+<script src="//unpkg.com/popper.js@1"></script>
+<script src="//unpkg.com/tippy.js@5"></script>
+
+<script type="text/javascript">
+$(document).ready(function() {
+  // Default syntax highlighting
+  hljs.initHighlightingOnLoad();
+
+  // Header
+  var menuToggle = $('#js-mobile-menu').unbind();
+  $('#js-navigation-menu').removeClass("show");
+  menuToggle.on('click', function(e) {
+    e.preventDefault();
+    $('#js-navigation-menu').slideToggle(function(){
+      if($('#js-navigation-menu').is(':hidden')) {
+        $('#js-navigation-menu').removeAttr('style');
+      }
+    });
+  });
+
+	// Enable tooltips via Tippy.js
+	if (Array.isArray(window.tooltips)) {
+		window.tooltips.forEach(function(tooltip) {
+			var selector = tooltip[0];
+			var config = tooltip[1];
+			tippy(selector, config);
+		})
+	}
+});
+
+</script>
+
+
+
+
+
+
+  </body>
+
+</html>

@@ -1,0 +1,811 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>Cisco IR829 As Entertainment System for Bus</title>
+  <meta name="description" content="For the past two years, I have spent a lot effort to design software for Cisco IR829. It has been released into market and well received by the market. One o...">
+  
+  <meta name="author" content="Wenwei Weng">
+  <meta name="copyright" content="&copy; Wenwei Weng 2023">
+  
+
+  <!-- External libraries -->
+  <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css">
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.9.0/styles/monokai-sublime.min.css">
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/lightbox2/2.7.1/css/lightbox.css">
+
+  <!-- Favicon and other icons (made with http://www.favicon-generator.org/) -->
+  <link rel="shortcut icon" href="/assets/icons/favicon.ico" type="image/x-icon">
+  <link rel="icon" href="/assets/icons/favicon.ico" type="image/x-icon">
+  <link rel="apple-touch-icon" sizes="57x57" href="/assets/icons/apple-icon-57x57.png">
+  <link rel="apple-touch-icon" sizes="60x60" href="/assets/icons/apple-icon-60x60.png">
+  <link rel="apple-touch-icon" sizes="72x72" href="/assets/icons/apple-icon-72x72.png">
+  <link rel="apple-touch-icon" sizes="76x76" href="/assets/icons/apple-icon-76x76.png">
+  <link rel="apple-touch-icon" sizes="114x114" href="/assets/icons/apple-icon-114x114.png">
+  <link rel="apple-touch-icon" sizes="120x120" href="/assets/icons/apple-icon-120x120.png">
+  <link rel="apple-touch-icon" sizes="144x144" href="/assets/icons/apple-icon-144x144.png">
+  <link rel="apple-touch-icon" sizes="152x152" href="/assets/icons/apple-icon-152x152.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/assets/icons/apple-icon-180x180.png">
+  <link rel="icon" type="image/png" sizes="192x192"  href="/assets/icons/android-icon-192x192.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/assets/icons/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="96x96" href="/assets/icons/favicon-96x96.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/assets/icons/favicon-16x16.png">
+  <link rel="manifest" href="/assets/icons/manifest.json">
+  <meta name="msapplication-TileColor" content="#ffffff">
+  <meta name="msapplication-TileImage" content="/assets/icons/ms-icon-144x144.png">
+  <meta name="theme-color" content="#ffffff">
+
+  
+
+  
+
+  
+
+  <!-- Site styles -->
+  <link rel="stylesheet" href="/css/main.css">
+  <link rel="canonical" href="http://localhost:4000/networking/2016/08/25/IR829-mgw.html">
+	<link rel="alternate" type="application/rss+xml" title="Wenwei Weng's Blog" href="http://localhost:4000/feed.xml" />
+	
+	<!-- Tooltips -->
+	<script type="text/javascript">
+		window.tooltips = []
+	</script>
+</head>
+
+
+  <body>
+
+    <header class="navigation" role="banner">
+  <div class="navigation-wrapper">
+    <a href="/" class="logo">
+      
+      <img src="/assets/avatar.png" alt="Wenwei Weng's Blog">
+      
+    </a>
+    <a href="javascript:void(0)" class="navigation-menu-button" id="js-mobile-menu">
+      <i class="fa fa-bars"></i>
+    </a>
+    <nav role="navigation">
+      <ul id="js-navigation-menu" class="navigation-menu show">
+				
+	
+	<li class="nav-link"><a href="/about/">About</a>
+	
+
+	
+
+	
+
+	
+	<li class="nav-link"><a href="/posts/">Posts</a>
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+      </ul>
+    </nav>
+  </div>
+</header>
+
+
+    <div class="page-content">
+        <div class="post">
+
+<div class="post-header-container " >
+  <div class="scrim ">
+    <header class="post-header">
+      <h1 class="title">Cisco IR829 As Entertainment System for Bus</h1>
+      <p class="info">by <strong>Wenwei Weng</strong></p>
+    </header>
+  </div>
+</div>
+
+<div class="wrapper">
+
+ <span class="page-divider">
+  <span class="one"></span>
+  <span class="two"></span>
+</span>
+ 
+
+<section class="post-meta">
+  <div class="post-date">August 25, 2016</div>
+  <div class="post-categories">
+  in 
+    
+    <a href="/category/Networking">Networking</a>
+    
+  
+  </div>
+</section>
+
+<article class="post-content">
+  <p>For the past two years, I have spent a lot effort to design software for Cisco IR829. It has been released into market and well received by the market. One of very interesting deployment case is to deploy IR829 as entertainment system for mass transportation vehicle like bus, train, even airplane.</p>
+
+<p><img src="/uploads/cisco/ir829.png" alt="Cisco IR829" /></p>
+
+<!--more-->
+
+<h1 id="how-it-works-packet-flow">How it works: Packet Flow</h1>
+<p>IR829 has WiFi AP, runs IOS, and also has a Guest Linux. In addition, IR829 provides an external USB interface, which can connect USB storage device. WiFi AP can provide WiFi connection to the user’s smart phone, tablet, IOS can perform routing, and Guest Linux can host a server to provide video service. The external USB interface can be used to plug a USB stick, which can store video files like mp4 files.</p>
+
+<p>The following picture shows the packet flow in high level.</p>
+
+<p><img src="/uploads/cisco/ir829-mgw-pkt.jpg" alt="Cisco IR829 MGW" /></p>
+
+<ol>
+<li>The web server deployed in Guest Linux (GOS) fetchs the video from USB memory stick</li>
+<li>GOS sends packet IOS.</li>
+<li>IOS routes the packet to WiFi AP module. </li>
+<li>WiFi AP module transmits the packet to smart phone. </li>
+<li>Smart phone receives the ppacket, play video. </li>
+</ol>
+<h1 id="sample-configuration-to-make-packet-flow">sample configuration to make packet flow</h1>
+
+<h2 id="ios">IOS</h2>
+<ul>
+<li>IOS is configured to connect to GOS through interface GigabitEthernet5 (2.2.2.1). </li>
+<li> IOS is configured to connect to WiFi AP module through interface Wlan-GigabitEthernet0. </li>
+<li>IOS acts as DHCP server for WiFi AP to provide IP address 192.168.146.[2-244] for WiFi client (e.g. smart phone) </li>
+<li>IOS provides DNS service, playbus.cisco.com=2.2.2.2</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">IR829-mediaGW#show running-config 
+Building configuration...
+
+  
+Current configuration : 3541 bytes
+<span class="o">!</span>
+version 15.6
+service timestamps debug datetime msec
+service timestamps log datetime msec
+no service password-encryption
+service internal
+<span class="o">!</span>
+<span class="nb">hostname </span>IR829-mediaGW
+<span class="o">!</span>
+boot-start-marker
+boot system flash ir800-uk9.video1
+boot-end-marker
+<span class="o">!</span>
+<span class="o">!</span>
+<span class="nb">enable </span>password cisco
+<span class="o">!</span>
+no aaa new-model
+ethernet lmi ce
+service-module wlan-ap 0 bootimage autonomous
+<span class="o">!</span>
+ignition off-timer 900
+<span class="o">!</span>         
+ignition undervoltage threshold 9
+<span class="o">!</span>         
+no ignition <span class="nb">enable</span>
+<span class="o">!</span>         
+<span class="o">!</span>         
+<span class="o">!</span>         
+ip dhcp excluded-address 192.168.146.1
+<span class="o">!</span>         
+ip dhcp pool wls-guest
+ network 192.168.146.0 255.255.255.0
+ default-router 192.168.146.1 
+ domain-name cisco.com
+ dns-server 192.168.146.1 8.8.8.8 
+ lease 0 0 30
+   remember
+<span class="o">!</span>         
+<span class="o">!</span>         
+<span class="o">!</span>         
+ip host playbus.cisco.com 2.2.2.2
+ip cef    
+no ipv6 cef
+multilink bundle-name authenticated
+<span class="o">!</span>         
+<span class="o">!</span>         
+chat-script lte <span class="s2">""</span> <span class="s2">"AT!CALL"</span> TIMEOUT 20 <span class="s2">"OK"</span>
+<span class="o">!</span>         
+<span class="o">!</span>         
+license udi pid IR829GW-LTE-NA-AK9 sn FGL192423UV
+<span class="o">!</span>         
+<span class="o">!</span>         
+<span class="o">!</span>         
+redundancy
+ notification-timer 120000
+<span class="o">!</span>         
+<span class="o">!</span>         
+controller Cellular 0
+ lte sim data-profile 1 attach-profile 1 slot 0
+ lte sim data-profile 1 attach-profile 1 slot 1
+ lte modem link-recovery rssi onset-threshold <span class="nt">-110</span>
+ lte modem link-recovery monitor-timer 20
+ lte modem link-recovery wait-timer 10
+ lte modem link-recovery debounce-count 6
+<span class="o">!</span>         
+<span class="o">!</span>         
+<span class="o">!</span>         
+<span class="o">!</span>         
+<span class="o">!</span>         
+interface GigabitEthernet0
+ ip address 33.33.33.96 255.255.255.0
+ shutdown 
+<span class="o">!</span>         
+interface GigabitEthernet1
+ switchport access vlan 10
+ no ip address
+<span class="o">!</span>         
+interface GigabitEthernet2
+ switchport access vlan 10
+ no ip address
+<span class="o">!</span>         
+interface GigabitEthernet3
+ switchport access vlan 10
+ no ip address
+<span class="o">!</span>         
+interface GigabitEthernet4
+ switchport access vlan 10
+ no ip address
+<span class="o">!</span>         
+interface Wlan-GigabitEthernet0
+ switchport trunk native vlan 10
+ switchport mode trunk
+ no ip address
+ storm-control broadcast level 30.00 20.00
+ storm-control action shutdown
+<span class="o">!</span>         
+interface GigabitEthernet5
+ ip address 2.2.2.1 255.255.255.0
+ ip nat inside
+ ip virtual-reassembly <span class="k">in
+ </span>duplex auto
+ speed auto
+<span class="o">!</span>         
+interface Cellular0
+ ip address negotiated
+ encapsulation slip
+ load-interval 30
+ dialer <span class="k">in</span><span class="nt">-band</span>
+ dialer idle-timeout 0
+ dialer string lte
+ dialer-group 1
+ no peer default ip address
+ async mode interactive
+ routing dynamic
+<span class="o">!</span>         
+interface Cellular1
+ no ip address
+ encapsulation slip
+<span class="o">!</span>         
+interface wlan-ap0
+ ip address 1.1.1.1 255.255.255.255
+<span class="o">!</span>         
+interface Vlan1
+ ip address 33.33.33.95 255.255.255.0
+<span class="o">!</span>         
+interface Vlan10
+ ip address 192.168.146.1 255.255.255.0
+ ip nat inside
+ ip virtual-reassembly <span class="k">in</span>
+<span class="o">!</span>         
+interface Async0
+ no ip address
+ encapsulation scada
+<span class="o">!</span>         
+ip forward-protocol nd
+<span class="o">!</span>         
+no ip http server
+no ip http secure-server
+<span class="o">!</span>         
+ip dns server
+ip route 0.0.0.0 0.0.0.0 Cellular0
+ip route 2.2.2.0 255.255.255.0 GigabitEthernet5
+ip route 192.168.1.0 255.255.255.0 GigabitEthernet5
+<span class="o">!</span>         
+dialer-list 1 protocol ip permit
+<span class="o">!</span>         
+<span class="o">!</span>         
+<span class="o">!</span>         
+control-plane
+<span class="o">!</span>         
+<span class="o">!</span>         
+<span class="o">!</span>         
+<span class="o">!</span>         
+line con 0
+ stopbits 1
+line 1 2  
+ stopbits 1
+line 3    
+ script dialer lte
+ modem InOut
+ no <span class="nb">exec  
+ </span>transport preferred pad telnet rlogin lapb-ta mop udptn v120 ssh
+ transport input all
+ transport output all
+line 4    
+ no activation-character
+ no <span class="nb">exec  
+ </span>transport preferred none
+ transport input all
+ transport output pad telnet rlogin lapb-ta mop udptn v120 ssh
+line 8    
+ script dialer lte
+ no <span class="nb">exec  
+ </span>transport preferred pad telnet rlogin lapb-ta mop udptn v120 ssh
+ transport output pad telnet rlogin lapb-ta mop udptn v120 ssh
+line 1/3 1/4
+ transport preferred none
+ transport input all
+ transport output none
+ stopbits 1
+line 1/5 1/6
+ transport preferred none
+ transport output none
+ stopbits 1
+line vty 0 4
+ password cisco
+ login    
+ transport input all
+<span class="o">!</span>         
+no scheduler max-task-time
+<span class="o">!</span>         
+<span class="o">!</span>         
+<span class="o">!</span>         
+<span class="o">!</span>         
+end       
+          
+IR829-mediaGW#</code></pre></figure>
+
+<h2 id="wifi-ap">WiFi AP</h2>
+
+<p>WiFi PA is configured to provide an open access SSID: http://playbus.cisco.com, which is associated with interface Radio0.</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">IR829-MGW-AP#show running-config
+Building configuration...
+
+Current configuration : 2042 bytes
+<span class="o">!</span>
+version 15.3
+no service pad
+service timestamps debug datetime msec
+service timestamps log datetime msec
+service password-encryption
+<span class="o">!</span>
+<span class="nb">hostname </span>IR829-MGW-AP
+<span class="o">!</span>
+<span class="o">!</span>
+logging rate-limit console 9
+<span class="nb">enable </span>secret 5 <span class="nv">$1$VyuW$wgJVFjqXv</span>.dUtp/JnwWAb/
+<span class="o">!</span>
+no aaa new-model
+no ip source-route
+no ip cef
+<span class="o">!</span>
+<span class="o">!</span>
+<span class="o">!</span>
+<span class="o">!</span>
+dot11 pause-time 100
+dot11 syslog
+<span class="o">!</span>         
+dot11 ssid 829MGW5G-HTTP://2.2.2.2
+   authentication open 
+   guest-mode
+<span class="o">!</span>         
+dot11 ssid http://playbus.cisco.com
+   authentication open 
+   guest-mode
+<span class="o">!</span>         
+<span class="o">!</span>         
+<span class="o">!</span>         
+no ipv6 cef
+<span class="o">!</span>         
+<span class="o">!</span>         
+username Cisco password 7 05280F1C2243
+<span class="o">!</span>         
+<span class="o">!</span>         
+<span class="o">!</span>         
+bridge irb
+<span class="o">!</span>         
+<span class="o">!</span>         
+<span class="o">!</span>         
+interface Dot11Radio0
+ no ip address
+ <span class="o">!</span>        
+ ssid http://playbus.cisco.com
+ <span class="o">!</span>        
+ antenna gain 0
+ packet retries 64 drop-packet
+ station-role root
+ infrastructure-client
+ bridge-group 1
+ bridge-group 1 subscriber-loop-control
+ bridge-group 1 spanning-disabled
+ bridge-group 1 block-unknown-source
+ no bridge-group 1 source-learning
+ no bridge-group 1 unicast-flooding
+<span class="o">!</span>         
+interface Dot11Radio1
+ no ip address
+ shutdown 
+ <span class="o">!</span>        
+ ssid 829MGW5G-HTTP://2.2.2.2
+ <span class="o">!</span>        
+ antenna gain 0
+ peakdetect
+ dfs band 3 block
+ packet retries 64 drop-packet
+ channel dfs
+ station-role root
+ bridge-group 1
+ bridge-group 1 subscriber-loop-control
+ bridge-group 1 spanning-disabled
+ bridge-group 1 block-unknown-source
+ no bridge-group 1 source-learning
+ no bridge-group 1 unicast-flooding
+<span class="o">!</span>         
+interface GigabitEthernet0
+ description the embedded AP GigabitEthernet 0 is an internal interface connecting AP with the host router
+ no ip address
+ bridge-group 1
+ bridge-group 1 spanning-disabled
+ no bridge-group 1 source-learning
+<span class="o">!</span>         
+interface BVI1
+ mac-address 74a2.e65d.0538
+ ip address dhcp client-id GigabitEthernet0
+ ipv6 address dhcp
+ ipv6 address autoconfig
+ ipv6 <span class="nb">enable</span>
+<span class="o">!</span>         
+ip forward-protocol nd
+ip http server
+no ip http secure-server
+ip http help-path http://www.cisco.com/warp/public/779/smbiz/prodconfig/help/eag
+ip route 0.0.0.0 0.0.0.0 BVI1
+<span class="o">!</span>         
+<span class="o">!</span>         
+bridge 1 route ip
+<span class="o">!</span>         
+<span class="o">!</span>         
+<span class="o">!</span>         
+line con 0
+line vty 0 4
+ login <span class="nb">local
+ </span>transport input all
+<span class="o">!</span>         
+end       
+          
+IR829-MGW-AP#</code></pre></figure>
+
+<h2 id="guest-linux-gos">Guest Linux (GOS)</h2>
+<p>USB stick has apache tomcat web server installed. Also it has media files.
+Java virtual machine is installed under /software/opt/.
+Note: in some case, it may be required to create softlink using “ln -s /lib /lib64”.</p>
+
+<p>The following is the setup needed to auto start tomcat webserver, set up ethernet interface, GOS routing table.</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">root@qemux86-64:/mnt/usb/apache-tomcat-8.0.33/webapps/ROOT# <span class="nb">ls
+</span>IR829              asf-logo.png     bg-nav.png    index.html        tomcat.css
+RELEASE-NOTES.txt  bg-button.png    bg-upper.png  index.html.ads    tomcat.gif
+WEB-INF            bg-middle.png    build.xml     index.jsp         tomcat.png
+asf-logo-wide.gif  bg-nav-item.png  favicon.ico   tomcat-power.gif  tomcat.svg
+root@qemux86-64:/mnt/usb/apache-tomcat-8.0.33/webapps/ROOT# 
+
+root@qemux86-64:/etc/init.d# <span class="nb">cat </span>wait-run-tomcat.sh | more
+<span class="c">#!/bin/bash -f</span>
+
+<span class="nb">export </span><span class="nv">JRE_HOME</span><span class="o">=</span>/software/opt/jre1.8.0_74/
+
+<span class="nv">count</span><span class="o">=</span>1
+<span class="k">if</span> <span class="o">[</span> <span class="nt">-f</span> /tmp/wait-run-tomcat.log <span class="o">]</span>
+<span class="k">then
+    </span><span class="nb">rm</span> /tmp/wait-run-tomcat.log
+<span class="k">fi
+</span><span class="nb">touch</span> /tmp/wait-run-tomcat.log
+
+<span class="k">while</span> <span class="o">[</span> 1 <span class="o">]</span>
+<span class="k">do
+   if</span> <span class="o">[</span> <span class="nt">-f</span> <span class="nv">$JRE_HOME</span>/bin/java <span class="o">]</span>
+   <span class="k">then
+        </span><span class="nb">break
+   </span><span class="k">else
+        if</span> <span class="o">[</span> <span class="nv">$count</span> <span class="nt">-gt</span> 30 <span class="o">]</span>
+        <span class="k">then
+            </span><span class="nb">break
+            echo</span> <span class="s2">"timeout for JVM ready"</span> <span class="o">&gt;&gt;</span>  /tmp/wait-run-tomcat.log
+        <span class="k">else
+            </span><span class="nb">let </span><span class="nv">count</span><span class="o">=</span>count+1
+            <span class="nb">sleep </span>2
+            <span class="nb">echo</span> <span class="s2">"sleep 2 second for JVM ready"</span> <span class="o">&gt;&gt;</span> /tmp/wait-run-tomcat.log
+        <span class="k">fi
+   fi
+done
+
+if</span> <span class="o">[</span> <span class="nt">-f</span>  <span class="nv">$JRE_HOME</span>/bin/java <span class="o">]</span>  
+<span class="k">then</span>
+     /mnt/usb/apache-tomcat-8.0.33/bin/startup.sh <span class="o">&gt;&gt;</span> /tmp/wait-run-tomcat.log
+<span class="k">else
+    </span><span class="nb">echo</span> <span class="s2">"JVM is not found available"</span> <span class="o">&gt;&gt;</span> /tmp/wait-run-tomcat.log
+<span class="k">fi
+
+
+
+</span>root@qemux86-64:/etc/init.d# 
+
+root@qemux86-64:/etc/rc5.d# <span class="nb">cat </span>S90start-tomcat-script 
+<span class="c">#!/bin/bash -f</span>
+
+ifconfig svcbr_0 2.2.2.2 netmask 255.255.255.0 up
+route add <span class="nt">-net</span> 192.168.146.0 netmask 255.255.255.0 gw 2.2.2.1
+
+<span class="nv">m</span><span class="o">=</span><span class="sb">`</span>mount | <span class="nb">grep</span> /mnt/usb | <span class="nb">wc</span> <span class="nt">-l</span><span class="sb">`</span>
+<span class="k">if</span> <span class="o">[</span> <span class="nv">$m</span> <span class="nt">-eq</span> 0 <span class="o">]</span>
+<span class="k">then 
+   </span>mount /dev/sdc1 /mnt/usb <span class="o">&gt;</span> /tmp/tomcat.log
+   <span class="k">if</span> <span class="o">[</span> <span class="nv">$?</span> <span class="nt">-ne</span> 0 <span class="o">]</span>
+   <span class="k">then
+      </span><span class="nb">echo</span> <span class="s2">"failed to mount USB "</span> <span class="o">&gt;&gt;</span> /tmp/tomcat.log
+      <span class="nb">exit </span>1
+   <span class="k">fi
+else
+  </span><span class="nb">echo</span> <span class="s2">"USB is mounted already"</span> <span class="o">&gt;&gt;</span> /tmp/tomcat.log
+<span class="k">fi
+
+if</span> <span class="o">[</span> <span class="nt">-f</span> /mnt/usb/apache-tomcat-8.0.33/bin/startup.sh <span class="o">]</span>
+<span class="k">then
+    </span><span class="nb">export </span><span class="nv">JRE_HOME</span><span class="o">=</span>/software/opt/jre1.8.0_74/
+
+    <span class="nb">echo</span> <span class="s2">"lauch wait and run tomcat"</span> <span class="o">&gt;&gt;</span> /tmp/tomcat.log
+    /etc/init.d/wait-run-tomcat.sh &amp;
+
+<span class="k">else
+    </span><span class="nb">echo</span> <span class="s2">"tomcat is not found available"</span> <span class="o">&gt;&gt;</span> /tmp/tomcat.log
+<span class="k">fi
+
+
+</span>root@qemux86-64:/etc/rc5.d# </code></pre></figure>
+
+<p>With the above set up in place, the user can use a smart phone or tablet, connect to WiFi SSID “http://playbus.cisco.com”, and open a web browser, type “http://playbus.cisco.com” to enjoy video.</p>
+
+<p><img src="" alt="IR829 media GW](/uploads/cisco/ir829-mgw-screenshot.png)" /></p>
+
+<p>For a full template, <a href="http://localhost:4000/uploads/cisco/ir829-mgw.tar.gz">Download here</a></p>
+
+
+</article>
+
+
+
+
+
+<section class="rss">
+  <p class="rss-subscribe text"><strong>Subscribe <a href="/feed.xml">via RSS</a></strong></p>
+</section>
+
+<section class="share">
+  <span>Share: </span>
+  
+    
+    
+    
+    
+    
+    
+    
+    
+  
+    
+    
+    
+    
+    
+      <a href="//www.linkedin.com/shareArticle?mini=true&url=http%3A%2F%2Flocalhost%3A4000%2Fnetworking%2F2016%2F08%2F25%2FIR829-mgw.html"
+        onclick="window.open(this.href, 'linkedin-share', 'width=550,height=255');return false;">
+        <i class="fa fa-linkedin-square fa-lg"></i>
+      </a>
+    
+    
+    
+    
+  
+</section>
+
+
+
+
+</div>
+</div>
+
+    </div>
+
+    <footer class="site-footer">
+
+  <div class="wrapper">
+
+    <h3 class="footer-heading">Wenwei Weng's Blog</h3>
+
+    <div class="site-navigation">
+
+      <p><strong>Site Map</strong></p>
+      <ul class="pages">
+				
+	
+	<li class="nav-link"><a href="/about/">About</a>
+	
+
+	
+
+	
+
+	
+	<li class="nav-link"><a href="/posts/">Posts</a>
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+      </ul>
+    </div>
+
+    <div class="site-contact">
+
+      <p><strong>Contact</strong></p>
+      <ul class="social-media-list">
+        <li>
+          <a href="mailto:weweng@gmail.com">
+            <i class="fa fa-envelope-o"></i>
+            <span class="username">weweng@gmail.com</span>
+          </a>
+        </li>
+
+        
+          
+          <li>
+            <a href="https://github.com/weweng" title="Fork me on GitHub">
+              <i class="fa fa-github"></i>
+              <span class="username">weweng</span>
+            </a>
+          </li>
+          
+        
+          
+          <li>
+            <a href="https://www.linkedin.com/in/wenwei-weng/" title="Connect with me on LinkedIn">
+              <i class="fa fa-linkedin"></i>
+              <span class="username">Wenwei Weng</span>
+            </a>
+          </li>
+          
+        
+
+      </ul>
+    </div>
+
+    <div class="site-signature">
+      <p class="rss-subscribe text"><strong>Subscribe <a href="/feed.xml">via RSS</a></strong></p>
+      <p class="text">A simple yet classy theme for your Jekyll based blog.
+</p>
+    </div>
+
+  </div>
+
+</footer>
+
+<!-- Scripts -->
+<script src="//code.jquery.com/jquery-3.4.1.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.10/highlight.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.1/js/lightbox.min.js"></script>
+<script src="//unpkg.com/popper.js@1"></script>
+<script src="//unpkg.com/tippy.js@5"></script>
+
+<script type="text/javascript">
+$(document).ready(function() {
+  // Default syntax highlighting
+  hljs.initHighlightingOnLoad();
+
+  // Header
+  var menuToggle = $('#js-mobile-menu').unbind();
+  $('#js-navigation-menu').removeClass("show");
+  menuToggle.on('click', function(e) {
+    e.preventDefault();
+    $('#js-navigation-menu').slideToggle(function(){
+      if($('#js-navigation-menu').is(':hidden')) {
+        $('#js-navigation-menu').removeAttr('style');
+      }
+    });
+  });
+
+	// Enable tooltips via Tippy.js
+	if (Array.isArray(window.tooltips)) {
+		window.tooltips.forEach(function(tooltip) {
+			var selector = tooltip[0];
+			var config = tooltip[1];
+			tippy(selector, config);
+		})
+	}
+});
+
+</script>
+
+
+
+
+
+
+  </body>
+
+</html>

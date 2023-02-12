@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>IP Network Software Based Fast Packet Forward Design Principle</title>
+  <meta name="description" content="The main responsibility of router is to route the IP/L3 packet out as soon as possible once it enters the router.">
+  
+  <meta name="author" content="Wenwei Weng">
+  <meta name="copyright" content="&copy; Wenwei Weng 2023">
+  
+
+  <!-- External libraries -->
+  <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css">
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.9.0/styles/monokai-sublime.min.css">
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/lightbox2/2.7.1/css/lightbox.css">
+
+  <!-- Favicon and other icons (made with http://www.favicon-generator.org/) -->
+  <link rel="shortcut icon" href="/assets/icons/favicon.ico" type="image/x-icon">
+  <link rel="icon" href="/assets/icons/favicon.ico" type="image/x-icon">
+  <link rel="apple-touch-icon" sizes="57x57" href="/assets/icons/apple-icon-57x57.png">
+  <link rel="apple-touch-icon" sizes="60x60" href="/assets/icons/apple-icon-60x60.png">
+  <link rel="apple-touch-icon" sizes="72x72" href="/assets/icons/apple-icon-72x72.png">
+  <link rel="apple-touch-icon" sizes="76x76" href="/assets/icons/apple-icon-76x76.png">
+  <link rel="apple-touch-icon" sizes="114x114" href="/assets/icons/apple-icon-114x114.png">
+  <link rel="apple-touch-icon" sizes="120x120" href="/assets/icons/apple-icon-120x120.png">
+  <link rel="apple-touch-icon" sizes="144x144" href="/assets/icons/apple-icon-144x144.png">
+  <link rel="apple-touch-icon" sizes="152x152" href="/assets/icons/apple-icon-152x152.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/assets/icons/apple-icon-180x180.png">
+  <link rel="icon" type="image/png" sizes="192x192"  href="/assets/icons/android-icon-192x192.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/assets/icons/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="96x96" href="/assets/icons/favicon-96x96.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/assets/icons/favicon-16x16.png">
+  <link rel="manifest" href="/assets/icons/manifest.json">
+  <meta name="msapplication-TileColor" content="#ffffff">
+  <meta name="msapplication-TileImage" content="/assets/icons/ms-icon-144x144.png">
+  <meta name="theme-color" content="#ffffff">
+
+  
+
+  
+
+  
+
+  <!-- Site styles -->
+  <link rel="stylesheet" href="/css/main.css">
+  <link rel="canonical" href="http://localhost:4000/networking/2015/10/17/Fast_Packet-Forward-design.html">
+	<link rel="alternate" type="application/rss+xml" title="Wenwei Weng's Blog" href="http://localhost:4000/feed.xml" />
+	
+	<!-- Tooltips -->
+	<script type="text/javascript">
+		window.tooltips = []
+	</script>
+</head>
+
+
+  <body>
+
+    <header class="navigation" role="banner">
+  <div class="navigation-wrapper">
+    <a href="/" class="logo">
+      
+      <img src="/assets/avatar.png" alt="Wenwei Weng's Blog">
+      
+    </a>
+    <a href="javascript:void(0)" class="navigation-menu-button" id="js-mobile-menu">
+      <i class="fa fa-bars"></i>
+    </a>
+    <nav role="navigation">
+      <ul id="js-navigation-menu" class="navigation-menu show">
+				
+	
+	<li class="nav-link"><a href="/about/">About</a>
+	
+
+	
+
+	
+
+	
+	<li class="nav-link"><a href="/posts/">Posts</a>
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+      </ul>
+    </nav>
+  </div>
+</header>
+
+
+    <div class="page-content">
+        <div class="post">
+
+<div class="post-header-container " >
+  <div class="scrim ">
+    <header class="post-header">
+      <h1 class="title">IP Network Software Based Fast Packet Forward Design Principle</h1>
+      <p class="info">by <strong>Wenwei Weng</strong></p>
+    </header>
+  </div>
+</div>
+
+<div class="wrapper">
+
+ <span class="page-divider">
+  <span class="one"></span>
+  <span class="two"></span>
+</span>
+ 
+
+<section class="post-meta">
+  <div class="post-date">October 17, 2015</div>
+  <div class="post-categories">
+  in 
+    
+    <a href="/category/Networking">Networking</a>
+    
+  
+  </div>
+</section>
+
+<article class="post-content">
+  <p>The main responsibility of router is to route the IP/L3 packet out as soon as possible once it enters the router.</p>
+
+<p><img src="" alt="IP Packet](/uploads/ip/router-1.png)" /></p>
+
+<p>Let’s look into the inside to see what are the principles to follow in order to achieve the best throughput.</p>
+
+<!--more-->
+<h1 id="high-level-architecture-of-software-based-packet-forward">High Level architecture of software based packet forward</h1>
+
+<p>The following diagram describes the high level architecture of software based packet forward regardless of what OS is running.</p>
+
+<p><img src="" alt="IP Packet forward architecture](/uploads/ip/pkt-forward-arch.jpg)" /></p>
+
+<p>Here is packet processing flow:</p>
+<ol>
+<li> The packet <b>enters the router's ingress Ethernet interface's PHY.</b></li>
+<li> PHY decodes the line signal into bits, form packet, <b>forwards packet to ethernet controller.</b></li>
+<li> The ethernet controller <b>copied the packet into memory through DMA</b> by looking the state of receive ring's descriptor's state. </li>
+<li> The ethernet controller <b>raises interrupt to the running OS</b> after packet is placed into memory through DMA.</li>
+<li> The running OS <b>handles the receive interrupt request, and processing the packet based on system's setup to forward packet</b>. ISR will adjust receive ring state to allow new packets to be received.</li>
+<li> The packet is eventually <b>placed in egress interface transmit ring's descriptor</b>.</li>
+<li> The ethernet controller will <b>transmit the packet to egress interface PHY</b>, which will perform actual packet transmit.</li>
+<li> The ethernet controller <b>raises the interrupt to the runnig OS</b> to indicate the packet transmit is completed.</li>
+<li> The running OS will <b>handle the transmit interrupt</b>, and adjust transmit ring state for more packets to be transmited later.</li>
+</ol>
+
+<p>Based on the above packet flow, there are many factors to consider to optimize the packet forward throughput, and a few priciples to follow:</p>
+
+<ul>
+<li>The etherent controller receive ring descriptor and transmit ring descriptor have to be properly defined based on ethernet controller hardware specification.</li>
+<li>The etherent controller receive ring and transmit ring lenghth needs to be tuned to have an optimum size. If it is too short, it will cause packet drop, if it is too long, it will waste the memory. Typically for Gigabit ethernet interface, 1K entries is good for receive ring, the double size is set for transmit ring.</li>
+<li>A pool of DMA addressable memory need to be pre-allocated, and link to receive ring.</li>
+<li>Since the packet is copied into memory through DMA, it is critical to have fast memory access from hadrware design perspective.</li>
+<li>The ethernet controller interrupt has to be set in a proper high priority level so that the request can be served in a proper way. Also typically it is not desirable to raise one interrupt for every packet. Most etherent controller supports interrupt coalesing, also interrupt throttling. For Intel GBE, there is a good [document](http://www.intel.com/content/dam/doc/application-note/gbe-controllers-interrupt-moderation-appl-note.pdf) for this.</li>
+<li>During processing the packet, a few aspects to consider:
+ <ul>
+ <li>If the all processing can be done in the interrupt context, typically the throughtput will be higher than swiching to process context. </li>
+ <li>Every effort should be made to avoid packet copy, as this could turn into very expensive operation. Typically a data structure should be created from heap, and associated with the packet in the memory, the reference of data structure (named as *packet) should be passed around across the packet forwarding process, all the way to transmit ring.</li>
+ <li>During packet processing, it should avoid access the ethernet controller's registers as it is a very expensive operation. To do this, typically there are receive ring shadow and transmit ring shadow created, which are kept syncing to the actual receive ring and transmit ring.</li>
+ </ul>
+</li>
+<li>When the packets are transmitted, the interrupt need to be raised to the running OS. Again, the same principle as receive interrupt applies.</li>
+<li>In the transmit interrupt ISR, the memory should be free up and return to the pool for next round use.</li>
+</ul>
+
+</article>
+
+
+
+
+
+<section class="rss">
+  <p class="rss-subscribe text"><strong>Subscribe <a href="/feed.xml">via RSS</a></strong></p>
+</section>
+
+<section class="share">
+  <span>Share: </span>
+  
+    
+    
+    
+    
+    
+    
+    
+    
+  
+    
+    
+    
+    
+    
+      <a href="//www.linkedin.com/shareArticle?mini=true&url=http%3A%2F%2Flocalhost%3A4000%2Fnetworking%2F2015%2F10%2F17%2FFast_Packet-Forward-design.html"
+        onclick="window.open(this.href, 'linkedin-share', 'width=550,height=255');return false;">
+        <i class="fa fa-linkedin-square fa-lg"></i>
+      </a>
+    
+    
+    
+    
+  
+</section>
+
+
+
+
+</div>
+</div>
+
+    </div>
+
+    <footer class="site-footer">
+
+  <div class="wrapper">
+
+    <h3 class="footer-heading">Wenwei Weng's Blog</h3>
+
+    <div class="site-navigation">
+
+      <p><strong>Site Map</strong></p>
+      <ul class="pages">
+				
+	
+	<li class="nav-link"><a href="/about/">About</a>
+	
+
+	
+
+	
+
+	
+	<li class="nav-link"><a href="/posts/">Posts</a>
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+      </ul>
+    </div>
+
+    <div class="site-contact">
+
+      <p><strong>Contact</strong></p>
+      <ul class="social-media-list">
+        <li>
+          <a href="mailto:weweng@gmail.com">
+            <i class="fa fa-envelope-o"></i>
+            <span class="username">weweng@gmail.com</span>
+          </a>
+        </li>
+
+        
+          
+          <li>
+            <a href="https://github.com/weweng" title="Fork me on GitHub">
+              <i class="fa fa-github"></i>
+              <span class="username">weweng</span>
+            </a>
+          </li>
+          
+        
+          
+          <li>
+            <a href="https://www.linkedin.com/in/wenwei-weng/" title="Connect with me on LinkedIn">
+              <i class="fa fa-linkedin"></i>
+              <span class="username">Wenwei Weng</span>
+            </a>
+          </li>
+          
+        
+
+      </ul>
+    </div>
+
+    <div class="site-signature">
+      <p class="rss-subscribe text"><strong>Subscribe <a href="/feed.xml">via RSS</a></strong></p>
+      <p class="text">A simple yet classy theme for your Jekyll based blog.
+</p>
+    </div>
+
+  </div>
+
+</footer>
+
+<!-- Scripts -->
+<script src="//code.jquery.com/jquery-3.4.1.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.10/highlight.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.1/js/lightbox.min.js"></script>
+<script src="//unpkg.com/popper.js@1"></script>
+<script src="//unpkg.com/tippy.js@5"></script>
+
+<script type="text/javascript">
+$(document).ready(function() {
+  // Default syntax highlighting
+  hljs.initHighlightingOnLoad();
+
+  // Header
+  var menuToggle = $('#js-mobile-menu').unbind();
+  $('#js-navigation-menu').removeClass("show");
+  menuToggle.on('click', function(e) {
+    e.preventDefault();
+    $('#js-navigation-menu').slideToggle(function(){
+      if($('#js-navigation-menu').is(':hidden')) {
+        $('#js-navigation-menu').removeAttr('style');
+      }
+    });
+  });
+
+	// Enable tooltips via Tippy.js
+	if (Array.isArray(window.tooltips)) {
+		window.tooltips.forEach(function(tooltip) {
+			var selector = tooltip[0];
+			var config = tooltip[1];
+			tippy(selector, config);
+		})
+	}
+});
+
+</script>
+
+
+
+
+
+
+  </body>
+
+</html>

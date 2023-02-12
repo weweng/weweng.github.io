@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>Internet Security - Hardware Crypto Accelerator</title>
+  <meta name="description" content="As internet is growing daily, network security is becoming a very important aspect to address. IPSec provides a way to encrypt/decrypt the IP packet, it is t...">
+  
+  <meta name="author" content="Wenwei Weng">
+  <meta name="copyright" content="&copy; Wenwei Weng 2023">
+  
+
+  <!-- External libraries -->
+  <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css">
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.9.0/styles/monokai-sublime.min.css">
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/lightbox2/2.7.1/css/lightbox.css">
+
+  <!-- Favicon and other icons (made with http://www.favicon-generator.org/) -->
+  <link rel="shortcut icon" href="/assets/icons/favicon.ico" type="image/x-icon">
+  <link rel="icon" href="/assets/icons/favicon.ico" type="image/x-icon">
+  <link rel="apple-touch-icon" sizes="57x57" href="/assets/icons/apple-icon-57x57.png">
+  <link rel="apple-touch-icon" sizes="60x60" href="/assets/icons/apple-icon-60x60.png">
+  <link rel="apple-touch-icon" sizes="72x72" href="/assets/icons/apple-icon-72x72.png">
+  <link rel="apple-touch-icon" sizes="76x76" href="/assets/icons/apple-icon-76x76.png">
+  <link rel="apple-touch-icon" sizes="114x114" href="/assets/icons/apple-icon-114x114.png">
+  <link rel="apple-touch-icon" sizes="120x120" href="/assets/icons/apple-icon-120x120.png">
+  <link rel="apple-touch-icon" sizes="144x144" href="/assets/icons/apple-icon-144x144.png">
+  <link rel="apple-touch-icon" sizes="152x152" href="/assets/icons/apple-icon-152x152.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/assets/icons/apple-icon-180x180.png">
+  <link rel="icon" type="image/png" sizes="192x192"  href="/assets/icons/android-icon-192x192.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/assets/icons/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="96x96" href="/assets/icons/favicon-96x96.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/assets/icons/favicon-16x16.png">
+  <link rel="manifest" href="/assets/icons/manifest.json">
+  <meta name="msapplication-TileColor" content="#ffffff">
+  <meta name="msapplication-TileImage" content="/assets/icons/ms-icon-144x144.png">
+  <meta name="theme-color" content="#ffffff">
+
+  
+
+  
+
+  
+
+  <!-- Site styles -->
+  <link rel="stylesheet" href="/css/main.css">
+  <link rel="canonical" href="http://localhost:4000/hardware/2015/07/07/Hardware-Crypto.html">
+	<link rel="alternate" type="application/rss+xml" title="Wenwei Weng's Blog" href="http://localhost:4000/feed.xml" />
+	
+	<!-- Tooltips -->
+	<script type="text/javascript">
+		window.tooltips = []
+	</script>
+</head>
+
+
+  <body>
+
+    <header class="navigation" role="banner">
+  <div class="navigation-wrapper">
+    <a href="/" class="logo">
+      
+      <img src="/assets/avatar.png" alt="Wenwei Weng's Blog">
+      
+    </a>
+    <a href="javascript:void(0)" class="navigation-menu-button" id="js-mobile-menu">
+      <i class="fa fa-bars"></i>
+    </a>
+    <nav role="navigation">
+      <ul id="js-navigation-menu" class="navigation-menu show">
+				
+	
+	<li class="nav-link"><a href="/about/">About</a>
+	
+
+	
+
+	
+
+	
+	<li class="nav-link"><a href="/posts/">Posts</a>
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+      </ul>
+    </nav>
+  </div>
+</header>
+
+
+    <div class="page-content">
+        <div class="post">
+
+<div class="post-header-container " >
+  <div class="scrim ">
+    <header class="post-header">
+      <h1 class="title">Internet Security - Hardware Crypto Accelerator</h1>
+      <p class="info">by <strong>Wenwei Weng</strong></p>
+    </header>
+  </div>
+</div>
+
+<div class="wrapper">
+
+ <span class="page-divider">
+  <span class="one"></span>
+  <span class="two"></span>
+</span>
+ 
+
+<section class="post-meta">
+  <div class="post-date">July 7, 2015</div>
+  <div class="post-categories">
+  in 
+    
+    <a href="/category/Hardware">Hardware</a>
+    
+  
+  </div>
+</section>
+
+<article class="post-content">
+  <p>As internet is growing daily, network security is becoming a very important aspect to address. 
+IPSec provides a way to encrypt/decrypt the IP packet, it is the foundation of Virtual Private Network. 
+There are two ways to encrypt/decrypt IP packet:</p>
+<ol>
+  <li>software based: use main CPU cycle to execute software to have IP packet encrypted/decrypted. It can be more generic implementation (software wise), no additional hardware cost; however encryption/decryption is CPU intensive work, it causes CPU busy and low throughput.</li>
+  <li>hardware based: use dedicate piece of hardware to perform packet encryption/decryption. It frees up main CPU, provide high throughput; however requires additionall hardware cost, and specific software driver to make it work.</li>
+</ol>
+
+<p>As internet traffic is increasing fast, the demand of higher IPSEc throughput is high. In fact, it creates a new business called “Security Processor”.
+There are three main players: Cavium neworks, Freescale and Intel.</p>
+
+<p>The following diagram shows how a typical way of security processor works in high level:</p>
+
+<p><img src="" alt="cryptography](/uploads/crypto/security-processor-model.jpg)" /></p>
+
+<p>In this post, I will give a summary of three hardware cypto players.</p>
+
+<!--more-->
+<h1 id="cavium-networks-nitrox-series">Cavium networks: Nitrox series</h1>
+<p>Cavium networks is the leader in security processor by providing Nitrox security processor. Nitrox V claims “offer solutions delivering 500Mbps to 100Gbps of encryption bandwidth with 1K to 120K 2048b RSA operations per second”.</p>
+
+<p>Nitrox V is latest one it is offered (as of July 2015)</p>
+
+<p>Features:
+High performance security processing</p>
+<ol>
+<li>15 Gbps to 100 Gbps Security Performance</li>
+<li>45K to 300K ECC Ops/s (p256) </li>
+<li>20K to 120K RSA Ops/s (2048 bit keys) </li>
+<li>288 RISC engines with instruction space  </li>
+</ol>
+<p>High-performance, industry standard compression</p>
+<ol>
+<li> 20 to 100 Gbps GZIP / LZS Compression </li>
+</ol>
+<p>Virtualization</p>
+<ol>
+<li>Single Root to IO Virtualization (SR-IOV) support in hardware</li>
+<li>Up to 256 Virtual Functions </li>
+</ol>
+<p>High-performance, industry standard interfaces&lt;/li&gt;</p>
+<ol>
+<li> Dual PCI-Express Gen 3 x4, x8 (100+ Gbps)</li>
+<li> Dual Interlaken x8 lanes (100+ Gbps)</li>
+</ol>
+<p>Wide variety of algorithms supported</p>
+<ol>
+<li> IPSec, SSL, TLS 1.2, DTLS, ECC (p224, p256, p384, p521) </li>
+<li> DES, 3DES, AES 256-bit (ECB, CBC, XCBC, CNTR, GCM)</li>
+</ol>
+<p>Random Number Generator</p>
+<ol>
+<li>FIPS 140-3 compliant True RNG</li>
+</ol>
+
+<p><img src="" alt="cryptography](/uploads/crypto/security-processor-cavium.jpg)" /></p>
+
+<p>Check http://www.cavium.com/processor_security.html for latest data.</p>
+
+<p>Nitrox is widely used in security product like firewall, which requires high throughput.</p>
+
+<h1 id="freescale-has-developed-a-range-of-crypto-accelerators-tailored-to-the-applications-of-performance-of-various-product-lines">Freescale has developed a range of crypto accelerators, tailored to the applications of performance of various product lines.</h1>
+<ol>
+<li> Kinetis MCU mmCAU: Supports DES, 3DES, AES, MD5, SHA-1, and SHA-256 algorithms    </li>
+<li> Kinetis MCU LTC: Cryptographic co-processor for AES, DES and public key cryptography </li>
+<li> SEC 1.x - 3.x: Supports single algorithms, single pass ciphering and message integrity</li>
+<li> SEC 4.x: Supports single algorithms, single pass ciphering and message integrity, and protocol encapsulations for IPSec, 802.1ae, SSL/TLS, SRTP, 802.11i, 802.16e </li>
+<li> CAAM: The Cryptographic Accelerator and Assurance Module supports single algorithms, single pass ciphering and message integrity. The CAAM also supports platform assurance by providing configurable secure memory that can be automatically erased in the event of a platform security alarm.</li>
+<li> DCP: The Data Co-Processor supports single algorithm processing.</li>
+<li> SAHARA: The Symmetric / Asymmetric Hashing and Random Accelerator support single algorithm processing. SAHARA also supports platform assurance by providing configurable secure memory that can be automatically erased in the event of a platform security alarm.</li>
+</ol>
+
+<p>Freescale crypto accelerators is widely used in low to middle range of router.</p>
+
+<h1 id="intel-quickassist-technology-qat-cryptographic-and-compression-acceleration">Intel QuickAssist Technology (QAT): Cryptographic and Compression Acceleration</h1>
+<h2 id="symmetric-cryptography-functions-include">Symmetric cryptography functions include</h2>
+<ol>
+<li>cipher operations (AES, DES,3DES, ARC4)</li>
+<li>wireless (Kasumi,Snow 3G)</li>
+<li>hash/authenticate operations (SHA-1, MD5, SHA-2[SHA-224, SHA-256, SHA-384, SHA-512])</li>
+<li>authentication (HMAC, AESXCBC,AES-CCM); AES-XTS (Chipset 8925 and 8950 only)</li>
+<li>random number generation.</li>
+</ol>
+
+<h2 id="public-key-functions-include">Public Key functions include</h2>
+<ol>
+<li>RSA operation; </li>
+<li>Diffie-Hellman operation; </li>
+<li>digital signature standard operation; </li>
+<li>key derivation operation; </li>
+<li>elliptic curve cryptography (ECDSA and ECDH); </li>
+<li>random number generation;</li> 
+<li>prime number testing.</li>
+</ol>
+
+<h2 id="compressiondecompression-include">Compression/decompression include</h2>
+<ol>
+<li> DEFLATE (Lempel-Ziv 77) </li>
+<li> LZS (Lempel-Ziv-Stac) </li>
+</ol>
+
+<p><img src="" alt="cryptography](/uploads/crypto/security-processor-intel-1.jpg)" /></p>
+
+<p>Intel provides open source driver which is linux based. It is realtively easy to use.</p>
+
+<p><img src="" alt="cryptography](/uploads/crypto/security-processor-intel-2.jpg)" /></p>
+
+<p>This month, I had chance to work closely with Intel engineer to integarte Intel QAT driver into Cisco Classic IOS 
+as an effort to provide HW crypto support in Cisco IOT gateway IR829/IR809.</p>
+
+<p>Intel QAT driver is deisgned to run in Linux enviroment, and has about quater million lines of code. 
+Three engineers worked intensively for three weeks, and complete the work which easily requires two engineers 
+for half year work in a normal schedule. It was fun and challenging game, It is great time only if it is once or twice a year, 
+certainly not always. Otherwise I certainly feel it will impact to my health and family life.</p>
+
+<p>During the course of integration, there are a few technical difficulties resolved:</p>
+<ol>
+<li> Modified large code base of Intel QAT driver, which was compiled using gcc and running in Linux kernel, 
+so that it can be compiled using Intel Biendian Compiler ICC, and integrated into IOS image.</li>
+<li> Endian issue between QAT15 driver and IOS: Intel QAT driver builds and run under little endian enviroment, 
+however IOS builds and runs in big endian enviroment, unless it is explicitly specified to be little endian. 
+Some types are defined in IOS big endian enviroment, leak into Intel QAT driver. An adapter layer has to be created between IOS and QAT driver. </li>
+<li> Integrate Intel QAT driver into IOS RAW IPSEC framework. There was a bit struggle to decide between FULL IPSEC framework and RAW IPSEC framework 
+as initially thought Intel QAT has equivalent capablity as chips from Cavium Nitrox series. It turns out to be not the case.One difference, 
+during the first phase of establishsment of security associate, Intel QAT doesn't have capability to do so, this has to rely on IOS IPSEC framework. </li> 
+<li> Performance tuning: hook up IXIA to feed high rate of traffic to IR829 for encryption and decryption. </li> 
+</ol>
+
+
+</article>
+
+
+
+
+
+<section class="rss">
+  <p class="rss-subscribe text"><strong>Subscribe <a href="/feed.xml">via RSS</a></strong></p>
+</section>
+
+<section class="share">
+  <span>Share: </span>
+  
+    
+    
+    
+    
+    
+    
+    
+    
+  
+    
+    
+    
+    
+    
+      <a href="//www.linkedin.com/shareArticle?mini=true&url=http%3A%2F%2Flocalhost%3A4000%2Fhardware%2F2015%2F07%2F07%2FHardware-Crypto.html"
+        onclick="window.open(this.href, 'linkedin-share', 'width=550,height=255');return false;">
+        <i class="fa fa-linkedin-square fa-lg"></i>
+      </a>
+    
+    
+    
+    
+  
+</section>
+
+
+
+
+</div>
+</div>
+
+    </div>
+
+    <footer class="site-footer">
+
+  <div class="wrapper">
+
+    <h3 class="footer-heading">Wenwei Weng's Blog</h3>
+
+    <div class="site-navigation">
+
+      <p><strong>Site Map</strong></p>
+      <ul class="pages">
+				
+	
+	<li class="nav-link"><a href="/about/">About</a>
+	
+
+	
+
+	
+
+	
+	<li class="nav-link"><a href="/posts/">Posts</a>
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+      </ul>
+    </div>
+
+    <div class="site-contact">
+
+      <p><strong>Contact</strong></p>
+      <ul class="social-media-list">
+        <li>
+          <a href="mailto:weweng@gmail.com">
+            <i class="fa fa-envelope-o"></i>
+            <span class="username">weweng@gmail.com</span>
+          </a>
+        </li>
+
+        
+          
+          <li>
+            <a href="https://github.com/weweng" title="Fork me on GitHub">
+              <i class="fa fa-github"></i>
+              <span class="username">weweng</span>
+            </a>
+          </li>
+          
+        
+          
+          <li>
+            <a href="https://www.linkedin.com/in/wenwei-weng/" title="Connect with me on LinkedIn">
+              <i class="fa fa-linkedin"></i>
+              <span class="username">Wenwei Weng</span>
+            </a>
+          </li>
+          
+        
+
+      </ul>
+    </div>
+
+    <div class="site-signature">
+      <p class="rss-subscribe text"><strong>Subscribe <a href="/feed.xml">via RSS</a></strong></p>
+      <p class="text">A simple yet classy theme for your Jekyll based blog.
+</p>
+    </div>
+
+  </div>
+
+</footer>
+
+<!-- Scripts -->
+<script src="//code.jquery.com/jquery-3.4.1.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.10/highlight.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.1/js/lightbox.min.js"></script>
+<script src="//unpkg.com/popper.js@1"></script>
+<script src="//unpkg.com/tippy.js@5"></script>
+
+<script type="text/javascript">
+$(document).ready(function() {
+  // Default syntax highlighting
+  hljs.initHighlightingOnLoad();
+
+  // Header
+  var menuToggle = $('#js-mobile-menu').unbind();
+  $('#js-navigation-menu').removeClass("show");
+  menuToggle.on('click', function(e) {
+    e.preventDefault();
+    $('#js-navigation-menu').slideToggle(function(){
+      if($('#js-navigation-menu').is(':hidden')) {
+        $('#js-navigation-menu').removeAttr('style');
+      }
+    });
+  });
+
+	// Enable tooltips via Tippy.js
+	if (Array.isArray(window.tooltips)) {
+		window.tooltips.forEach(function(tooltip) {
+			var selector = tooltip[0];
+			var config = tooltip[1];
+			tippy(selector, config);
+		})
+	}
+});
+
+</script>
+
+
+
+
+
+
+  </body>
+
+</html>

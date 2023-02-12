@@ -1,0 +1,785 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>Explore GIT Internals</title>
+  <meta name="description" content="GIT is becoming widely used as SCM tool. I have been always interested in SCM tools which make me feel good if I know exactly where is my code and in case if...">
+  
+  <meta name="author" content="Wenwei Weng">
+  <meta name="copyright" content="&copy; Wenwei Weng 2023">
+  
+
+  <!-- External libraries -->
+  <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css">
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.9.0/styles/monokai-sublime.min.css">
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/lightbox2/2.7.1/css/lightbox.css">
+
+  <!-- Favicon and other icons (made with http://www.favicon-generator.org/) -->
+  <link rel="shortcut icon" href="/assets/icons/favicon.ico" type="image/x-icon">
+  <link rel="icon" href="/assets/icons/favicon.ico" type="image/x-icon">
+  <link rel="apple-touch-icon" sizes="57x57" href="/assets/icons/apple-icon-57x57.png">
+  <link rel="apple-touch-icon" sizes="60x60" href="/assets/icons/apple-icon-60x60.png">
+  <link rel="apple-touch-icon" sizes="72x72" href="/assets/icons/apple-icon-72x72.png">
+  <link rel="apple-touch-icon" sizes="76x76" href="/assets/icons/apple-icon-76x76.png">
+  <link rel="apple-touch-icon" sizes="114x114" href="/assets/icons/apple-icon-114x114.png">
+  <link rel="apple-touch-icon" sizes="120x120" href="/assets/icons/apple-icon-120x120.png">
+  <link rel="apple-touch-icon" sizes="144x144" href="/assets/icons/apple-icon-144x144.png">
+  <link rel="apple-touch-icon" sizes="152x152" href="/assets/icons/apple-icon-152x152.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/assets/icons/apple-icon-180x180.png">
+  <link rel="icon" type="image/png" sizes="192x192"  href="/assets/icons/android-icon-192x192.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/assets/icons/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="96x96" href="/assets/icons/favicon-96x96.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/assets/icons/favicon-16x16.png">
+  <link rel="manifest" href="/assets/icons/manifest.json">
+  <meta name="msapplication-TileColor" content="#ffffff">
+  <meta name="msapplication-TileImage" content="/assets/icons/ms-icon-144x144.png">
+  <meta name="theme-color" content="#ffffff">
+
+  
+
+  
+
+  
+
+  <!-- Site styles -->
+  <link rel="stylesheet" href="/css/main.css">
+  <link rel="canonical" href="http://localhost:4000/tools/2017/01/16/git-internal.html">
+	<link rel="alternate" type="application/rss+xml" title="Wenwei Weng's Blog" href="http://localhost:4000/feed.xml" />
+	
+	<!-- Tooltips -->
+	<script type="text/javascript">
+		window.tooltips = []
+	</script>
+</head>
+
+
+  <body>
+
+    <header class="navigation" role="banner">
+  <div class="navigation-wrapper">
+    <a href="/" class="logo">
+      
+      <img src="/assets/avatar.png" alt="Wenwei Weng's Blog">
+      
+    </a>
+    <a href="javascript:void(0)" class="navigation-menu-button" id="js-mobile-menu">
+      <i class="fa fa-bars"></i>
+    </a>
+    <nav role="navigation">
+      <ul id="js-navigation-menu" class="navigation-menu show">
+				
+	
+	<li class="nav-link"><a href="/about/">About</a>
+	
+
+	
+
+	
+
+	
+	<li class="nav-link"><a href="/posts/">Posts</a>
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+      </ul>
+    </nav>
+  </div>
+</header>
+
+
+    <div class="page-content">
+        <div class="post">
+
+<div class="post-header-container " >
+  <div class="scrim ">
+    <header class="post-header">
+      <h1 class="title">Explore GIT Internals</h1>
+      <p class="info">by <strong>Wenwei Weng</strong></p>
+    </header>
+  </div>
+</div>
+
+<div class="wrapper">
+
+ <span class="page-divider">
+  <span class="one"></span>
+  <span class="two"></span>
+</span>
+ 
+
+<section class="post-meta">
+  <div class="post-date">January 16, 2017</div>
+  <div class="post-categories">
+  in 
+    
+    <a href="/category/Tools">Tools</a>
+    
+  
+  </div>
+</section>
+
+<article class="post-content">
+  <p>GIT is becoming widely used as SCM tool. I have been always interested in SCM tools which make me feel good if I know exactly where is my code and in case if I need made some change or track when/how the change is introduced. To get know better, I explored the internals of GIT, which is actaully very interesting.</p>
+
+<p><img src="/uploads/git/git-internal-1.jpg" alt="GIT Internal 1" /></p>
+
+<!--more-->
+<p>GIT is actaully a content tracking tool. It is amazing it is used as version control tool.
+The following diagram shows the internal GIT structure:</p>
+
+<p><img src="/uploads/git/git-internal-struct.jpg" alt="GIT internal structure " /></p>
+
+<h1 id="basics">Basics</h1>
+<p>There are two types GIT repositories: bare and non-bare(working repository). The above showing a working repository, which has a working directory, inside working directory, it contains a hidden directory “.git”, which hold a local copy of git repository. All the magics are inside of “.git” directory.</p>
+
+<p>Let’s take an example by creating an empty repository by “git init”:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">weng@weng-u1604:~<span class="nv">$ </span><span class="nb">mkdir </span>git-internal-test <span class="o">&amp;&amp;</span> <span class="nb">cd </span>git-internal-test/
+weng@weng-u1604:~/git-internal-test<span class="nv">$ </span>git init
+Initialized empty Git repository <span class="k">in</span> /home/weng/git-internal-test/.git/
+weng@weng-u1604:~/git-internal-test<span class="nv">$ </span>find
+<span class="nb">.</span>
+./.git
+./.git/HEAD
+./.git/config
+./.git/hooks
+./.git/hooks/pre-rebase.sample
+./.git/hooks/applypatch-msg.sample
+./.git/hooks/pre-applypatch.sample
+./.git/hooks/post-update.sample
+./.git/hooks/pre-push.sample
+./.git/hooks/prepare-commit-msg.sample
+./.git/hooks/commit-msg.sample
+./.git/hooks/pre-commit.sample
+./.git/hooks/update.sample
+./.git/objects
+./.git/objects/pack
+./.git/objects/info
+./.git/refs
+./.git/refs/heads
+./.git/refs/tags
+./.git/info
+./.git/info/exclude
+./.git/description
+./.git/branches
+weng@weng-u1604:~/git-internal-test<span class="nv">$ </span></code></pre></figure>
+
+<p>As it is shown, “git init” creates a few directories inside “.git” directory to store different type of files such as objects, references, hooks.</p>
+
+<h2 id="objects">Objects</h2>
+<p>Objects are the key ingridients of GIT repository. “.git/objects” is the directory will hold GIT objects. An object is identified by a 40-character-long string – SHA1 hash of the object’s content. There are four types objects:</p>
+<li>commit: stores commit info, reference to tree object and has reference to parent commit to form the Git commit graph.</li>
+<li>tree: stores direcotry layouts (pointing to sub-tree object) and filenames with SHA1 hash.</li>
+<li>blob: stores file content, which is uniquely identified by SHA1 hash.</li>
+<li>tag: stores annotated tag, which points to a commit. This can be used to create branch etc.</li>
+
+<p>There is one important concept in GIT when we are working on files. There are following states of a file:</p>
+<li>untracked: when the file is created first time in working directory, it is in intracked state. </li>
+<li>modifed: for a file which is under version controlled by GIT, and a copy is placed in working directory and being edited. If it no editted, then it is in unmodified state.</li>
+<li>staged: for untracked and modified file, in order to be committed, it has to be staged first by using "git add" command. These information will be saved in file ".git/index".</li>
+<li>commited: the file inside ".git/objects" directory after "git commit". </li>
+
+<p>Let’s create first file, and track how the objects are created, and file status is changed:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">weng@weng-u1604:~/git-internal-test<span class="nv">$ </span><span class="nb">echo</span> <span class="s2">"test file 1"</span> <span class="o">&gt;</span> f1.txt
+weng@weng-u1604:~/git-internal-test<span class="nv">$ </span>tree
+<span class="nb">.</span>
+└── f1.txt
+
+0 directories, 1 file
+weng@weng-u1604:~/git-internal-test<span class="nv">$ </span>git status
+On branch master
+
+Initial commit
+
+Untracked files:
+  <span class="o">(</span>use <span class="s2">"git add &lt;file&gt;..."</span> to include <span class="k">in </span>what will be committed<span class="o">)</span>
+
+	f1.txt
+
+nothing added to commit but untracked files present <span class="o">(</span>use <span class="s2">"git add"</span> to track<span class="o">)</span>
+weng@weng-u1604:~/git-internal-test<span class="err">$</span></code></pre></figure>
+
+<p>As it is shown f1.txt is created but in untracked state.
+Now let’s use “git add” to add it into stage area:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">weng@weng-u1604:~/git-internal-test<span class="nv">$ </span>git add f1.txt
+weng@weng-u1604:~/git-internal-test<span class="nv">$ </span>find
+<span class="nb">.</span>
+./.git
+./.git/HEAD
+./.git/config
+./.git/hooks
+./.git/hooks/pre-rebase.sample
+./.git/hooks/applypatch-msg.sample
+./.git/hooks/pre-applypatch.sample
+./.git/hooks/post-update.sample
+./.git/hooks/pre-push.sample
+./.git/hooks/prepare-commit-msg.sample
+./.git/hooks/commit-msg.sample
+./.git/hooks/pre-commit.sample
+./.git/hooks/update.sample
+./.git/objects
+./.git/objects/75
+./.git/objects/75/342f57ac22184fe5047ed0b0e82286bc56eea0
+./.git/objects/pack
+./.git/objects/info
+./.git/refs
+./.git/refs/heads
+./.git/refs/tags
+./.git/info
+./.git/info/exclude
+./.git/description
+./.git/index
+./.git/branches
+./f1.txt
+weng@weng-u1604:~/git-internal-test<span class="nv">$ </span>
+weng@weng-u1604:~/git-internal-test<span class="nv">$ </span>git status
+On branch master
+
+Initial commit
+
+Changes to be committed:
+  <span class="o">(</span>use <span class="s2">"git rm --cached &lt;file&gt;..."</span> to unstage<span class="o">)</span>
+
+	new file:   f1.txt
+weng@weng-u1604:~/git-internal-test<span class="nv">$ </span>git cat-file <span class="nt">-t</span> 75342
+blob
+weng@weng-u1604:~/git-internal-test<span class="nv">$ </span>git cat-file <span class="nt">-p</span> 75342
+<span class="nb">test </span>file 1
+weng@weng-u1604:~/git-internal-test<span class="nv">$ </span></code></pre></figure>
+
+<p>Now we see that f1.txt has become a staged/new file.
+Also we noticed that a new object file “./.git/objects/75/342f57ac22184fe5047ed0b0e82286bc56eea0” is created. This is a blob object file with content of “test file 1”, which is what we put in f1.txt. Now we know/verify how blob object is created.</p>
+
+<p>The f1.txt is only staged,not committed yet. But we can create a tree object for it by using “git write-tree”.</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">weng@weng-u1604:~/git-internal-test<span class="nv">$ </span>git write-tree
+741053ae1c317a0205edf9d8a756c486688b7d1a
+weng@weng-u1604:~/git-internal-test<span class="nv">$ </span>find
+<span class="nb">.</span>
+./.git
+./.git/HEAD
+./.git/config
+./.git/hooks
+./.git/hooks/pre-rebase.sample
+./.git/hooks/applypatch-msg.sample
+./.git/hooks/pre-applypatch.sample
+./.git/hooks/post-update.sample
+./.git/hooks/pre-push.sample
+./.git/hooks/prepare-commit-msg.sample
+./.git/hooks/commit-msg.sample
+./.git/hooks/pre-commit.sample
+./.git/hooks/update.sample
+./.git/objects
+./.git/objects/75
+./.git/objects/75/342f57ac22184fe5047ed0b0e82286bc56eea0
+./.git/objects/pack
+./.git/objects/info
+./.git/objects/74
+./.git/objects/74/1053ae1c317a0205edf9d8a756c486688b7d1a
+./.git/refs
+./.git/refs/heads
+./.git/refs/tags
+./.git/info
+./.git/info/exclude
+./.git/description
+./.git/index
+./.git/branches
+./f1.txt
+weng@weng-u1604:~/git-internal-test<span class="nv">$ </span>git cat-file <span class="nt">-t</span> 74105
+tree
+weng@weng-u1604:~/git-internal-test<span class="nv">$ </span>git cat-file <span class="nt">-p</span> 74105
+100644 blob 75342f57ac22184fe5047ed0b0e82286bc56eea0	f1.txt
+weng@weng-u1604:~/git-internal-test<span class="nv">$ </span></code></pre></figure>
+
+<p>As it is shown, we created a tree object  with SHA1 hash 741053ae1c317a0205edf9d8a756c486688b7d1a, which has the reference to blob object, plus the file name.</p>
+
+<p>Next we verify the commit object:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">weng@weng-u1604:~/git-internal-test<span class="nv">$ </span>git commit <span class="nt">-m</span> <span class="s2">"fist commit for f1.txt file"</span><span class="o">[</span>master <span class="o">(</span>root-commit<span class="o">)</span> c940ba6] fist commit <span class="k">for </span>f1.txt file
+ 1 file changed, 1 insertion<span class="o">(</span>+<span class="o">)</span>
+ create mode 100644 f1.txt
+weng@weng-u1604:~/git-internal-test<span class="nv">$ </span>find
+<span class="nb">.</span>
+./.git
+./.git/COMMIT_EDITMSG
+./.git/HEAD
+./.git/logs
+./.git/logs/HEAD
+./.git/logs/refs
+./.git/logs/refs/heads
+./.git/logs/refs/heads/master
+./.git/config
+./.git/hooks
+./.git/hooks/pre-rebase.sample
+./.git/hooks/applypatch-msg.sample
+./.git/hooks/pre-applypatch.sample
+./.git/hooks/post-update.sample
+./.git/hooks/pre-push.sample
+./.git/hooks/prepare-commit-msg.sample
+./.git/hooks/commit-msg.sample
+./.git/hooks/pre-commit.sample
+./.git/hooks/update.sample
+./.git/objects
+./.git/objects/75
+./.git/objects/75/342f57ac22184fe5047ed0b0e82286bc56eea0
+./.git/objects/pack
+./.git/objects/c9
+./.git/objects/c9/40ba63b1bda27738df7b43423fcf1efaf767ce
+./.git/objects/info
+./.git/objects/74
+./.git/objects/74/1053ae1c317a0205edf9d8a756c486688b7d1a
+./.git/refs
+./.git/refs/heads
+./.git/refs/heads/master
+./.git/refs/tags
+./.git/info
+./.git/info/exclude
+./.git/description
+./.git/index
+./.git/branches
+./f1.txt
+weng@weng-u1604:~/git-internal-test<span class="nv">$ </span>git cat-file <span class="nt">-t</span> c940ba
+commit
+weng@weng-u1604:~/git-internal-test<span class="nv">$ </span>git cat-file <span class="nt">-p</span> c940ba
+tree 741053ae1c317a0205edf9d8a756c486688b7d1a
+author Wenwei Weng &lt;weweng@gmail.com&gt; 1484639055 <span class="nt">-0800</span>
+committer Wenwei Weng &lt;weweng@gmail.com&gt; 1484639055 <span class="nt">-0800</span>
+
+fist commit <span class="k">for </span>f1.txt file
+weng@weng-u1604:~/git-internal-test<span class="err">$</span>
+weng@weng-u1604:~/git-internal-test<span class="nv">$ </span><span class="nb">cat</span> .git/HEAD 
+ref: refs/heads/master
+weng@weng-u1604:~/git-internal-test<span class="nv">$ </span><span class="nb">cat</span> .git/refs/heads/master
+c940ba63b1bda27738df7b43423fcf1efaf767ce
+weng@weng-u1604:~/git-internal-test<span class="nv">$ </span>
+weng@weng-u1604:~/git-internal-test<span class="nv">$ </span>git ls-tree <span class="nt">-r</span> HEAD
+100644 blob 75342f57ac22184fe5047ed0b0e82286bc56eea0	f1.txt
+weng@weng-u1604:~/git-internal-test<span class="nv">$ </span></code></pre></figure>
+
+<p>We can see that after commit, “.git/HEAD” is updated to point to “.git/refs/heads/master”, which is pointing to the commit we just made.</p>
+
+<p>Lastly we will verify tag object by using “git tag -a -m”v0.1” V0.1 c940ba”</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">weng@weng-u1604:~/git-internal-test<span class="nv">$ </span>git tag <span class="nt">-a</span> <span class="nt">-m</span><span class="s1">'version 0.1'</span> V0.1 c940ba
+weng@weng-u1604:~/git-internal-test<span class="nv">$ </span>find
+<span class="nb">.</span>
+./.git
+./.git/COMMIT_EDITMSG
+./.git/HEAD
+./.git/logs
+./.git/logs/HEAD
+./.git/logs/refs
+./.git/logs/refs/heads
+./.git/logs/refs/heads/master
+./.git/config
+./.git/hooks
+./.git/hooks/pre-rebase.sample
+./.git/hooks/applypatch-msg.sample
+./.git/hooks/pre-applypatch.sample
+./.git/hooks/post-update.sample
+./.git/hooks/pre-push.sample
+./.git/hooks/prepare-commit-msg.sample
+./.git/hooks/commit-msg.sample
+./.git/hooks/pre-commit.sample
+./.git/hooks/update.sample
+./.git/objects
+./.git/objects/c8
+./.git/objects/c8/62407c91ee28f496970ce0585b216681f19c1e
+./.git/objects/75
+./.git/objects/75/342f57ac22184fe5047ed0b0e82286bc56eea0
+./.git/objects/pack
+./.git/objects/c9
+./.git/objects/c9/40ba63b1bda27738df7b43423fcf1efaf767ce
+./.git/objects/info
+./.git/objects/74
+./.git/objects/74/1053ae1c317a0205edf9d8a756c486688b7d1a
+./.git/refs
+./.git/refs/heads
+./.git/refs/heads/master
+./.git/refs/tags
+./.git/refs/tags/V0.1
+./.git/info
+./.git/info/exclude
+./.git/description
+./.git/index
+./.git/branches
+./f1.txt
+weng@weng-u1604:~/git-internal-test<span class="nv">$ </span>git cat-file <span class="nt">-t</span> c8624
+tag
+weng@weng-u1604:~/git-internal-test<span class="nv">$ </span>git cat-file <span class="nt">-p</span> c8624
+object c940ba63b1bda27738df7b43423fcf1efaf767ce
+<span class="nb">type </span>commit
+tag V0.1
+tagger Wenwei Weng &lt;weweng@gmail.com&gt; 1484639367 <span class="nt">-0800</span>
+
+version 0.1
+weng@weng-u1604:~/git-internal-test<span class="nv">$ </span>git show-ref <span class="nt">--tags</span>
+c862407c91ee28f496970ce0585b216681f19c1e refs/tags/V0.1
+weng@weng-u1604:~/git-internal-test<span class="nv">$ </span><span class="nb">cat</span> .git/refs/tags/V0.1 
+c862407c91ee28f496970ce0585b216681f19c1e
+weng@weng-u1604:~/git-internal-test<span class="nv">$ </span></code></pre></figure>
+
+<p>When the repository grows, to save disk space, we can use “git gc” to pack the objects:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">weng@weng-u1604:~/git-internal-test<span class="nv">$ </span>git gc
+Counting objects: 4, <span class="k">done</span><span class="nb">.</span>
+Delta compression using up to 2 threads.
+Compressing objects: 100% <span class="o">(</span>2/2<span class="o">)</span>, <span class="k">done</span><span class="nb">.</span>
+Writing objects: 100% <span class="o">(</span>4/4<span class="o">)</span>, <span class="k">done</span><span class="nb">.</span>
+Total 4 <span class="o">(</span>delta 0<span class="o">)</span>, reused 0 <span class="o">(</span>delta 0<span class="o">)</span>
+weng@weng-u1604:~/git-internal-test<span class="nv">$ </span>find
+<span class="nb">.</span>
+./.git
+./.git/COMMIT_EDITMSG
+./.git/HEAD
+./.git/logs
+./.git/logs/HEAD
+./.git/logs/refs
+./.git/logs/refs/heads
+./.git/logs/refs/heads/master
+./.git/config
+./.git/hooks
+./.git/hooks/pre-rebase.sample
+./.git/hooks/applypatch-msg.sample
+./.git/hooks/pre-applypatch.sample
+./.git/hooks/post-update.sample
+./.git/hooks/pre-push.sample
+./.git/hooks/prepare-commit-msg.sample
+./.git/hooks/commit-msg.sample
+./.git/hooks/pre-commit.sample
+./.git/hooks/update.sample
+./.git/packed-refs
+./.git/objects
+./.git/objects/pack
+./.git/objects/pack/pack-19eeb5192ba7924b412bce57e60843e28a4eea51.pack
+./.git/objects/pack/pack-19eeb5192ba7924b412bce57e60843e28a4eea51.idx
+./.git/objects/info
+./.git/objects/info/packs
+./.git/refs
+./.git/refs/heads
+./.git/refs/tags
+./.git/info
+./.git/info/exclude
+./.git/info/refs
+./.git/description
+./.git/index
+./.git/branches
+./f1.txt
+weng@weng-u1604:~/git-internal-test<span class="err">$</span></code></pre></figure>
+
+<p>As it is show all the object files are packed into two files: *.pack and *.idx.
+Even though all object files are packed, GIT still works normally.</p>
+
+<h2 id="references">References</h2>
+<p>Reference files are created to manage/refer to objects inside repository. Each branch has a head reference which is stored under “.git/refs/heads/branch-name”.
+The file “.git/HEAD” contains the “path + filename” which is the current active branch.
+The following example shows that HEAD is current active branch “master”, and its last commit is object with hash c940ba63b1bda27738df7b43423fcf1efaf767ce.</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">weng@weng-u1604:~/git-internal-test<span class="nv">$ </span><span class="nb">cat</span> .git/HEAD
+ref: refs/heads/master
+weng@weng-u1604:~/git-internal-test<span class="nv">$ </span><span class="nb">cat</span> .git/refs/heads/master
+c940ba63b1bda27738df7b43423fcf1efaf767ce
+weng@weng-u1604:~/git-internal-test<span class="err">$</span></code></pre></figure>
+
+<p>When “git checkout <branch-name>" is used to switch branch, HEAD will be update accordingly.</branch-name></p>
+
+<h1 id="reset-and-checkout">Reset and checkout</h1>
+<p>An easier way to think about reset and checkout is through the mental frame
+of Git being a content manager of three different trees. By “tree” here we really
+mean “collection of files”, not specifically the data structure.</p>
+<li>HEAD: HEAD is the pointer to the current branch reference, which is in turn a pointer to the last commit made on that branch. That means HEAD will be the parent of the next commit that is created. It’s generally simplest to think of HEAD as the snapshot of your last commit. To see its content, "git ls-tree -r HEAD" </li>
+<li>Index: Proposed next commit snapshot. To see its content, use "git ls-files -s". </li>
+<li>Working directory: the sandbox which hold all files: untracked, modified, unmodified. To see its content, simple use linux util command "tree". </li>
+
+<h2 id="reset">Reset</h2>
+<p>reset moves the current active branch that HEAD is pointing to. Then depending on the option (–soft, –mixed, –hard) given perform different actions.
+Assume intially we have following:
+<img src="/uploads/git/git-reset-init-state.jpg" alt="git reset init-state" /></p>
+
+<p>(note: HEAD~ means back to previous first commit, HEAD~2 means back to previous 2nd commit so on…)</p>
+
+<h3 id="git-reset-soft-head">git reset –soft HEAD~</h3>
+<p>This will only move HEAD point to previous commit, without updating index and working directory.</p>
+
+<p><img src="/uploads/git/git-reset-soft.jpg" alt="git reset soft" /></p>
+
+<h3 id="git-reset-mixed-head">git reset –mixed HEAD~</h3>
+<p>This will only move HEAD point to previous commit, and copy files to index/staging area, without updating working directory.</p>
+
+<p><img src="/uploads/git/git-reset-mixed.jpg" alt="git reset mixed" /></p>
+
+<h3 id="git-reset-hard-head">git reset –hard HEAD~</h3>
+<p>This will move HEAD point to previous commit, and copy files to index/staging area and working directory to make them all consistent.</p>
+
+<p><img src="/uploads/git/git-reset-hard.jpg" alt="git reset hard" /></p>
+
+<h3 id="git-reset-filenmae">git reset filenmae</h3>
+<p>This will cause git copy the file version from HEAD is pointing to Index/staging area, which is bascially unstage the file, which is the opposite of “git add”.</p>
+
+<h2 id="git-reset-commit-hash-filename">git reset [commit-HASH] filename</h2>
+<p>This will cause git copy the file from given commit is pointing to Index/staging area. Here is really show GIT as content tracking system instead of version tracking system. To do the same in clearcase, you would specify the file version number, here in GIT, there is no version number, all information is tracked though SHA1 hash, so you have to specify commit SHA1 hash to copy the old version file out. In fact, you can use commit SHA1 hash, find associated tree object, then file the filename SHA1 hash from tree object, and then use “git cat-file -p file-SH1-HASH” to print out the file content!</p>
+
+<h2 id="checkout">Checkout</h2>
+
+<p>It is very close to git reset –hard, two options: with and without path</p>
+
+<h2 id="git-checkout-branch-name">git checkout branch-name</h2>
+<p>First, unlike reset –hard, checkout is working-directory safe; it will
+check to make sure it’s not blowing away files that have changes to them. Actually, it’s a bit smarter than that – it tries to do a trivial merge in the Working Directory, so all of the files you haven’t changed in will be updated. reset –hard, on the other hand, will simply replace everything across the board
+without checking.
+The second important difference is how it updates HEAD. Where reset will
+move the branch that HEAD points to, checkout will move HEAD itself to point
+to another branch.</p>
+
+<h2 id="git-checkout-branch-name-file-name">git checkout branch-name file-name</h2>
+<p>The other way to run checkout is with a file path, which, like reset, does not
+move HEAD. It is just like git reset [branch] file in that it updates the
+index with that file at that commit, but it also overwrites the file in the working directory. It would be exactly like git reset –hard [branch] file (if reset would let you run that) – it’s not working-directory safe, and it does not
+move HEAD. 
+Also, like git reset and git add, checkout will accept a –patch option
+to allow you to selectively revert file contents on a hunk-by-hunk basis.</p>
+
+
+</article>
+
+
+
+
+
+<section class="rss">
+  <p class="rss-subscribe text"><strong>Subscribe <a href="/feed.xml">via RSS</a></strong></p>
+</section>
+
+<section class="share">
+  <span>Share: </span>
+  
+    
+    
+    
+    
+    
+    
+    
+    
+  
+    
+    
+    
+    
+    
+      <a href="//www.linkedin.com/shareArticle?mini=true&url=http%3A%2F%2Flocalhost%3A4000%2Ftools%2F2017%2F01%2F16%2Fgit-internal.html"
+        onclick="window.open(this.href, 'linkedin-share', 'width=550,height=255');return false;">
+        <i class="fa fa-linkedin-square fa-lg"></i>
+      </a>
+    
+    
+    
+    
+  
+</section>
+
+
+
+
+</div>
+</div>
+
+    </div>
+
+    <footer class="site-footer">
+
+  <div class="wrapper">
+
+    <h3 class="footer-heading">Wenwei Weng's Blog</h3>
+
+    <div class="site-navigation">
+
+      <p><strong>Site Map</strong></p>
+      <ul class="pages">
+				
+	
+	<li class="nav-link"><a href="/about/">About</a>
+	
+
+	
+
+	
+
+	
+	<li class="nav-link"><a href="/posts/">Posts</a>
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+      </ul>
+    </div>
+
+    <div class="site-contact">
+
+      <p><strong>Contact</strong></p>
+      <ul class="social-media-list">
+        <li>
+          <a href="mailto:weweng@gmail.com">
+            <i class="fa fa-envelope-o"></i>
+            <span class="username">weweng@gmail.com</span>
+          </a>
+        </li>
+
+        
+          
+          <li>
+            <a href="https://github.com/weweng" title="Fork me on GitHub">
+              <i class="fa fa-github"></i>
+              <span class="username">weweng</span>
+            </a>
+          </li>
+          
+        
+          
+          <li>
+            <a href="https://www.linkedin.com/in/wenwei-weng/" title="Connect with me on LinkedIn">
+              <i class="fa fa-linkedin"></i>
+              <span class="username">Wenwei Weng</span>
+            </a>
+          </li>
+          
+        
+
+      </ul>
+    </div>
+
+    <div class="site-signature">
+      <p class="rss-subscribe text"><strong>Subscribe <a href="/feed.xml">via RSS</a></strong></p>
+      <p class="text">A simple yet classy theme for your Jekyll based blog.
+</p>
+    </div>
+
+  </div>
+
+</footer>
+
+<!-- Scripts -->
+<script src="//code.jquery.com/jquery-3.4.1.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.10/highlight.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.1/js/lightbox.min.js"></script>
+<script src="//unpkg.com/popper.js@1"></script>
+<script src="//unpkg.com/tippy.js@5"></script>
+
+<script type="text/javascript">
+$(document).ready(function() {
+  // Default syntax highlighting
+  hljs.initHighlightingOnLoad();
+
+  // Header
+  var menuToggle = $('#js-mobile-menu').unbind();
+  $('#js-navigation-menu').removeClass("show");
+  menuToggle.on('click', function(e) {
+    e.preventDefault();
+    $('#js-navigation-menu').slideToggle(function(){
+      if($('#js-navigation-menu').is(':hidden')) {
+        $('#js-navigation-menu').removeAttr('style');
+      }
+    });
+  });
+
+	// Enable tooltips via Tippy.js
+	if (Array.isArray(window.tooltips)) {
+		window.tooltips.forEach(function(tooltip) {
+			var selector = tooltip[0];
+			var config = tooltip[1];
+			tippy(selector, config);
+		})
+	}
+});
+
+</script>
+
+
+
+
+
+
+  </body>
+
+</html>

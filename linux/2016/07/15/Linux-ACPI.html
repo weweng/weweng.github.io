@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>Use Linux ACPI to power down system gracefully</title>
+  <meta name="description" content="ACPI stands for Advanced Configuration and Power Interface. It can be used to power off system gracefully, this is especially useful in the case of virtulize...">
+  
+  <meta name="author" content="Wenwei Weng">
+  <meta name="copyright" content="&copy; Wenwei Weng 2023">
+  
+
+  <!-- External libraries -->
+  <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css">
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.9.0/styles/monokai-sublime.min.css">
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/lightbox2/2.7.1/css/lightbox.css">
+
+  <!-- Favicon and other icons (made with http://www.favicon-generator.org/) -->
+  <link rel="shortcut icon" href="/assets/icons/favicon.ico" type="image/x-icon">
+  <link rel="icon" href="/assets/icons/favicon.ico" type="image/x-icon">
+  <link rel="apple-touch-icon" sizes="57x57" href="/assets/icons/apple-icon-57x57.png">
+  <link rel="apple-touch-icon" sizes="60x60" href="/assets/icons/apple-icon-60x60.png">
+  <link rel="apple-touch-icon" sizes="72x72" href="/assets/icons/apple-icon-72x72.png">
+  <link rel="apple-touch-icon" sizes="76x76" href="/assets/icons/apple-icon-76x76.png">
+  <link rel="apple-touch-icon" sizes="114x114" href="/assets/icons/apple-icon-114x114.png">
+  <link rel="apple-touch-icon" sizes="120x120" href="/assets/icons/apple-icon-120x120.png">
+  <link rel="apple-touch-icon" sizes="144x144" href="/assets/icons/apple-icon-144x144.png">
+  <link rel="apple-touch-icon" sizes="152x152" href="/assets/icons/apple-icon-152x152.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/assets/icons/apple-icon-180x180.png">
+  <link rel="icon" type="image/png" sizes="192x192"  href="/assets/icons/android-icon-192x192.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/assets/icons/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="96x96" href="/assets/icons/favicon-96x96.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/assets/icons/favicon-16x16.png">
+  <link rel="manifest" href="/assets/icons/manifest.json">
+  <meta name="msapplication-TileColor" content="#ffffff">
+  <meta name="msapplication-TileImage" content="/assets/icons/ms-icon-144x144.png">
+  <meta name="theme-color" content="#ffffff">
+
+  
+
+  
+
+  
+
+  <!-- Site styles -->
+  <link rel="stylesheet" href="/css/main.css">
+  <link rel="canonical" href="http://localhost:4000/linux/2016/07/15/Linux-ACPI.html">
+	<link rel="alternate" type="application/rss+xml" title="Wenwei Weng's Blog" href="http://localhost:4000/feed.xml" />
+	
+	<!-- Tooltips -->
+	<script type="text/javascript">
+		window.tooltips = []
+	</script>
+</head>
+
+
+  <body>
+
+    <header class="navigation" role="banner">
+  <div class="navigation-wrapper">
+    <a href="/" class="logo">
+      
+      <img src="/assets/avatar.png" alt="Wenwei Weng's Blog">
+      
+    </a>
+    <a href="javascript:void(0)" class="navigation-menu-button" id="js-mobile-menu">
+      <i class="fa fa-bars"></i>
+    </a>
+    <nav role="navigation">
+      <ul id="js-navigation-menu" class="navigation-menu show">
+				
+	
+	<li class="nav-link"><a href="/about/">About</a>
+	
+
+	
+
+	
+
+	
+	<li class="nav-link"><a href="/posts/">Posts</a>
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+      </ul>
+    </nav>
+  </div>
+</header>
+
+
+    <div class="page-content">
+        <div class="post">
+
+<div class="post-header-container " >
+  <div class="scrim ">
+    <header class="post-header">
+      <h1 class="title">Use Linux ACPI to power down system gracefully</h1>
+      <p class="info">by <strong>Wenwei Weng</strong></p>
+    </header>
+  </div>
+</div>
+
+<div class="wrapper">
+
+ <span class="page-divider">
+  <span class="one"></span>
+  <span class="two"></span>
+</span>
+ 
+
+<section class="post-meta">
+  <div class="post-date">July 15, 2016</div>
+  <div class="post-categories">
+  in 
+    
+    <a href="/category/Linux">Linux</a>
+    
+  
+  </div>
+</section>
+
+<article class="post-content">
+  <p>ACPI stands for Advanced Configuration and Power Interface. It can be used to power off system gracefully, this is especially useful in the case of virtulized Linux system.
+<img src="/uploads/acpi/linux-acpi.jpg" alt="Linux ACPI" /></p>
+
+<!--more-->
+<p>ACPI was first released in 1996 by Compaq/Hewlett-Packard, Intel, Microsoft, Phoenix and Toshiba.<br />
+It allows control of power management from within the operating system. 
+Typically it can be configured from within the operating system. This is unlike APM where configuration often involves rebooting and entering the BIOS configuration screens to set parameters.</p>
+
+<p>ACPI has several different software components:</p>
+
+<ol>
+    <li> A subsystem which controls hardware states and functions that may have previously been in the BIOS configuration. These states include:
+        <ol>
+        <li> thermal control </li>
+        <li> motherboard configuration</li>
+        <li> power states (sleep, suspend)</li>
+     &lt;/li&gt;
+    <li>a policy manager, which is software that sits on top of the operating system and allows user input on the system policies. </li>
+
+    <li>the ACPI also has device drivers that control/monitor devices such as a laptop battery, SMBus (communication/transmission path) and EC (embedded controller).</li>
+</ol>
+
+The above statement is a bit abstract, I will use the power button as example to show how it works.
+<img src="/uploads/acpi/acpi-power-button.jpg" alt="how poer button works" /> 
+
+From high level, when the power button is pressed, Linux kernel will receive ACPI message, and process it. Eventually linux kernel will publish the ACPI event to the userspace. These events can be seen by running acpi\_listen by simply starting "acpi\_listen". This can be easily verified if you have virtualbox and run a Linux VM (e.g. ubuntu). 
+In the window running the virtual machine, click menu "Machine-&gt;ACPI shutdown", you will see below:
+
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">weng@weng-VirtualBox:~<span class="nv">$ </span>acpi_listen
+button/power PBTN 00000080 00000000
+button/power LNXPWRBN:00 00000080 00000002</code></pre></figure>
+
+
+Also VirtualBox will prompt the user to choose what action to take: shutdown, restart, sleep..
+
+This is possible because there is "acpid" process running:
+
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">weng@weng-u1604:~<span class="nv">$ </span>ps <span class="nt">-ef</span> | <span class="nb">grep </span>acpid
+root      5814     1  0 Jul15 ?        00:00:00 /usr/sbin/acpid
+weng      7806  5803  0 00:04 pts/18   00:00:00 <span class="nb">grep</span> <span class="nt">--color</span><span class="o">=</span>auto acpid
+weng@weng-u1604:~<span class="nv">$ </span></code></pre></figure>
+
+
+acpid listens to ACPI events, and processing the event based on rules provisioned under /etc/acpi/events/, then invoke proper action:
+
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">weng@weng-u1604:~<span class="nv">$ </span><span class="nb">cat</span> /etc/acpi/powerbtn.sh 
+<span class="c">#!/bin/sh</span>
+<span class="c"># /etc/acpi/powerbtn.sh</span>
+<span class="c"># Initiates a shutdown when the power putton has been</span>
+<span class="c"># pressed.</span>
+
+<span class="o">[</span> <span class="nt">-r</span> /usr/share/acpi-support/power-funcs <span class="o">]</span> <span class="o">&amp;&amp;</span> <span class="nb">.</span> /usr/share/acpi-support/power-funcs
+
+<span class="c"># If logind is running, it already handles power button presses; desktop</span>
+<span class="c"># environments put inhibitors to logind if they want to handle the key</span>
+<span class="c"># themselves.</span>
+<span class="k">if </span>pidof systemd-logind <span class="o">&gt;</span>/dev/null<span class="p">;</span> <span class="k">then
+    </span><span class="nb">exit </span>0
+<span class="k">fi</span>
+
+<span class="c"># getXuser gets the X user belonging to the display in $displaynum.</span>
+<span class="c"># If you want the foreground X user, use getXconsole!</span>
+getXuser<span class="o">()</span> <span class="o">{</span>
+        <span class="nv">user</span><span class="o">=</span><span class="sb">`</span>pinky <span class="nt">-fw</span> | <span class="nb">awk</span> <span class="s1">'{ if ($2 == ":'</span><span class="nv">$displaynum</span><span class="s1">'" || $(NF) == ":'</span><span class="nv">$displaynum</span><span class="s1">'" ) { print $1; exit; } }'</span><span class="sb">`</span>
+        <span class="k">if</span> <span class="o">[</span> x<span class="s2">"</span><span class="nv">$user</span><span class="s2">"</span> <span class="o">=</span> x<span class="s2">""</span> <span class="o">]</span><span class="p">;</span> <span class="k">then
+                </span><span class="nv">startx</span><span class="o">=</span><span class="sb">`</span>pgrep <span class="nt">-n</span> startx<span class="sb">`</span>
+                <span class="k">if</span> <span class="o">[</span> x<span class="s2">"</span><span class="nv">$startx</span><span class="s2">"</span> <span class="o">!=</span> x<span class="s2">""</span> <span class="o">]</span><span class="p">;</span> <span class="k">then
+                        </span><span class="nv">user</span><span class="o">=</span><span class="sb">`</span>ps <span class="nt">-o</span> user <span class="nt">--no-headers</span> <span class="nv">$startx</span><span class="sb">`</span>
+                <span class="k">fi
+        fi
+        if</span> <span class="o">[</span> x<span class="s2">"</span><span class="nv">$user</span><span class="s2">"</span> <span class="o">!=</span> x<span class="s2">""</span> <span class="o">]</span><span class="p">;</span> <span class="k">then
+                </span><span class="nv">userhome</span><span class="o">=</span><span class="sb">`</span>getent passwd <span class="nv">$user</span> | <span class="nb">cut</span> <span class="nt">-d</span>: <span class="nt">-f6</span><span class="sb">`</span>
+                <span class="nb">export </span><span class="nv">XAUTHORITY</span><span class="o">=</span><span class="nv">$userhome</span>/.Xauthority
+        <span class="k">else
+                </span><span class="nb">export </span><span class="nv">XAUTHORITY</span><span class="o">=</span><span class="s2">""</span>
+        <span class="k">fi
+        </span><span class="nb">export </span><span class="nv">XUSER</span><span class="o">=</span><span class="nv">$user</span>
+<span class="o">}</span>
+
+<span class="c"># Skip if we just in the middle of resuming.</span>
+<span class="nb">test</span> <span class="nt">-f</span> /var/lock/acpisleep <span class="o">&amp;&amp;</span> <span class="nb">exit </span>0
+
+<span class="c"># If the current X console user is running a power management daemon that</span>
+<span class="c"># handles suspend/resume requests, let them handle policy This is effectively</span>
+<span class="c"># the same as 'acpi-support's '/usr/share/acpi-support/policy-funcs' file.</span>
+
+<span class="o">[</span> <span class="nt">-r</span> /usr/share/acpi-support/power-funcs <span class="o">]</span> <span class="o">&amp;&amp;</span> getXconsole
+<span class="nv">PMS</span><span class="o">=</span><span class="s2">"gnome-settings-daemon kpowersave xfce4-power-manager"</span>
+<span class="nv">PMS</span><span class="o">=</span><span class="s2">"</span><span class="nv">$PMS</span><span class="s2"> guidance-power-manager.py dalston-power-applet"</span>
+<span class="nv">PMS</span><span class="o">=</span><span class="s2">"</span><span class="nv">$PMS</span><span class="s2"> mate-settings-daemon"</span>
+<span class="nv">PMS</span><span class="o">=</span><span class="s2">"</span><span class="nv">$PMS</span><span class="s2"> unity-settings-daemon"</span>
+
+<span class="k">if </span>pidof x <span class="nv">$PMS</span> <span class="o">&gt;</span> /dev/null<span class="p">;</span> <span class="k">then
+        </span><span class="nb">exit
+</span><span class="k">elif </span><span class="nb">test</span> <span class="s2">"</span><span class="nv">$XUSER</span><span class="s2">"</span> <span class="o">!=</span> <span class="s2">""</span> <span class="o">&amp;&amp;</span> pidof dcopserver <span class="o">&gt;</span> /dev/null <span class="o">&amp;&amp;</span> <span class="nb">test</span> <span class="nt">-x</span> /usr/bin/dcop <span class="o">&amp;&amp;</span> /usr/bin/dcop <span class="nt">--user</span> <span class="nv">$XUSER</span> kded kded loadedModules | <span class="nb">grep</span> <span class="nt">-q</span> klaptopdaemon<span class="p">;</span> <span class="k">then
+        </span><span class="nb">exit
+</span><span class="k">elif </span><span class="nb">test</span> <span class="s2">"</span><span class="nv">$XUSER</span><span class="s2">"</span> <span class="o">!=</span> <span class="s2">""</span> <span class="o">&amp;&amp;</span> <span class="nb">test</span> <span class="nt">-x</span> /usr/bin/qdbus<span class="p">;</span> <span class="k">then
+        </span><span class="nv">kded4pid</span><span class="o">=</span><span class="si">$(</span>pgrep <span class="nt">-n</span> <span class="nt">-u</span> <span class="nv">$XUSER</span> kded4<span class="si">)</span>
+        <span class="k">if </span><span class="nb">test</span> <span class="s2">"</span><span class="nv">$kded4pid</span><span class="s2">"</span> <span class="o">!=</span> <span class="s2">""</span><span class="p">;</span> <span class="k">then
+                </span><span class="nv">dbusaddr</span><span class="o">=</span><span class="si">$(</span>su - <span class="nv">$XUSER</span> <span class="nt">-c</span> <span class="s2">"grep -z DBUS_SESSION_BUS_ADDRESS /proc/</span><span class="nv">$kded4pid</span><span class="s2">/environ"</span><span class="si">)</span>
+                <span class="k">if </span><span class="nb">test</span> <span class="s2">"</span><span class="nv">$dbusaddr</span><span class="s2">"</span> <span class="o">!=</span> <span class="s2">""</span> <span class="o">&amp;&amp;</span> su - <span class="nv">$XUSER</span> <span class="nt">-c</span> <span class="s2">"export </span><span class="nv">$dbusaddr</span><span class="s2">; qdbus org.kde.kded"</span> | <span class="nb">grep</span> <span class="nt">-q</span> powerdevil<span class="p">;</span> <span class="k">then
+                        </span><span class="nb">exit
+                </span><span class="k">fi
+        fi
+fi</span>
+
+<span class="c"># If all else failed, just initiate a plain shutdown.</span>
+/sbin/shutdown <span class="nt">-h</span> now <span class="s2">"Power button pressed"</span>
+weng@weng-u1604:~<span class="nv">$ </span></code></pre></figure>
+
+
+
+VirtualBox also provide tool "VBoxManage" to manage VM easily, one of them is to equvalent to the menu click, this can be achived by "VBoxManage controlvm &lt;name|uuid&gt; acpipowerbutton".
+
+Be sure the running Linux kernel (in VirtualBox case, it is VM kernel), need have ACPI related configuration enabled: either build as module or builtin.
+
+ 
+
+    
+</li></ol>
+
+</article>
+
+
+
+
+
+<section class="rss">
+  <p class="rss-subscribe text"><strong>Subscribe <a href="/feed.xml">via RSS</a></strong></p>
+</section>
+
+<section class="share">
+  <span>Share: </span>
+  
+    
+    
+    
+    
+    
+    
+    
+    
+  
+    
+    
+    
+    
+    
+      <a href="//www.linkedin.com/shareArticle?mini=true&url=http%3A%2F%2Flocalhost%3A4000%2Flinux%2F2016%2F07%2F15%2FLinux-ACPI.html"
+        onclick="window.open(this.href, 'linkedin-share', 'width=550,height=255');return false;">
+        <i class="fa fa-linkedin-square fa-lg"></i>
+      </a>
+    
+    
+    
+    
+  
+</section>
+
+
+
+
+</div>
+</div>
+
+    </div>
+
+    <footer class="site-footer">
+
+  <div class="wrapper">
+
+    <h3 class="footer-heading">Wenwei Weng's Blog</h3>
+
+    <div class="site-navigation">
+
+      <p><strong>Site Map</strong></p>
+      <ul class="pages">
+				
+	
+	<li class="nav-link"><a href="/about/">About</a>
+	
+
+	
+
+	
+
+	
+	<li class="nav-link"><a href="/posts/">Posts</a>
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+      </ul>
+    </div>
+
+    <div class="site-contact">
+
+      <p><strong>Contact</strong></p>
+      <ul class="social-media-list">
+        <li>
+          <a href="mailto:weweng@gmail.com">
+            <i class="fa fa-envelope-o"></i>
+            <span class="username">weweng@gmail.com</span>
+          </a>
+        </li>
+
+        
+          
+          <li>
+            <a href="https://github.com/weweng" title="Fork me on GitHub">
+              <i class="fa fa-github"></i>
+              <span class="username">weweng</span>
+            </a>
+          </li>
+          
+        
+          
+          <li>
+            <a href="https://www.linkedin.com/in/wenwei-weng/" title="Connect with me on LinkedIn">
+              <i class="fa fa-linkedin"></i>
+              <span class="username">Wenwei Weng</span>
+            </a>
+          </li>
+          
+        
+
+      </ul>
+    </div>
+
+    <div class="site-signature">
+      <p class="rss-subscribe text"><strong>Subscribe <a href="/feed.xml">via RSS</a></strong></p>
+      <p class="text">A simple yet classy theme for your Jekyll based blog.
+</p>
+    </div>
+
+  </div>
+
+</footer>
+
+<!-- Scripts -->
+<script src="//code.jquery.com/jquery-3.4.1.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.10/highlight.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.1/js/lightbox.min.js"></script>
+<script src="//unpkg.com/popper.js@1"></script>
+<script src="//unpkg.com/tippy.js@5"></script>
+
+<script type="text/javascript">
+$(document).ready(function() {
+  // Default syntax highlighting
+  hljs.initHighlightingOnLoad();
+
+  // Header
+  var menuToggle = $('#js-mobile-menu').unbind();
+  $('#js-navigation-menu').removeClass("show");
+  menuToggle.on('click', function(e) {
+    e.preventDefault();
+    $('#js-navigation-menu').slideToggle(function(){
+      if($('#js-navigation-menu').is(':hidden')) {
+        $('#js-navigation-menu').removeAttr('style');
+      }
+    });
+  });
+
+	// Enable tooltips via Tippy.js
+	if (Array.isArray(window.tooltips)) {
+		window.tooltips.forEach(function(tooltip) {
+			var selector = tooltip[0];
+			var config = tooltip[1];
+			tippy(selector, config);
+		})
+	}
+});
+
+</script>
+
+
+
+
+
+
+  </body>
+
+</html>

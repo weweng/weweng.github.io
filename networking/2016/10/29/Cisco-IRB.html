@@ -1,0 +1,782 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>VLAN Routing and Bridging on a Cisco Router Using the IRB</title>
+  <meta name="description" content="In order for a VLAN to span a router, the router must be capable of forwarding frames from one interface to another, while maintaining the VLAN header. If th...">
+  
+  <meta name="author" content="Wenwei Weng">
+  <meta name="copyright" content="&copy; Wenwei Weng 2023">
+  
+
+  <!-- External libraries -->
+  <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css">
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.9.0/styles/monokai-sublime.min.css">
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/lightbox2/2.7.1/css/lightbox.css">
+
+  <!-- Favicon and other icons (made with http://www.favicon-generator.org/) -->
+  <link rel="shortcut icon" href="/assets/icons/favicon.ico" type="image/x-icon">
+  <link rel="icon" href="/assets/icons/favicon.ico" type="image/x-icon">
+  <link rel="apple-touch-icon" sizes="57x57" href="/assets/icons/apple-icon-57x57.png">
+  <link rel="apple-touch-icon" sizes="60x60" href="/assets/icons/apple-icon-60x60.png">
+  <link rel="apple-touch-icon" sizes="72x72" href="/assets/icons/apple-icon-72x72.png">
+  <link rel="apple-touch-icon" sizes="76x76" href="/assets/icons/apple-icon-76x76.png">
+  <link rel="apple-touch-icon" sizes="114x114" href="/assets/icons/apple-icon-114x114.png">
+  <link rel="apple-touch-icon" sizes="120x120" href="/assets/icons/apple-icon-120x120.png">
+  <link rel="apple-touch-icon" sizes="144x144" href="/assets/icons/apple-icon-144x144.png">
+  <link rel="apple-touch-icon" sizes="152x152" href="/assets/icons/apple-icon-152x152.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/assets/icons/apple-icon-180x180.png">
+  <link rel="icon" type="image/png" sizes="192x192"  href="/assets/icons/android-icon-192x192.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/assets/icons/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="96x96" href="/assets/icons/favicon-96x96.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/assets/icons/favicon-16x16.png">
+  <link rel="manifest" href="/assets/icons/manifest.json">
+  <meta name="msapplication-TileColor" content="#ffffff">
+  <meta name="msapplication-TileImage" content="/assets/icons/ms-icon-144x144.png">
+  <meta name="theme-color" content="#ffffff">
+
+  
+
+  
+
+  
+
+  <!-- Site styles -->
+  <link rel="stylesheet" href="/css/main.css">
+  <link rel="canonical" href="http://localhost:4000/networking/2016/10/29/Cisco-IRB.html">
+	<link rel="alternate" type="application/rss+xml" title="Wenwei Weng's Blog" href="http://localhost:4000/feed.xml" />
+	
+	<!-- Tooltips -->
+	<script type="text/javascript">
+		window.tooltips = []
+	</script>
+</head>
+
+
+  <body>
+
+    <header class="navigation" role="banner">
+  <div class="navigation-wrapper">
+    <a href="/" class="logo">
+      
+      <img src="/assets/avatar.png" alt="Wenwei Weng's Blog">
+      
+    </a>
+    <a href="javascript:void(0)" class="navigation-menu-button" id="js-mobile-menu">
+      <i class="fa fa-bars"></i>
+    </a>
+    <nav role="navigation">
+      <ul id="js-navigation-menu" class="navigation-menu show">
+				
+	
+	<li class="nav-link"><a href="/about/">About</a>
+	
+
+	
+
+	
+
+	
+	<li class="nav-link"><a href="/posts/">Posts</a>
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+      </ul>
+    </nav>
+  </div>
+</header>
+
+
+    <div class="page-content">
+        <div class="post">
+
+<div class="post-header-container " >
+  <div class="scrim ">
+    <header class="post-header">
+      <h1 class="title">VLAN Routing and Bridging on a Cisco Router Using the IRB</h1>
+      <p class="info">by <strong>Wenwei Weng</strong></p>
+    </header>
+  </div>
+</div>
+
+<div class="wrapper">
+
+ <span class="page-divider">
+  <span class="one"></span>
+  <span class="two"></span>
+</span>
+ 
+
+<section class="post-meta">
+  <div class="post-date">October 29, 2016</div>
+  <div class="post-categories">
+  in 
+    
+    <a href="/category/Networking">Networking</a>
+    
+  
+  </div>
+</section>
+
+<article class="post-content">
+  <p>In order for a VLAN to span a router, the router must be capable of forwarding frames from one interface to another, while maintaining the VLAN header. If the router is configured for routing a Layer 3 (network layer) protocol, it will terminate the VLAN and MAC layers at the interface a frame arrives on. The MAC layer header can be maintained if the router is bridging the network layer protocol. However, regular bridging still terminates the VLAN header. Using the IRB feature in Cisco IOS® Release 11.2 or greater, a router can be configured for routing and bridging the same network layer protocol on the same interface. This allows the VLAN header to be maintained on a frame while it transits a router from one interface to another. IRB provides the ability to route between a bridged domain and a routed domain with Bridge Group Virtual Interface (BVI). The BVI is a virtual interface within the router that acts like a normal routed interface that does not support bridging, but represents the comparable bridge group to routed interfaces within the router. The interface number of the BVI is the number of the bridge group that the virtual interface represents. The number is the link between the BVI and the bridge group.</p>
+
+<p><img src="/uploads/cisco/IRB.jpg" alt="Cisco" /></p>
+
+<!--more-->
+
+<p>When you configure and enable routing on the BVI, packets that come in on a routed interface, which are destined for a host on a segment in a bridge group, are routed to the BVI. From the BVI, the packet is forwarded to the bridging engine, which forwards it through a bridged interface. This is forwarded based on the destination MAC address. Similarly, packets that come in on a bridged interface, but are destined for a host on a routed network, first go to the BVI. Next, the BVI forwards the packets to the routing engine before it sends them out of the routed interface. On a single physical interface, the IRB can be created with two VLAN sub-interfaces (802.1Q tagging); one VLAN sub-interface has an IP address that is used for routing, and the other VLAN sub-interface bridges between the sub-interface used for routing and the other physical interface on the router.
+Since the BVI represents a bridge group as a routed interface, it must be configured only with Layer 3 (L3) characteristics, such as network layer addresses. Similarly, the interfaces configured for bridging a protocol must not be configured with any L3 characteristics.</p>
+
+<h1 id="irb-configuration-example">IRB configuration example</h1>
+<h2 id="network-topology">Network topology</h2>
+<p>I’m running Cisco IOL to simulate Cisco Router and Switch. See tolopogy below:
+<img src="/uploads/cisco/IRB-topo.jpg" alt="Cisco" /></p>
+
+<p>The Router Customer_A,Customer_B,Customer_C act as end point device. A &amp; B has the interface in the same subnet (10.10.10.0/24), but connect to Router_1 different L3 interfaces. Router_1 has BVI interface configured with IP address 10.10.10.1, and has members of interface E0/0 and E3/0. Router_1 has a serial WAN link to Router_2, the link has IP subnet of 10.10.20.0/24. There is another interface E0/0 in Router_2, which has IP address 10.10.30.1, and in the same subnet as Customer_C, which has E0/0 with IP address 10.10.30.2.</p>
+
+<p>With above setup, when Customer_A pings 10.10.10.2 in Customer_B, Router_1 will simply bridge the packet from E0/0 to E3/0 in Router_1, which will be eventually devlier to E0/0 in Customner_B, because they are in the same subnet. When Customer_A pings 10.10.30.2 in Customer_C, the packet will be routed to Router_2, the packet will be switched to Customer_C E0/0 interface.</p>
+
+<p>Following the running configuration of each router:</p>
+
+<h2 id="configuration-example">Configuration example</h2>
+<h3 id="customer_a">Customer_A</h3>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">Customer_A#show running-config 
+Building configuration...
+
+Current configuration : 3072 bytes
+<span class="o">!</span>
+version 15.1
+service timestamps debug datetime msec
+service timestamps log datetime msec
+no service password-encryption
+<span class="o">!</span>
+<span class="nb">hostname </span>Customer_A
+<span class="o">!</span>
+boot-start-marker
+boot-end-marker
+<span class="o">!</span>
+<span class="o">!</span>
+<span class="o">!</span>
+no aaa new-model
+clock timezone PST <span class="nt">-8</span>
+<span class="o">!</span>
+<span class="o">!</span>
+ip cef
+no ipv6 cef
+<span class="o">!</span>
+interface Ethernet0/0
+ ip address 10.10.10.3 255.255.255.0
+<span class="o">!</span>         
+interface Ethernet0/1
+ description <span class="o">!</span>DO NOT USE! 
+ no ip address
+ shutdown 
+<span class="o">!</span>         
+............................................................
+<span class="o">!</span>
+interface Serial7/3
+ description <span class="o">!</span>DO NOT USE! 
+ no ip address
+ shutdown
+ serial restart-delay 0
+<span class="o">!</span>
+ip forward-protocol nd
+<span class="o">!</span>
+<span class="o">!</span>
+no ip http server
+ip route 0.0.0.0 0.0.0.0 10.10.10.1
+<span class="o">!</span>
+<span class="o">!</span>
+<span class="o">!</span>
+<span class="o">!</span>
+control-plane
+<span class="o">!</span>
+<span class="o">!</span>
+line con 0
+ logging synchronous
+ transport output all
+line aux 0
+line vty 0 4
+ login
+ transport input all
+<span class="o">!</span>
+<span class="o">!</span>
+end
+
+Customer_A#</code></pre></figure>
+
+<h3 id="customer_b">Customer_B</h3>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">Customer_B#show running-config 
+Building configuration...
+
+Current configuration : 3072 bytes
+<span class="o">!</span>
+version 15.1
+service timestamps debug datetime msec
+service timestamps log datetime msec
+no service password-encryption
+<span class="o">!</span>
+<span class="nb">hostname </span>Customer_B
+<span class="o">!</span>
+boot-start-marker
+boot-end-marker
+<span class="o">!</span>
+<span class="o">!</span>
+<span class="o">!</span>
+no aaa new-model
+clock timezone PST <span class="nt">-8</span>
+<span class="o">!</span>
+<span class="o">!</span>
+ip cef
+no ipv6 cef
+<span class="o">!</span>
+<span class="o">!</span>
+interface Ethernet0/0
+ ip address 10.10.10.2 255.255.255.0
+<span class="o">!</span>
+interface Ethernet0/1
+ description <span class="o">!</span>DO NOT USE! 
+ no ip address
+ shutdown
+<span class="o">!</span>
+......
+interface Serial7/3
+ description <span class="o">!</span>DO NOT USE! 
+ no ip address
+ shutdown
+ serial restart-delay 0
+<span class="o">!</span>
+ip forward-protocol nd
+<span class="o">!</span>
+<span class="o">!</span>
+no ip http server
+ip route 0.0.0.0 0.0.0.0 10.10.10.1
+<span class="o">!</span>
+<span class="o">!</span>
+<span class="o">!</span>
+<span class="o">!</span>         
+control-plane
+<span class="o">!</span>
+<span class="o">!</span>
+line con 0
+ logging synchronous
+ transport output all
+line aux 0
+line vty 0 4
+ login
+ transport input all
+<span class="o">!</span>
+<span class="o">!</span>
+end
+
+Customer_B#</code></pre></figure>
+
+<h3 id="router_1">Router_1</h3>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">Router-1#show running-config 
+Building configuration...
+
+Current configuration : 3187 bytes
+<span class="o">!</span>
+version 15.1
+service timestamps debug datetime msec
+service timestamps log datetime msec
+no service password-encryption
+<span class="o">!</span>
+<span class="nb">hostname </span>Router-1
+<span class="o">!</span>
+boot-start-marker
+boot-end-marker
+<span class="o">!</span>
+<span class="o">!</span>
+<span class="o">!</span>
+no aaa new-model
+clock timezone PST <span class="nt">-8</span>
+<span class="o">!</span>
+<span class="o">!</span>
+ip cef
+no ipv6 cef
+<span class="o">!</span>
+<span class="o">!</span>
+bridge irb
+<span class="o">!</span>         
+<span class="o">!</span>         
+interface Ethernet0/0
+ no ip address
+ bridge-group 1
+<span class="o">!</span>         
+interface Ethernet0/1
+ description <span class="o">!</span>DO NOT USE! 
+ no ip address
+ shutdown 
+<span class="o">!</span>         
+interface Ethernet0/2
+ description <span class="o">!</span>DO NOT USE! 
+ no ip address
+ shutdown 
+<span class="o">!</span>         
+interface Ethernet0/3
+ description <span class="o">!</span>DO NOT USE! 
+ no ip address
+ shutdown 
+<span class="o">!</span>         
+interface Ethernet1/0
+ no ip address
+ shutdown 
+<span class="o">!</span>         
+.........................................................
+<span class="o">!</span>
+interface Serial7/0
+ ip address 10.10.20.1 255.255.255.0
+ serial restart-delay 0
+<span class="o">!</span>
+interface Serial7/1
+ description <span class="o">!</span>DO NOT USE! 
+ no ip address
+ shutdown
+ serial restart-delay 0
+<span class="o">!</span>
+interface Serial7/2
+ description <span class="o">!</span>DO NOT USE! 
+ no ip address
+ shutdown 
+ serial restart-delay 0
+<span class="o">!</span>         
+interface Serial7/3
+ description <span class="o">!</span>DO NOT USE! 
+ no ip address
+ shutdown 
+ serial restart-delay 0
+<span class="o">!</span>         
+interface BVI1
+ ip address 10.10.10.1 255.255.255.0
+<span class="o">!</span>         
+ip forward-protocol nd
+<span class="o">!</span>         
+<span class="o">!</span>         
+no ip http server
+ip route 10.10.30.0 255.255.255.0 10.10.20.2
+<span class="o">!</span>         
+<span class="o">!</span>         
+<span class="o">!</span>         
+bridge 1 protocol ieee
+bridge 1 route ip
+<span class="o">!</span>         
+control-plane
+<span class="o">!</span>         
+<span class="o">!</span>         
+line con 0
+ logging synchronous
+ transport output all
+line aux 0
+line vty 0 4
+ login    
+ transport input all
+<span class="o">!</span>         
+<span class="o">!</span>         
+end       
+          
+Router-1#</code></pre></figure>
+
+<h3 id="router_2">Router_2</h3>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">Router-2#show running-config 
+Building configuration...
+
+Current configuration : 3081 bytes
+<span class="o">!</span>
+version 15.1
+service timestamps debug datetime msec
+service timestamps log datetime msec
+no service password-encryption
+<span class="o">!</span>
+<span class="nb">hostname </span>Router-2
+<span class="o">!</span>
+boot-start-marker
+boot-end-marker
+<span class="o">!</span>
+<span class="o">!</span>
+<span class="o">!</span>
+no aaa new-model
+clock timezone PST <span class="nt">-8</span>
+<span class="o">!</span>
+<span class="o">!</span>
+ip cef
+no ipv6 cef
+<span class="o">!</span>
+<span class="o">!</span>         
+interface Ethernet0/0
+ ip address 10.10.30.1 255.255.255.0
+<span class="o">!</span>         
+interface Ethernet0/1
+ description <span class="o">!</span>DO NOT USE! 
+ no ip address
+ shutdown 
+<span class="o">!</span>         
+.........................................................
+<span class="o">!</span>         
+interface Serial7/0
+ ip address 10.10.20.2 255.255.255.0
+ serial restart-delay 0
+<span class="o">!</span>         
+interface Serial7/1
+ description <span class="o">!</span>DO NOT USE! 
+ no ip address
+ shutdown 
+ serial restart-delay 0
+<span class="o">!</span>         
+interface Serial7/2
+ description <span class="o">!</span>DO NOT USE! 
+ no ip address
+ shutdown 
+ serial restart-delay 0
+<span class="o">!</span>         
+interface Serial7/3
+ description <span class="o">!</span>DO NOT USE! 
+ no ip address
+ shutdown 
+ serial restart-delay 0
+<span class="o">!</span>         
+ip forward-protocol nd
+<span class="o">!</span>         
+<span class="o">!</span>         
+no ip http server
+ip route 10.10.10.0 255.255.255.0 10.10.20.1
+<span class="o">!</span>         
+control-plane
+<span class="o">!</span>         
+<span class="o">!</span>         
+line con 0
+ logging synchronous
+ transport output all
+line aux 0
+line vty 0 4
+ login    
+ transport input all
+<span class="o">!</span>         
+<span class="o">!</span>         
+end       
+          
+Router-2#</code></pre></figure>
+
+<h3 id="customer_c">Customer_C</h3>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">Customer_C#show running-config 
+Building configuration...
+
+Current configuration : 3072 bytes
+<span class="o">!</span>
+version 15.1
+service timestamps debug datetime msec
+service timestamps log datetime msec
+no service password-encryption
+<span class="o">!</span>
+<span class="nb">hostname </span>Customer_C
+<span class="o">!</span>
+boot-start-marker
+boot-end-marker
+<span class="o">!</span>
+<span class="o">!</span>
+<span class="o">!</span>
+no aaa new-model
+clock timezone PST <span class="nt">-8</span>
+<span class="o">!</span>
+<span class="o">!</span>
+ip cef
+no ipv6 cef
+<span class="o">!</span>
+<span class="o">!</span>         
+interface Ethernet0/0
+ ip address 10.10.30.2 255.255.255.0
+<span class="o">!</span>         
+interface Ethernet0/1
+ description <span class="o">!</span>DO NOT USE! 
+ no ip address
+ shutdown 
+<span class="o">!</span>         
+...........................................................
+<span class="o">!</span>
+ip forward-protocol nd
+<span class="o">!</span>
+<span class="o">!</span>
+no ip http server
+ip route 0.0.0.0 0.0.0.0 10.10.30.1
+<span class="o">!</span>
+control-plane
+<span class="o">!</span>
+<span class="o">!</span>
+line con 0
+ logging synchronous
+ transport output all
+line aux 0
+line vty 0 4
+ login
+ transport input all
+<span class="o">!</span>
+<span class="o">!</span>
+end
+
+Customer_C#</code></pre></figure>
+
+<h2 id="ping-test">Ping test</h2>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">Customer_A#
+Customer_A#ping 10.10.10.2
+Type escape sequence to abort.
+Sending 5, 100-byte ICMP Echos to 10.10.10.2, <span class="nb">timeout </span>is 2 seconds:
+.!!!!
+Success rate is 80 percent <span class="o">(</span>4/5<span class="o">)</span>, round-trip min/avg/max <span class="o">=</span> 1/1/4 ms
+Customer_A#ping 10.10.30.2
+Type escape sequence to abort.
+Sending 5, 100-byte ICMP Echos to 10.10.30.2, <span class="nb">timeout </span>is 2 seconds:
+.!!!!
+Success rate is 80 percent <span class="o">(</span>4/5<span class="o">)</span>, round-trip min/avg/max <span class="o">=</span> 12/18/24 ms
+Customer_A#</code></pre></figure>
+
+<h1 id="reference">Reference:</h1>
+<p>http://www.cisco.com/c/en/us/support/docs/lan-switching/integrated-routing-bridging-irb/17054-741-10.html</p>
+
+</article>
+
+
+
+
+
+<section class="rss">
+  <p class="rss-subscribe text"><strong>Subscribe <a href="/feed.xml">via RSS</a></strong></p>
+</section>
+
+<section class="share">
+  <span>Share: </span>
+  
+    
+    
+    
+    
+    
+    
+    
+    
+  
+    
+    
+    
+    
+    
+      <a href="//www.linkedin.com/shareArticle?mini=true&url=http%3A%2F%2Flocalhost%3A4000%2Fnetworking%2F2016%2F10%2F29%2FCisco-IRB.html"
+        onclick="window.open(this.href, 'linkedin-share', 'width=550,height=255');return false;">
+        <i class="fa fa-linkedin-square fa-lg"></i>
+      </a>
+    
+    
+    
+    
+  
+</section>
+
+
+
+
+</div>
+</div>
+
+    </div>
+
+    <footer class="site-footer">
+
+  <div class="wrapper">
+
+    <h3 class="footer-heading">Wenwei Weng's Blog</h3>
+
+    <div class="site-navigation">
+
+      <p><strong>Site Map</strong></p>
+      <ul class="pages">
+				
+	
+	<li class="nav-link"><a href="/about/">About</a>
+	
+
+	
+
+	
+
+	
+	<li class="nav-link"><a href="/posts/">Posts</a>
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+      </ul>
+    </div>
+
+    <div class="site-contact">
+
+      <p><strong>Contact</strong></p>
+      <ul class="social-media-list">
+        <li>
+          <a href="mailto:weweng@gmail.com">
+            <i class="fa fa-envelope-o"></i>
+            <span class="username">weweng@gmail.com</span>
+          </a>
+        </li>
+
+        
+          
+          <li>
+            <a href="https://github.com/weweng" title="Fork me on GitHub">
+              <i class="fa fa-github"></i>
+              <span class="username">weweng</span>
+            </a>
+          </li>
+          
+        
+          
+          <li>
+            <a href="https://www.linkedin.com/in/wenwei-weng/" title="Connect with me on LinkedIn">
+              <i class="fa fa-linkedin"></i>
+              <span class="username">Wenwei Weng</span>
+            </a>
+          </li>
+          
+        
+
+      </ul>
+    </div>
+
+    <div class="site-signature">
+      <p class="rss-subscribe text"><strong>Subscribe <a href="/feed.xml">via RSS</a></strong></p>
+      <p class="text">A simple yet classy theme for your Jekyll based blog.
+</p>
+    </div>
+
+  </div>
+
+</footer>
+
+<!-- Scripts -->
+<script src="//code.jquery.com/jquery-3.4.1.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.10/highlight.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.1/js/lightbox.min.js"></script>
+<script src="//unpkg.com/popper.js@1"></script>
+<script src="//unpkg.com/tippy.js@5"></script>
+
+<script type="text/javascript">
+$(document).ready(function() {
+  // Default syntax highlighting
+  hljs.initHighlightingOnLoad();
+
+  // Header
+  var menuToggle = $('#js-mobile-menu').unbind();
+  $('#js-navigation-menu').removeClass("show");
+  menuToggle.on('click', function(e) {
+    e.preventDefault();
+    $('#js-navigation-menu').slideToggle(function(){
+      if($('#js-navigation-menu').is(':hidden')) {
+        $('#js-navigation-menu').removeAttr('style');
+      }
+    });
+  });
+
+	// Enable tooltips via Tippy.js
+	if (Array.isArray(window.tooltips)) {
+		window.tooltips.forEach(function(tooltip) {
+			var selector = tooltip[0];
+			var config = tooltip[1];
+			tippy(selector, config);
+		})
+	}
+});
+
+</script>
+
+
+
+
+
+
+  </body>
+
+</html>

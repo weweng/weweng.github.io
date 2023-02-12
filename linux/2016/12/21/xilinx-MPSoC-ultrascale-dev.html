@@ -1,0 +1,1045 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>xilinx ARM MPSoc+ultrascale software run in QEMU</title>
+  <meta name="description" content="Many vendors are shipping ARMv8 SoC including NXP/Freescale, Marvell, Broadcom, xilinx. xilinx MPSoC is one of impressive one, with Cortex-53, integrated wit...">
+  
+  <meta name="author" content="Wenwei Weng">
+  <meta name="copyright" content="&copy; Wenwei Weng 2023">
+  
+
+  <!-- External libraries -->
+  <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css">
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.9.0/styles/monokai-sublime.min.css">
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/lightbox2/2.7.1/css/lightbox.css">
+
+  <!-- Favicon and other icons (made with http://www.favicon-generator.org/) -->
+  <link rel="shortcut icon" href="/assets/icons/favicon.ico" type="image/x-icon">
+  <link rel="icon" href="/assets/icons/favicon.ico" type="image/x-icon">
+  <link rel="apple-touch-icon" sizes="57x57" href="/assets/icons/apple-icon-57x57.png">
+  <link rel="apple-touch-icon" sizes="60x60" href="/assets/icons/apple-icon-60x60.png">
+  <link rel="apple-touch-icon" sizes="72x72" href="/assets/icons/apple-icon-72x72.png">
+  <link rel="apple-touch-icon" sizes="76x76" href="/assets/icons/apple-icon-76x76.png">
+  <link rel="apple-touch-icon" sizes="114x114" href="/assets/icons/apple-icon-114x114.png">
+  <link rel="apple-touch-icon" sizes="120x120" href="/assets/icons/apple-icon-120x120.png">
+  <link rel="apple-touch-icon" sizes="144x144" href="/assets/icons/apple-icon-144x144.png">
+  <link rel="apple-touch-icon" sizes="152x152" href="/assets/icons/apple-icon-152x152.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/assets/icons/apple-icon-180x180.png">
+  <link rel="icon" type="image/png" sizes="192x192"  href="/assets/icons/android-icon-192x192.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/assets/icons/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="96x96" href="/assets/icons/favicon-96x96.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/assets/icons/favicon-16x16.png">
+  <link rel="manifest" href="/assets/icons/manifest.json">
+  <meta name="msapplication-TileColor" content="#ffffff">
+  <meta name="msapplication-TileImage" content="/assets/icons/ms-icon-144x144.png">
+  <meta name="theme-color" content="#ffffff">
+
+  
+
+  
+
+  
+
+  <!-- Site styles -->
+  <link rel="stylesheet" href="/css/main.css">
+  <link rel="canonical" href="http://localhost:4000/linux/2016/12/21/xilinx-MPSoC-ultrascale-dev.html">
+	<link rel="alternate" type="application/rss+xml" title="Wenwei Weng's Blog" href="http://localhost:4000/feed.xml" />
+	
+	<!-- Tooltips -->
+	<script type="text/javascript">
+		window.tooltips = []
+	</script>
+</head>
+
+
+  <body>
+
+    <header class="navigation" role="banner">
+  <div class="navigation-wrapper">
+    <a href="/" class="logo">
+      
+      <img src="/assets/avatar.png" alt="Wenwei Weng's Blog">
+      
+    </a>
+    <a href="javascript:void(0)" class="navigation-menu-button" id="js-mobile-menu">
+      <i class="fa fa-bars"></i>
+    </a>
+    <nav role="navigation">
+      <ul id="js-navigation-menu" class="navigation-menu show">
+				
+	
+	<li class="nav-link"><a href="/about/">About</a>
+	
+
+	
+
+	
+
+	
+	<li class="nav-link"><a href="/posts/">Posts</a>
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+      </ul>
+    </nav>
+  </div>
+</header>
+
+
+    <div class="page-content">
+        <div class="post">
+
+<div class="post-header-container " >
+  <div class="scrim ">
+    <header class="post-header">
+      <h1 class="title">xilinx ARM MPSoc+ultrascale software run in QEMU</h1>
+      <p class="info">by <strong>Wenwei Weng</strong></p>
+    </header>
+  </div>
+</div>
+
+<div class="wrapper">
+
+ <span class="page-divider">
+  <span class="one"></span>
+  <span class="two"></span>
+</span>
+ 
+
+<section class="post-meta">
+  <div class="post-date">December 21, 2016</div>
+  <div class="post-categories">
+  in 
+    
+    <a href="/category/Linux">Linux</a>
+    
+  
+  </div>
+</section>
+
+<article class="post-content">
+  <p>Many vendors are shipping ARMv8 SoC including NXP/Freescale, Marvell, Broadcom, xilinx. xilinx MPSoC is one of impressive one, with Cortex-53, integrated with xilinx FPGA.</p>
+
+<p><img src="/uploads/linux/linux-arm-xilinx-mpsoc-chip.jpg" alt="xilinx MPSoC" /></p>
+
+<p>I’m impressed with xilinx’s rich document for software developers to reference.
+In this post I share what I have done in order to boot linux in QEMU which simulates xilinx ARM MPSoC+ultrascale.</p>
+
+<!--more-->
+<p>xilinx MPSoC is a well designed and feature rich SoC. See following picture to see what is inside. Further you can refer to https://www.xilinx.com/support/documentation/selection-guides/zynq-ultrascale-plus-product-selection-guide.pdf.</p>
+
+<p><img src="/uploads/linux/linux-arm-xilinx-mpsoc-block.jpg" alt="xilinx MPSoC block diag" /></p>
+
+<p>From hardware prspective, it can have two or four cortex-53 cores/APU, up to 2 RPU for realtime OS, one GPU etc…</p>
+
+<p>For software development, in general, xilinx provides petalinux package, which wraps up eveything inside, very much like Eclipse IDE for Java development. That is good, but for experienced developers, they might be wondering what is exactly happened inside. This is important especially when it comes to integrate into like Cisco’s build enviroment. Only after you understand what is happenning, you will be able to debug the issue if there is problem encountered in the future. This is a vey general rule in software engineering.</p>
+
+<h1 id="petalinux-installation">petalinux installation</h1>
+
+<p>As a first step, petelinux needs to be installed because it has toolchain like cross compiler, bootgen to create BOOT.BIN etc. I did it in Redhat 6.6 box.
+Before start, it is good idea to go through xilinx docs:</p>
+<li> UG1209: Zynq UltraScale+MPSoC: embedded Design tutorial.</li>
+<li> UG1137: Zynq UltraScale+MPSoC: Software Developer Guide.</li>
+<li> UG1144: petalinux tool document reference guide.</li>
+<li> UG1169: Zynq UltraScale+MPSoC: QEMU user guide</li>
+
+<p>petalinux can be downloaded from https://www.xilinx.com/support/download/index.html/content/xilinx/en/downloadNav/embedded-design-tools.html. I used version “2016.3”. At least these two files are to be downloaded: petalinux installer and ZCU102 BSP.</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">bash-4.1<span class="nv">$ </span><span class="nb">ls</span> <span class="nt">-l</span> /opt/xilinx-download/
+total 7472452
+<span class="nt">-rwxr-xr-x</span> 1 root root  113517046 Dec  5 17:30 Xilinx-ZCU102-v2016.3-final.bsp
+<span class="nt">-rwxr-xr-x</span> 1 root root 7538258720 Dec  5 17:30 petalinux-v2016.3-final-installer.run
+bash-4.1<span class="err">$</span></code></pre></figure>
+
+<p>After donwloaded complete, they need to be installed:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">bash-4.1<span class="nv">$ </span>/opt/xilinx-download/petalinux-v2016.3-final-installer.run /opt/petalinux-v2016.3-final</code></pre></figure>
+
+<p>After installation we can create a petlinux project as a reference as following:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">sg-ucs-2:/nobackup/weweng&gt; <span class="nb">mkdir </span>my-peta-project <span class="o">&amp;&amp;</span> <span class="nb">cd </span>my-peta-project
+sg-ucs-2:/nobackup/weweng/my-peta-project&gt; bash
+bash-4.1<span class="nv">$ </span><span class="nb">source</span> /opt/petalinux-v2016.3-final/settings.sh
+WARNING: <span class="s1">'.'</span> detected <span class="k">in </span>PATH - fixing it.
+PetaLinux environment <span class="nb">set </span>to <span class="s1">'/opt/petalinux-v2016.3-final'</span>
+INFO: Checking free disk space
+INFO: Checking installed tools
+INFO: Checking installed development libraries
+INFO: Checking network and other services
+WARNING: No tftp server found - please refer to <span class="s2">"PetaLinux SDK Installation Guide"</span> <span class="k">for </span>its impact and solution
+bash-4.1<span class="nv">$ </span><span class="nb">pwd</span>
+/nobackup/weweng/my-peta-project
+bash-4.1<span class="nv">$ </span>petalinux-create <span class="nt">-t</span> project <span class="nt">-s</span> /opt/xilinx-download/Xilinx-ZCU102-v2016.3-final.bsp
+INFO: Create project:
+INFO: Projects:
+INFO:   <span class="k">*</span> Xilinx-ZCU102-2016.3
+INFO: has been successfully installed to /nobackup/weweng/my-peta-project/
+INFO: New project successfully created <span class="k">in</span> /nobackup/weweng/my-peta-project/
+bash-4.1<span class="nv">$ </span><span class="nb">ls
+</span>Xilinx-ZCU102-2016.3
+bash-4.1<span class="err">$</span></code></pre></figure>
+
+<p>Inside petalinux project, it includes FSBL, u-boot, PFM, Linux kernel, Linux rootfs components.</p>
+
+<p>“petalinux-build” will build system image.
+“petalinux-package” will package the desired image.
+“petalinux-boot” can boot qemu to run built image.
+“petzlinux-config” can be used to configure linux, kernel “-c kernel”, rootfs etc.
+For more details check petalinux reference document.</p>
+
+<p>As said, the created petalinux project is for reference only,we will download needed components from GITHUB https://github.com/Xilinx, and build them, then package.</p>
+
+<h1 id="fsbl-first-stage-boot-loader">FSBL: First stage Boot Loader</h1>
+
+<p>See below steps to set up enviroment, and download source code, and build fsbl binary.</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">bash-4.1<span class="nv">$ </span><span class="nb">mkdir </span>cisco-qemu-deploy
+bash-4.1<span class="nv">$ </span><span class="nb">export </span><span class="nv">PETALINUXHOME</span><span class="o">=</span><span class="s2">"/opt/petalinux-v2016.3-final/"</span>
+bash-4.1<span class="nv">$ </span><span class="nb">export </span><span class="nv">HTTP_PROXY</span><span class="o">=</span><span class="s2">"http://proxy.esl.cisco.com:8080"</span>
+bash-4.1<span class="nv">$ </span><span class="nb">export </span><span class="nv">HTTPS_PROXY</span><span class="o">=</span><span class="s2">"https://proxy.esl.cisco.com:8080"</span>
+bash-4.1<span class="nv">$ </span><span class="nb">mkdir </span>cisco-xilinx-mpsoc <span class="o">&amp;&amp;</span> <span class="nb">cd </span>cisco-xilinx-mpsoc
+bash-4.1<span class="nv">$ </span><span class="nb">source</span> <span class="nv">$PETALINUXHOME</span>/settings.sh
+bash-4.1<span class="nv">$ </span><span class="nb">export </span><span class="nv">PATH</span><span class="o">=</span><span class="nv">$PETALINUXHOME</span>/tools/linux-i386/aarch64-none-elf/bin/:<span class="nv">$PATH</span>
+bash-4.1<span class="nv">$ </span>git clone https://github.com/Xilinx/embeddedsw.git
+Cloning into <span class="s1">'embeddedsw'</span>...
+remote: Counting objects: 63470, <span class="k">done</span><span class="nb">.</span>
+remote: Total 63470 <span class="o">(</span>delta 0<span class="o">)</span>, reused 0 <span class="o">(</span>delta 0<span class="o">)</span>, pack-reused 63470
+Receiving objects: 100% <span class="o">(</span>63470/63470<span class="o">)</span>, 65.87 MiB | 784.00 KiB/s, <span class="k">done</span><span class="nb">.</span>
+Resolving deltas: 100% <span class="o">(</span>38654/38654<span class="o">)</span>, <span class="k">done</span><span class="nb">.</span>
+bash-4.1<span class="nv">$ </span><span class="nb">cd </span>embeddedsw
+bash-4.1<span class="nv">$ </span>git checkout xilinx-v2016.3
+bash-4.1<span class="nv">$ </span><span class="nb">cd </span>lib/sw_apps/zynqmp_fsbl/src
+bash-4.1<span class="nv">$ </span>make <span class="s2">"BOARD=zcu102"</span> <span class="s2">"PROC=a53"</span> <span class="s2">"A53_STATE=64"</span>
+...
+&lt;command-line&gt;:0:0: note: this is the location of the previous definition
+aarch64-none-elf-gcc <span class="nt">-o</span> fsbl.elf  xfsbl_authentication.o  xfsbl_board.o  xfsbl_bs.o  xfsbl_csu_dma.o  xfsbl_handoff.o  xfsbl_hooks.o  xfsbl_image_header.o  xfsbl_initialization.o  xfsbl_main.o  xfsbl_misc.o  xfsbl_misc_drivers.o  xfsbl_nand.o  xfsbl_partition_load.o  xfsbl_qspi.o  xfsbl_rsa_sha.o  xfsbl_sd.o  psu_init.o  xfsbl_exit.o  xfsbl_translation_table_a53_64.o  <span class="nt">-DXPS_BOARD_ZCU102</span>  <span class="nt">-MMD</span> <span class="nt">-MP</span> <span class="nt">-Wall</span> <span class="nt">-fmessage-length</span><span class="o">=</span>0 <span class="nt">-DARMA53_64</span> <span class="nt">-Wl</span>,--start-group,-lxil,-lgcc,-lc,--end-group <span class="nt">-Wl</span>,--start-group,-lxilffs,-lxil,-lgcc,-lc,--end-group <span class="nt">-Wl</span>,--start-group,-lxilsecure,-lxil,-lgcc,-lc,--end-group  <span class="nt">-Wl</span>,--gc-sections <span class="nt">-L</span>../misc//zynqmp_fsbl_bsp//psu_cortexa53_0/lib <span class="nt">-Tlscript_a53</span>.ld
+<span class="nb">rm</span> <span class="nt">-rf</span>  xfsbl_authentication.o  xfsbl_board.o  xfsbl_bs.o  xfsbl_csu_dma.o  xfsbl_handoff.o  xfsbl_hooks.o  xfsbl_image_header.o  xfsbl_initialization.o  xfsbl_main.o  xfsbl_misc.o  xfsbl_misc_drivers.o  xfsbl_nand.o  xfsbl_partition_load.o  xfsbl_qspi.o  xfsbl_rsa_sha.o  xfsbl_sd.o  psu_init.o  xfsbl_exit.o  xfsbl_translation_table_a53_64.o  <span class="k">*</span>.d
+bash-4.1<span class="nv">$ </span><span class="nb">ls</span> <span class="nt">-l</span> fsbl.elf
+<span class="nt">-rwxr-xr-x</span> 1 weweng eng 609960 Jan 19 12:05 fsbl.elf
+bash-4.1<span class="nv">$ </span><span class="c"># copy to deployment directory to create BOOT.BIN</span>
+bash-4.1<span class="nv">$ </span><span class="nb">cp </span>fsbl.elf ../cisco-qemu-deploy/zynqmp_fsbl.elf</code></pre></figure>
+
+<h1 id="arm-trust-firmware">ARM Trust Firmware</h1>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">bash-4.1<span class="nv">$ </span>git clone https://github.com/Xilinx/arm-trusted-firmware.git
+Cloning into <span class="s1">'arm-trusted-firmware'</span>...
+remote: Counting objects: 19526, <span class="k">done</span><span class="nb">.</span>
+remote: Total 19526 <span class="o">(</span>delta 0<span class="o">)</span>, reused 0 <span class="o">(</span>delta 0<span class="o">)</span>, pack-reused 19526
+Receiving objects: 100% <span class="o">(</span>19526/19526<span class="o">)</span>, 8.05 MiB | 809.00 KiB/s, <span class="k">done</span><span class="nb">.</span>
+Resolving deltas: 100% <span class="o">(</span>12098/12098<span class="o">)</span>, <span class="k">done</span><span class="nb">.</span>
+bash-4.1<span class="nv">$ </span><span class="nb">ls
+</span>arm-trusted-firmware  cisco-qemu-deploy  embeddedsw  u-boot-xlnx
+bash-4.1<span class="nv">$ </span><span class="nb">cd </span>arm-trusted-firmware
+bash-4.1<span class="nv">$ </span><span class="nb">pwd</span>
+/nobackup/weweng/cisco-xilinx-mpsoc/arm-trusted-firmware
+bash-4.1<span class="nv">$ </span>git checkout xilinx-v2016.3
+bash-4.1<span class="nv">$ </span>make <span class="nv">CROSS_COMPILE</span><span class="o">=</span>aarch64-linux-gnu- <span class="nv">PLAT</span><span class="o">=</span>zynqmp <span class="nv">RESET_TO_BL31</span><span class="o">=</span>1 bl31
+.......
+  AS      plat/arm/common/aarch64/arm_helpers.S
+  AS      plat/xilinx/zynqmp/aarch64/zynqmp_helpers.S
+  AS      drivers/cadence/uart/cdns_console.S
+  PP      bl31/bl31.ld.S
+  LD      build/zynqmp/release/bl31/bl31.elf
+  BIN     build/zynqmp/release/bl31.bin
+
+Built build/zynqmp/release/bl31.bin successfully
+
+  OD      build/zynqmp/release/bl31/bl31.dump
+bash-4.1<span class="err">$</span>
+bash-4.1<span class="nv">$ </span><span class="nb">ls</span> <span class="nt">-l</span> build/zynqmp/release/bl31/bl31.elf
+<span class="nt">-rwxr-xr-x</span> 1 weweng eng 93400 Jan 19 12:44 build/zynqmp/release/bl31/bl31.elf
+bash-4.1<span class="nv">$ </span><span class="c"># copy to deployment directory to create BOOT.BIN</span>
+bash-4.1<span class="nv">$ </span><span class="nb">cp </span>build/zynqmp/release/bl31/bl31.elf ../cisco-qemu-deploy/bl31.elf
+bash-4.1<span class="err">$</span></code></pre></figure>
+
+<h1 id="u-boot">u-boot</h1>
+<p>(reference: http://www.wiki.xilinx.com/Build+U-Boot)</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">bash-4.1<span class="nv">$ </span><span class="nb">pwd</span>
+/nobackup/weweng/cisco-xilinx-mpsoc
+bash-4.1<span class="nv">$ </span>git clone https://github.com/Xilinx/u-boot-xlnx.git
+Cloning into <span class="s1">'u-boot-xlnx'</span>...
+remote: Counting objects: 455682, <span class="k">done</span><span class="nb">.</span>
+remote: Compressing objects: 100% <span class="o">(</span>37206/37206<span class="o">)</span>, <span class="k">done</span><span class="nb">.</span>
+remote: Total 455682 <span class="o">(</span>delta 29128<span class="o">)</span>, reused 0 <span class="o">(</span>delta 0<span class="o">)</span>, pack-reused 418161
+Receiving objects: 100% <span class="o">(</span>455682/455682<span class="o">)</span>, 120.42 MiB | 788.00 KiB/s, <span class="k">done</span><span class="nb">.</span>
+Resolving deltas: 100% <span class="o">(</span>360771/360771<span class="o">)</span>, <span class="k">done</span><span class="nb">.</span>
+bash-4.1<span class="err">$</span>
+bash-4.1<span class="nv">$ </span><span class="nb">cd </span>u-boot-xlnx/
+bash-4.1<span class="nv">$ </span>git checkout xilinx-v2016.3
+bash-4.1<span class="nv">$ </span>which mkimage
+/auto/mssbu-swtools/bin/mkimage
+bash-4.1<span class="nv">$ </span><span class="nb">export </span><span class="nv">PATH</span><span class="o">=</span><span class="nv">$PETALINUXHOME</span>/tools/linux-i386/petalinux/bin/unexport/:<span class="nv">$PATH</span>
+bash-4.1<span class="nv">$ </span>which mkimage
+/opt/petalinux-v2016.3-final/tools/linux-i386/petalinux/bin/unexport/mkimage
+bash-4.1<span class="nv">$ </span>make xilinx_zynqmp_zcu102_config
+  HOSTCC  scripts/basic/fixdep
+  HOSTCC  scripts/kconfig/conf.o
+  SHIPPED scripts/kconfig/zconf.tab.c
+  SHIPPED scripts/kconfig/zconf.lex.c
+  SHIPPED scripts/kconfig/zconf.hash.c
+  HOSTCC  scripts/kconfig/zconf.tab.o
+  HOSTLD  scripts/kconfig/conf
+<span class="c">#</span>
+<span class="c"># configuration written to .config</span>
+<span class="c">#</span>
+bash-4.1<span class="nv">$ </span><span class="nb">export </span><span class="nv">CROSS_COMPILE</span><span class="o">=</span>aarch64-none-elf-
+bash-4.1<span class="nv">$ </span><span class="nb">export </span><span class="nv">ARCH</span><span class="o">=</span>arm
+bash-4.1<span class="nv">$ </span>make
+...
+  CC      spl/lib/panic.o
+  CC      spl/lib/strto.o
+  CC      spl/lib/strmhz.o
+  LD      spl/lib/built-in.o
+  LDS     spl/u-boot-spl.lds
+  LD      spl/u-boot-spl
+  OBJCOPY spl/u-boot-spl-nodtb.bin
+  COPY    spl/u-boot-spl.bin
+  CFG     spl/u-boot-spl.cfg
+  MKIMAGE spl/boot.bin
+  MKIMAGE u-boot.img
+bash-4.1<span class="err">$</span>
+bash-4.1<span class="nv">$ </span><span class="nb">ls</span> <span class="nt">-l</span> u-boot.bin u-boot.elf u-boot.img
+<span class="nt">-rwxr-xr-x</span> 1 weweng eng 569400 Jan 19 12:27 u-boot.bin
+<span class="nt">-rwxr-xr-x</span> 1 weweng eng 635832 Jan 19 12:27 u-boot.elf
+<span class="nt">-rw-r--r--</span> 1 weweng eng 599364 Jan 19 12:27 u-boot.img
+bash-4.1<span class="nv">$ </span><span class="c"># copy to deployment directory to create BOOT.BIN</span>
+bash-4.1<span class="nv">$ </span><span class="nb">cp </span>u-boot.elf ../cisco-qemu-deploy/</code></pre></figure>
+
+<h1 id="create-bootbin">Create BOOT.BIN</h1>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">bash-4.1<span class="nv">$ </span><span class="nb">pwd</span>
+/nobackup/weweng/cisco-xilinx-mpsoc/cisco-qemu-deploy
+
+bash-4.1<span class="nv">$ </span><span class="c">#take prebuilt pmufw.elf from petalinux project, we don't need to change this one at all</span>
+
+bash-4.1<span class="nv">$ </span><span class="nb">cp</span> /nobackup/weweng/my-peta-project/Xilinx-ZCU102-2016.3/pre-built/linux/images/pmufw.elf <span class="nb">.</span>
+
+bash-4.1<span class="nv">$ </span><span class="nb">ls</span> <span class="nt">-l</span>
+total 1448
+<span class="nt">-rwxr-xr-x</span> 1 weweng eng  93400 Jan 19 12:56 bl31.elf
+<span class="nt">-rw-r--r--</span> 1 weweng eng    202 Jan 19 13:02 cisco-img.bif
+<span class="nt">-rwxr-xr-x</span> 1 weweng eng 198323 Jan 19 12:59 pmufw.elf
+<span class="nt">-rwxr-xr-x</span> 1 weweng eng 635832 Jan 19 12:56 u-boot.elf
+<span class="nt">-rwxr-xr-x</span> 1 weweng eng 609960 Jan 19 12:57 zynqmp_fsbl.elf
+bash-4.1<span class="nv">$ </span><span class="nb">cat </span>cisco-img.bif
+the_ROM_image:
+<span class="o">{</span>
+  <span class="o">[</span>fsbl_config] a53_x64
+  <span class="o">[</span>bootloader] zynqmp_fsbl.elf
+  <span class="o">[</span><span class="nv">destination_cpu</span><span class="o">=</span>a53-0, <span class="nv">exception_level</span><span class="o">=</span>el-3, trustzone] bl31.elf
+  <span class="o">[</span><span class="nv">destination_cpu</span><span class="o">=</span>a53-0, <span class="nv">exception_level</span><span class="o">=</span>el-2] u-boot.elf
+<span class="o">}</span>
+bash-4.1<span class="err">$</span>
+
+bash-4.1<span class="nv">$ </span><span class="nb">cat </span>sparrow-img.bif
+the_ROM_image:
+<span class="o">{</span>
+  <span class="o">[</span>fsbl_config] a53_x64
+  <span class="o">[</span>bootloader] build/zynqmp_fsbl.elf
+  <span class="o">[</span>pmufw_image] pmufw.elf
+  <span class="o">[</span><span class="nv">destination_cpu</span><span class="o">=</span>a53-0, <span class="nv">exception_level</span><span class="o">=</span>el-3, trustzone] bl31.elf
+  <span class="o">[</span><span class="nv">destination_cpu</span><span class="o">=</span>a53-0, <span class="nv">exception_level</span><span class="o">=</span>el-2] u-boot.elf
+<span class="o">}</span>
+bash-4.1<span class="nv">$ $PETALINUXHOME</span>/tools/hsm/bin/bootgen <span class="nt">-image</span> cisco-img.bif <span class="nt">-r</span> <span class="nt">-w</span> <span class="nt">-o</span> i BOOT.BIN
+bash-4.1<span class="nv">$ </span><span class="nb">ls</span> <span class="nt">-l</span> BOOT.BIN
+<span class="nt">-rw-r--r--</span> 1 weweng eng 732152 Jan 19 13:04 BOOT.BIN
+bash-4.1<span class="err">$</span></code></pre></figure>
+
+<p>At this point we have BOOT.BIN file ready to boot.</p>
+
+<h1 id="xilinx-kernel">xilinx-kernel</h1>
+<p>It can get from GITHUB, for now we use the prebuilt one from petzlinux project</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">bash-4.1<span class="nv">$ </span><span class="nb">pwd</span>
+/nobackup/weweng/cisco-xilinx-mpsoc/cisco-qemu-deploy
+bash-4.1<span class="nv">$ </span><span class="nb">cp</span> /nobackup/weweng/my-peta-project/Xilinx-ZCU102-2016.3/pre-built/linux/images/Image <span class="nb">.</span>
+bash-4.1<span class="err">$</span></code></pre></figure>
+
+<p>Now we are ready to create a SD card for qemu to boot:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">bash-4.1<span class="nv">$ </span><span class="nb">dd </span><span class="k">if</span><span class="o">=</span>/dev/zero <span class="nv">of</span><span class="o">=</span>qemu_sd.img <span class="nv">bs</span><span class="o">=</span>256M <span class="nv">count</span><span class="o">=</span>1 <span class="p">;</span> <span class="nb">sync
+</span>bash-4.1<span class="nv">$ </span>mkfs.vfat <span class="nt">-F</span> 32 qemu_sd.img
+bash-4.1<span class="nv">$ </span>mcopy <span class="nt">-i</span> qemu_sd.img BOOT.BIN ::/
+bash-4.1<span class="nv">$ </span>mcopy <span class="nt">-i</span> qemu_sd.img Image ::/
+bash-4.1<span class="nv">$ </span>mcopy <span class="nt">-i</span> qemu_sd.img zynqmp-qemu-arm.dtb ::/
+bash-4.1<span class="nv">$ </span>mcopy <span class="nt">-i</span> qemu_sd.img system.dtb ::/</code></pre></figure>
+
+<p>Note that zynqmp-qemu-arm.dtb is for QEMU, system.dtb is for MPSoC running inside QEMU use.</p>
+
+<h1 id="xilinx-qemu">xilinx-qemu</h1>
+
+<p>We can use build one from GITHUB, or QEMU from petalinux tool, to save time, we use one from petalinux installation: $PETALINUXHOME/tools/linux-i386/petalinux/bin/qemu-system-aarch64.</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="nv">$PETALINUXHOME</span>/tools/linux-i386/petalinux/bin/qemu-system-aarch64 <span class="nt">-m</span> 2048 <span class="nt">-M</span> arm-generic-fdt <span class="nt">-nographic</span> <span class="nt">-serial</span> mon:stdio <span class="nt">-serial</span> /dev/null <span class="nt">-device</span> loader,file<span class="o">=</span>zynqmp_fsbl.elf,cpu<span class="o">=</span>0 <span class="nt">-hw-dtb</span> ./zynqmp-qemu-arm.dtb <span class="nt">-device</span> loader,addr<span class="o">=</span>0xfd1a0104,data<span class="o">=</span>0x8000000e,data-len<span class="o">=</span>4 <span class="nt">-drive</span> <span class="nv">file</span><span class="o">=</span>qemu_sd.img,if<span class="o">=</span>sd,format<span class="o">=</span>raw,index<span class="o">=</span>1 <span class="nt">-boot</span> <span class="nv">mode</span><span class="o">=</span>5
+<span class="nt">--------------------------------------------------------------------</span>
+Xilinx QEMU Oct 16 2016 13:44:59.
+<span class="nt">--------------------------------------------------------------------</span>
+Xilinx Zynq MP First Stage Boot Loader
+Release 2016.3   Nov 17 2016  -  13:02:28
+NOTICE:  ATF running on XCZUUNKN/QEMU v1/RTL0.0 at 0xfffea000
+NOTICE:  BL31: Secure code at 0x0
+NOTICE:  BL31: Non secure code at 0x8000000
+NOTICE:  BL31: v1.2<span class="o">(</span>release<span class="o">)</span>:
+NOTICE:  BL31: Built : 13:25:44, Nov 15 2016
+
+
+U-Boot 2016.07 <span class="o">(</span>Nov 17 2016 - 17:02:02 <span class="nt">-0800</span><span class="o">)</span> Xilinx ZynqMP ZCU102
+
+I2C:   ready
+DRAM:  4 GiB
+EL Level:       EL2
+Chip ID:        xczuunknown
+MMC:   sdhci@ff170000: 0
+Using default environment
+
+In:    serial@ff000000
+Out:   serial@ff000000
+Err:   serial@ff000000
+Bootmode: SD_MODE1
+SCSI:  SATA <span class="nb">link </span>0 timeout.
+SATA <span class="nb">link </span>1 timeout.
+AHCI 0001.0000 32 slots 2 ports 1.5 Gbps 0x3 impl SATA mode
+flags: ncq only
+scanning bus <span class="k">for </span>devices...
+Found 0 device<span class="o">(</span>s<span class="o">)</span><span class="nb">.</span>
+Net:   ZYNQ GEM: ff0e0000, phyaddr 21, interface rgmii-id
+I2C EEPROM MAC address <span class="nb">read </span>failed
+
+Warning: ethernet@ff0e0000 <span class="o">(</span>eth0<span class="o">)</span> using random MAC address - 92:7a:fb:6c:6f:68
+eth0: ethernet@ff0e0000
+Hit any key to stop autoboot:  0
+switch to partitions <span class="c">#0, OK</span>
+mmc0 is current device
+Device: sdhci@ff170000
+Manufacturer ID: aa
+OEM: 5859
+Name: QEMU!
+Tran Speed: 25000000
+Rd Block Len: 512
+SD version 1.0
+High Capacity: No
+Capacity: 256 MiB
+Bus Width: 4-bit
+Erase Group Size: 512 Bytes
+reading system.dtb
+32645 bytes <span class="nb">read </span><span class="k">in </span>35 ms <span class="o">(</span>910.2 KiB/s<span class="o">)</span>
+reading Image
+37524480 bytes <span class="nb">read </span><span class="k">in </span>9668 ms <span class="o">(</span>3.7 MiB/s<span class="o">)</span>
+<span class="c">## Flattened Device Tree blob at 04000000</span>
+   Booting using the fdt blob at 0x4000000
+   Loading Device Tree to 000000000fff5000, end 000000000fffff84 ... OK
+
+Starting kernel ...
+
+<span class="o">[</span>    0.000000] Booting Linux on physical CPU 0x0
+<span class="o">[</span>    0.000000] Linux version 4.6.0 <span class="o">(</span>xbrbbot@xcoengvm229115<span class="o">)</span> <span class="o">(</span>gcc version 5.2.1 20151005 <span class="o">(</span>Linaro GCC 5.2-2015.11-2<span class="o">)</span> <span class="o">)</span> <span class="c">#2 SMP Sun Oct 16 20:45:00 MDT 2016</span>
+<span class="o">[</span>    0.000000] Boot CPU: AArch64 Processor <span class="o">[</span>410fd032]
+<span class="o">[</span>    0.000000] efi: Getting EFI parameters from FDT:
+<span class="o">[</span>    0.000000] efi: UEFI not found.
+<span class="o">[</span>    0.000000] cma: Reserved 128 MiB at 0x0000000078000000
+<span class="o">[</span>    0.000000] psci: probing <span class="k">for </span>conduit method from DT.
+<span class="o">[</span>    0.000000] psci: PSCIv1.0 detected <span class="k">in </span>firmware.
+<span class="o">[</span>    0.000000] psci: Using standard PSCI v0.2 <span class="k">function </span>IDs
+<span class="o">[</span>    0.000000] psci: MIGRATE_INFO_TYPE not supported.
+<span class="o">[</span>    0.000000] percpu: Embedded 20 pages/cpu @ffffffc87ff48000 s42496 r8192 d31232 u81920
+<span class="o">[</span>    0.000000] Detected VIPT I-cache on CPU0
+<span class="o">[</span>    0.000000] CPU features: enabling workaround <span class="k">for </span>ARM errata 826319, 827319, 824069
+<span class="o">[</span>    0.000000] CPU features: enabling workaround <span class="k">for </span>ARM erratum 845719
+<span class="o">[</span>    0.000000] Built 1 zonelists <span class="k">in </span>Zone order, mobility grouping on.  Total pages: 1034240
+<span class="o">[</span>    0.000000] Kernel <span class="nb">command </span>line: <span class="nv">root</span><span class="o">=</span>/dev/mmcblk0p2 rw rootwait
+<span class="o">[</span>    0.000000] PID <span class="nb">hash </span>table entries: 4096 <span class="o">(</span>order: 3, 32768 bytes<span class="o">)</span>
+<span class="o">[</span>    0.000000] Dentry cache <span class="nb">hash </span>table entries: 524288 <span class="o">(</span>order: 10, 4194304 bytes<span class="o">)</span>
+<span class="o">[</span>    0.000000] Inode-cache <span class="nb">hash </span>table entries: 262144 <span class="o">(</span>order: 9, 2097152 bytes<span class="o">)</span>
+<span class="o">[</span>    0.000000] software IO TLB <span class="o">[</span>mem 0x73fff000-0x77fff000] <span class="o">(</span>64MB<span class="o">)</span> mapped at <span class="o">[</span>ffffffc073fff000-ffffffc077ffefff]
+<span class="o">[</span>    0.000000] Memory: 3895960K/4194304K available <span class="o">(</span>7528K kernel code, 541K rwdata, 2656K rodata, 25912K init, 363K bss, 167272K reserved, 131072K cma-reserved<span class="o">)</span>
+<span class="o">[</span>    0.000000] Virtual kernel memory layout:
+<span class="o">[</span>    0.000000]     modules : 0xffffff8000000000 - 0xffffff8008000000   <span class="o">(</span>   128 MB<span class="o">)</span>
+<span class="o">[</span>    0.000000]     vmalloc : 0xffffff8008000000 - 0xffffffbdffff0000   <span class="o">(</span>   247 GB<span class="o">)</span>
+<span class="o">[</span>    0.000000]       .text : 0xffffff8008080000 - 0xffffff80087d8000   <span class="o">(</span>  7520 KB<span class="o">)</span>
+<span class="o">[</span>    0.000000]     .rodata : 0xffffff80087d8000 - 0xffffff8008a74000   <span class="o">(</span>  2672 KB<span class="o">)</span>
+<span class="o">[</span>    0.000000]       .init : 0xffffff8008a74000 - 0xffffff800a3c2000   <span class="o">(</span> 25912 KB<span class="o">)</span>
+<span class="o">[</span>    0.000000]       .data : 0xffffff800a3c2000 - 0xffffff800a449400   <span class="o">(</span>   541 KB<span class="o">)</span>
+<span class="o">[</span>    0.000000]     vmemmap : 0xffffffbe00000000 - 0xffffffbfc0000000   <span class="o">(</span>     7 GB maximum<span class="o">)</span>
+<span class="o">[</span>    0.000000]               0xffffffbe00000000 - 0xffffffbe1dc00000   <span class="o">(</span>   476 MB actual<span class="o">)</span>
+<span class="o">[</span>    0.000000]     fixed   : 0xffffffbffe7fd000 - 0xffffffbffec00000   <span class="o">(</span>  4108 KB<span class="o">)</span>
+<span class="o">[</span>    0.000000]     PCI I/O : 0xffffffbffee00000 - 0xffffffbfffe00000   <span class="o">(</span>    16 MB<span class="o">)</span>
+<span class="o">[</span>    0.000000]     memory  : 0xffffffc000000000 - 0xffffffc880000000   <span class="o">(</span> 34816 MB<span class="o">)</span>
+<span class="o">[</span>    0.000000] Hierarchical RCU implementation.
+<span class="o">[</span>    0.000000]  Build-time adjustment of leaf fanout to 64.
+<span class="o">[</span>    0.000000]  RCU restricting CPUs from <span class="nv">NR_CPUS</span><span class="o">=</span>8 to <span class="nv">nr_cpu_ids</span><span class="o">=</span>4.
+<span class="o">[</span>    0.000000] RCU: Adjusting geometry <span class="k">for </span><span class="nv">rcu_fanout_leaf</span><span class="o">=</span>64, <span class="nv">nr_cpu_ids</span><span class="o">=</span>4
+<span class="o">[</span>    0.000000] NR_IRQS:64 nr_irqs:64 0
+<span class="o">[</span>    0.000000] GIC: Adjusting CPU interface base to 0x00000000f902f000
+<span class="o">[</span>    0.000000] GIC: Using <span class="nb">split </span>EOI/Deactivate mode
+<span class="o">[</span>    0.000000] Architected cp15 timer<span class="o">(</span>s<span class="o">)</span> running at 50.00MHz <span class="o">(</span>phys<span class="o">)</span><span class="nb">.</span>
+<span class="o">[</span>    0.000000] clocksource: arch_sys_counter: mask: 0xffffffffffffff max_cycles: 0xb8812736b, max_idle_ns: 440795202655 ns
+<span class="o">[</span>    0.000165] sched_clock: 56 bits at 50MHz, resolution 20ns, wraps every 4398046511100ns
+<span class="o">[</span>    0.008439] Console: colour dummy device 80x25
+<span class="o">[</span>    0.011299] console <span class="o">[</span>tty0] enabled
+<span class="o">[</span>    0.011892] Calibrating delay loop <span class="o">(</span>skipped<span class="o">)</span>, value calculated using timer frequency.. 100.00 BogoMIPS <span class="o">(</span><span class="nv">lpj</span><span class="o">=</span>200000<span class="o">)</span>
+<span class="o">[</span>    0.012150] pid_max: default: 32768 minimum: 301
+<span class="o">[</span>    0.014438] Mount-cache <span class="nb">hash </span>table entries: 8192 <span class="o">(</span>order: 4, 65536 bytes<span class="o">)</span>
+<span class="o">[</span>    0.014528] Mountpoint-cache <span class="nb">hash </span>table entries: 8192 <span class="o">(</span>order: 4, 65536 bytes<span class="o">)</span>
+<span class="o">[</span>    0.036291] ASID allocator initialised with 65536 entries
+<span class="o">[</span>    0.045716] zynqmp_plat_init power management API version error. Expected: v0.2 - Found: v0.0
+<span class="o">[</span>    0.045814] zynqmp_plat_init Power management API v0.2
+<span class="o">[</span>    0.046439] EFI services will not be available.
+<span class="o">[</span>    0.054894] Detected VIPT I-cache on CPU1
+<span class="o">[</span>    0.062708] CPU1: Booted secondary processor <span class="o">[</span>410fd032]
+<span class="o">[</span>    0.093955] Detected VIPT I-cache on CPU2
+<span class="o">[</span>    0.097514] CPU2: Booted secondary processor <span class="o">[</span>410fd032]
+<span class="o">[</span>    0.123794] Detected VIPT I-cache on CPU3
+<span class="o">[</span>    0.127502] CPU3: Booted secondary processor <span class="o">[</span>410fd032]
+<span class="o">[</span>    0.138586] Brought up 4 CPUs
+<span class="o">[</span>    0.140494] SMP: Total of 4 processors activated.
+<span class="o">[</span>    0.140819] CPU: All CPU<span class="o">(</span>s<span class="o">)</span> started at EL2
+<span class="o">[</span>    0.141905] alternatives: patching kernel code
+<span class="o">[</span>    0.168184] devtmpfs: initialized
+<span class="o">[</span>    0.202612] DMI not present or invalid.
+<span class="o">[</span>    0.203897] clocksource: jiffies: mask: 0xffffffff max_cycles: 0xffffffff, max_idle_ns: 7645041785100000 ns
+<span class="o">[</span>    0.228145] xor: measuring software checksum speed
+<span class="o">[</span>    0.266872]    8regs     :  1203.000 MB/sec
+<span class="o">[</span>    0.307625]    8regs_prefetch:  1200.000 MB/sec
+<span class="o">[</span>    0.348877]    32regs    :  1151.000 MB/sec
+<span class="o">[</span>    0.390088]    32regs_prefetch:   568.000 MB/sec
+<span class="o">[</span>    0.390193] xor: using <span class="k">function</span>: 8regs <span class="o">(</span>1203.000 MB/sec<span class="o">)</span>
+<span class="o">[</span>    0.401979] NET: Registered protocol family 16
+<span class="o">[</span>    0.426307] cpuidle: using governor ladder
+<span class="o">[</span>    0.438405] cpuidle: using governor menu
+<span class="o">[</span>    0.438876] vdso: 2 pages <span class="o">(</span>1 code @ ffffff80087de000, 1 data @ ffffff800a3c8000<span class="o">)</span>
+<span class="o">[</span>    0.439359] hw-breakpoint: found 6 breakpoint and 4 watchpoint registers.
+<span class="o">[</span>    0.446256] DMA: preallocated 256 KiB pool <span class="k">for </span>atomic allocations
+<span class="o">[</span>    0.466276] ARM CCI_400_r1 PMU driver probed
+<span class="o">[</span>    0.660759] HugeTLB registered 2 MB page size, pre-allocated 0 pages
+<span class="o">[</span>    0.753907] raid6: int64x1  gen<span class="o">()</span>   614 MB/s
+<span class="o">[</span>    0.871308] raid6: int64x1  xor<span class="o">()</span>   609 MB/s
+<span class="o">[</span>    0.966038] raid6: int64x2  gen<span class="o">()</span>  1064 MB/s
+<span class="o">[</span>    1.059956] raid6: int64x2  xor<span class="o">()</span>   199 MB/s
+<span class="o">[</span>    1.141748] raid6: int64x4  gen<span class="o">()</span>  1222 MB/s
+<span class="o">[</span>    1.292747] raid6: int64x4  xor<span class="o">()</span>  1312 MB/s
+<span class="o">[</span>    1.367243] raid6: int64x8  gen<span class="o">()</span>   798 MB/s
+<span class="o">[</span>    1.477405] raid6: int64x8  xor<span class="o">()</span>   754 MB/s
+<span class="o">[</span>    1.568605] raid6: neonx1   gen<span class="o">()</span>   416 MB/s
+<span class="o">[</span>    1.703542] raid6: neonx1   xor<span class="o">()</span>   335 MB/s
+<span class="o">[</span>    1.804982] raid6: neonx2   gen<span class="o">()</span>   574 MB/s
+<span class="o">[</span>    1.899188] raid6: neonx2   xor<span class="o">()</span>   287 MB/s
+<span class="o">[</span>    2.037408] raid6: neonx4   gen<span class="o">()</span>   759 MB/s
+<span class="o">[</span>    2.164138] raid6: neonx4   xor<span class="o">()</span>   344 MB/s
+<span class="o">[</span>    2.250018] raid6: neonx8   gen<span class="o">()</span>   508 MB/s
+<span class="o">[</span>    2.380570] raid6: neonx8   xor<span class="o">()</span>   385 MB/s
+<span class="o">[</span>    2.380645] raid6: using algorithm int64x4 gen<span class="o">()</span> 1222 MB/s
+<span class="o">[</span>    2.380708] raid6: .... xor<span class="o">()</span> 1312 MB/s, rmw enabled
+<span class="o">[</span>    2.380808] raid6: using intx1 recovery algorithm
+<span class="o">[</span>    2.382203] ACPI: Interpreter disabled.
+<span class="o">[</span>    2.385784] arm-smmu fd800000.smmu: probing hardware configuration...
+<span class="o">[</span>    2.385892] arm-smmu fd800000.smmu: SMMUv2 with:
+<span class="o">[</span>    2.385995] arm-smmu fd800000.smmu:  stage 1 translation
+<span class="o">[</span>    2.386067] arm-smmu fd800000.smmu:  stage 2 translation
+<span class="o">[</span>    2.386134] arm-smmu fd800000.smmu:  nested translation
+<span class="o">[</span>    2.386292] arm-smmu fd800000.smmu:  stream matching with 48 register <span class="nb">groups</span>, mask 0x7fff
+<span class="o">[</span>    2.386420] arm-smmu fd800000.smmu:  16 context banks <span class="o">(</span>0 stage-2 only<span class="o">)</span>
+<span class="o">[</span>    2.386673] arm-smmu fd800000.smmu:  Supported page sizes: 0x60211000
+<span class="o">[</span>    2.386747] arm-smmu fd800000.smmu:  Stage-1: 48-bit VA -&gt; 48-bit IPA
+<span class="o">[</span>    2.386821] arm-smmu fd800000.smmu:  Stage-2: 48-bit IPA -&gt; 48-bit PA
+<span class="o">[</span>    2.392489] arm-smmu fd800000.smmu: registered 26 master devices
+<span class="o">[</span>    2.397506] iommu: Adding device fd500000.dma to group 0
+<span class="o">[</span>    2.397735] iommu: Adding device fd510000.dma to group 1
+<span class="o">[</span>    2.397940] iommu: Adding device fd520000.dma to group 2
+<span class="o">[</span>    2.398101] iommu: Adding device fd530000.dma to group 3
+<span class="o">[</span>    2.398257] iommu: Adding device fd540000.dma to group 4
+<span class="o">[</span>    2.398412] iommu: Adding device fd550000.dma to group 5
+<span class="o">[</span>    2.399474] iommu: Adding device fd560000.dma to group 6
+<span class="o">[</span>    2.399642] iommu: Adding device fd570000.dma to group 7
+<span class="o">[</span>    2.399876] iommu: Adding device ffa80000.dma to group 8
+<span class="o">[</span>    2.400068] iommu: Adding device ffa90000.dma to group 9
+<span class="o">[</span>    2.400226] iommu: Adding device ffaa0000.dma to group 10
+<span class="o">[</span>    2.400399] iommu: Adding device ffab0000.dma to group 11
+<span class="o">[</span>    2.400559] iommu: Adding device ffac0000.dma to group 12
+<span class="o">[</span>    2.400731] iommu: Adding device ffad0000.dma to group 13
+<span class="o">[</span>    2.400889] iommu: Adding device ffae0000.dma to group 14
+<span class="o">[</span>    2.401045] iommu: Adding device ffaf0000.dma to group 15
+<span class="o">[</span>    2.401278] iommu: Adding device ff0e0000.ethernet to group 16
+<span class="o">[</span>    2.401795] iommu: Adding device ff0f0000.spi to group 17
+<span class="o">[</span>    2.402192] iommu: Adding device ff170000.sdhci to group 18
+<span class="o">[</span>    2.402603] iommu: Adding device amba:usb@fe200000 to group 19
+<span class="o">[</span>    2.406066] SCSI subsystem initialized
+<span class="o">[</span>    2.409841] usbcore: registered new interface driver usbfs
+<span class="o">[</span>    2.410280] usbcore: registered new interface driver hub
+<span class="o">[</span>    2.410620] usbcore: registered new device driver usb
+<span class="o">[</span>    2.414239] media: Linux media interface: v0.10
+<span class="o">[</span>    2.414541] Linux video capture interface: v2.00
+<span class="o">[</span>    2.414831] pps_core: LinuxPPS API ver. 1 registered
+<span class="o">[</span>    2.414894] pps_core: Software ver. 5.3.6 - Copyright 2005-2007 Rodolfo Giometti &lt;giometti@linux.it&gt;
+<span class="o">[</span>    2.415126] PTP clock support registered
+<span class="o">[</span>    2.415528] EDAC MC: Ver: 3.0.0
+<span class="o">[</span>    2.418203] dmi: Firmware registration failed.
+<span class="o">[</span>    2.423680] Advanced Linux Sound Architecture Driver Initialized.
+<span class="o">[</span>    2.435610] clocksource: Switched to clocksource arch_sys_counter
+<span class="o">[</span>    2.437750] VFS: Disk quotas dquot_6.6.0
+<span class="o">[</span>    2.438404] VFS: Dquot-cache <span class="nb">hash </span>table entries: 512 <span class="o">(</span>order 0, 4096 bytes<span class="o">)</span>
+<span class="o">[</span>    2.442061] pnp: PnP ACPI: disabled
+<span class="o">[</span>    2.512388] NET: Registered protocol family 2
+<span class="o">[</span>    2.521202] TCP established <span class="nb">hash </span>table entries: 32768 <span class="o">(</span>order: 6, 262144 bytes<span class="o">)</span>
+<span class="o">[</span>    2.522032] TCP <span class="nb">bind hash </span>table entries: 32768 <span class="o">(</span>order: 7, 524288 bytes<span class="o">)</span>
+<span class="o">[</span>    2.523324] TCP: Hash tables configured <span class="o">(</span>established 32768 <span class="nb">bind </span>32768<span class="o">)</span>
+<span class="o">[</span>    2.524249] UDP <span class="nb">hash </span>table entries: 2048 <span class="o">(</span>order: 4, 65536 bytes<span class="o">)</span>
+<span class="o">[</span>    2.524604] UDP-Lite <span class="nb">hash </span>table entries: 2048 <span class="o">(</span>order: 4, 65536 bytes<span class="o">)</span>
+<span class="o">[</span>    2.527661] NET: Registered protocol family 1
+<span class="o">[</span>    2.532836] RPC: Registered named UNIX socket transport module.
+<span class="o">[</span>    2.532957] RPC: Registered udp transport module.
+<span class="o">[</span>    2.533025] RPC: Registered tcp transport module.
+<span class="o">[</span>    2.533083] RPC: Registered tcp NFSv4.1 backchannel transport module.
+<span class="o">[</span>    5.548214] hw perfevents: enabled with armv8_pmuv3 PMU driver, 1 counters available
+<span class="o">[</span>    5.557262] futex <span class="nb">hash </span>table entries: 1024 <span class="o">(</span>order: 5, 131072 bytes<span class="o">)</span>
+<span class="o">[</span>    5.558364] audit: initializing netlink subsys <span class="o">(</span>disabled<span class="o">)</span>
+<span class="o">[</span>    5.560843] audit: <span class="nb">type</span><span class="o">=</span>2000 audit<span class="o">(</span>4.740:1<span class="o">)</span>: initialized
+<span class="o">[</span>    5.569157] workingset: <span class="nv">timestamp_bits</span><span class="o">=</span>60 <span class="nv">max_order</span><span class="o">=</span>20 <span class="nv">bucket_order</span><span class="o">=</span>0
+<span class="o">[</span>    5.580490] NFS: Registering the id_resolver key <span class="nb">type</span>
+<span class="o">[</span>    5.581417] Key <span class="nb">type </span>id_resolver registered
+<span class="o">[</span>    5.581504] Key <span class="nb">type </span>id_legacy registered
+<span class="o">[</span>    5.581707] nfs4filelayout_init: NFSv4 File Layout Driver Registering...
+<span class="o">[</span>    5.582278] jffs2: version 2.2. <span class="o">(</span>NAND<span class="o">)</span> <span class="o">(</span>SUMMARY<span class="o">)</span>  Â© 2001-2006 Red Hat, Inc.
+<span class="o">[</span>    5.605415] Block layer SCSI generic <span class="o">(</span>bsg<span class="o">)</span> driver version 0.4 loaded <span class="o">(</span>major 247<span class="o">)</span>
+<span class="o">[</span>    5.605699] io scheduler noop registered
+<span class="o">[</span>    5.605828] io scheduler deadline registered
+<span class="o">[</span>    5.606375] io scheduler cfq registered <span class="o">(</span>default<span class="o">)</span>
+<span class="o">[</span>    5.611027] nwl-pcie fd0e0000.pcie: BREG is not present
+<span class="o">[</span>    5.611171] PCI host bridge /amba/pcie@fd0e0000 ranges:
+<span class="o">[</span>    5.611422]   No bus range found <span class="k">for</span> /amba/pcie@fd0e0000, using <span class="o">[</span>bus 00-ff]
+<span class="o">[</span>    5.611917]   MEM 0xe0000000..0xefffffff -&gt; 0xe0000000
+<span class="o">[</span>    5.612100]   MEM 0x600000000..0x7ffffffff -&gt; 0x600000000
+<span class="o">[</span>    5.613427] nwl-pcie fd0e0000.pcie: PCI host bridge to bus 0000:00
+<span class="o">[</span>    5.613710] pci_bus 0000:00: root bus resource <span class="o">[</span>bus 00-ff]
+<span class="o">[</span>    5.613884] pci_bus 0000:00: root bus resource <span class="o">[</span>mem 0xe0000000-0xefffffff]
+<span class="o">[</span>    5.613971] pci_bus 0000:00: root bus resource <span class="o">[</span>mem 0x600000000-0x7ffffffff pref]
+<span class="o">[</span>    5.614297] nwl-pcie fd0e0000.pcie: MSI not present
+<span class="o">[</span>    5.614405] nwl-pcie fd0e0000.pcie: failed to <span class="nb">enable </span>MSI support: <span class="nt">-5</span>
+<span class="o">[</span>    5.615665] nwl-pcie: probe of fd0e0000.pcie failed with error <span class="nt">-5</span>
+<span class="o">[</span>    5.629060] xilinx-dpdma fd4c0000.dma: Xilinx DPDMA engine is probed
+<span class="o">[</span>    5.631014] xilinx-zynqmp-dma fd500000.dma: ZynqMP DMA driver Probe success
+<span class="o">[</span>    5.631907] xilinx-zynqmp-dma fd510000.dma: ZynqMP DMA driver Probe success
+<span class="o">[</span>    5.632716] xilinx-zynqmp-dma fd520000.dma: ZynqMP DMA driver Probe success
+<span class="o">[</span>    5.633562] xilinx-zynqmp-dma fd530000.dma: ZynqMP DMA driver Probe success
+<span class="o">[</span>    5.634367] xilinx-zynqmp-dma fd540000.dma: ZynqMP DMA driver Probe success
+<span class="o">[</span>    5.635430] xilinx-zynqmp-dma fd550000.dma: ZynqMP DMA driver Probe success
+<span class="o">[</span>    5.636262] xilinx-zynqmp-dma fd560000.dma: ZynqMP DMA driver Probe success
+<span class="o">[</span>    5.637089] xilinx-zynqmp-dma fd570000.dma: ZynqMP DMA driver Probe success
+<span class="o">[</span>    5.637693] xilinx-zynqmp-dma ffa80000.dma: main clock not found.
+<span class="o">[</span>    5.637780] xilinx-zynqmp-dma ffa80000.dma: Probing channel failed
+<span class="o">[</span>    5.642269] xilinx-zynqmp-dma: probe of ffa80000.dma failed with error <span class="nt">-2</span>
+<span class="o">[</span>    5.643265] xilinx-zynqmp-dma ffa90000.dma: main clock not found.
+<span class="o">[</span>    5.643342] xilinx-zynqmp-dma ffa90000.dma: Probing channel failed
+<span class="o">[</span>    5.643487] xilinx-zynqmp-dma: probe of ffa90000.dma failed with error <span class="nt">-2</span>
+<span class="o">[</span>    5.643874] xilinx-zynqmp-dma ffaa0000.dma: main clock not found.
+<span class="o">[</span>    5.643946] xilinx-zynqmp-dma ffaa0000.dma: Probing channel failed
+<span class="o">[</span>    5.644084] xilinx-zynqmp-dma: probe of ffaa0000.dma failed with error <span class="nt">-2</span>
+<span class="o">[</span>    5.644479] xilinx-zynqmp-dma ffab0000.dma: main clock not found.
+<span class="o">[</span>    5.644550] xilinx-zynqmp-dma ffab0000.dma: Probing channel failed
+<span class="o">[</span>    5.644689] xilinx-zynqmp-dma: probe of ffab0000.dma failed with error <span class="nt">-2</span>
+<span class="o">[</span>    5.645065] xilinx-zynqmp-dma ffac0000.dma: main clock not found.
+<span class="o">[</span>    5.645136] xilinx-zynqmp-dma ffac0000.dma: Probing channel failed
+<span class="o">[</span>    5.645276] xilinx-zynqmp-dma: probe of ffac0000.dma failed with error <span class="nt">-2</span>
+<span class="o">[</span>    5.645650] xilinx-zynqmp-dma ffad0000.dma: main clock not found.
+<span class="o">[</span>    5.645720] xilinx-zynqmp-dma ffad0000.dma: Probing channel failed
+<span class="o">[</span>    5.645862] xilinx-zynqmp-dma: probe of ffad0000.dma failed with error <span class="nt">-2</span>
+<span class="o">[</span>    5.646245] xilinx-zynqmp-dma ffae0000.dma: main clock not found.
+<span class="o">[</span>    5.646315] xilinx-zynqmp-dma ffae0000.dma: Probing channel failed
+<span class="o">[</span>    5.646514] xilinx-zynqmp-dma: probe of ffae0000.dma failed with error <span class="nt">-2</span>
+<span class="o">[</span>    5.647474] xilinx-zynqmp-dma ffaf0000.dma: main clock not found.
+<span class="o">[</span>    5.647545] xilinx-zynqmp-dma ffaf0000.dma: Probing channel failed
+<span class="o">[</span>    5.647686] xilinx-zynqmp-dma: probe of ffaf0000.dma failed with error <span class="nt">-2</span>
+<span class="o">[</span>    5.648791] xenfs: not registering filesystem on non-xen platform
+<span class="o">[</span>    6.133190] Serial: 8250/16550 driver, 4 ports, IRQ sharing disabled
+<span class="o">[</span>    6.147110] ff000000.serial: ttyPS0 at MMIO 0xff000000 <span class="o">(</span>irq <span class="o">=</span> 220, base_baud <span class="o">=</span> 6250000<span class="o">)</span> is a xuartps
+<span class="o">[</span>    6.194427] console <span class="o">[</span>ttyPS0] enabled
+<span class="o">[</span>    6.196796] ff010000.serial: ttyPS1 at MMIO 0xff010000 <span class="o">(</span>irq <span class="o">=</span> 221, base_baud <span class="o">=</span> 6250000<span class="o">)</span> is a xuartps
+<span class="o">[</span>    6.199730] <span class="o">[</span>drm] Initialized drm 1.1.0 20060810
+<span class="o">[</span>    6.278223] brd: module loaded
+<span class="o">[</span>    6.316143] loop: module loaded
+<span class="o">[</span>    6.326207] ahci-ceva fd0c0000.ahci: AHCI 0001.0000 32 slots 2 ports 1.5 Gbps 0x3 impl platform mode
+<span class="o">[</span>    6.327042] ahci-ceva fd0c0000.ahci: flags: ncq only
+<span class="o">[</span>    6.339776] scsi host0: ahci-ceva
+<span class="o">[</span>    6.343797] scsi host1: ahci-ceva
+<span class="o">[</span>    6.345032] ata1: SATA max UDMA/133 mmio <span class="o">[</span>mem 0xfd0c0000-0xfd0c1fff] port 0x100 irq 217
+<span class="o">[</span>    6.345559] ata2: SATA max UDMA/133 mmio <span class="o">[</span>mem 0xfd0c0000-0xfd0c1fff] port 0x180 irq 217
+<span class="o">[</span>    6.351502] mtdoops: mtd device <span class="o">(</span><span class="nv">mtddev</span><span class="o">=</span>name/number<span class="o">)</span> must be supplied
+<span class="o">[</span>    6.367754] m25p80 spi0.0: found n25q512a, expected m25p80
+<span class="o">[</span>    6.371471] m25p80 spi0.0: Controller not <span class="k">in </span>SPI_TX_QUAD mode, just use extended SPI mode
+<span class="o">[</span>    6.372882] m25p80 spi0.0: n25q512a <span class="o">(</span>131072 Kbytes<span class="o">)</span>
+<span class="o">[</span>    6.373984] 8 ofpart partitions found on MTD device spi0.0
+<span class="o">[</span>    6.374364] Creating 8 MTD partitions on <span class="s2">"spi0.0"</span>:
+<span class="o">[</span>    6.375502] 0x000000000000-0x000001e00000 : <span class="s2">"boot"</span>
+<span class="o">[</span>    6.383639] 0x000001e00000-0x000001e40000 : <span class="s2">"bootenv"</span>
+<span class="o">[</span>    6.390148] 0x000001e40000-0x000004240000 : <span class="s2">"kernel"</span>
+<span class="o">[</span>    6.397053] 0x000004240000-0x000008000000 : <span class="s2">"spare"</span>
+<span class="o">[</span>    6.403935] 0x000000000000-0x000000100000 : <span class="s2">"qspi-fsbl-uboot"</span>
+<span class="o">[</span>    6.410408] 0x000000100000-0x000000600000 : <span class="s2">"qspi-linux"</span>
+<span class="o">[</span>    6.417533] 0x000000600000-0x000000620000 : <span class="s2">"qspi-device-tree"</span>
+<span class="o">[</span>    6.424282] 0x000000620000-0x000000c00000 : <span class="s2">"qspi-rootfs"</span>
+<span class="o">[</span>    6.452311] libphy: Fixed MDIO Bus: probed
+<span class="o">[</span>    6.454606] hrtimer: interrupt took 11889400 ns
+<span class="o">[</span>    6.461270] CAN device driver interface
+<span class="o">[</span>    6.482765] gpiod_set_value: invalid GPIO
+<span class="o">[</span>    6.486323] libphy: MACB_mii_bus: probed
+<span class="o">[</span>    6.643407] macb ff0e0000.ethernet eth0: Cadence GEM rev 0x40070106 at 0xff0e0000 irq 30 <span class="o">(</span>00:0a:35:00:02:90<span class="o">)</span>
+<span class="o">[</span>    6.644034] Marvell 88E1118 ff0e0000.etherne:0c: attached PHY driver <span class="o">[</span>Marvell 88E1118] <span class="o">(</span>mii_bus:phy_addr<span class="o">=</span>ff0e0000.etherne:0c, <span class="nv">irq</span><span class="o">=</span><span class="nt">-1</span><span class="o">)</span>
+<span class="o">[</span>    6.652783] dwc3 fe200000.dwc3: this is not a DesignWare USB3 DRD Core
+<span class="o">[</span>    6.653170] dwc3 fe200000.dwc3: failed to initialize core
+<span class="o">[</span>    6.653910] ehci_hcd: USB 2.0 <span class="s1">'Enhanced'</span> Host Controller <span class="o">(</span>EHCI<span class="o">)</span> Driver
+<span class="o">[</span>    6.654322] ehci-pci: EHCI PCI platform driver
+<span class="o">[</span>    6.660339] usbcore: registered new interface driver uas
+<span class="o">[</span>    6.662177] usbcore: registered new interface driver usb-storage
+<span class="o">[</span>    6.668015] ata1: SATA <span class="nb">link </span>down <span class="o">(</span>SStatus 0 SControl 300<span class="o">)</span>
+<span class="o">[</span>    6.671017] mousedev: PS/2 mouse device common <span class="k">for </span>all mice
+<span class="o">[</span>    6.678445] ata2: SATA <span class="nb">link </span>down <span class="o">(</span>SStatus 0 SControl 300<span class="o">)</span>
+<span class="o">[</span>    6.679802] rtc_zynqmp ffa60000.rtc: rtc core: registered ffa60000.rtc as rtc0
+<span class="o">[</span>    7.682904] cdns-i2c ff020000.i2c: <span class="nb">timeout </span>waiting on completion
+<span class="o">[</span>    7.683487] pca953x 0-0020: failed reading register
+<span class="o">[</span>    7.683886] pca953x: probe of 0-0020 failed with error <span class="nt">-110</span>
+<span class="o">[</span>    8.682846] cdns-i2c ff020000.i2c: <span class="nb">timeout </span>waiting on completion
+<span class="o">[</span>    8.683281] pca953x 0-0021: failed reading register
+<span class="o">[</span>    8.683660] pca953x: probe of 0-0021 failed with error <span class="nt">-110</span>
+<span class="o">[</span>    8.684718] cdns-i2c ff020000.i2c: 400 kHz mmio ff020000 irq 206
+<span class="o">[</span>    8.687234] cdns-i2c ff030000.i2c: 400 kHz mmio ff030000 irq 207
+<span class="o">[</span>    9.690824] cdns-i2c ff020000.i2c: <span class="nb">timeout </span>waiting on completion
+<span class="o">[</span>    9.691299] pca954x 0-0075: probe failed
+<span class="o">[</span>    9.697308] at24 2-0054: 1024 byte 24c08 EEPROM, writable, 1 bytes/write
+<span class="o">[</span>    9.697807] i2c i2c-2: Failed to register i2c client 24c08 at 0x55 <span class="o">(</span><span class="nt">-16</span><span class="o">)</span>
+<span class="o">[</span>    9.698228] i2c i2c-2: of_i2c: Failure registering /amba/i2c@ff030000/i2cswitch@74/i2c@0/eeprom@55
+<span class="o">[</span>    9.699666] i2c i2c-2: Failed to register i2c client 24c08 at 0x56 <span class="o">(</span><span class="nt">-16</span><span class="o">)</span>
+<span class="o">[</span>    9.700054] i2c i2c-2: of_i2c: Failure registering /amba/i2c@ff030000/i2cswitch@74/i2c@0/eeprom@56
+<span class="o">[</span>    9.700547] i2c i2c-2: Failed to register i2c client 24c08 at 0x57 <span class="o">(</span><span class="nt">-16</span><span class="o">)</span>
+<span class="o">[</span>    9.700925] i2c i2c-2: of_i2c: Failure registering /amba/i2c@ff030000/i2cswitch@74/i2c@0/eeprom@57
+<span class="o">[</span>    9.701507] i2c i2c-1: Added multiplexed i2c bus 2
+<span class="o">[</span>    9.704083] i2c i2c-1: Added multiplexed i2c bus 3
+<span class="o">[</span>    9.705043] i2c i2c-1: Added multiplexed i2c bus 4
+<span class="o">[</span>    9.705977] i2c i2c-1: Added multiplexed i2c bus 5
+<span class="o">[</span>    9.707779] i2c i2c-1: Added multiplexed i2c bus 6
+<span class="o">[</span>    9.708423] i2c i2c-1: Added multiplexed i2c bus 7
+<span class="o">[</span>    9.709008] i2c i2c-1: Added multiplexed i2c bus 8
+<span class="o">[</span>    9.709604] i2c i2c-1: Added multiplexed i2c bus 9
+<span class="o">[</span>    9.709911] pca954x 1-0074: registered 8 multiplexed busses <span class="k">for </span>I2C switch pca9548
+<span class="o">[</span>    9.714031] pca954x 1-0075: probe failed
+<span class="o">[</span>    9.722100] cdns-wdt fd4d0000.watchdog: input clock not found
+<span class="o">[</span>    9.723125] cdns-wdt: probe of fd4d0000.watchdog failed with error <span class="nt">-2</span>
+<span class="o">[</span>    9.724774] EDAC MC: ECC not enabled
+<span class="o">[</span>    9.725653] sdhci: Secure Digital Host Controller Interface driver
+<span class="o">[</span>    9.725987] sdhci: Copyright<span class="o">(</span>c<span class="o">)</span> Pierre Ossman
+<span class="o">[</span>    9.726265] sdhci-pltfm: SDHCI platform and OF driver helper
+<span class="o">[</span>    9.778875] mmc0: SDHCI controller on ff170000.sdhci <span class="o">[</span>ff170000.sdhci] using ADMA
+<span class="o">[</span>    9.781279] usbcore: registered new interface driver usbhid
+<span class="o">[</span>    9.781596] usbhid: USB HID core driver
+<span class="o">[</span>    9.789742] Mali: ERR: /proj/petalinux/petalinux-v2016.3_1016_1/petalinux-v2016.3-final/components/linux-kernel/xlnx-4.6/drivers/staging/mali/DX910-SW-99002-r5p1-01rel0/driver/src/devicedrv/mali/common/mali_pp.c
+<span class="o">[</span>    9.790869]            mali_pp_reset_wait<span class="o">()</span> 267
+           Mali PP: Failed to reset core Mali_PP0, rawstat: 0x00000000
+<span class="o">[</span>    9.791496]
+<span class="o">[</span>    9.791725] Mali: ERR: /proj/petalinux/petalinux-v2016.3_1016_1/petalinux-v2016.3-final/components/linux-kernel/xlnx-4.6/drivers/staging/mali/DX910-SW-99002-r5p1-01rel0/driver/src/devicedrv/mali/common/mali_kernel_core.c
+<span class="o">[</span>    9.792630]            mali_parse_product_info<span class="o">()</span> 164
+           Failed to create initial PP object
+<span class="o">[</span>    9.793121]
+<span class="o">[</span>    9.795333] Mali: ERR: /proj/petalinux/petalinux-v2016.3_1016_1/petalinux-v2016.3-final/components/linux-kernel/xlnx-4.6/drivers/staging/mali/DX910-SW-99002-r5p1-01rel0/driver/src/devicedrv/mali/linux/mali_kernel_linux.c
+<span class="o">[</span>    9.796249]            mali_probe<span class="o">()</span> 503
+           mali_probe<span class="o">()</span>: Failed to initialize Mali device driver.
+<span class="o">[</span>    9.796942] mali-utgard: probe of fd4b0000.gpu failed with error <span class="nt">-14</span>
+<span class="o">[</span>    9.797705] Mali: Mali device driver loaded
+<span class="o">[</span>    9.814204] si570 4-005d: registered, current frequency 300000000 Hz
+<span class="o">[</span>    9.824106] mmc0: new SD card at address 4567
+<span class="o">[</span>    9.828593] mmcblk0: mmc0:4567 QEMU! 256 MiB
+<span class="o">[</span>    9.830812] si570 5-005d: registered, current frequency 148500000 Hz
+<span class="o">[</span>    9.839790] pktgen: Packet Generator <span class="k">for </span>packet performance testing. Version: 2.75
+<span class="o">[</span>    9.851179]  mmcblk0:
+<span class="o">[</span>    9.855338] Initializing XFRM netlink socket
+<span class="o">[</span>    9.856979] NET: Registered protocol family 10
+<span class="o">[</span>    9.866086] sit: IPv6 over IPv4 tunneling driver
+<span class="o">[</span>    9.869852] NET: Registered protocol family 17
+<span class="o">[</span>    9.870363] NET: Registered protocol family 15
+<span class="o">[</span>    9.872048] can: controller area network core <span class="o">(</span>rev 20120528 abi 9<span class="o">)</span>
+<span class="o">[</span>    9.872780] NET: Registered protocol family 29
+<span class="o">[</span>    9.873239] can: raw protocol <span class="o">(</span>rev 20120528<span class="o">)</span>
+<span class="o">[</span>    9.873582] can: broadcast manager protocol <span class="o">(</span>rev 20120528 t<span class="o">)</span>
+<span class="o">[</span>    9.873975] can: netlink gateway <span class="o">(</span>rev 20130117<span class="o">)</span> <span class="nv">max_hops</span><span class="o">=</span>1
+<span class="o">[</span>    9.875647] Key <span class="nb">type </span>dns_resolver registered
+<span class="o">[</span>    9.879426] registered taskstats version 1
+<span class="o">[</span>    9.886287] Btrfs loaded
+<span class="o">[</span>    9.891849] rtc_zynqmp ffa60000.rtc: setting system clock to 2106-02-07 06:28:15 UTC <span class="o">(</span>4294967295<span class="o">)</span>
+<span class="o">[</span>    9.893275] ALSA device list:
+<span class="o">[</span>    9.893491]   No soundcards found.
+<span class="o">[</span>    9.975658] Freeing unused kernel memory: 25912K <span class="o">(</span>ffffff8008a74000 - ffffff800a3c2000<span class="o">)</span>
+<span class="o">[</span>    9.976401] This architecture does not have kernel memory protection.
+INIT: version 2.88 booting
+<span class="o">[</span>   12.707694] FAT-fs <span class="o">(</span>mmcblk0<span class="o">)</span>: Volume was not properly unmounted. Some data may be corrupt. Please run fsck.
+Creating /dev/flash/<span class="k">*</span> device nodes
+<span class="o">[</span>   25.994925] random: <span class="nb">dd </span>urandom <span class="nb">read </span>with 4 bits of entropy available
+Starting internet superserver: inetd.
+INIT: Entering runlevel: 5
+Configuring network interfaces... <span class="o">[</span>   29.023716] IPv6: ADDRCONF<span class="o">(</span>NETDEV_UP<span class="o">)</span>: eth0: <span class="nb">link </span>is not ready
+udhcpc <span class="o">(</span>v1.24.1<span class="o">)</span> started
+Sending discover...
+<span class="o">[</span>   30.767855] macb ff0e0000.ethernet eth0: unable to generate target frequency: 25000000 Hz
+<span class="o">[</span>   30.768484] macb ff0e0000.ethernet eth0: <span class="nb">link </span>up <span class="o">(</span>100/Half<span class="o">)</span>
+<span class="o">[</span>   30.769303] IPv6: ADDRCONF<span class="o">(</span>NETDEV_CHANGE<span class="o">)</span>: eth0: <span class="nb">link </span>becomes ready
+Sending discover...
+Sending discover...
+No lease, forking to background
+<span class="k">done</span><span class="nb">.</span>
+Starting Dropbear SSH server: Generating key, this may take a <span class="k">while</span>...
+Public key portion is:
+ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQC5c2KnormVHnPlOMddE1ea1cDmsoqUSIa779m5k1VNvAikoJ6iL/Q4W7idWwnql5GlbkRwvhtCZ4JnkESDOa7L7zFeaKBZOynNB9JVglV09Ot+qHcx+JB/DtlF1w+6dtbQkHMbDb+DFa5xt38fjIsLjkZUSm3rCq6TMcnDhNoBumvAkNa4ay8DXNNIj9LnaE3mQjCGYAhw1ECmTZUAPa492ZRJeuDYr8wd/KgWEECm66U0Uhm9FzrY32jtSD58sTcSa6UpG0sky+alW3hfjLhoSdHo2YFAerD3hG8DILFnS5YauO/L/zEns1ZNddlW1Wn8aJL3mgC8lnw43B0+HUIR root@Xilinx-ZCU102-2016_3
+Fingerprint: md5 98:fd:0b:52:9e:81:43:e2:5b:f4:6e:58:37:a8:64:d5
+dropbear.
+Warning unable to detect baudrate, use 115200!
+Use default dev ttyPS0
+Running dynamic getty on ttyPS0/115200
+
+PetaLinux 2016.3 Xilinx-ZCU102-2016_3 /dev/ttyPS0
+Xilinx-ZCU102-2016_3 login: root
+Password:
+login[1851]: root login on <span class="s1">'ttyPS0'</span>
+root@Xilinx-ZCU102-2016_3:~#</code></pre></figure>
+
+<p>Enjoy!</p>
+
+
+</article>
+
+
+
+
+
+<section class="rss">
+  <p class="rss-subscribe text"><strong>Subscribe <a href="/feed.xml">via RSS</a></strong></p>
+</section>
+
+<section class="share">
+  <span>Share: </span>
+  
+    
+    
+    
+    
+    
+    
+    
+    
+  
+    
+    
+    
+    
+    
+      <a href="//www.linkedin.com/shareArticle?mini=true&url=http%3A%2F%2Flocalhost%3A4000%2Flinux%2F2016%2F12%2F21%2Fxilinx-MPSoC-ultrascale-dev.html"
+        onclick="window.open(this.href, 'linkedin-share', 'width=550,height=255');return false;">
+        <i class="fa fa-linkedin-square fa-lg"></i>
+      </a>
+    
+    
+    
+    
+  
+</section>
+
+
+
+
+</div>
+</div>
+
+    </div>
+
+    <footer class="site-footer">
+
+  <div class="wrapper">
+
+    <h3 class="footer-heading">Wenwei Weng's Blog</h3>
+
+    <div class="site-navigation">
+
+      <p><strong>Site Map</strong></p>
+      <ul class="pages">
+				
+	
+	<li class="nav-link"><a href="/about/">About</a>
+	
+
+	
+
+	
+
+	
+	<li class="nav-link"><a href="/posts/">Posts</a>
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+      </ul>
+    </div>
+
+    <div class="site-contact">
+
+      <p><strong>Contact</strong></p>
+      <ul class="social-media-list">
+        <li>
+          <a href="mailto:weweng@gmail.com">
+            <i class="fa fa-envelope-o"></i>
+            <span class="username">weweng@gmail.com</span>
+          </a>
+        </li>
+
+        
+          
+          <li>
+            <a href="https://github.com/weweng" title="Fork me on GitHub">
+              <i class="fa fa-github"></i>
+              <span class="username">weweng</span>
+            </a>
+          </li>
+          
+        
+          
+          <li>
+            <a href="https://www.linkedin.com/in/wenwei-weng/" title="Connect with me on LinkedIn">
+              <i class="fa fa-linkedin"></i>
+              <span class="username">Wenwei Weng</span>
+            </a>
+          </li>
+          
+        
+
+      </ul>
+    </div>
+
+    <div class="site-signature">
+      <p class="rss-subscribe text"><strong>Subscribe <a href="/feed.xml">via RSS</a></strong></p>
+      <p class="text">A simple yet classy theme for your Jekyll based blog.
+</p>
+    </div>
+
+  </div>
+
+</footer>
+
+<!-- Scripts -->
+<script src="//code.jquery.com/jquery-3.4.1.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.10/highlight.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.1/js/lightbox.min.js"></script>
+<script src="//unpkg.com/popper.js@1"></script>
+<script src="//unpkg.com/tippy.js@5"></script>
+
+<script type="text/javascript">
+$(document).ready(function() {
+  // Default syntax highlighting
+  hljs.initHighlightingOnLoad();
+
+  // Header
+  var menuToggle = $('#js-mobile-menu').unbind();
+  $('#js-navigation-menu').removeClass("show");
+  menuToggle.on('click', function(e) {
+    e.preventDefault();
+    $('#js-navigation-menu').slideToggle(function(){
+      if($('#js-navigation-menu').is(':hidden')) {
+        $('#js-navigation-menu').removeAttr('style');
+      }
+    });
+  });
+
+	// Enable tooltips via Tippy.js
+	if (Array.isArray(window.tooltips)) {
+		window.tooltips.forEach(function(tooltip) {
+			var selector = tooltip[0];
+			var config = tooltip[1];
+			tippy(selector, config);
+		})
+	}
+});
+
+</script>
+
+
+
+
+
+
+  </body>
+
+</html>

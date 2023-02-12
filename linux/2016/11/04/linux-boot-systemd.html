@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>Linux boot up process - systemd</title>
+  <meta name="description" content="systemd is the third generation of linux init system, following sysvinit, upstart.The main advantage of systemd is that it brings up all processes in parelel...">
+  
+  <meta name="author" content="Wenwei Weng">
+  <meta name="copyright" content="&copy; Wenwei Weng 2023">
+  
+
+  <!-- External libraries -->
+  <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css">
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.9.0/styles/monokai-sublime.min.css">
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/lightbox2/2.7.1/css/lightbox.css">
+
+  <!-- Favicon and other icons (made with http://www.favicon-generator.org/) -->
+  <link rel="shortcut icon" href="/assets/icons/favicon.ico" type="image/x-icon">
+  <link rel="icon" href="/assets/icons/favicon.ico" type="image/x-icon">
+  <link rel="apple-touch-icon" sizes="57x57" href="/assets/icons/apple-icon-57x57.png">
+  <link rel="apple-touch-icon" sizes="60x60" href="/assets/icons/apple-icon-60x60.png">
+  <link rel="apple-touch-icon" sizes="72x72" href="/assets/icons/apple-icon-72x72.png">
+  <link rel="apple-touch-icon" sizes="76x76" href="/assets/icons/apple-icon-76x76.png">
+  <link rel="apple-touch-icon" sizes="114x114" href="/assets/icons/apple-icon-114x114.png">
+  <link rel="apple-touch-icon" sizes="120x120" href="/assets/icons/apple-icon-120x120.png">
+  <link rel="apple-touch-icon" sizes="144x144" href="/assets/icons/apple-icon-144x144.png">
+  <link rel="apple-touch-icon" sizes="152x152" href="/assets/icons/apple-icon-152x152.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/assets/icons/apple-icon-180x180.png">
+  <link rel="icon" type="image/png" sizes="192x192"  href="/assets/icons/android-icon-192x192.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/assets/icons/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="96x96" href="/assets/icons/favicon-96x96.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/assets/icons/favicon-16x16.png">
+  <link rel="manifest" href="/assets/icons/manifest.json">
+  <meta name="msapplication-TileColor" content="#ffffff">
+  <meta name="msapplication-TileImage" content="/assets/icons/ms-icon-144x144.png">
+  <meta name="theme-color" content="#ffffff">
+
+  
+
+  
+
+  
+
+  <!-- Site styles -->
+  <link rel="stylesheet" href="/css/main.css">
+  <link rel="canonical" href="http://localhost:4000/linux/2016/11/04/linux-boot-systemd.html">
+	<link rel="alternate" type="application/rss+xml" title="Wenwei Weng's Blog" href="http://localhost:4000/feed.xml" />
+	
+	<!-- Tooltips -->
+	<script type="text/javascript">
+		window.tooltips = []
+	</script>
+</head>
+
+
+  <body>
+
+    <header class="navigation" role="banner">
+  <div class="navigation-wrapper">
+    <a href="/" class="logo">
+      
+      <img src="/assets/avatar.png" alt="Wenwei Weng's Blog">
+      
+    </a>
+    <a href="javascript:void(0)" class="navigation-menu-button" id="js-mobile-menu">
+      <i class="fa fa-bars"></i>
+    </a>
+    <nav role="navigation">
+      <ul id="js-navigation-menu" class="navigation-menu show">
+				
+	
+	<li class="nav-link"><a href="/about/">About</a>
+	
+
+	
+
+	
+
+	
+	<li class="nav-link"><a href="/posts/">Posts</a>
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+      </ul>
+    </nav>
+  </div>
+</header>
+
+
+    <div class="page-content">
+        <div class="post">
+
+<div class="post-header-container " >
+  <div class="scrim ">
+    <header class="post-header">
+      <h1 class="title">Linux boot up process - systemd</h1>
+      <p class="info">by <strong>Wenwei Weng</strong></p>
+    </header>
+  </div>
+</div>
+
+<div class="wrapper">
+
+ <span class="page-divider">
+  <span class="one"></span>
+  <span class="two"></span>
+</span>
+ 
+
+<section class="post-meta">
+  <div class="post-date">November 4, 2016</div>
+  <div class="post-categories">
+  in 
+    
+    <a href="/category/Linux">Linux</a>
+    
+  
+  </div>
+</section>
+
+<article class="post-content">
+  <p>systemd is the third generation of linux init system, following sysvinit, upstart.
+The main advantage of systemd is that it brings up all processes in parelell, instead of sequential.</p>
+
+<p><img src="/uploads/linux/linux-boot-process-systemd.jpg" alt="systemd boot" /></p>
+
+<!--more-->
+
+<p>systemd is controversial for several reasons: It’s a replacement for something that a lot of Linux users don’t think needs to be replaced, and the antics of the systemd developers have not won hearts and minds. But rather the opposite, as evidenced in this famous LKML thread where Linus Torvalds banned systemd dev Kay Sievers from the Linux kernel. Despite that, systemd is being widely deployed in the distributions like ubuntu (15.04+), Fedora,  Redhat Enterprise/Centos (7.0+).</p>
+
+<p>systemd is not just the name of the init daemon but also refers to the entire software bundle around it, which, in addition to the systemd init daemon, includes the daemons journald, logind and networkd, and many other low-level components.</p>
+
+<p><img src="/uploads/linux/linux-systemd-components.png" alt="systemd components" /></p>
+
+<p>systemd records initialization instructions for each daemon in a configuration file (referred to as a “unit file”) that uses a declarative language, replacing the traditionally used per-daemon startup shell scripts. Unit file types include service, socket, device, mount, automount, swap, target, path, timer (which can be used as a cron-like job scheduler[14]), snapshot, slice and scope. below is a unit for for syslog.</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">eng@weng-u1604:/etc/systemd/system<span class="nv">$ </span><span class="nb">cat </span>syslog.service 
+<span class="o">[</span>Unit]
+<span class="nv">Description</span><span class="o">=</span>System Logging Service
+<span class="nv">Requires</span><span class="o">=</span>syslog.socket
+<span class="nv">Documentation</span><span class="o">=</span>man:rsyslogd<span class="o">(</span>8<span class="o">)</span>
+<span class="nv">Documentation</span><span class="o">=</span>http://www.rsyslog.com/doc/
+
+<span class="o">[</span>Service]
+<span class="nv">Type</span><span class="o">=</span>notify
+<span class="nv">ExecStart</span><span class="o">=</span>/usr/sbin/rsyslogd <span class="nt">-n</span>
+<span class="nv">StandardOutput</span><span class="o">=</span>null
+<span class="nv">Restart</span><span class="o">=</span>on-failure
+
+<span class="o">[</span>Install]
+<span class="nv">WantedBy</span><span class="o">=</span>multi-user.target
+<span class="nv">Alias</span><span class="o">=</span>syslog.service
+weng@weng-u1604:/etc/systemd/system<span class="nv">$ </span></code></pre></figure>
+
+<h2 id="systemctl">systemctl</h2>
+<p>The main command used to introspect and control systemd is systemctl. Some of its uses are examining the system state and managing the system and services.</p>
+
+<p>“systemctl status” will show the the system status, all processes started by systemd in a tree fashion.</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">weng@weng-u1604:~<span class="nv">$ </span>systemctl status
+● weng-u1604
+    State: running
+     Jobs: 0 queued
+   Failed: 0 units
+    Since: Fri 2016-11-04 14:17:38 PDT<span class="p">;</span> 29min ago
+   CGroup: /
+           ├─537 /sbin/cgmanager <span class="nt">-m</span> <span class="nv">name</span><span class="o">=</span>systemd
+           ├─init.scope
+           │ └─1 /sbin/init splash
+           ├─system.slice
+           │ ├─avahi-daemon.service
+           │ │ ├─567 avahi-daemon: running <span class="o">[</span>weng-u1604.local
+           │ │ └─602 avahi-daemon: <span class="nb">chroot </span>helpe
+           │ ├─dbus.service
+           │ │ └─541 /usr/bin/dbus-daemon <span class="nt">--system</span> <span class="nt">--address</span><span class="o">=</span>systemd: <span class="nt">--nofork</span> <span class="nt">--nopidfile</span> <span class="nt">--systemd-activation</span>
+           │ ├─ModemManager.service
+           │ │ └─563 /usr/sbin/ModemManager
+           │ ├─cron.service
+           │ │ └─573 /usr/sbin/cron <span class="nt">-f</span>
+           │ ├─wpa_supplicant.service
+           │ │ └─706 /sbin/wpa_supplicant <span class="nt">-u</span> <span class="nt">-s</span> <span class="nt">-O</span> /run/wpa_supplicant
+           │ ├─lightdm.service
+           │ │ ├─732 /usr/sbin/lightdm
+           │ │ └─745 /usr/lib/xorg/Xorg <span class="nt">-core</span> :0 <span class="nt">-seat</span> seat0 <span class="nt">-auth</span> /var/run/lightdm/root/:0 <span class="nt">-nolisten</span> tcp vt7 <span class="nt">-novtswitch</span>
+           │ ├─accounts-daemon.service
+           │ │ └─536 /usr/lib/accountsservice/accounts-daemon
+           │ ├─colord.service
+           │ │ └─1220 /usr/lib/colord/colord
+           │ ├─systemd-journald.service
+           │ │ └─222 /lib/systemd/systemd-journald
+           │ ├─udisks2.service
+           │ │ └─1379 /usr/lib/udisks2/udisksd <span class="nt">--no-debug</span>
+           │ ├─upower.service
+           │ │ └─1148 /usr/lib/upower/upowerd
+           │ ├─systemd-timesyncd.service
+           │ │ └─303 /lib/systemd/systemd-timesyncd
+           │ ├─cups.service
+........</code></pre></figure>
+
+<p>“systemctl list-units” will show all active running units, “systemctl –failed” will show the failed units.</p>
+
+<h2 id="using-units">Using units</h2>
+<p>Units can be, for example, services (.service), mount points (.mount), devices (.device) or sockets (.socket).
+When using systemctl, you generally have to specify the complete name of the unit file, including its suffix, for example sshd.socket. There are however a few short forms when specifying the unit in the following systemctl commands:
+If you do not specify the suffix, systemctl will assume .service. For example, netctl and netctl.service are equivalent.
+Mount points will automatically be translated into the appropriate .mount unit. For example, specifying /home is equivalent to  home.mount.
+Similar to mount points, devices are automatically translated into the appropriate .device unit, therefore specifying /dev/sda2 is equivalent to dev-sda2.device.</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">weng@weng-u1604:/lib/systemd/system<span class="nv">$ </span>systemctl
+UNIT                                                                                     LOAD   ACTIVE SUB       DESCRIPTION
+proc-sys-fs-binfmt_misc.automount                                                        loaded active waiting   Arbitrary Executable File Formats File System Automount Point
+sys-devices-pci0000:00-0000:00:01.1-ata2-host1-target1:0:0-1:0:0:0-block-sr0.device      loaded active plugged   VBOX_CD-ROM
+sys-devices-pci0000:00-0000:00:03.0-net-enp0s3.device                                    loaded active plugged   82540EM Gigabit Ethernet Controller <span class="o">(</span>PRO/1000 MT Desktop Adapter<span class="o">)</span>
+sys-devices-pci0000:00-0000:00:05.0-sound-card0.device                                   loaded active plugged   82801AA AC<span class="s1">'97 Audio Controller
+sys-devices-pci0000:00-0000:00:0d.0-ata3-host2-target2:0:0-2:0:0:0-block-sda-sda1.device loaded active plugged   VBOX_HARDDISK 1
+sys-devices-pci0000:00-0000:00:0d.0-ata3-host2-target2:0:0-2:0:0:0-block-sda-sda2.device loaded active plugged   VBOX_HARDDISK 2
+sys-devices-pci0000:00-0000:00:0d.0-ata3-host2-target2:0:0-2:0:0:0-block-sda-sda5.device loaded active plugged   VBOX_HARDDISK 5
+sys-devices-pci0000:00-0000:00:0d.0-ata3-host2-target2:0:0-2:0:0:0-block-sda.device      loaded active plugged   VBOX_HARDDISK
+sys-devices-platform-serial8250-tty-ttyS0.device                                         loaded active plugged   /sys/devices/platform/serial8250/tty/ttyS0
+sys-devices-platform-serial8250-tty-ttyS1.device                                         loaded active plugged   /sys/devices/platform/serial8250/tty/ttyS1
+sys-devices-platform-serial8250-tty-ttyS10.device                                        loaded active plugged   /sys/devices/platform/serial8250/tty/ttyS10
+sys-devices-platform-serial8250-tty-ttyS11.device                                        loaded active plugged   /sys/devices/platform/serial8250/tty/ttyS11
+sys-devices-platform-serial8250-tty-ttyS12.device                                        loaded active plugged   /sys/devices/platform/serial8250/tty/ttyS12
+sys-devices-platform-serial8250-tty-ttyS13.device                                        loaded active plugged   /sys/devices/platform/serial8250/tty/ttyS13
+sys-devices-platform-serial8250-tty-ttyS14.device                                        loaded active plugged   /sys/devices/platform/serial8250/tty/ttyS14
+sys-devices-platform-serial8250-tty-ttyS15.device                                        loaded active plugged   /sys/devices/platform/serial8250/tty/ttyS15
+sys-devices-platform-serial8250-tty-ttyS16.device                                        loaded active plugged   /sys/devices/platform/serial8250/tty/ttyS16
+sys-devices-platform-serial8250-tty-ttyS17.device                                        loaded active plugged   /sys/devices/platform/serial8250/tty/ttyS17
+sys-devices-platform-serial8250-tty-ttyS18.device                                        loaded active plugged   /sys/devices/platform/serial8250/tty/ttyS18
+sys-devices-platform-serial8250-tty-ttyS19.device                                        loaded active plugged   /sys/devices/platform/serial8250/tty/ttyS19
+sys-devices-platform-serial8250-tty-ttyS2.device                                         loaded active plugged   /sys/devices/platform/serial8250/tty/ttyS2
+sys-devices-platform-serial8250-tty-ttyS20.device                                        loaded active plugged   /sys/devices/platform/serial8250/tty/ttyS20
+sys-devices-platform-serial8250-tty-ttyS21.device                                        loaded active plugged   /sys/devices/platform/serial8250/tty/ttyS21
+sys-devices-platform-serial8250-tty-ttyS22.device                                        loaded active plugged   /sys/devices/platform/serial8250/tty/ttyS22
+sys-devices-platform-serial8250-tty-ttyS23.device                                        loaded active plugged   /sys/devices/platform/serial8250/tty/ttyS23
+sys-devices-platform-serial8250-tty-ttyS24.device                                        loaded active plugged   /sys/devices/platform/serial8250/tty/ttyS24
+sys-devices-platform-serial8250-tty-ttyS25.device                                        loaded active plugged   /sys/devices/platform/serial8250/tty/ttyS25
+sys-devices-platform-serial8250-tty-ttyS26.device                                        loaded active plugged   /sys/devices/platform/serial8250/tty/ttyS26
+sys-devices-platform-serial8250-tty-ttyS27.device                                        loaded active plugged   /sys/devices/platform/serial8250/tty/ttyS27
+sys-devices-platform-serial8250-tty-ttyS28.device                                        loaded active plugged   /sys/devices/platform/serial8250/tty/ttyS28
+sys-devices-platform-serial8250-tty-ttyS29.device                                        loaded active plugged   /sys/devices/platform/serial8250/tty/ttyS29
+sys-devices-platform-serial8250-tty-ttyS3.device                                         loaded active plugged   /sys/devices/platform/serial8250/tty/ttyS3
+sys-devices-platform-serial8250-tty-ttyS30.device                                        loaded active plugged   /sys/devices/platform/serial8250/tty/ttyS30
+sys-devices-platform-serial8250-tty-ttyS31.device                                        loaded active plugged   /sys/devices/platform/serial8250/tty/ttyS31
+sys-devices-platform-serial8250-tty-ttyS4.device                                         loaded active plugged   /sys/devices/platform/serial8250/tty/ttyS4
+sys-devices-platform-serial8250-tty-ttyS5.device                                         loaded active plugged   /sys/devices/platform/serial8250/tty/ttyS5
+sys-devices-platform-serial8250-tty-ttyS6.device                                         loaded active plugged   /sys/devices/platform/serial8250/tty/ttyS6
+sys-devices-platform-serial8250-tty-ttyS7.device                                         loaded active plugged   /sys/devices/platform/serial8250/tty/ttyS7
+sys-devices-platform-serial8250-tty-ttyS8.device                                         loaded active plugged   /sys/devices/platform/serial8250/tty/ttyS8
+sys-devices-platform-serial8250-tty-ttyS9.device                                         loaded active plugged   /sys/devices/platform/serial8250/tty/ttyS9
+sys-devices-virtual-block-ram0.device                                                    loaded active plugged   /sys/devices/virtual/block/ram0
+sys-devices-virtual-block-ram1.device                                                    loaded active plugged   /sys/devices/virtual/block/ram1
+sys-devices-virtual-block-ram10.device                                                   loaded active plugged   /sys/devices/virtual/block/ram10
+sys-devices-virtual-block-ram11.device                                                   loaded active plugged   /sys/devices/virtual/block/ram11
+sys-devices-virtual-block-ram12.device                                                   loaded active plugged   /sys/devices/virtual/block/ram12
+sys-devices-virtual-block-ram13.device                                                   loaded active plugged   /sys/devices/virtual/block/ram13
+sys-devices-virtual-block-ram14.device                                                   loaded active plugged   /sys/devices/virtual/block/ram14
+sys-devices-virtual-block-ram15.device                                                   loaded active plugged   /sys/devices/virtual/block/ram15
+sys-devices-virtual-block-ram2.device                                                    loaded active plugged   /sys/devices/virtual/block/ram2
+sys-devices-virtual-block-ram3.device                                                    loaded active plugged   /sys/devices/virtual/block/ram3
+sys-devices-virtual-block-ram4.device                                                    loaded active plugged   /sys/devices/virtual/block/ram4
+sys-devices-virtual-block-ram5.device                                                    loaded active plugged   /sys/devices/virtual/block/ram5
+sys-devices-virtual-block-ram6.device                                                    loaded active plugged   /sys/devices/virtual/block/ram6
+sys-devices-virtual-block-ram7.device                                                    loaded active plugged   /sys/devices/virtual/block/ram7
+sys-devices-virtual-block-ram8.device                                                    loaded active plugged   /sys/devices/virtual/block/ram8
+sys-devices-virtual-block-ram9.device                                                    loaded active plugged   /sys/devices/virtual/block/ram9
+sys-devices-virtual-misc-rfkill.device                                                   loaded active plugged   /sys/devices/virtual/misc/rfkill
+sys-devices-virtual-tty-ttyprintk.device                                                 loaded active plugged   /sys/devices/virtual/tty/ttyprintk
+sys-module-fuse.device                                                                   loaded active plugged   /sys/module/fuse
+sys-subsystem-net-devices-enp0s3.device                                                  loaded active plugged   82540EM Gigabit Ethernet Controller (PRO/1000 MT Desktop Adapter)
+-.mount                                                                                  loaded active mounted   /
+dev-hugepages.mount                                                                      loaded active mounted   Huge Pages File System
+dev-mqueue.mount                                                                         loaded active mounted   POSIX Message Queue File System
+media-sf_vb\x2dwin7\x2dshare.mount                                                       loaded active mounted   /media/sf_vb-win7-share
+mnt-vb\x2dwin7\x2dshare.mount                                                            loaded active mounted   /mnt/vb-win7-share
+run-cgmanager-fs.mount                                                                   loaded active mounted   /run/cgmanager/fs
+run-user-1000-gvfs.mount                                                                 loaded active mounted   /run/user/1000/gvfs
+run-user-1000.mount                                                                      loaded active mounted   /run/user/1000
+sys-fs-fuse-connections.mount                                                            loaded active mounted   FUSE Control File System
+sys-kernel-debug.mount                                                                   loaded active mounted   Debug File System
+cups.path                                                                                loaded active waiting   CUPS Scheduler
+systemd-ask-password-plymouth.path                                                       loaded active waiting   Forward Password Requests to Plymouth Directory Watch
+systemd-ask-password-wall.path                                                           loaded active waiting   Forward Password Requests to Wall Directory Watch
+systemd-networkd-resolvconf-update.path                                                  loaded active waiting   Trigger resolvconf update for networkd DNS
+init.scope                                                                               loaded active running   System and Service Manager
+session-c1.scope                                                                         loaded active running   Session c1 of user weng
+accounts-daemon.service                                                                  loaded active running   Accounts Service
+apparmor.service                                                                         loaded active exited    LSB: AppArmor initialization
+apport.service                                                                           loaded active exited    LSB: automatic crash report generation
+avahi-daemon.service                                                                     loaded active running   Avahi mDNS/DNS-SD Stack
+cgmanager.service                                                                        loaded active running   Cgroup management daemon
+colord.service                                                                           loaded active running   Manage, Install and Generate Color Profiles
+cron.service                                                                             loaded active running   Regular background program processing daemon
+cups-browsed.service                                                                     loaded active running   Make remote CUPS printers available locally
+cups.service                                                                             loaded active running   CUPS Scheduler
+dbus.service                                                                             loaded active running   D-Bus System Message Bus
+getty@tty1.service                                                                       loaded active running   Getty on tty1
+grub-common.service                                                                      loaded active exited    LSB: Record successful boot for GRUB
+ifup-wait-all-auto.service                                                               loaded active exited    Wait for all "auto" /etc/network/interfaces to be up for network-online.target
+irqbalance.service                                                                       loaded active running   LSB: daemon to balance interrupts for SMP systems
+kerneloops.service                                                                       loaded active running   LSB: Tool to automatically collect and submit kernel crash signatures
+kmod-static-nodes.service                                                                loaded active exited    Create list of required static device nodes for the current kernel
+lightdm.service                                                                          loaded active running   Light Display Manager
+ModemManager.service                                                                     loaded active running   Modem Manager
+networking.service                                                                       loaded active exited    LSB: Raise network interfaces.
+NetworkManager.service                                                                   loaded active running   Network Manager
+ondemand.service                                                                         loaded active exited    LSB: Set the CPU Frequency Scaling governor to "ondemand"
+polkitd.service                                                                          loaded active running   Authenticate and Authorize Users to Run Privileged Tasks
+rc-local.service                                                                         loaded active exited    /etc/rc.local Compatibility
+resolvconf.service                                                                       loaded active exited    Nameserver information manager
+rsyslog.service                                                                          loaded active running   System Logging Service
+rtkit-daemon.service                                                                     loaded active running   RealtimeKit Scheduling Policy Service
+speech-dispatcher.service                                                                loaded active exited    LSB: Speech Dispatcher
+systemd-journal-flush.service                                                            loaded active exited    Flush Journal to Persistent Storage
+systemd-journald.service                                                                 loaded active running   Journal Service
+systemd-logind.service                                                                   loaded active running   Login Service
+systemd-modules-load.service                                                             loaded active exited    Load Kernel Modules
+systemd-random-seed.service                                                              loaded active exited    Load/Save Random Seed
+systemd-remount-fs.service                                                               loaded active exited    Remount Root and Kernel File Systems
+systemd-sysctl.service                                                                   loaded active exited    Apply Kernel Variables
+systemd-timesyncd.service                                                                loaded active running   Network Time Synchronization
+systemd-tmpfiles-setup-dev.service                                                       loaded active exited    Create Static Device Nodes in /dev
+systemd-tmpfiles-setup.service                                                           loaded active exited    Create Volatile Files and Directories
+systemd-udev-trigger.service                                                             loaded active exited    udev Coldplug all Devices
+systemd-udevd.service                                                                    loaded active running   udev Kernel Device Manager
+systemd-update-utmp.service                                                              loaded active exited    Update UTMP about System Boot/Shutdown
+systemd-user-sessions.service                                                            loaded active exited    Permit User Sessions
+systemd-vconsole-setup.service                                                           loaded active exited    Setup Virtual Console
+udisks2.service                                                                          loaded active running   Disk Manager
+ufw.service                                                                              loaded active exited    Uncomplicated firewall
+upower.service                                                                           loaded active running   Daemon for power management
+user@1000.service                                                                        loaded active running   User Manager for UID 1000
+vboxadd-service.service                                                                  loaded active running   vboxadd-service.service
+vboxadd-x11.service                                                                      loaded active exited    vboxadd-x11.service
+vboxadd.service                                                                          loaded active exited    vboxadd.service
+whoopsie.service                                                                         loaded active running   crash report submission daemon
+wpa_supplicant.service                                                                   loaded active running   WPA supplicant
+-.slice                                                                                  loaded active active    Root Slice
+system-getty.slice                                                                       loaded active active    system-getty.slice
+system.slice                                                                             loaded active active    System Slice
+user-1000.slice                                                                          loaded active active    User Slice of weng
+user.slice                                                                               loaded active active    User and Session Slice
+acpid.socket                                                                             loaded active listening ACPID Listen Socket
+avahi-daemon.socket                                                                      loaded active running   Avahi mDNS/DNS-SD Stack Activation Socket
+cups.socket                                                                              loaded active running   CUPS Scheduler
+dbus.socket                                                                              loaded active running   D-Bus System Message Bus Socket
+syslog.socket                                                                            loaded active running   Syslog Socket
+systemd-fsckd.socket                                                                     loaded active listening fsck to fsckd communication Socket
+systemd-initctl.socket                                                                   loaded active listening /dev/initctl Compatibility Named Pipe
+systemd-journald-audit.socket                                                            loaded active running   Journal Audit Socket
+systemd-journald-dev-log.socket                                                          loaded active running   Journal Socket (/dev/log)
+systemd-journald.socket                                                                  loaded active running   Journal Socket
+systemd-rfkill.socket                                                                    loaded active listening Load/Save RF Kill Switch Status /dev/rfkill Watch
+systemd-udevd-control.socket                                                             loaded active running   udev Control Socket
+systemd-udevd-kernel.socket                                                              loaded active running   udev Kernel Socket
+uuidd.socket                                                                             loaded active listening UUID daemon activation socket
+dev-disk-by\x2duuid-27b422b2\x2d8460\x2d41a3\x2d88c7\x2d298ed5822204.swap                loaded active active    /dev/disk/by-uuid/27b422b2-8460-41a3-88c7-298ed5822204
+basic.target                                                                             loaded active active    Basic System
+cryptsetup.target                                                                        loaded active active    Encrypted Volumes
+getty.target                                                                             loaded active active    Login Prompts
+graphical.target                                                                         loaded active active    Graphical Interface
+local-fs-pre.target                                                                      loaded active active    Local File Systems (Pre)
+local-fs.target                                                                          loaded active active    Local File Systems
+multi-user.target                                                                        loaded active active    Multi-User System
+network-online.target                                                                    loaded active active    Network is Online
+network.target                                                                           loaded active active    Network
+nss-user-lookup.target                                                                   loaded active active    User and Group Name Lookups
+paths.target                                                                             loaded active active    Paths
+remote-fs-pre.target                                                                     loaded active active    Remote File Systems (Pre)
+remote-fs.target                                                                         loaded active active    Remote File Systems
+slices.target                                                                            loaded active active    Slices
+sockets.target                                                                           loaded active active    Sockets
+sound.target                                                                             loaded active active    Sound Card
+swap.target                                                                              loaded active active    Swap
+sysinit.target                                                                           loaded active active    System Initialization
+time-sync.target                                                                         loaded active active    System Time Synchronized
+timers.target                                                                            loaded active active    Timers
+apt-daily.timer                                                                          loaded active waiting   Daily apt activities
+systemd-tmpfiles-clean.timer                                                             loaded active waiting   Daily Cleanup of Temporary Directories
+
+LOAD   = Reflects whether the unit definition was properly loaded.
+ACTIVE = The high-level unit activation state, i.e. generalization of SUB.
+SUB    = The low-level unit activation state, values depend on unit type.
+
+169 loaded units listed. Pass --all to see loaded but inactive units, too.
+To show all installed unit files use '</span>systemctl list-unit-files<span class="s1">'.
+weng@weng-u1604:/lib/systemd/system$ </span></code></pre></figure>
+
+<table>
+  <tbody>
+    <tr>
+      <td>A unit can be operated using “systemctl [ start</td>
+      <td>stop</td>
+      <td>restart</td>
+      <td>reload</td>
+      <td>enable</td>
+      <td>disable</td>
+      <td>mask</td>
+      <td>unmask ] unit-name”.</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="power-management">Power management</h2>
+<p>using “systemctl [ reboot | poweroff | suspend | hibernate ]</p>
+
+<h2 id="using-unit-file">Using unit file</h2>
+<p>Unit files are loaded from two locations. From lowest to highest precedence they are:</p>
+
+<ul>
+<li>/usr/lib/systemd/system/: units provided by installed packages </li>
+<li>/etc/systemd/system/: units installed by the system administrator </li>
+</ul>
+
+<p>Drop-in files: To create drop-in files for the unit file /usr/lib/systemd/system/unit, create the directory /etc/systemd/system/unit.d/ and place .conf files there to override or add new options. systemd will parse these .conf files and apply them on top of the original unit.</p>
+
+<h3 id="service-types">Service types</h3>
+<p>There are several different start-up types to consider when writing a custom service file. This is set with the Type= parameter in the  [Service] section:</p>
+<ul>
+<li>Type=simple (default): systemd considers the service to be started up immediately. The process must not fork. Do not use this type if other services need to be ordered on this service, unless it is socket activated. </li>
+<li>Type=forking: systemd considers the service started up once the process forks and the parent has exited. For classic daemons use this type unless you know that it is not necessary. You should specify PIDFile= as well so systemd can keep track of the main process. </li>
+<li>Type=oneshot: this is useful for scripts that do a single job and then exit. You may want to set RemainAfterExit=yes as well so that systemd still considers the service as active after the process has exited. </li>
+<li>Type=notify: identical to Type=simple, but with the stipulation that the daemon will send a signal to systemd when it is ready. The reference implementation for this notification is provided by libsystemd-daemon.so. </li>
+<li>Type=dbus: the service is considered ready when the specified BusName appears on DBus's system bus. </li>
+<li>Type=idle: systemd will delay execution of the service binary until all jobs are dispatched. Other than that behavior is very similar to Type=simple. </li>
+See the systemd.service(5) man page for a more detailed explanation of the Type values.
+</ul>
+
+<h3 id="target">target</h3>
+<p>systemd uses targets which serve a similar purpose as runlevels but act a little different. Each target is named instead of numbered and is intended to serve a specific purpose with the possibility of having multiple ones active at the same time. Some targets are implemented by inheriting all of the services of another target and adding additional services to it. There are systemd targets that mimic the common SystemVinit runlevels so you can still switch targets using the familiar telinit RUNLEVEL command.</p>
+
+<h4 id="get-current-targets">Get current targets</h4>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">eng@weng-u1604:/lib/systemd/system<span class="nv">$ </span>systemctl list-units <span class="nt">--type</span><span class="o">=</span>target
+UNIT                   LOAD   ACTIVE SUB    DESCRIPTION
+basic.target           loaded active active Basic System
+cryptsetup.target      loaded active active Encrypted Volumes
+getty.target           loaded active active Login Prompts
+graphical.target       loaded active active Graphical Interface
+local-fs-pre.target    loaded active active Local File Systems <span class="o">(</span>Pre<span class="o">)</span>
+local-fs.target        loaded active active Local File Systems
+multi-user.target      loaded active active Multi-User System
+network-online.target  loaded active active Network is Online
+network.target         loaded active active Network
+nss-user-lookup.target loaded active active User and Group Name Lookups
+paths.target           loaded active active Paths
+remote-fs-pre.target   loaded active active Remote File Systems <span class="o">(</span>Pre<span class="o">)</span>
+remote-fs.target       loaded active active Remote File Systems
+slices.target          loaded active active Slices
+sockets.target         loaded active active Sockets
+sound.target           loaded active active Sound Card
+swap.target            loaded active active Swap
+sysinit.target         loaded active active System Initialization
+time-sync.target       loaded active active System Time Synchronized
+timers.target          loaded active active Timers
+
+LOAD   <span class="o">=</span> Reflects whether the unit definition was properly loaded.
+ACTIVE <span class="o">=</span> The high-level unit activation state, i.e. generalization of SUB.
+SUB    <span class="o">=</span> The low-level unit activation state, values depend on unit type.
+
+20 loaded units listed. Pass <span class="nt">--all</span> to see loaded but inactive units, too.
+To show all installed unit files use <span class="s1">'systemctl list-unit-files'</span><span class="nb">.</span>
+weng@weng-u1604:/lib/systemd/system<span class="nv">$ </span></code></pre></figure>
+
+<h4 id="targets-table">Targets table</h4>
+
+<p><img src="/uploads/linux/linux-systemd-targets.jpg" alt="systemd targets" /></p>
+
+<p>The relation between targets defines the system boot sequence, the typical system boot sequence is like below:</p>
+
+<p><img src="/uploads/linux/systemd-boot-sequence.jpg" alt="systemd boot sequence" /></p>
+
+<p><a href="http://localhost:4000/uploads/linux/BostonLinuxUnix-20160315-understand-systemd.pdf">Understand Systemd</a> from Redhat has a great explanation for that.</p>
+
+<h3 id="unit-sample-file">Unit sample file</h3>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="o">[</span>Unit]
+<span class="nv">Description</span><span class="o">=</span>Virtual Distributed Ethernet
+<span class="nv">After</span><span class="o">=</span>syslog.target
+
+<span class="o">[</span>Service]
+<span class="nv">Type</span><span class="o">=</span>forking
+<span class="nv">PIDFile</span><span class="o">=</span>/var/run/vde.pid
+<span class="nv">ExecStart</span><span class="o">=</span>/usr/bin/vde_switch <span class="nt">--tap</span> tap0 <span class="nt">--mode</span> 0660 <span class="se">\</span>
+ <span class="nt">--dirmode</span> 0750 <span class="nt">--group</span> qemu <span class="se">\</span>
+ <span class="nt">--daemon</span> <span class="nt">--pidfile</span> /var/run/vde.pid
+<span class="nv">Restart</span><span class="o">=</span>on-abort
+
+<span class="o">[</span>Install]
+<span class="nv">WantedBy</span><span class="o">=</span>multi-user.target</code></pre></figure>
+
+<h1 id="reference">reference</h1>
+<ul>
+<li> https://wiki.archlinux.org/index.php/Systemd </li>
+<li> https://en.wikipedia.org/wiki/Systemd </li>
+</ul>
+
+</article>
+
+
+
+
+
+<section class="rss">
+  <p class="rss-subscribe text"><strong>Subscribe <a href="/feed.xml">via RSS</a></strong></p>
+</section>
+
+<section class="share">
+  <span>Share: </span>
+  
+    
+    
+    
+    
+    
+    
+    
+    
+  
+    
+    
+    
+    
+    
+      <a href="//www.linkedin.com/shareArticle?mini=true&url=http%3A%2F%2Flocalhost%3A4000%2Flinux%2F2016%2F11%2F04%2Flinux-boot-systemd.html"
+        onclick="window.open(this.href, 'linkedin-share', 'width=550,height=255');return false;">
+        <i class="fa fa-linkedin-square fa-lg"></i>
+      </a>
+    
+    
+    
+    
+  
+</section>
+
+
+
+
+</div>
+</div>
+
+    </div>
+
+    <footer class="site-footer">
+
+  <div class="wrapper">
+
+    <h3 class="footer-heading">Wenwei Weng's Blog</h3>
+
+    <div class="site-navigation">
+
+      <p><strong>Site Map</strong></p>
+      <ul class="pages">
+				
+	
+	<li class="nav-link"><a href="/about/">About</a>
+	
+
+	
+
+	
+
+	
+	<li class="nav-link"><a href="/posts/">Posts</a>
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+      </ul>
+    </div>
+
+    <div class="site-contact">
+
+      <p><strong>Contact</strong></p>
+      <ul class="social-media-list">
+        <li>
+          <a href="mailto:weweng@gmail.com">
+            <i class="fa fa-envelope-o"></i>
+            <span class="username">weweng@gmail.com</span>
+          </a>
+        </li>
+
+        
+          
+          <li>
+            <a href="https://github.com/weweng" title="Fork me on GitHub">
+              <i class="fa fa-github"></i>
+              <span class="username">weweng</span>
+            </a>
+          </li>
+          
+        
+          
+          <li>
+            <a href="https://www.linkedin.com/in/wenwei-weng/" title="Connect with me on LinkedIn">
+              <i class="fa fa-linkedin"></i>
+              <span class="username">Wenwei Weng</span>
+            </a>
+          </li>
+          
+        
+
+      </ul>
+    </div>
+
+    <div class="site-signature">
+      <p class="rss-subscribe text"><strong>Subscribe <a href="/feed.xml">via RSS</a></strong></p>
+      <p class="text">A simple yet classy theme for your Jekyll based blog.
+</p>
+    </div>
+
+  </div>
+
+</footer>
+
+<!-- Scripts -->
+<script src="//code.jquery.com/jquery-3.4.1.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.10/highlight.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.1/js/lightbox.min.js"></script>
+<script src="//unpkg.com/popper.js@1"></script>
+<script src="//unpkg.com/tippy.js@5"></script>
+
+<script type="text/javascript">
+$(document).ready(function() {
+  // Default syntax highlighting
+  hljs.initHighlightingOnLoad();
+
+  // Header
+  var menuToggle = $('#js-mobile-menu').unbind();
+  $('#js-navigation-menu').removeClass("show");
+  menuToggle.on('click', function(e) {
+    e.preventDefault();
+    $('#js-navigation-menu').slideToggle(function(){
+      if($('#js-navigation-menu').is(':hidden')) {
+        $('#js-navigation-menu').removeAttr('style');
+      }
+    });
+  });
+
+	// Enable tooltips via Tippy.js
+	if (Array.isArray(window.tooltips)) {
+		window.tooltips.forEach(function(tooltip) {
+			var selector = tooltip[0];
+			var config = tooltip[1];
+			tippy(selector, config);
+		})
+	}
+});
+
+</script>
+
+
+
+
+
+
+  </body>
+
+</html>

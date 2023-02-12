@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>Linux disk amangement (4) - disk partition table MBR and GPT</title>
+  <meta name="description" content="In Linux world, disk management is an interesting area. As time moves on, the disk capacity is increasing, speed is improving, and price is dropping. In this...">
+  
+  <meta name="author" content="Wenwei Weng">
+  <meta name="copyright" content="&copy; Wenwei Weng 2023">
+  
+
+  <!-- External libraries -->
+  <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css">
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.9.0/styles/monokai-sublime.min.css">
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/lightbox2/2.7.1/css/lightbox.css">
+
+  <!-- Favicon and other icons (made with http://www.favicon-generator.org/) -->
+  <link rel="shortcut icon" href="/assets/icons/favicon.ico" type="image/x-icon">
+  <link rel="icon" href="/assets/icons/favicon.ico" type="image/x-icon">
+  <link rel="apple-touch-icon" sizes="57x57" href="/assets/icons/apple-icon-57x57.png">
+  <link rel="apple-touch-icon" sizes="60x60" href="/assets/icons/apple-icon-60x60.png">
+  <link rel="apple-touch-icon" sizes="72x72" href="/assets/icons/apple-icon-72x72.png">
+  <link rel="apple-touch-icon" sizes="76x76" href="/assets/icons/apple-icon-76x76.png">
+  <link rel="apple-touch-icon" sizes="114x114" href="/assets/icons/apple-icon-114x114.png">
+  <link rel="apple-touch-icon" sizes="120x120" href="/assets/icons/apple-icon-120x120.png">
+  <link rel="apple-touch-icon" sizes="144x144" href="/assets/icons/apple-icon-144x144.png">
+  <link rel="apple-touch-icon" sizes="152x152" href="/assets/icons/apple-icon-152x152.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/assets/icons/apple-icon-180x180.png">
+  <link rel="icon" type="image/png" sizes="192x192"  href="/assets/icons/android-icon-192x192.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/assets/icons/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="96x96" href="/assets/icons/favicon-96x96.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/assets/icons/favicon-16x16.png">
+  <link rel="manifest" href="/assets/icons/manifest.json">
+  <meta name="msapplication-TileColor" content="#ffffff">
+  <meta name="msapplication-TileImage" content="/assets/icons/ms-icon-144x144.png">
+  <meta name="theme-color" content="#ffffff">
+
+  
+
+  
+
+  
+
+  <!-- Site styles -->
+  <link rel="stylesheet" href="/css/main.css">
+  <link rel="canonical" href="http://localhost:4000/linux/2016/08/17/mbr-gpt.html">
+	<link rel="alternate" type="application/rss+xml" title="Wenwei Weng's Blog" href="http://localhost:4000/feed.xml" />
+	
+	<!-- Tooltips -->
+	<script type="text/javascript">
+		window.tooltips = []
+	</script>
+</head>
+
+
+  <body>
+
+    <header class="navigation" role="banner">
+  <div class="navigation-wrapper">
+    <a href="/" class="logo">
+      
+      <img src="/assets/avatar.png" alt="Wenwei Weng's Blog">
+      
+    </a>
+    <a href="javascript:void(0)" class="navigation-menu-button" id="js-mobile-menu">
+      <i class="fa fa-bars"></i>
+    </a>
+    <nav role="navigation">
+      <ul id="js-navigation-menu" class="navigation-menu show">
+				
+	
+	<li class="nav-link"><a href="/about/">About</a>
+	
+
+	
+
+	
+
+	
+	<li class="nav-link"><a href="/posts/">Posts</a>
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+      </ul>
+    </nav>
+  </div>
+</header>
+
+
+    <div class="page-content">
+        <div class="post">
+
+<div class="post-header-container " >
+  <div class="scrim ">
+    <header class="post-header">
+      <h1 class="title">Linux disk amangement (4) - disk partition table MBR and GPT</h1>
+      <p class="info">by <strong>Wenwei Weng</strong></p>
+    </header>
+  </div>
+</div>
+
+<div class="wrapper">
+
+ <span class="page-divider">
+  <span class="one"></span>
+  <span class="two"></span>
+</span>
+ 
+
+<section class="post-meta">
+  <div class="post-date">August 17, 2016</div>
+  <div class="post-categories">
+  in 
+    
+    <a href="/category/Linux">Linux</a>
+    
+  
+  </div>
+</section>
+
+<article class="post-content">
+  <p>In Linux world, disk management is an interesting area. As time moves on, the disk capacity is increasing, speed is improving, and price is dropping. In this post, let’s talk about disk partition table type:MBR and GPT.</p>
+
+<p><img src="/uploads/linux/linux-mbr-gpt.jpg" alt="Linux partition type" /></p>
+
+<!--more-->
+
+<h1 id="master-boot-record-mbr">Master Boot Record (MBR)</h1>
+<p>MBR was born in the early 1980s for IBM PCs, way back in the thrilling days of ten-megabyte hard disks. The MBR must live on the first 512 bytes (first sector) of disk, and it holds the bootloader and partition table. The bootloader occupies 446 bytes, the partition table uses 64 bytes, and the remaining two bytes store the boot signature. The MBR is limited to four primary partitions, and a single primary partition can be an extended partition which can then be divided into logical partitions. Linux supports (theoretically) an unlimited number of logical partitions.
+MBR is tiny and inflexible, and has lasted this long thanks to clever hacks to get around its limitations. Logical Block Addressing (LBA) gets around the limitations of its original cylinders, heads, and sectors (CHS) addressing. The traditional hard disk block size of 512 bytes limits partitions to 2TB in size. Even though MBR is still widely used, but it is retiring…</p>
+
+<h1 id="guid-partition-table-gpt">GUID Partition Table (GPT)</h1>
+<p>GPT is part of the Unified Extensible Firmware Interface (UEFI) specification, GPT does not have primary and logical partitions.</p>
+
+<p>GPT has several advantages over the MBR:</p>
+
+<ul>
+<li>64-bit disk pointers allows 2 powerof 64 total sectors, so a hard disk with 512-byte blocks can be as large as 8 zebibytes. With 4096-byte sectors your maximum disk size is really really large. </li>
+<li>The default maximum number of partitions is 128, and if your operating system supports it you can have more. </li>
+<li>No more CHS cruft or hacky primary-extended-logical partitioning scheme, which falls down if you need Windows because Windows is inflexible and hogs primary partitions </li>
+<li>GPT has fault-tolerance by keeping copies of the partition table in the first and last sector on the disk</li>
+<li>GPT computes a cyclic redundancy check (CRC) checksum to verify its own integrity, and of the partition table</li>
+<li>Unique IDs for disks and partitions.</li>
+</ul>
+
+<p>Let’s do some simple exercise by using a 1GB USB pendrive.
+I insert 1GB UBS pendrive into a box running Centos, it is detected as /dev/sdb.</p>
+
+<p>First thing to notice is that the partition tool “gdisk”, instead of “fdisk”.
+Second thing, “gdisk -l /dev/sdb” tells there is no partition exists in the device so far.</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="o">[</span>root@sg-centos-hv1 scratch]# gdisk <span class="nt">-l</span> /dev/sdb
+GPT fdisk <span class="o">(</span>gdisk<span class="o">)</span> version 0.8.10
+
+Partition table scan:
+  MBR: protective
+  BSD: not present
+  APM: not present
+  GPT: present
+
+Found valid GPT with protective MBR<span class="p">;</span> using GPT.
+Disk /dev/sdb: 2025472 sectors, 989.0 MiB
+Logical sector size: 512 bytes
+Disk identifier <span class="o">(</span>GUID<span class="o">)</span>: D8D32FE0-922C-4CE4-9FA1-CCB016160620
+Partition table holds up to 128 entries
+First usable sector is 34, last usable sector is 2025438
+Partitions will be aligned on 2048-sector boundaries
+Total free space is 2025405 sectors <span class="o">(</span>989.0 MiB<span class="o">)</span>
+
+Number  Start <span class="o">(</span>sector<span class="o">)</span>    End <span class="o">(</span>sector<span class="o">)</span>  Size       Code  Name
+<span class="o">[</span>root@sg-centos-hv1 scratch]#</code></pre></figure>
+
+<p>Let’s create 5 partitions, first one is 100MB, the second one is 200MB, and third one is 100MB, fourth is 100MB, fifth has the rest of space.</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="o">[</span>root@sg-centos-hv1 scratch]# gdisk /dev/sdb
+GPT fdisk <span class="o">(</span>gdisk<span class="o">)</span> version 0.8.10
+
+Partition table scan:
+  MBR: protective
+  BSD: not present
+  APM: not present
+  GPT: present
+
+Found valid GPT with protective MBR<span class="p">;</span> using GPT.
+
+Command <span class="o">(</span>? <span class="k">for </span><span class="nb">help</span><span class="o">)</span>: ?
+b       back up GPT data to a file
+c       change a partition<span class="s1">'s name
+d       delete a partition
+i       show detailed information on a partition
+l       list known partition types
+n       add a new partition
+o       create a new empty GUID partition table (GPT)
+p       print the partition table
+q       quit without saving changes
+r       recovery and transformation options (experts only)
+s       sort partitions
+t       change a partition'</span>s <span class="nb">type </span>code
+v       verify disk
+w       write table to disk and <span class="nb">exit
+</span>x       extra functionality <span class="o">(</span>experts only<span class="o">)</span>
+?       print this menu
+
+Command <span class="o">(</span>? <span class="k">for </span><span class="nb">help</span><span class="o">)</span>: p
+Disk /dev/sdb: 2025472 sectors, 989.0 MiB
+Logical sector size: 512 bytes
+Disk identifier <span class="o">(</span>GUID<span class="o">)</span>: D8D32FE0-922C-4CE4-9FA1-CCB016160620
+Partition table holds up to 128 entries
+First usable sector is 34, last usable sector is 2025438
+Partitions will be aligned on 2048-sector boundaries
+Total free space is 2025405 sectors <span class="o">(</span>989.0 MiB<span class="o">)</span>
+
+Number  Start <span class="o">(</span>sector<span class="o">)</span>    End <span class="o">(</span>sector<span class="o">)</span>  Size       Code  Name</code></pre></figure>
+
+<p>As it is shown, there is no partition table so far.</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">Command <span class="o">(</span>? <span class="k">for </span><span class="nb">help</span><span class="o">)</span>: n
+Partition number <span class="o">(</span>1-128, default 1<span class="o">)</span>:
+First sector <span class="o">(</span>34-2025438, default <span class="o">=</span> 2048<span class="o">)</span> or <span class="o">{</span>+-<span class="o">}</span>size<span class="o">{</span>KMGTP<span class="o">}</span>:
+Last sector <span class="o">(</span>2048-2025438, default <span class="o">=</span> 2025438<span class="o">)</span> or <span class="o">{</span>+-<span class="o">}</span>size<span class="o">{</span>KMGTP<span class="o">}</span>: +100M
+Current <span class="nb">type </span>is <span class="s1">'Linux filesystem'</span>
+Hex code or GUID <span class="o">(</span>L to show codes, Enter <span class="o">=</span> 8300<span class="o">)</span>:
+Changed <span class="nb">type </span>of partition to <span class="s1">'Linux filesystem'</span>
+
+Command <span class="o">(</span>? <span class="k">for </span><span class="nb">help</span><span class="o">)</span>: p
+Disk /dev/sdb: 2025472 sectors, 989.0 MiB
+Logical sector size: 512 bytes
+Disk identifier <span class="o">(</span>GUID<span class="o">)</span>: D8D32FE0-922C-4CE4-9FA1-CCB016160620
+Partition table holds up to 128 entries
+First usable sector is 34, last usable sector is 2025438
+Partitions will be aligned on 2048-sector boundaries
+Total free space is 1820605 sectors <span class="o">(</span>889.0 MiB<span class="o">)</span>
+
+Number  Start <span class="o">(</span>sector<span class="o">)</span>    End <span class="o">(</span>sector<span class="o">)</span>  Size       Code  Name
+   1            2048          206847   100.0 MiB   8300  Linux filesystem</code></pre></figure>
+
+<p>As it is shown, first partition with 100MB is created now.</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">Command <span class="o">(</span>? <span class="k">for </span><span class="nb">help</span><span class="o">)</span>: n
+Partition number <span class="o">(</span>2-128, default 2<span class="o">)</span>:
+First sector <span class="o">(</span>34-2025438, default <span class="o">=</span> 206848<span class="o">)</span> or <span class="o">{</span>+-<span class="o">}</span>size<span class="o">{</span>KMGTP<span class="o">}</span>:
+Last sector <span class="o">(</span>206848-2025438, default <span class="o">=</span> 2025438<span class="o">)</span> or <span class="o">{</span>+-<span class="o">}</span>size<span class="o">{</span>KMGTP<span class="o">}</span>: +200M
+Current <span class="nb">type </span>is <span class="s1">'Linux filesystem'</span>
+Hex code or GUID <span class="o">(</span>L to show codes, Enter <span class="o">=</span> 8300<span class="o">)</span>:
+Changed <span class="nb">type </span>of partition to <span class="s1">'Linux filesystem'</span>
+
+Command <span class="o">(</span>? <span class="k">for </span><span class="nb">help</span><span class="o">)</span>: p
+Disk /dev/sdb: 2025472 sectors, 989.0 MiB
+Logical sector size: 512 bytes
+Disk identifier <span class="o">(</span>GUID<span class="o">)</span>: D8D32FE0-922C-4CE4-9FA1-CCB016160620
+Partition table holds up to 128 entries
+First usable sector is 34, last usable sector is 2025438
+Partitions will be aligned on 2048-sector boundaries
+Total free space is 1411005 sectors <span class="o">(</span>689.0 MiB<span class="o">)</span>
+
+Number  Start <span class="o">(</span>sector<span class="o">)</span>    End <span class="o">(</span>sector<span class="o">)</span>  Size       Code  Name
+   1            2048          206847   100.0 MiB   8300  Linux filesystem
+   2          206848          616447   200.0 MiB   8300  Linux filesystem</code></pre></figure>
+
+<p>As it is shown, first and second partitions are created.</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">Command <span class="o">(</span>? <span class="k">for </span><span class="nb">help</span><span class="o">)</span>: n
+Partition number <span class="o">(</span>3-128, default 3<span class="o">)</span>:
+First sector <span class="o">(</span>34-2025438, default <span class="o">=</span> 616448<span class="o">)</span> or <span class="o">{</span>+-<span class="o">}</span>size<span class="o">{</span>KMGTP<span class="o">}</span>:
+Last sector <span class="o">(</span>616448-2025438, default <span class="o">=</span> 2025438<span class="o">)</span> or <span class="o">{</span>+-<span class="o">}</span>size<span class="o">{</span>KMGTP<span class="o">}</span>: +100M
+Current <span class="nb">type </span>is <span class="s1">'Linux filesystem'</span>
+Hex code or GUID <span class="o">(</span>L to show codes, Enter <span class="o">=</span> 8300<span class="o">)</span>:
+Changed <span class="nb">type </span>of partition to <span class="s1">'Linux filesystem'</span>
+
+Command <span class="o">(</span>? <span class="k">for </span><span class="nb">help</span><span class="o">)</span>: n
+Partition number <span class="o">(</span>4-128, default 4<span class="o">)</span>:
+First sector <span class="o">(</span>34-2025438, default <span class="o">=</span> 821248<span class="o">)</span> or <span class="o">{</span>+-<span class="o">}</span>size<span class="o">{</span>KMGTP<span class="o">}</span>:
+Last sector <span class="o">(</span>821248-2025438, default <span class="o">=</span> 2025438<span class="o">)</span> or <span class="o">{</span>+-<span class="o">}</span>size<span class="o">{</span>KMGTP<span class="o">}</span>: +100M
+Current <span class="nb">type </span>is <span class="s1">'Linux filesystem'</span>
+Hex code or GUID <span class="o">(</span>L to show codes, Enter <span class="o">=</span> 8300<span class="o">)</span>:
+Changed <span class="nb">type </span>of partition to <span class="s1">'Linux filesystem'</span>
+
+Command <span class="o">(</span>? <span class="k">for </span><span class="nb">help</span><span class="o">)</span>: n
+Partition number <span class="o">(</span>5-128, default 5<span class="o">)</span>:
+First sector <span class="o">(</span>34-2025438, default <span class="o">=</span> 1026048<span class="o">)</span> or <span class="o">{</span>+-<span class="o">}</span>size<span class="o">{</span>KMGTP<span class="o">}</span>:
+Last sector <span class="o">(</span>1026048-2025438, default <span class="o">=</span> 2025438<span class="o">)</span> or <span class="o">{</span>+-<span class="o">}</span>size<span class="o">{</span>KMGTP<span class="o">}</span>:
+Current <span class="nb">type </span>is <span class="s1">'Linux filesystem'</span>
+Hex code or GUID <span class="o">(</span>L to show codes, Enter <span class="o">=</span> 8300<span class="o">)</span>:
+Changed <span class="nb">type </span>of partition to <span class="s1">'Linux filesystem'</span>
+
+Command <span class="o">(</span>? <span class="k">for </span><span class="nb">help</span><span class="o">)</span>: p
+Disk /dev/sdb: 2025472 sectors, 989.0 MiB
+Logical sector size: 512 bytes
+Disk identifier <span class="o">(</span>GUID<span class="o">)</span>: D8D32FE0-922C-4CE4-9FA1-CCB016160620
+Partition table holds up to 128 entries
+First usable sector is 34, last usable sector is 2025438
+Partitions will be aligned on 2048-sector boundaries
+Total free space is 2014 sectors <span class="o">(</span>1007.0 KiB<span class="o">)</span>
+
+Number  Start <span class="o">(</span>sector<span class="o">)</span>    End <span class="o">(</span>sector<span class="o">)</span>  Size       Code  Name
+   1            2048          206847   100.0 MiB   8300  Linux filesystem
+   2          206848          616447   200.0 MiB   8300  Linux filesystem
+   3          616448          821247   100.0 MiB   8300  Linux filesystem
+   4          821248         1026047   100.0 MiB   8300  Linux filesystem
+   5         1026048         2025438   488.0 MiB   8300  Linux filesystem</code></pre></figure>
+
+<p>As it is shown, all five partitions are created. Now it is time to save it to make it permanent.</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">Command <span class="o">(</span>? <span class="k">for </span><span class="nb">help</span><span class="o">)</span>: w
+
+Final checks complete. About to write GPT data. THIS WILL OVERWRITE EXISTING
+PARTITIONS!!
+
+Do you want to proceed? <span class="o">(</span>Y/N<span class="o">)</span>: y
+OK<span class="p">;</span> writing new GUID partition table <span class="o">(</span>GPT<span class="o">)</span> to /dev/sdb.
+The operation has completed successfully.</code></pre></figure>
+
+<p>Now let’s verify it.</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="o">[</span>root@sg-centos-hv1 scratch]# gdisk <span class="nt">-l</span> /dev/sdb
+GPT fdisk <span class="o">(</span>gdisk<span class="o">)</span> version 0.8.10
+
+Partition table scan:
+  MBR: protective
+  BSD: not present
+  APM: not present
+  GPT: present
+
+Found valid GPT with protective MBR<span class="p">;</span> using GPT.
+Disk /dev/sdb: 2025472 sectors, 989.0 MiB
+Logical sector size: 512 bytes
+Disk identifier <span class="o">(</span>GUID<span class="o">)</span>: D8D32FE0-922C-4CE4-9FA1-CCB016160620
+Partition table holds up to 128 entries
+First usable sector is 34, last usable sector is 2025438
+Partitions will be aligned on 2048-sector boundaries
+Total free space is 2014 sectors <span class="o">(</span>1007.0 KiB<span class="o">)</span>
+
+Number  Start <span class="o">(</span>sector<span class="o">)</span>    End <span class="o">(</span>sector<span class="o">)</span>  Size       Code  Name
+   1            2048          206847   100.0 MiB   8300  Linux filesystem
+   2          206848          616447   200.0 MiB   8300  Linux filesystem
+   3          616448          821247   100.0 MiB   8300  Linux filesystem
+   4          821248         1026047   100.0 MiB   8300  Linux filesystem
+   5         1026048         2025438   488.0 MiB   8300  Linux filesystem
+<span class="o">[</span>root@sg-centos-hv1 scratch]#</code></pre></figure>
+
+<p>All looks good!</p>
+
+</article>
+
+
+
+
+
+<section class="rss">
+  <p class="rss-subscribe text"><strong>Subscribe <a href="/feed.xml">via RSS</a></strong></p>
+</section>
+
+<section class="share">
+  <span>Share: </span>
+  
+    
+    
+    
+    
+    
+    
+    
+    
+  
+    
+    
+    
+    
+    
+      <a href="//www.linkedin.com/shareArticle?mini=true&url=http%3A%2F%2Flocalhost%3A4000%2Flinux%2F2016%2F08%2F17%2Fmbr-gpt.html"
+        onclick="window.open(this.href, 'linkedin-share', 'width=550,height=255');return false;">
+        <i class="fa fa-linkedin-square fa-lg"></i>
+      </a>
+    
+    
+    
+    
+  
+</section>
+
+
+
+
+</div>
+</div>
+
+    </div>
+
+    <footer class="site-footer">
+
+  <div class="wrapper">
+
+    <h3 class="footer-heading">Wenwei Weng's Blog</h3>
+
+    <div class="site-navigation">
+
+      <p><strong>Site Map</strong></p>
+      <ul class="pages">
+				
+	
+	<li class="nav-link"><a href="/about/">About</a>
+	
+
+	
+
+	
+
+	
+	<li class="nav-link"><a href="/posts/">Posts</a>
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+      </ul>
+    </div>
+
+    <div class="site-contact">
+
+      <p><strong>Contact</strong></p>
+      <ul class="social-media-list">
+        <li>
+          <a href="mailto:weweng@gmail.com">
+            <i class="fa fa-envelope-o"></i>
+            <span class="username">weweng@gmail.com</span>
+          </a>
+        </li>
+
+        
+          
+          <li>
+            <a href="https://github.com/weweng" title="Fork me on GitHub">
+              <i class="fa fa-github"></i>
+              <span class="username">weweng</span>
+            </a>
+          </li>
+          
+        
+          
+          <li>
+            <a href="https://www.linkedin.com/in/wenwei-weng/" title="Connect with me on LinkedIn">
+              <i class="fa fa-linkedin"></i>
+              <span class="username">Wenwei Weng</span>
+            </a>
+          </li>
+          
+        
+
+      </ul>
+    </div>
+
+    <div class="site-signature">
+      <p class="rss-subscribe text"><strong>Subscribe <a href="/feed.xml">via RSS</a></strong></p>
+      <p class="text">A simple yet classy theme for your Jekyll based blog.
+</p>
+    </div>
+
+  </div>
+
+</footer>
+
+<!-- Scripts -->
+<script src="//code.jquery.com/jquery-3.4.1.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.10/highlight.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.1/js/lightbox.min.js"></script>
+<script src="//unpkg.com/popper.js@1"></script>
+<script src="//unpkg.com/tippy.js@5"></script>
+
+<script type="text/javascript">
+$(document).ready(function() {
+  // Default syntax highlighting
+  hljs.initHighlightingOnLoad();
+
+  // Header
+  var menuToggle = $('#js-mobile-menu').unbind();
+  $('#js-navigation-menu').removeClass("show");
+  menuToggle.on('click', function(e) {
+    e.preventDefault();
+    $('#js-navigation-menu').slideToggle(function(){
+      if($('#js-navigation-menu').is(':hidden')) {
+        $('#js-navigation-menu').removeAttr('style');
+      }
+    });
+  });
+
+	// Enable tooltips via Tippy.js
+	if (Array.isArray(window.tooltips)) {
+		window.tooltips.forEach(function(tooltip) {
+			var selector = tooltip[0];
+			var config = tooltip[1];
+			tippy(selector, config);
+		})
+	}
+});
+
+</script>
+
+
+
+
+
+
+  </body>
+
+</html>

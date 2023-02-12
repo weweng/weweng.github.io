@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>Linux Thread Local Storage</title>
+  <meta name="description" content="Thread-local storage (TLS) is a mechanism by which variables are allocated such that there is one instance of the variable per extant thread.">
+  
+  <meta name="author" content="Wenwei Weng">
+  <meta name="copyright" content="&copy; Wenwei Weng 2023">
+  
+
+  <!-- External libraries -->
+  <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css">
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.9.0/styles/monokai-sublime.min.css">
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/lightbox2/2.7.1/css/lightbox.css">
+
+  <!-- Favicon and other icons (made with http://www.favicon-generator.org/) -->
+  <link rel="shortcut icon" href="/assets/icons/favicon.ico" type="image/x-icon">
+  <link rel="icon" href="/assets/icons/favicon.ico" type="image/x-icon">
+  <link rel="apple-touch-icon" sizes="57x57" href="/assets/icons/apple-icon-57x57.png">
+  <link rel="apple-touch-icon" sizes="60x60" href="/assets/icons/apple-icon-60x60.png">
+  <link rel="apple-touch-icon" sizes="72x72" href="/assets/icons/apple-icon-72x72.png">
+  <link rel="apple-touch-icon" sizes="76x76" href="/assets/icons/apple-icon-76x76.png">
+  <link rel="apple-touch-icon" sizes="114x114" href="/assets/icons/apple-icon-114x114.png">
+  <link rel="apple-touch-icon" sizes="120x120" href="/assets/icons/apple-icon-120x120.png">
+  <link rel="apple-touch-icon" sizes="144x144" href="/assets/icons/apple-icon-144x144.png">
+  <link rel="apple-touch-icon" sizes="152x152" href="/assets/icons/apple-icon-152x152.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/assets/icons/apple-icon-180x180.png">
+  <link rel="icon" type="image/png" sizes="192x192"  href="/assets/icons/android-icon-192x192.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/assets/icons/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="96x96" href="/assets/icons/favicon-96x96.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/assets/icons/favicon-16x16.png">
+  <link rel="manifest" href="/assets/icons/manifest.json">
+  <meta name="msapplication-TileColor" content="#ffffff">
+  <meta name="msapplication-TileImage" content="/assets/icons/ms-icon-144x144.png">
+  <meta name="theme-color" content="#ffffff">
+
+  
+
+  
+
+  
+
+  <!-- Site styles -->
+  <link rel="stylesheet" href="/css/main.css">
+  <link rel="canonical" href="http://localhost:4000/linux/2016/07/24/Linux-tls.html">
+	<link rel="alternate" type="application/rss+xml" title="Wenwei Weng's Blog" href="http://localhost:4000/feed.xml" />
+	
+	<!-- Tooltips -->
+	<script type="text/javascript">
+		window.tooltips = []
+	</script>
+</head>
+
+
+  <body>
+
+    <header class="navigation" role="banner">
+  <div class="navigation-wrapper">
+    <a href="/" class="logo">
+      
+      <img src="/assets/avatar.png" alt="Wenwei Weng's Blog">
+      
+    </a>
+    <a href="javascript:void(0)" class="navigation-menu-button" id="js-mobile-menu">
+      <i class="fa fa-bars"></i>
+    </a>
+    <nav role="navigation">
+      <ul id="js-navigation-menu" class="navigation-menu show">
+				
+	
+	<li class="nav-link"><a href="/about/">About</a>
+	
+
+	
+
+	
+
+	
+	<li class="nav-link"><a href="/posts/">Posts</a>
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+      </ul>
+    </nav>
+  </div>
+</header>
+
+
+    <div class="page-content">
+        <div class="post">
+
+<div class="post-header-container " >
+  <div class="scrim ">
+    <header class="post-header">
+      <h1 class="title">Linux Thread Local Storage</h1>
+      <p class="info">by <strong>Wenwei Weng</strong></p>
+    </header>
+  </div>
+</div>
+
+<div class="wrapper">
+
+ <span class="page-divider">
+  <span class="one"></span>
+  <span class="two"></span>
+</span>
+ 
+
+<section class="post-meta">
+  <div class="post-date">July 24, 2016</div>
+  <div class="post-categories">
+  in 
+    
+    <a href="/category/Linux">Linux</a>
+    
+  
+  </div>
+</section>
+
+<article class="post-content">
+  <p>Thread-local storage (TLS) is a mechanism by which variables are allocated such that there is one instance of the variable per extant thread.</p>
+
+<p><img src="/uploads/linux/process-thread-tls.jpg" alt="Linux ACPI" /></p>
+
+<p>There are two ways to use TLS.</p>
+
+<!--more-->
+
+<p>#Use the keyword “_thread” provided by compiler</p>
+
+<p>In the following example, “_thread” keyword which is supported by gcc compiler
+to tell the two integer variables “TLS_data1” and TLS_data2” are TLS varaibles.</p>
+
+<figure class="highlight"><pre><code class="language-c" data-lang="c"><span class="cp">#define _MULTI_THREADED
+#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+#include &lt;pthread.h&gt;
+</span>
+<span class="kt">void</span> <span class="nf">foo</span><span class="p">(</span><span class="kt">void</span><span class="p">);</span>  <span class="cm">/* Functions that use the TLS data */</span>
+<span class="kt">void</span> <span class="nf">bar</span><span class="p">(</span><span class="kt">void</span><span class="p">);</span>
+ 
+<span class="cp">#define checkResults(string, val) {             \
+ if (val) {                                     \
+   printf("Failed with %d at %s", val, string); \
+   exit(1);                                     \
+ }                                              \
+}
+</span> 
+<span class="cm">/* 
+   Use the keyword provided by pthread.h to delcare the following variable
+   is thread specific, i.e. it is only visible to a specific thread, 
+   not shared/common to all thread.
+   These variables are stored in thread local storage (TLS) area.
+ */</span>
+<span class="kr">__thread</span> <span class="kt">int</span> <span class="n">TLS_data1</span><span class="p">;</span>
+<span class="kr">__thread</span> <span class="kt">int</span> <span class="n">TLS_data2</span><span class="p">;</span>
+ 
+<span class="cp">#define  NUMTHREADS   2 
+</span>
+<span class="k">typedef</span> <span class="k">struct</span> <span class="p">{</span>
+   <span class="kt">int</span>   <span class="n">data1</span><span class="p">;</span>
+   <span class="kt">int</span>   <span class="n">data2</span><span class="p">;</span>
+<span class="p">}</span> <span class="n">threadparm_t</span><span class="p">;</span> 
+
+<span class="kt">void</span> <span class="o">*</span><span class="nf">thread_run</span><span class="p">(</span><span class="kt">void</span> <span class="o">*</span><span class="n">parm</span><span class="p">)</span>
+<span class="p">{</span>
+   <span class="kt">int</span>               <span class="n">rc</span><span class="p">;</span>
+   <span class="n">threadparm_t</span>     <span class="o">*</span><span class="n">gData</span><span class="p">;</span>
+
+   <span class="n">printf</span><span class="p">(</span><span class="s">"Thread %.16llx: Entered</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">pthread_self</span><span class="p">());</span>
+
+   <span class="n">gData</span> <span class="o">=</span> <span class="p">(</span><span class="n">threadparm_t</span> <span class="o">*</span><span class="p">)</span><span class="n">parm</span><span class="p">;</span>
+
+   <span class="cm">/* Assign the value from global variable to thread specific variable*/</span>
+   <span class="n">TLS_data1</span> <span class="o">=</span> <span class="n">gData</span><span class="o">-&gt;</span><span class="n">data1</span><span class="p">;</span>
+   <span class="n">TLS_data2</span> <span class="o">=</span> <span class="n">gData</span><span class="o">-&gt;</span><span class="n">data2</span><span class="p">;</span>
+
+   <span class="n">foo</span><span class="p">();</span>
+   <span class="k">return</span> <span class="nb">NULL</span><span class="p">;</span>
+<span class="p">}</span>
+ 
+<span class="kt">void</span> <span class="nf">foo</span><span class="p">()</span> <span class="p">{</span>
+   <span class="n">printf</span><span class="p">(</span><span class="s">"Thread %.16lx: foo(), TLS data=%d %d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span>
+          <span class="n">pthread_self</span><span class="p">(),</span> <span class="n">TLS_data1</span><span class="p">,</span> <span class="n">TLS_data2</span><span class="p">);</span>
+   <span class="n">bar</span><span class="p">();</span>
+<span class="p">}</span>
+ 
+<span class="kt">void</span> <span class="nf">bar</span><span class="p">()</span> <span class="p">{</span>
+   <span class="n">printf</span><span class="p">(</span><span class="s">"Thread %.16lx: bar(), TLS data=%d %d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span>
+          <span class="n">pthread_self</span><span class="p">(),</span> <span class="n">TLS_data1</span><span class="p">,</span> <span class="n">TLS_data2</span><span class="p">);</span>
+   <span class="k">return</span><span class="p">;</span>
+<span class="p">}</span>
+ 
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="kt">char</span> <span class="o">**</span><span class="n">argv</span><span class="p">)</span>
+<span class="p">{</span>
+  <span class="n">pthread_t</span>             <span class="kr">thread</span><span class="p">[</span><span class="n">NUMTHREADS</span><span class="p">];</span>
+  <span class="kt">int</span>                   <span class="n">rc</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span>
+  <span class="kt">int</span>                   <span class="n">i</span><span class="p">;</span>
+  <span class="n">threadparm_t</span>          <span class="n">gData</span><span class="p">[</span><span class="n">NUMTHREADS</span><span class="p">];</span>
+ 
+  <span class="n">printf</span><span class="p">(</span><span class="s">"Enter Testcase - %s</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">argv</span><span class="p">[</span><span class="mi">0</span><span class="p">]);</span>
+ 
+  <span class="n">printf</span><span class="p">(</span><span class="s">"Create/start %d threads</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">NUMTHREADS</span><span class="p">);</span>
+  <span class="k">for</span> <span class="p">(</span><span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">NUMTHREADS</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span> 
+     <span class="cm">/* Create per-thread TLS data and pass it to the thread */</span>
+     <span class="n">gData</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">data1</span> <span class="o">=</span> <span class="n">i</span><span class="p">;</span>
+     <span class="n">gData</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">data2</span> <span class="o">=</span> <span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="mi">2</span><span class="p">;</span>
+     <span class="n">rc</span> <span class="o">=</span> <span class="n">pthread_create</span><span class="p">(</span><span class="o">&amp;</span><span class="kr">thread</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="nb">NULL</span><span class="p">,</span> <span class="n">thread_run</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">gData</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span>
+     <span class="n">checkResults</span><span class="p">(</span><span class="s">"pthread_create()</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">rc</span><span class="p">);</span>
+  <span class="p">}</span>
+ 
+  <span class="n">printf</span><span class="p">(</span><span class="s">"Wait for all threads to complete, and release their resources</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+  <span class="k">for</span> <span class="p">(</span><span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">NUMTHREADS</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+     <span class="n">rc</span> <span class="o">=</span> <span class="n">pthread_join</span><span class="p">(</span><span class="kr">thread</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="nb">NULL</span><span class="p">);</span>
+     <span class="n">checkResults</span><span class="p">(</span><span class="s">"pthread_join()</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">rc</span><span class="p">);</span>
+  <span class="p">}</span>
+
+  <span class="n">printf</span><span class="p">(</span><span class="s">"Main completed</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+  <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span></code></pre></figure>
+
+<p>Test and verify it:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">weng@weng-u1604:~/codeEx<span class="nv">$ </span>gcc <span class="nt">-o</span> tls-keyword tls-keyword.c <span class="nt">-lpthread</span>
+weng@weng-u1604:~/codeEx<span class="nv">$ </span>./tls-keyword 
+Enter Testcase - ./tls-keyword
+Create/start 2 threads
+Wait <span class="k">for </span>all threads to <span class="nb">complete</span>, and release their resources
+Thread 00007f0670791700: Entered
+Thread 00007f0670791700: foo<span class="o">()</span>, TLS <span class="nv">data</span><span class="o">=</span>0 2
+Thread 00007f0670791700: bar<span class="o">()</span>, TLS <span class="nv">data</span><span class="o">=</span>0 2
+Thread 00007f066ff90700: Entered
+Thread 00007f066ff90700: foo<span class="o">()</span>, TLS <span class="nv">data</span><span class="o">=</span>1 4
+Thread 00007f066ff90700: bar<span class="o">()</span>, TLS <span class="nv">data</span><span class="o">=</span>1 4
+Main completed
+weng@weng-u1604:~/codeEx<span class="nv">$ </span></code></pre></figure>
+
+<p>#Use “pthread_create_key() / pthread_delete_key()” to for bug chunk of data</p>
+
+<p>Since the storage area for TLS is limited, and if there is a big chunk of datas/pbjects are to be stored in TLS, it can be organized into a struct and use “pthread_create_key() /pthread_delete_key()”.</p>
+
+<figure class="highlight"><pre><code class="language-c" data-lang="c"><span class="cp">#include &lt;stdlib.h&gt;
+#include &lt;stdio.h&gt;
+#include &lt;pthread.h&gt;
+</span>
+<span class="k">typedef</span> <span class="k">struct</span> <span class="n">TLS_Big_data_</span> <span class="p">{</span>
+  <span class="kt">int</span> <span class="n">thread_id</span><span class="p">;</span>
+  <span class="kt">int</span> <span class="n">data</span><span class="p">[</span><span class="mi">2048</span><span class="p">];</span>
+<span class="p">}</span> <span class="n">TLS_Big_data</span><span class="p">;</span>
+
+<span class="kt">void</span> <span class="o">*</span> <span class="nf">thread_run</span><span class="p">(</span><span class="kt">void</span> <span class="o">*</span><span class="p">);</span>
+<span class="kt">void</span> <span class="nf">show_my_tls</span><span class="p">();</span>
+
+<span class="n">pthread_key_t</span> <span class="n">thr_id_key</span><span class="p">;</span>
+
+<span class="kt">void</span> <span class="nf">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="kt">void</span> <span class="o">**</span> <span class="n">argv</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">pthread_t</span> <span class="kr">thread</span><span class="p">;</span>
+    <span class="n">TLS_Big_data</span> <span class="o">*</span> <span class="n">tls_data</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="n">i</span><span class="p">;</span>
+
+    <span class="n">pthread_key_create</span><span class="p">(</span><span class="o">&amp;</span><span class="n">thr_id_key</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">);</span>
+
+    <span class="k">for</span><span class="p">(</span><span class="n">i</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;=</span> <span class="mi">10</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="n">tls_data</span> <span class="o">=</span> <span class="p">(</span><span class="n">TLS_Big_data</span> <span class="o">*</span><span class="p">)</span><span class="n">malloc</span><span class="p">(</span><span class="k">sizeof</span><span class="p">(</span><span class="n">TLS_Big_data</span><span class="p">));</span>
+        <span class="n">tls_data</span><span class="o">-&gt;</span><span class="n">thread_id</span> <span class="o">=</span> <span class="n">i</span><span class="p">;</span>
+        <span class="n">pthread_create</span><span class="p">(</span><span class="o">&amp;</span><span class="kr">thread</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">,</span>
+                       <span class="n">thread_run</span><span class="p">,</span> <span class="p">(</span><span class="kt">void</span> <span class="o">*</span><span class="p">)(</span><span class="n">tls_data</span><span class="p">));</span>
+    <span class="p">}</span>
+
+    <span class="n">pthread_exit</span><span class="p">(</span><span class="nb">NULL</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="kt">void</span> <span class="o">*</span> <span class="nf">thread_run</span><span class="p">(</span><span class="kt">void</span> <span class="o">*</span> <span class="n">param</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">void</span> <span class="o">*</span><span class="n">tls_val</span> <span class="o">=</span> <span class="n">param</span><span class="p">;</span>
+  
+    <span class="n">pthread_setspecific</span><span class="p">(</span><span class="n">thr_id_key</span><span class="p">,</span> <span class="n">tls_val</span><span class="p">);</span>
+
+    <span class="n">show_my_tls</span><span class="p">();</span>
+
+    <span class="cm">/* release the meory held by TLS*/</span>
+    <span class="n">TLS_Big_data</span> <span class="o">*</span> <span class="n">tls_data</span><span class="p">;</span>
+    <span class="n">tls_data</span> <span class="o">=</span> <span class="p">(</span><span class="n">TLS_Big_data</span> <span class="o">*</span><span class="p">)</span><span class="n">pthread_getspecific</span><span class="p">(</span><span class="n">thr_id_key</span><span class="p">);</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">tls_data</span><span class="p">)</span> <span class="n">free</span><span class="p">(</span><span class="n">tls_data</span><span class="p">);</span>
+    
+    <span class="k">return</span> <span class="nb">NULL</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kt">void</span> <span class="nf">show_my_tls</span><span class="p">()</span>
+<span class="p">{</span>
+   <span class="n">TLS_Big_data</span> <span class="o">*</span> <span class="n">tls_data</span><span class="p">;</span>
+   <span class="n">tls_data</span> <span class="o">=</span> <span class="p">(</span><span class="n">TLS_Big_data</span> <span class="o">*</span><span class="p">)</span><span class="n">pthread_getspecific</span><span class="p">(</span><span class="n">thr_id_key</span><span class="p">);</span>
+
+   <span class="k">if</span> <span class="p">(</span><span class="n">tls_data</span><span class="p">)</span> <span class="p">{</span>
+     <span class="n">printf</span><span class="p">(</span><span class="s">"Thread %lx holds TLS has %d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">pthread_self</span><span class="p">(),</span>
+	    <span class="n">tls_data</span><span class="o">-&gt;</span><span class="n">thread_id</span><span class="p">);</span>
+   <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+     <span class="n">printf</span><span class="p">(</span><span class="s">"Thread %lx TLS data not found</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">pthread_self</span><span class="p">());</span>
+   <span class="p">}</span>
+<span class="p">}</span></code></pre></figure>
+
+<p>Compile and run it to verify:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">weng@weng-u1604:~/codeEx<span class="nv">$ </span>gcc <span class="nt">-o</span> tls-use-key tls-use-key.c <span class="nt">-lpthread</span>
+
+weng@weng-u1604:~/codeEx<span class="nv">$ </span>./tls-use-key 
+Thread 7fb46fdab700 holds TLS has 3
+Thread 7fb46f5aa700 holds TLS has 4
+Thread 7fb46eda9700 holds TLS has 5
+Thread 7fb46e5a8700 holds TLS has 6
+Thread 7fb46dda7700 holds TLS has 7
+Thread 7fb46d5a6700 holds TLS has 8
+Thread 7fb46cda5700 holds TLS has 9
+Thread 7fb46c5a4700 holds TLS has 10
+Thread 7fb470dad700 holds TLS has 1
+Thread 7fb4705ac700 holds TLS has 2
+weng@weng-u1604:~/codeEx<span class="nv">$ </span></code></pre></figure>
+
+
+</article>
+
+
+
+
+
+<section class="rss">
+  <p class="rss-subscribe text"><strong>Subscribe <a href="/feed.xml">via RSS</a></strong></p>
+</section>
+
+<section class="share">
+  <span>Share: </span>
+  
+    
+    
+    
+    
+    
+    
+    
+    
+  
+    
+    
+    
+    
+    
+      <a href="//www.linkedin.com/shareArticle?mini=true&url=http%3A%2F%2Flocalhost%3A4000%2Flinux%2F2016%2F07%2F24%2FLinux-tls.html"
+        onclick="window.open(this.href, 'linkedin-share', 'width=550,height=255');return false;">
+        <i class="fa fa-linkedin-square fa-lg"></i>
+      </a>
+    
+    
+    
+    
+  
+</section>
+
+
+
+
+</div>
+</div>
+
+    </div>
+
+    <footer class="site-footer">
+
+  <div class="wrapper">
+
+    <h3 class="footer-heading">Wenwei Weng's Blog</h3>
+
+    <div class="site-navigation">
+
+      <p><strong>Site Map</strong></p>
+      <ul class="pages">
+				
+	
+	<li class="nav-link"><a href="/about/">About</a>
+	
+
+	
+
+	
+
+	
+	<li class="nav-link"><a href="/posts/">Posts</a>
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+      </ul>
+    </div>
+
+    <div class="site-contact">
+
+      <p><strong>Contact</strong></p>
+      <ul class="social-media-list">
+        <li>
+          <a href="mailto:weweng@gmail.com">
+            <i class="fa fa-envelope-o"></i>
+            <span class="username">weweng@gmail.com</span>
+          </a>
+        </li>
+
+        
+          
+          <li>
+            <a href="https://github.com/weweng" title="Fork me on GitHub">
+              <i class="fa fa-github"></i>
+              <span class="username">weweng</span>
+            </a>
+          </li>
+          
+        
+          
+          <li>
+            <a href="https://www.linkedin.com/in/wenwei-weng/" title="Connect with me on LinkedIn">
+              <i class="fa fa-linkedin"></i>
+              <span class="username">Wenwei Weng</span>
+            </a>
+          </li>
+          
+        
+
+      </ul>
+    </div>
+
+    <div class="site-signature">
+      <p class="rss-subscribe text"><strong>Subscribe <a href="/feed.xml">via RSS</a></strong></p>
+      <p class="text">A simple yet classy theme for your Jekyll based blog.
+</p>
+    </div>
+
+  </div>
+
+</footer>
+
+<!-- Scripts -->
+<script src="//code.jquery.com/jquery-3.4.1.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.10/highlight.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.1/js/lightbox.min.js"></script>
+<script src="//unpkg.com/popper.js@1"></script>
+<script src="//unpkg.com/tippy.js@5"></script>
+
+<script type="text/javascript">
+$(document).ready(function() {
+  // Default syntax highlighting
+  hljs.initHighlightingOnLoad();
+
+  // Header
+  var menuToggle = $('#js-mobile-menu').unbind();
+  $('#js-navigation-menu').removeClass("show");
+  menuToggle.on('click', function(e) {
+    e.preventDefault();
+    $('#js-navigation-menu').slideToggle(function(){
+      if($('#js-navigation-menu').is(':hidden')) {
+        $('#js-navigation-menu').removeAttr('style');
+      }
+    });
+  });
+
+	// Enable tooltips via Tippy.js
+	if (Array.isArray(window.tooltips)) {
+		window.tooltips.forEach(function(tooltip) {
+			var selector = tooltip[0];
+			var config = tooltip[1];
+			tippy(selector, config);
+		})
+	}
+});
+
+</script>
+
+
+
+
+
+
+  </body>
+
+</html>

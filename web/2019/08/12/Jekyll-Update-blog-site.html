@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>Jekyll update for my blog site</title>
+  <meta name="description" content="My blog site was shutdown for quite a while for certain reasons. However I strongly feel this is a good way for me to capture what I learned along the way an...">
+  
+  <meta name="author" content="Wenwei Weng">
+  <meta name="copyright" content="&copy; Wenwei Weng 2023">
+  
+
+  <!-- External libraries -->
+  <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css">
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.9.0/styles/monokai-sublime.min.css">
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/lightbox2/2.7.1/css/lightbox.css">
+
+  <!-- Favicon and other icons (made with http://www.favicon-generator.org/) -->
+  <link rel="shortcut icon" href="/assets/icons/favicon.ico" type="image/x-icon">
+  <link rel="icon" href="/assets/icons/favicon.ico" type="image/x-icon">
+  <link rel="apple-touch-icon" sizes="57x57" href="/assets/icons/apple-icon-57x57.png">
+  <link rel="apple-touch-icon" sizes="60x60" href="/assets/icons/apple-icon-60x60.png">
+  <link rel="apple-touch-icon" sizes="72x72" href="/assets/icons/apple-icon-72x72.png">
+  <link rel="apple-touch-icon" sizes="76x76" href="/assets/icons/apple-icon-76x76.png">
+  <link rel="apple-touch-icon" sizes="114x114" href="/assets/icons/apple-icon-114x114.png">
+  <link rel="apple-touch-icon" sizes="120x120" href="/assets/icons/apple-icon-120x120.png">
+  <link rel="apple-touch-icon" sizes="144x144" href="/assets/icons/apple-icon-144x144.png">
+  <link rel="apple-touch-icon" sizes="152x152" href="/assets/icons/apple-icon-152x152.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/assets/icons/apple-icon-180x180.png">
+  <link rel="icon" type="image/png" sizes="192x192"  href="/assets/icons/android-icon-192x192.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/assets/icons/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="96x96" href="/assets/icons/favicon-96x96.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/assets/icons/favicon-16x16.png">
+  <link rel="manifest" href="/assets/icons/manifest.json">
+  <meta name="msapplication-TileColor" content="#ffffff">
+  <meta name="msapplication-TileImage" content="/assets/icons/ms-icon-144x144.png">
+  <meta name="theme-color" content="#ffffff">
+
+  
+
+  
+
+  
+
+  <!-- Site styles -->
+  <link rel="stylesheet" href="/css/main.css">
+  <link rel="canonical" href="http://localhost:4000/web/2019/08/12/Jekyll-Update-blog-site.html">
+	<link rel="alternate" type="application/rss+xml" title="Wenwei Weng's Blog" href="http://localhost:4000/feed.xml" />
+	
+	<!-- Tooltips -->
+	<script type="text/javascript">
+		window.tooltips = []
+	</script>
+</head>
+
+
+  <body>
+
+    <header class="navigation" role="banner">
+  <div class="navigation-wrapper">
+    <a href="/" class="logo">
+      
+      <img src="/assets/avatar.png" alt="Wenwei Weng's Blog">
+      
+    </a>
+    <a href="javascript:void(0)" class="navigation-menu-button" id="js-mobile-menu">
+      <i class="fa fa-bars"></i>
+    </a>
+    <nav role="navigation">
+      <ul id="js-navigation-menu" class="navigation-menu show">
+				
+	
+	<li class="nav-link"><a href="/about/">About</a>
+	
+
+	
+
+	
+
+	
+	<li class="nav-link"><a href="/posts/">Posts</a>
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+      </ul>
+    </nav>
+  </div>
+</header>
+
+
+    <div class="page-content">
+        <div class="post">
+
+<div class="post-header-container " >
+  <div class="scrim ">
+    <header class="post-header">
+      <h1 class="title">Jekyll update for my blog site</h1>
+      <p class="info">by <strong>Wenwei Weng</strong></p>
+    </header>
+  </div>
+</div>
+
+<div class="wrapper">
+
+ <span class="page-divider">
+  <span class="one"></span>
+  <span class="two"></span>
+</span>
+ 
+
+<section class="post-meta">
+  <div class="post-date">August 12, 2019</div>
+  <div class="post-categories">
+  in 
+    
+    <a href="/category/Web">Web</a>
+    
+  
+  </div>
+</section>
+
+<article class="post-content">
+  <p>My blog site was shutdown for quite a while for certain reasons. However I strongly feel this is a good way for me to capture what I learned along the way and share with anyone who might feel helpful for them. Thanks to all people who provided postivie feedback. After clearup the issue and I finally decide to continue working on my blog site. First thing I do is to update my blog development enviroment which is Jekyll, installed in ubuntu 16.04 VM.</p>
+
+<p><img src="/uploads/jekyll.jpg" alt="Jekyll on Ubuntu" /> 
+<!--more--></p>
+<h2 id="what-is-jekyll">What is Jekyll?</h2>
+
+<p>Jekyll is a very popular tool to build/generate a static web/blog site. It is based on Ruby, which is a script programming language. Ruby library is packaged and distributed as “gem”. Jekyll is one of Ruby’s gem.</p>
+
+<p>If you do a google search “ubuntu 16.04 install jekyll”, you will find a number of links, which have detailed steps, e.g.</p>
+<ul>
+  <li>https://www.digitalocean.com/community/tutorials/how-to-set-up-a-jekyll-development-site-on-ubuntu-16-04</li>
+</ul>
+
+<p>Essentially two steps:</p>
+
+<ol>
+  <li>sudo apt-get install ruby ruby-dev make gcc</li>
+  <li>sudo gem install jekyll bundler</li>
+</ol>
+
+<h2 id="issues-encountered">Issues encountered:</h2>
+
+<h4 id="after-upgrade-jekyll-is-running-version-386">After upgrade, jekyll is running version 3.8.6.</h4>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">weng@weng-u1604:/mnt/vb-win7-share/github/blog<span class="nv">$ </span>gem info jekyll
+
+<span class="k">***</span> LOCAL GEMS <span class="k">***</span>
+
+jekyll <span class="o">(</span>3.8.6, 3.8.5<span class="o">)</span>
+    Author: Tom Preston-Werner
+    Homepage: https://github.com/jekyll/jekyll
+    License: MIT
+    Installed at <span class="o">(</span>3.8.6<span class="o">)</span>: /home/weng/.rvm/gems/ruby-2.6.3
+                 <span class="o">(</span>3.8.5<span class="o">)</span>: /home/weng/.rvm/gems/ruby-2.6.3
+
+    A simple, blog aware, static site generator.
+weng@weng-u1604:/mnt/vb-win7-share/github/blog<span class="nv">$ </span></code></pre></figure>
+
+<p>The new version jekyll deprectes markdown “redcarpet”, so I have to change my _config.yml to below:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"> 
+weng@weng-u1604:/mnt/vb-win7-share/github/blog<span class="nv">$ </span><span class="nb">cat </span>_config.yml
+...
+<span class="c"># Build settings</span>
+markdown: kramdown
+theme: minima
+plugins:
+  - jekyll-feed</code></pre></figure>
+
+<h4 id="image-link-rendering-issue">Image link rendering issue</h4>
+<p>With _config.yml change, Jekyll is able to rebuild my blog, but failed to render image link like below:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"> 
+<span class="o">![</span>image alt text] <span class="o">(</span>/path/to/image/filename.jpg<span class="o">)</span></code></pre></figure>
+
+<p>I look around net, couldn’t find any solution, except that I change to html format :</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"> 
+&lt;img <span class="nv">src</span><span class="o">=</span><span class="s2">"/pathto/image/filename.jpg"</span> <span class="nv">alt</span><span class="o">=</span><span class="s2">"alt text"</span><span class="o">&gt;</span></code></pre></figure>
+
+<p>Since I have many existing MD files, which have image links, I ended up to wrote the below small bash script to do the work:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"> 
+<span class="c">#!/bin/bash </span>
+
+<span class="nv">files</span><span class="o">=</span><span class="sb">`</span><span class="nb">ls</span> <span class="k">*</span>.md<span class="sb">`</span>
+<span class="k">for </span>f <span class="k">in</span> <span class="nv">$files</span>
+<span class="k">do
+    </span><span class="nb">echo</span> <span class="s2">"============================="</span>
+    <span class="nb">echo</span> <span class="s2">"Processing file : </span><span class="nv">$f</span><span class="s2"> "</span>
+
+    <span class="k">while</span> <span class="o">[</span> 1 <span class="o">]</span>
+    <span class="k">do 
+        </span><span class="nv">todo</span><span class="o">=</span><span class="sb">`</span><span class="nb">grep</span> <span class="nt">-n</span> <span class="s1">'\!\['</span> <span class="nv">$f</span> | <span class="nb">head</span> <span class="nt">-1</span> | <span class="nb">wc</span> <span class="nt">-l</span><span class="sb">`</span>
+        <span class="k">if</span> <span class="o">[</span> <span class="nv">$todo</span> <span class="nt">-eq</span> 1 <span class="o">]</span>
+	<span class="k">then
+	   </span><span class="nv">linenum</span><span class="o">=</span><span class="sb">`</span><span class="nb">grep</span> <span class="nt">-n</span> <span class="s1">'\!\['</span> <span class="nv">$f</span> | <span class="nb">head</span> <span class="nt">-1</span> | <span class="nb">awk</span> <span class="nt">-F</span>: <span class="s1">'{print $1}'</span> <span class="sb">`</span>
+	   <span class="nv">line</span><span class="o">=</span><span class="sb">`</span><span class="nb">grep</span> <span class="s1">'\!\['</span> <span class="nv">$f</span> | <span class="nb">head</span> <span class="nt">-1</span> <span class="sb">`</span>
+	   <span class="c"># process one line</span>
+	   <span class="nb">echo</span> <span class="s2">"Process one line : </span><span class="nv">$line</span><span class="s2">, replacing with "</span>
+	   <span class="nv">alt_text</span><span class="o">=</span><span class="sb">`</span><span class="nb">echo</span> <span class="nv">$line</span> | <span class="nb">awk</span> <span class="nt">-F</span><span class="s1">'] '</span> <span class="s1">'{print $1}'</span> | <span class="nb">sed</span> <span class="s1">'s/\!\[//g '</span> <span class="sb">`</span>
+	   <span class="nv">img_file</span><span class="o">=</span><span class="sb">`</span><span class="nb">echo</span> <span class="nv">$line</span> | <span class="nb">awk</span> <span class="nt">-F</span><span class="s1">'] '</span> <span class="s1">'{print $2}'</span> | <span class="nb">sed</span> <span class="s1">'s/(//g'</span> | <span class="nb">sed</span> <span class="s1">'s/)//g'</span> <span class="sb">`</span>
+
+	   <span class="c"># new line format is like &lt;img src="/pathto/image/filename.jpg" alt=" alt text"&gt; </span>
+	   <span class="nv">newline</span><span class="o">=</span><span class="sb">`</span><span class="nb">echo</span> <span class="s2">"&lt;img src=</span><span class="se">\"</span><span class="nv">$img_file</span><span class="se">\"</span><span class="s2"> alt=</span><span class="se">\"</span><span class="nv">$alt_text</span><span class="se">\"</span><span class="s2">&gt; "</span><span class="sb">`</span>
+	   <span class="nb">echo</span> <span class="nv">$newline</span>
+	   <span class="c">#insert line line after current line</span>
+	   <span class="nv">cmd</span><span class="o">=</span><span class="sb">`</span><span class="nb">echo</span> <span class="s2">"sed -i '</span><span class="nv">$linenum</span><span class="s2"> a </span><span class="nv">$newline</span><span class="s2"> ' </span><span class="nv">$f</span><span class="s2"> "</span> <span class="sb">`</span>
+	   <span class="nb">eval</span> <span class="nv">$cmd</span>
+	   <span class="nb">echo</span> <span class="s2">".........."</span>
+	   <span class="c">#delete old line</span>
+	   <span class="nv">cmd</span><span class="o">=</span><span class="sb">`</span><span class="nb">echo sed</span> <span class="nt">-i</span> <span class="se">\'</span><span class="k">${</span><span class="nv">linenum</span><span class="k">}</span>d<span class="se">\'</span> <span class="nv">$f</span> <span class="sb">`</span>
+	   <span class="nb">eval</span> <span class="nv">$cmd</span>
+	   <span class="nb">sync
+         </span><span class="k">else
+	   </span><span class="nb">echo</span> <span class="s2">" done!"</span>    
+	   <span class="nb">echo</span> <span class="s2">"============================="</span>
+           <span class="nb">break	   
+         </span><span class="k">fi
+    done
+done</span></code></pre></figure>
+
+<h4 id="main-page-recent-posts">Main page recent posts</h4>
+
+<p>The main page most recent posts are not shown, which I haven’t fixed it. Now I simply change to show all posts sorted by date.</p>
+
+
+</article>
+
+
+
+
+
+<section class="rss">
+  <p class="rss-subscribe text"><strong>Subscribe <a href="/feed.xml">via RSS</a></strong></p>
+</section>
+
+<section class="share">
+  <span>Share: </span>
+  
+    
+    
+    
+    
+    
+    
+    
+    
+  
+    
+    
+    
+    
+    
+      <a href="//www.linkedin.com/shareArticle?mini=true&url=http%3A%2F%2Flocalhost%3A4000%2Fweb%2F2019%2F08%2F12%2FJekyll-Update-blog-site.html"
+        onclick="window.open(this.href, 'linkedin-share', 'width=550,height=255');return false;">
+        <i class="fa fa-linkedin-square fa-lg"></i>
+      </a>
+    
+    
+    
+    
+  
+</section>
+
+
+
+
+</div>
+</div>
+
+    </div>
+
+    <footer class="site-footer">
+
+  <div class="wrapper">
+
+    <h3 class="footer-heading">Wenwei Weng's Blog</h3>
+
+    <div class="site-navigation">
+
+      <p><strong>Site Map</strong></p>
+      <ul class="pages">
+				
+	
+	<li class="nav-link"><a href="/about/">About</a>
+	
+
+	
+
+	
+
+	
+	<li class="nav-link"><a href="/posts/">Posts</a>
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+      </ul>
+    </div>
+
+    <div class="site-contact">
+
+      <p><strong>Contact</strong></p>
+      <ul class="social-media-list">
+        <li>
+          <a href="mailto:weweng@gmail.com">
+            <i class="fa fa-envelope-o"></i>
+            <span class="username">weweng@gmail.com</span>
+          </a>
+        </li>
+
+        
+          
+          <li>
+            <a href="https://github.com/weweng" title="Fork me on GitHub">
+              <i class="fa fa-github"></i>
+              <span class="username">weweng</span>
+            </a>
+          </li>
+          
+        
+          
+          <li>
+            <a href="https://www.linkedin.com/in/wenwei-weng/" title="Connect with me on LinkedIn">
+              <i class="fa fa-linkedin"></i>
+              <span class="username">Wenwei Weng</span>
+            </a>
+          </li>
+          
+        
+
+      </ul>
+    </div>
+
+    <div class="site-signature">
+      <p class="rss-subscribe text"><strong>Subscribe <a href="/feed.xml">via RSS</a></strong></p>
+      <p class="text">A simple yet classy theme for your Jekyll based blog.
+</p>
+    </div>
+
+  </div>
+
+</footer>
+
+<!-- Scripts -->
+<script src="//code.jquery.com/jquery-3.4.1.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.10/highlight.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.1/js/lightbox.min.js"></script>
+<script src="//unpkg.com/popper.js@1"></script>
+<script src="//unpkg.com/tippy.js@5"></script>
+
+<script type="text/javascript">
+$(document).ready(function() {
+  // Default syntax highlighting
+  hljs.initHighlightingOnLoad();
+
+  // Header
+  var menuToggle = $('#js-mobile-menu').unbind();
+  $('#js-navigation-menu').removeClass("show");
+  menuToggle.on('click', function(e) {
+    e.preventDefault();
+    $('#js-navigation-menu').slideToggle(function(){
+      if($('#js-navigation-menu').is(':hidden')) {
+        $('#js-navigation-menu').removeAttr('style');
+      }
+    });
+  });
+
+	// Enable tooltips via Tippy.js
+	if (Array.isArray(window.tooltips)) {
+		window.tooltips.forEach(function(tooltip) {
+			var selector = tooltip[0];
+			var config = tooltip[1];
+			tippy(selector, config);
+		})
+	}
+});
+
+</script>
+
+
+
+
+
+
+  </body>
+
+</html>

@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>GIT shared remote repository setup</title>
+  <meta name="description" content="GIT is becoming very popular. It is an excellent SCM tool. I really like it because it is easy to use, designed with distributed architecture, with a local r...">
+  
+  <meta name="author" content="Wenwei Weng">
+  <meta name="copyright" content="&copy; Wenwei Weng 2023">
+  
+
+  <!-- External libraries -->
+  <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css">
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.9.0/styles/monokai-sublime.min.css">
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/lightbox2/2.7.1/css/lightbox.css">
+
+  <!-- Favicon and other icons (made with http://www.favicon-generator.org/) -->
+  <link rel="shortcut icon" href="/assets/icons/favicon.ico" type="image/x-icon">
+  <link rel="icon" href="/assets/icons/favicon.ico" type="image/x-icon">
+  <link rel="apple-touch-icon" sizes="57x57" href="/assets/icons/apple-icon-57x57.png">
+  <link rel="apple-touch-icon" sizes="60x60" href="/assets/icons/apple-icon-60x60.png">
+  <link rel="apple-touch-icon" sizes="72x72" href="/assets/icons/apple-icon-72x72.png">
+  <link rel="apple-touch-icon" sizes="76x76" href="/assets/icons/apple-icon-76x76.png">
+  <link rel="apple-touch-icon" sizes="114x114" href="/assets/icons/apple-icon-114x114.png">
+  <link rel="apple-touch-icon" sizes="120x120" href="/assets/icons/apple-icon-120x120.png">
+  <link rel="apple-touch-icon" sizes="144x144" href="/assets/icons/apple-icon-144x144.png">
+  <link rel="apple-touch-icon" sizes="152x152" href="/assets/icons/apple-icon-152x152.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/assets/icons/apple-icon-180x180.png">
+  <link rel="icon" type="image/png" sizes="192x192"  href="/assets/icons/android-icon-192x192.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/assets/icons/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="96x96" href="/assets/icons/favicon-96x96.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/assets/icons/favicon-16x16.png">
+  <link rel="manifest" href="/assets/icons/manifest.json">
+  <meta name="msapplication-TileColor" content="#ffffff">
+  <meta name="msapplication-TileImage" content="/assets/icons/ms-icon-144x144.png">
+  <meta name="theme-color" content="#ffffff">
+
+  
+
+  
+
+  
+
+  <!-- Site styles -->
+  <link rel="stylesheet" href="/css/main.css">
+  <link rel="canonical" href="http://localhost:4000/tools/2016/12/17/git-shared-repository.html">
+	<link rel="alternate" type="application/rss+xml" title="Wenwei Weng's Blog" href="http://localhost:4000/feed.xml" />
+	
+	<!-- Tooltips -->
+	<script type="text/javascript">
+		window.tooltips = []
+	</script>
+</head>
+
+
+  <body>
+
+    <header class="navigation" role="banner">
+  <div class="navigation-wrapper">
+    <a href="/" class="logo">
+      
+      <img src="/assets/avatar.png" alt="Wenwei Weng's Blog">
+      
+    </a>
+    <a href="javascript:void(0)" class="navigation-menu-button" id="js-mobile-menu">
+      <i class="fa fa-bars"></i>
+    </a>
+    <nav role="navigation">
+      <ul id="js-navigation-menu" class="navigation-menu show">
+				
+	
+	<li class="nav-link"><a href="/about/">About</a>
+	
+
+	
+
+	
+
+	
+	<li class="nav-link"><a href="/posts/">Posts</a>
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+      </ul>
+    </nav>
+  </div>
+</header>
+
+
+    <div class="page-content">
+        <div class="post">
+
+<div class="post-header-container " >
+  <div class="scrim ">
+    <header class="post-header">
+      <h1 class="title">GIT shared remote repository setup</h1>
+      <p class="info">by <strong>Wenwei Weng</strong></p>
+    </header>
+  </div>
+</div>
+
+<div class="wrapper">
+
+ <span class="page-divider">
+  <span class="one"></span>
+  <span class="two"></span>
+</span>
+ 
+
+<section class="post-meta">
+  <div class="post-date">December 17, 2016</div>
+  <div class="post-categories">
+  in 
+    
+    <a href="/category/Tools">Tools</a>
+    
+  
+  </div>
+</section>
+
+<article class="post-content">
+  <p>GIT is becoming very popular. It is an excellent SCM tool. I really like it because it is easy to use, designed with distributed architecture, with a local repository available. It is also flexible that you can simply use it without central repository. However for big projects, it always has central repository which is hosted in server, and allows many developers to work in the same time.</p>
+
+<p><img src="/uploads/git/git-remote-repo1.jpg" alt="GIT remote repo model" /></p>
+
+<!--more-->
+
+<h1 id="git-repository-types">GIT Repository types</h1>
+<p>There are two types GIT repository:</p>
+
+<li><b>Non-bare</b>: a Git repository that has working directory with ".git" directory. It is created by "git init". </li>
+<li><b>Bare</b>: a Git repository that has no working directory, but with content of ".git" directory, nothing else. This makes sense because the shared remote repository is only used as a collaboration point, there is no reason to have a snapshot checked out on disk; it’s just the Git data. It is created by "git init --bare". </li>
+
+<h1 id="protocols">Protocols</h1>
+<p>In order to communicate the remote respository, a protocol is needed. Git can use four major protocols to transfer data: Local, HTTP, Secure Shell (SSH) and Git.</p>
+
+<h3 id="1-local-protocal">1. Local Protocal</h3>
+<p>The most basic protocol is the Local protocol, in which the shared remote repository is in another directory, which is typically NFS mounted, unless all users use the same host, in this case it can be just a local disk attached to the host and mounted.</p>
+
+<p>Example:</p>
+
+<h4 id="create-the-shared-repository">Create the shared repository:</h4>
+<p>It is a convention to create a shared repository with a directory name extension “.git”.</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="nv">$ </span><span class="nb">cd</span> /opt/git
+<span class="nv">$ </span><span class="nb">mkdir </span>my-project.git
+<span class="nv">$ </span><span class="nb">cd </span>my-project.git
+<span class="nv">$ </span>git init <span class="nt">--bare</span> <span class="nt">--shared</span></code></pre></figure>
+
+<h4 id="clone-the-repository-from-any-host-which-can-directly-access-the-directory">Clone the repository from any host which can directly access the directory</h4>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="nv">$ </span>git clone /opt/git/my-project.git</code></pre></figure>
+
+<p>or</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="nv">$ </span>git clone file:///opt/git/my-project.git</code></pre></figure>
+
+<p>This approach is easy and quick. The issue could be that you have to mount to access the GIT repository directory.</p>
+
+<h3 id="2-ssh-protocol">2. SSH protocol</h3>
+<p>This is the protocol I really like because SSH access to servers is already set up in most places – and if it isn’t, it’s easy to do. SSH is also an authenticated network protocol; and because it’s ubiquitous, it’s generally easy to set up and use. In fact, it is not much extra steps comparing to “local protocol”.</p>
+
+<p><img src="/uploads/git/git-remote-repo2.jpg" alt="GIT remote repo example" /></p>
+
+<p>Example: let’s say I have a UCS server “sgbu-ucs-11”, which is chosed as GIT server, has a lot disk space. See below how to create a remote shared GIT repository “/opt/git-project/my-project1.git”</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">iot@sgbu-ucs-11:/opt/git-project<span class="nv">$ </span><span class="nb">mkdir </span>my-project1.git
+iot@sgbu-ucs-11:/opt/git-project<span class="nv">$ </span><span class="nb">cd </span>my-project1.git/
+iot@sgbu-ucs-11:/opt/git-project/my-project1.git<span class="nv">$ </span>git init <span class="nt">--bare</span> <span class="nt">--shared</span>
+Initialized empty shared Git repository <span class="k">in</span> /opt/git-project/my-project1.git/
+iot@sgbu-ucs-11:/opt/git-project/my-project1.git<span class="nv">$ </span></code></pre></figure>
+
+<p>Note: we may need to add new users for each developer if this is a private repository:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">iot@sgbu-ucs-11:/opt/git-project/my-project1.git<span class="nv">$ </span><span class="nb">sudo </span>useradd <span class="nt">-g</span> iot <span class="nt">-d</span> /home/iot1 iot1
+iot@sgbu-ucs-11:/opt/git-project/my-project1.git<span class="nv">$ </span><span class="nb">sudo </span>passwd iot1
+Enter new UNIX password: iot1
+Retype new UNIX password: iot1
+passwd: password updated successfully
+iot@sgbu-ucs-11:/opt/git-project/my-project1.git<span class="nv">$ </span></code></pre></figure>
+
+<p>Now we can clone the repository from another host as long as it can reach the server:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">sjc-ads-7727:/nobackup/weweng&gt; ping sgbu-ucs-11
+PING sgbu-ucs-11.cisco.com <span class="o">(</span>172.27.126.61<span class="o">)</span> 56<span class="o">(</span>84<span class="o">)</span> bytes of data.
+64 bytes from sgbu-ucs-11.cisco.com <span class="o">(</span>172.27.126.61<span class="o">)</span>: <span class="nv">icmp_seq</span><span class="o">=</span>1 <span class="nv">ttl</span><span class="o">=</span>55 <span class="nb">time</span><span class="o">=</span>0.492 ms
+64 bytes from sgbu-ucs-11.cisco.com <span class="o">(</span>172.27.126.61<span class="o">)</span>: <span class="nv">icmp_seq</span><span class="o">=</span>2 <span class="nv">ttl</span><span class="o">=</span>55 <span class="nb">time</span><span class="o">=</span>0.487 ms
+^C
+<span class="nt">---</span> sgbu-ucs-11.cisco.com ping statistics <span class="nt">---</span>
+2 packets transmitted, 2 received, 0% packet loss, <span class="nb">time </span>1146ms
+rtt min/avg/max/mdev <span class="o">=</span> 0.487/0.489/0.492/0.022 ms
+sjc-ads-7727:/nobackup/weweng&gt; 
+sjc-ads-7727:/nobackup/weweng&gt; <span class="nb">mkdir </span>x
+sjc-ads-7727:/nobackup/weweng&gt; <span class="nb">cd </span>x
+sjc-ads-7727:/nobackup/weweng/x&gt; git clone ssh://iot@sgbu-ucs-11:/opt/git-project/my-project1.git
+Cloning into <span class="s1">'my-project1'</span>...
+iot@sgbu-ucs-11<span class="s1">'s password: iot
+warning: You appear to have cloned an empty repository.
+sjc-ads-7727:/nobackup/weweng/x&gt; ls
+my-project1/
+sjc-ads-7727:/nobackup/weweng/x&gt; cd my-project1/
+sjc-ads-7727:/nobackup/weweng/x/my-project1&gt; ls -lat
+total 12
+drwxr-xr-x 7 weweng eng 4096 Jan 13 16:55 .git/
+drwxr-xr-x 3 weweng eng 4096 Jan 13 16:55 ./
+drwxr-xr-x 3 weweng eng 4096 Jan 13 16:55 ../
+sjc-ads-7727:/nobackup/weweng/x/my-project1&gt; </span></code></pre></figure>
+
+<p>Now the user can develop using the clone repository as usual.</p>
+
+<p>With SSH protocol, it is easy to use except that it doesn’t support annoymous clone. This can be a serious issue if the repository is a popular open source project. For that GIT protocol can help.</p>
+
+<h3 id="3-git-protocol">3. GIT protocol</h3>
+<p>Git protocol. This is a special daemon that comes packaged with Git; it listens on a dedicated port (9418) that provides a service similar to the SSH protocol, but with absolutely no authentication. In order for a repository to be served over the Git protocol, you must create the git-daemon-export-ok file – the daemon won’t serve a repository without that file in it – but other than that there is no security. Either the Git repository is available for everyone to clone or it isn’t. This means that there is generally no pushing over this protocol.
+(https://git-scm.com/book/en/v2/Git-on-the-Server-Git-Daemon)</p>
+
+<p>Example: enable GIT access for the repository my-project1.git in the server:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">iot@sgbu-ucs-11:/opt/git-project/my-project1.git<span class="nv">$ </span><span class="nb">touch </span>git-daemon-export-ok
+iot@sgbu-ucs-11:/opt/git-project/my-project1.git<span class="nv">$ </span><span class="nb">ls
+</span>branches  config  description  git-daemon-export-ok  HEAD  hooks  info  objects  refs
+iot@sgbu-ucs-11:/opt/git-project/my-project1.git<span class="nv">$ </span><span class="nb">sudo </span>git daemon <span class="nt">--reuseaddr</span> <span class="nt">--base-path</span><span class="o">=</span>/opt/git-project/ /opt/git-project/ &amp;</code></pre></figure>
+
+<p>In the client host:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">sjc-ads-7727:/nobackup/weweng&gt; <span class="nb">mkdir </span>y <span class="o">&amp;&amp;</span> <span class="nb">cd </span>y
+sjc-ads-7727:/nobackup/weweng/y&gt; git clone git://sgbu-ucs-11:/my-project1.git
+Cloning into <span class="s1">'my-project1'</span>...
+warning: You appear to have cloned an empty repository.
+sjc-ads-7727:/nobackup/weweng/y&gt; </code></pre></figure>
+
+<h3 id="4-http-protocol">4. HTTP protocol</h3>
+<p>Git can communicate over HTTP, it is popular for larg and official repository. But it requires to have HTTP server in place, which is not hard to do. For more details, check https://git-scm.com/book/en/v2/Git-on-the-Server-The-Protocols.</p>
+
+<p>Enjoy!</p>
+
+
+</article>
+
+
+
+
+
+<section class="rss">
+  <p class="rss-subscribe text"><strong>Subscribe <a href="/feed.xml">via RSS</a></strong></p>
+</section>
+
+<section class="share">
+  <span>Share: </span>
+  
+    
+    
+    
+    
+    
+    
+    
+    
+  
+    
+    
+    
+    
+    
+      <a href="//www.linkedin.com/shareArticle?mini=true&url=http%3A%2F%2Flocalhost%3A4000%2Ftools%2F2016%2F12%2F17%2Fgit-shared-repository.html"
+        onclick="window.open(this.href, 'linkedin-share', 'width=550,height=255');return false;">
+        <i class="fa fa-linkedin-square fa-lg"></i>
+      </a>
+    
+    
+    
+    
+  
+</section>
+
+
+
+
+</div>
+</div>
+
+    </div>
+
+    <footer class="site-footer">
+
+  <div class="wrapper">
+
+    <h3 class="footer-heading">Wenwei Weng's Blog</h3>
+
+    <div class="site-navigation">
+
+      <p><strong>Site Map</strong></p>
+      <ul class="pages">
+				
+	
+	<li class="nav-link"><a href="/about/">About</a>
+	
+
+	
+
+	
+
+	
+	<li class="nav-link"><a href="/posts/">Posts</a>
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+      </ul>
+    </div>
+
+    <div class="site-contact">
+
+      <p><strong>Contact</strong></p>
+      <ul class="social-media-list">
+        <li>
+          <a href="mailto:weweng@gmail.com">
+            <i class="fa fa-envelope-o"></i>
+            <span class="username">weweng@gmail.com</span>
+          </a>
+        </li>
+
+        
+          
+          <li>
+            <a href="https://github.com/weweng" title="Fork me on GitHub">
+              <i class="fa fa-github"></i>
+              <span class="username">weweng</span>
+            </a>
+          </li>
+          
+        
+          
+          <li>
+            <a href="https://www.linkedin.com/in/wenwei-weng/" title="Connect with me on LinkedIn">
+              <i class="fa fa-linkedin"></i>
+              <span class="username">Wenwei Weng</span>
+            </a>
+          </li>
+          
+        
+
+      </ul>
+    </div>
+
+    <div class="site-signature">
+      <p class="rss-subscribe text"><strong>Subscribe <a href="/feed.xml">via RSS</a></strong></p>
+      <p class="text">A simple yet classy theme for your Jekyll based blog.
+</p>
+    </div>
+
+  </div>
+
+</footer>
+
+<!-- Scripts -->
+<script src="//code.jquery.com/jquery-3.4.1.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.10/highlight.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.1/js/lightbox.min.js"></script>
+<script src="//unpkg.com/popper.js@1"></script>
+<script src="//unpkg.com/tippy.js@5"></script>
+
+<script type="text/javascript">
+$(document).ready(function() {
+  // Default syntax highlighting
+  hljs.initHighlightingOnLoad();
+
+  // Header
+  var menuToggle = $('#js-mobile-menu').unbind();
+  $('#js-navigation-menu').removeClass("show");
+  menuToggle.on('click', function(e) {
+    e.preventDefault();
+    $('#js-navigation-menu').slideToggle(function(){
+      if($('#js-navigation-menu').is(':hidden')) {
+        $('#js-navigation-menu').removeAttr('style');
+      }
+    });
+  });
+
+	// Enable tooltips via Tippy.js
+	if (Array.isArray(window.tooltips)) {
+		window.tooltips.forEach(function(tooltip) {
+			var selector = tooltip[0];
+			var config = tooltip[1];
+			tippy(selector, config);
+		})
+	}
+});
+
+</script>
+
+
+
+
+
+
+  </body>
+
+</html>

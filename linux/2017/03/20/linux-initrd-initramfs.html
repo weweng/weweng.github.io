@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>Linux initrd and initramfs</title>
+  <meta name="description" content="After Linux kernel boots, it looks for root file system, which can be initrd or initramfs. They are two different ways.">
+  
+  <meta name="author" content="Wenwei Weng">
+  <meta name="copyright" content="&copy; Wenwei Weng 2023">
+  
+
+  <!-- External libraries -->
+  <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css">
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.9.0/styles/monokai-sublime.min.css">
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/lightbox2/2.7.1/css/lightbox.css">
+
+  <!-- Favicon and other icons (made with http://www.favicon-generator.org/) -->
+  <link rel="shortcut icon" href="/assets/icons/favicon.ico" type="image/x-icon">
+  <link rel="icon" href="/assets/icons/favicon.ico" type="image/x-icon">
+  <link rel="apple-touch-icon" sizes="57x57" href="/assets/icons/apple-icon-57x57.png">
+  <link rel="apple-touch-icon" sizes="60x60" href="/assets/icons/apple-icon-60x60.png">
+  <link rel="apple-touch-icon" sizes="72x72" href="/assets/icons/apple-icon-72x72.png">
+  <link rel="apple-touch-icon" sizes="76x76" href="/assets/icons/apple-icon-76x76.png">
+  <link rel="apple-touch-icon" sizes="114x114" href="/assets/icons/apple-icon-114x114.png">
+  <link rel="apple-touch-icon" sizes="120x120" href="/assets/icons/apple-icon-120x120.png">
+  <link rel="apple-touch-icon" sizes="144x144" href="/assets/icons/apple-icon-144x144.png">
+  <link rel="apple-touch-icon" sizes="152x152" href="/assets/icons/apple-icon-152x152.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/assets/icons/apple-icon-180x180.png">
+  <link rel="icon" type="image/png" sizes="192x192"  href="/assets/icons/android-icon-192x192.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/assets/icons/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="96x96" href="/assets/icons/favicon-96x96.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/assets/icons/favicon-16x16.png">
+  <link rel="manifest" href="/assets/icons/manifest.json">
+  <meta name="msapplication-TileColor" content="#ffffff">
+  <meta name="msapplication-TileImage" content="/assets/icons/ms-icon-144x144.png">
+  <meta name="theme-color" content="#ffffff">
+
+  
+
+  
+
+  
+
+  <!-- Site styles -->
+  <link rel="stylesheet" href="/css/main.css">
+  <link rel="canonical" href="http://localhost:4000/linux/2017/03/20/linux-initrd-initramfs.html">
+	<link rel="alternate" type="application/rss+xml" title="Wenwei Weng's Blog" href="http://localhost:4000/feed.xml" />
+	
+	<!-- Tooltips -->
+	<script type="text/javascript">
+		window.tooltips = []
+	</script>
+</head>
+
+
+  <body>
+
+    <header class="navigation" role="banner">
+  <div class="navigation-wrapper">
+    <a href="/" class="logo">
+      
+      <img src="/assets/avatar.png" alt="Wenwei Weng's Blog">
+      
+    </a>
+    <a href="javascript:void(0)" class="navigation-menu-button" id="js-mobile-menu">
+      <i class="fa fa-bars"></i>
+    </a>
+    <nav role="navigation">
+      <ul id="js-navigation-menu" class="navigation-menu show">
+				
+	
+	<li class="nav-link"><a href="/about/">About</a>
+	
+
+	
+
+	
+
+	
+	<li class="nav-link"><a href="/posts/">Posts</a>
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+      </ul>
+    </nav>
+  </div>
+</header>
+
+
+    <div class="page-content">
+        <div class="post">
+
+<div class="post-header-container " >
+  <div class="scrim ">
+    <header class="post-header">
+      <h1 class="title">Linux initrd and initramfs</h1>
+      <p class="info">by <strong>Wenwei Weng</strong></p>
+    </header>
+  </div>
+</div>
+
+<div class="wrapper">
+
+ <span class="page-divider">
+  <span class="one"></span>
+  <span class="two"></span>
+</span>
+ 
+
+<section class="post-meta">
+  <div class="post-date">March 20, 2017</div>
+  <div class="post-categories">
+  in 
+    
+    <a href="/category/Linux">Linux</a>
+    
+  
+  </div>
+</section>
+
+<article class="post-content">
+  <p>After Linux kernel boots, it looks for root file system, which can be initrd or initramfs. They are two different ways.</p>
+
+<p><img src="/uploads/linux/linux-initrd-initramfs-comp.jpg" alt="linux init rootfs" /></p>
+
+<!--more-->
+
+<h1 id="initrd">initrd</h1>
+
+<ul>
+  <li>ramdev block device is created. It is a ram-based block device, that is a simulated hard disk that uses memory instead of physical disks.</li>
+  <li>
+    <table>
+      <tbody>
+        <tr>
+          <td>The initrd file is read and unzipped into the device, as if you did zcat initrd</td>
+          <td>dd of=/dev/ram0 or something similar.</td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+  <li>The initrd contains an image of a filesystem, so now you can mount the filesystem as usual: mount /dev/ram0 /root. Naturally, filesystems need a driver, so if you use ext2, the ext2 driver has to be compiled in-kernel.</li>
+</ul>
+
+<p>Example to create ramdisk image:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"> <span class="nb">cat </span>createramdisk.sh
+<span class="c">#!/bin/bash</span>
+
+<span class="nv">RDSIZE</span><span class="o">=</span>400000
+<span class="nv">BLKSIZE</span><span class="o">=</span>1024
+<span class="c"># create raw disk image first</span>
+<span class="nb">dd </span><span class="k">if</span><span class="o">=</span>/dev/zero <span class="nv">of</span><span class="o">=</span>/tmp/ramdisk.img <span class="nv">bs</span><span class="o">=</span><span class="nv">$BLKSIZE</span> <span class="nv">count</span><span class="o">=</span><span class="nv">$RDSIZE</span>
+
+<span class="c"># format it to ext2</span>
+/sbin/mke2fs <span class="nt">-F</span> <span class="nt">-m</span> 0 <span class="nt">-b</span> <span class="nv">$BLKSIZE</span> /tmp/ramdisk.img <span class="nv">$RDSIZE</span>
+
+<span class="c"># mount it</span>
+<span class="nb">mkdir</span> /mnt/initrd-disk
+mount /tmp/ramdisk.img /mnt/initrd-disk <span class="nt">-t</span> ext2 <span class="nt">-o</span> <span class="nv">loop</span><span class="o">=</span>/dev/loop0
+
+<span class="c"># copy context into ramdisk image</span>
+<span class="nb">cp</span> <span class="nt">-rf</span> /mnt/marvell/<span class="k">*</span> /mnt/initrd-disk/
+
+<span class="c"># umount and force it write into ramdisk image</span>
+umount /mnt/initrd-disk/
+
+<span class="c"># zip it</span>
+<span class="nb">gzip</span> <span class="nt">-9</span> /tmp/ramdisk.img
+<span class="nb">mv</span> /tmp/ramdisk.img.gz <span class="nb">.</span>
+
+<span class="c">#since it is for u-boot to use, it has to be converted to add a header in front</span>
+mkimage <span class="nt">-A</span> arm64 <span class="nt">-T</span> ramdisk <span class="nt">-C</span> <span class="nb">gzip</span> <span class="nt">-n</span> <span class="s2">"Sparrow Ramdisk Image"</span> <span class="nt">-d</span> ramdisk.img.gz uRamdisk</code></pre></figure>
+
+<h1 id="initramfs">initramfs</h1>
+
+<ul>
+  <li>A tmpfs is mounted: mount -t tmpfs nodev /root. The tmpfs doesn’t need a driver, it is always on-kernel. No device needed, no additional drivers.</li>
+  <li>
+    <table>
+      <tbody>
+        <tr>
+          <td>The initramfs is uncompressed directly into this new filesystem: zcat initramfs</td>
+          <td>cpio -i, or similar.</td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+  <li>Sometimes it can be very confusing because it is still called initrd in many places although it is a initramfs, particularly in boot loaders, as for them it is just a BLOB. The difference is made by the OS when it boots.</li>
+</ul>
+
+<p>Create initramfs is a lot simpler, prepare a directory, and holding all needed files inside it, then:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">find <span class="nb">.</span> | cpio <span class="nt">-o</span> <span class="nt">-H</span> newc | <span class="nb">gzip</span> | initramfs.cpio.gz</code></pre></figure>
+
+<p>initramfs.cpip.gz, it cal also embedded into kernel directly to make just one binary.</p>
+
+<h1 id="reference">Reference</h1>
+<p>https://www.kernel.org/doc/Documentation/filesystems/ramfs-rootfs-initramfs.txt</p>
+
+
+</article>
+
+
+
+
+
+<section class="rss">
+  <p class="rss-subscribe text"><strong>Subscribe <a href="/feed.xml">via RSS</a></strong></p>
+</section>
+
+<section class="share">
+  <span>Share: </span>
+  
+    
+    
+    
+    
+    
+    
+    
+    
+  
+    
+    
+    
+    
+    
+      <a href="//www.linkedin.com/shareArticle?mini=true&url=http%3A%2F%2Flocalhost%3A4000%2Flinux%2F2017%2F03%2F20%2Flinux-initrd-initramfs.html"
+        onclick="window.open(this.href, 'linkedin-share', 'width=550,height=255');return false;">
+        <i class="fa fa-linkedin-square fa-lg"></i>
+      </a>
+    
+    
+    
+    
+  
+</section>
+
+
+
+
+</div>
+</div>
+
+    </div>
+
+    <footer class="site-footer">
+
+  <div class="wrapper">
+
+    <h3 class="footer-heading">Wenwei Weng's Blog</h3>
+
+    <div class="site-navigation">
+
+      <p><strong>Site Map</strong></p>
+      <ul class="pages">
+				
+	
+	<li class="nav-link"><a href="/about/">About</a>
+	
+
+	
+
+	
+
+	
+	<li class="nav-link"><a href="/posts/">Posts</a>
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+      </ul>
+    </div>
+
+    <div class="site-contact">
+
+      <p><strong>Contact</strong></p>
+      <ul class="social-media-list">
+        <li>
+          <a href="mailto:weweng@gmail.com">
+            <i class="fa fa-envelope-o"></i>
+            <span class="username">weweng@gmail.com</span>
+          </a>
+        </li>
+
+        
+          
+          <li>
+            <a href="https://github.com/weweng" title="Fork me on GitHub">
+              <i class="fa fa-github"></i>
+              <span class="username">weweng</span>
+            </a>
+          </li>
+          
+        
+          
+          <li>
+            <a href="https://www.linkedin.com/in/wenwei-weng/" title="Connect with me on LinkedIn">
+              <i class="fa fa-linkedin"></i>
+              <span class="username">Wenwei Weng</span>
+            </a>
+          </li>
+          
+        
+
+      </ul>
+    </div>
+
+    <div class="site-signature">
+      <p class="rss-subscribe text"><strong>Subscribe <a href="/feed.xml">via RSS</a></strong></p>
+      <p class="text">A simple yet classy theme for your Jekyll based blog.
+</p>
+    </div>
+
+  </div>
+
+</footer>
+
+<!-- Scripts -->
+<script src="//code.jquery.com/jquery-3.4.1.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.10/highlight.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.1/js/lightbox.min.js"></script>
+<script src="//unpkg.com/popper.js@1"></script>
+<script src="//unpkg.com/tippy.js@5"></script>
+
+<script type="text/javascript">
+$(document).ready(function() {
+  // Default syntax highlighting
+  hljs.initHighlightingOnLoad();
+
+  // Header
+  var menuToggle = $('#js-mobile-menu').unbind();
+  $('#js-navigation-menu').removeClass("show");
+  menuToggle.on('click', function(e) {
+    e.preventDefault();
+    $('#js-navigation-menu').slideToggle(function(){
+      if($('#js-navigation-menu').is(':hidden')) {
+        $('#js-navigation-menu').removeAttr('style');
+      }
+    });
+  });
+
+	// Enable tooltips via Tippy.js
+	if (Array.isArray(window.tooltips)) {
+		window.tooltips.forEach(function(tooltip) {
+			var selector = tooltip[0];
+			var config = tooltip[1];
+			tippy(selector, config);
+		})
+	}
+});
+
+</script>
+
+
+
+
+
+
+  </body>
+
+</html>

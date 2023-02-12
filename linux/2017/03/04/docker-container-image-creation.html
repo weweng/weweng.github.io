@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>Create docker container image</title>
+  <meta name="description" content="Docker is growing with amazing features, and it becomes a platform to deploy services even in embedded linux enviroment. The container image creation is an i...">
+  
+  <meta name="author" content="Wenwei Weng">
+  <meta name="copyright" content="&copy; Wenwei Weng 2023">
+  
+
+  <!-- External libraries -->
+  <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css">
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.9.0/styles/monokai-sublime.min.css">
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/lightbox2/2.7.1/css/lightbox.css">
+
+  <!-- Favicon and other icons (made with http://www.favicon-generator.org/) -->
+  <link rel="shortcut icon" href="/assets/icons/favicon.ico" type="image/x-icon">
+  <link rel="icon" href="/assets/icons/favicon.ico" type="image/x-icon">
+  <link rel="apple-touch-icon" sizes="57x57" href="/assets/icons/apple-icon-57x57.png">
+  <link rel="apple-touch-icon" sizes="60x60" href="/assets/icons/apple-icon-60x60.png">
+  <link rel="apple-touch-icon" sizes="72x72" href="/assets/icons/apple-icon-72x72.png">
+  <link rel="apple-touch-icon" sizes="76x76" href="/assets/icons/apple-icon-76x76.png">
+  <link rel="apple-touch-icon" sizes="114x114" href="/assets/icons/apple-icon-114x114.png">
+  <link rel="apple-touch-icon" sizes="120x120" href="/assets/icons/apple-icon-120x120.png">
+  <link rel="apple-touch-icon" sizes="144x144" href="/assets/icons/apple-icon-144x144.png">
+  <link rel="apple-touch-icon" sizes="152x152" href="/assets/icons/apple-icon-152x152.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/assets/icons/apple-icon-180x180.png">
+  <link rel="icon" type="image/png" sizes="192x192"  href="/assets/icons/android-icon-192x192.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/assets/icons/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="96x96" href="/assets/icons/favicon-96x96.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/assets/icons/favicon-16x16.png">
+  <link rel="manifest" href="/assets/icons/manifest.json">
+  <meta name="msapplication-TileColor" content="#ffffff">
+  <meta name="msapplication-TileImage" content="/assets/icons/ms-icon-144x144.png">
+  <meta name="theme-color" content="#ffffff">
+
+  
+
+  
+
+  
+
+  <!-- Site styles -->
+  <link rel="stylesheet" href="/css/main.css">
+  <link rel="canonical" href="http://localhost:4000/linux/2017/03/04/docker-container-image-creation.html">
+	<link rel="alternate" type="application/rss+xml" title="Wenwei Weng's Blog" href="http://localhost:4000/feed.xml" />
+	
+	<!-- Tooltips -->
+	<script type="text/javascript">
+		window.tooltips = []
+	</script>
+</head>
+
+
+  <body>
+
+    <header class="navigation" role="banner">
+  <div class="navigation-wrapper">
+    <a href="/" class="logo">
+      
+      <img src="/assets/avatar.png" alt="Wenwei Weng's Blog">
+      
+    </a>
+    <a href="javascript:void(0)" class="navigation-menu-button" id="js-mobile-menu">
+      <i class="fa fa-bars"></i>
+    </a>
+    <nav role="navigation">
+      <ul id="js-navigation-menu" class="navigation-menu show">
+				
+	
+	<li class="nav-link"><a href="/about/">About</a>
+	
+
+	
+
+	
+
+	
+	<li class="nav-link"><a href="/posts/">Posts</a>
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+      </ul>
+    </nav>
+  </div>
+</header>
+
+
+    <div class="page-content">
+        <div class="post">
+
+<div class="post-header-container " >
+  <div class="scrim ">
+    <header class="post-header">
+      <h1 class="title">Create docker container image</h1>
+      <p class="info">by <strong>Wenwei Weng</strong></p>
+    </header>
+  </div>
+</div>
+
+<div class="wrapper">
+
+ <span class="page-divider">
+  <span class="one"></span>
+  <span class="two"></span>
+</span>
+ 
+
+<section class="post-meta">
+  <div class="post-date">March 4, 2017</div>
+  <div class="post-categories">
+  in 
+    
+    <a href="/category/Linux">Linux</a>
+    
+  
+  </div>
+</section>
+
+<article class="post-content">
+  <p>Docker is growing with amazing features, and it becomes a platform to deploy services even in embedded linux enviroment. The container image creation is an important part of process.
+Docker has done great job to manage the container image to make it to be in layer fashion, this is especially important for storage efficiency.</p>
+
+<p><img src="/uploads/linux/docker_container_image_layers.png" alt="docker install" /></p>
+
+<p>The following post shows what I did to create a scratch hello image and a minimal linux image based on alpine using Dockerfile.</p>
+
+<!--more-->
+<p>Dockerfile is the way docker has defined to create docker container image. It is kind of like GNU Makefile to build binary application from C source code. It has a set of simple instructions. For details, check <a href="https://docs.docker.com/engine/reference/builder/">Dockerfile reference</a> and <a href="https://docs.docker.com/engine/userguide/eng-image/dockerfile_best-practices/">best Dockerfile practice</a></p>
+
+<p>(There is another way to create a tar file and use “docker import “ to create a container name. But here I only use Dockerfile to create.)</p>
+
+<p>Inside Dockerfile, each line docker build will create a layer. Layer is marked with checksum,it is used for file systme overlay to avoid duplication of same content across containers. More details, check <a href="https://docs.docker.com/engine/userguide/storagedriver/imagesandcontainers/">here</a>.</p>
+
+<h1 id="hello-image-from-scratch">hello image from scratch</h1>
+<p>Objective: create a minimum container image to show “Hello from Docker by WENWEI WENG”.</p>
+
+<p>How: Docker has a minimal image “scratch”, which is empty. It can be used as a starting point for building containers. Using the “scratch” image as a base to tell the build process that I want the next command in the Dockerfile to be the first filesystem layer in my image. From there, I add a static linked executable “hello” binary.</p>
+
+<h2 id="helloc-file">hello.c file:</h2>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">iot@sg-ucs-1:~/temp-docker/hello-world<span class="nv">$ </span><span class="nb">cat </span>hello.c 
+<span class="c">#include &lt;sys/syscall.h&gt;</span>
+
+<span class="c">#ifndef DOCKER_IMAGE</span>
+	<span class="c">#define DOCKER_IMAGE "hello-world"</span>
+<span class="c">#endif</span>
+
+<span class="c">#ifndef DOCKER_GREETING</span>
+	<span class="c">#define DOCKER_GREETING "Hello from Docker by WENWEI WENG!"</span>
+<span class="c">#endif</span>
+
+const char message[] <span class="o">=</span>
+	<span class="s2">"</span><span class="se">\n</span><span class="s2">"</span>
+	DOCKER_GREETING <span class="s2">"</span><span class="se">\n</span><span class="s2">"</span>
+	<span class="s2">"This message shows that a simple hellow world built from scratch is working.</span><span class="se">\n</span><span class="s2">"</span>
+	<span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="p">;</span>
+
+void _start<span class="o">()</span> <span class="o">{</span>
+	syscall<span class="o">(</span>SYS_write, 1, message, sizeof<span class="o">(</span>message<span class="o">)</span> - 1<span class="o">)</span><span class="p">;</span>
+	syscall<span class="o">(</span>SYS_exit, 0<span class="o">)</span><span class="p">;</span>
+<span class="o">}</span>
+
+iot@sg-ucs-1:~/temp-docker/hello-world<span class="nv">$ </span></code></pre></figure>
+
+<p>it is good to notice that to print hello, printf() is not used, instead use syscall(), because printf() requires libc, which it needs to be avoided in this case. it is needed to build and linked statically like below.</p>
+
+<h2 id="build-helloc">Build hello.c</h2>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">gcc <span class="nt">-o</span> hello <span class="nt">-static</span> <span class="nt">-nostartfiles</span> hello.c
+hello.c: In <span class="k">function </span>_start:
+hello.c:36:2: warning: implicit declaration of <span class="k">function </span>syscall <span class="o">[</span><span class="nt">-Wimplicit-function-declaration</span><span class="o">]</span>
+  syscall<span class="o">(</span>SYS_write, 1, message, sizeof<span class="o">(</span>message<span class="o">)</span> - 1<span class="o">)</span><span class="p">;</span>
+  ^
+iot@sg-ucs-1:~/temp-docker/hello-world<span class="nv">$ </span>file hello
+hello: ELF 64-bit LSB executable, x86-64, version 1 <span class="o">(</span>SYSV<span class="o">)</span>, statically linked, BuildID[sha1]<span class="o">=</span>03031e04b4ccc726db7a44f84460e2f95834a9c8, not stripped
+iot@sg-ucs-1:~/temp-docker/hello-world<span class="nv">$ </span>ldd hello
+	not a dynamic executable
+iot@sg-ucs-1:~/temp-docker/hello-world<span class="nv">$ </span></code></pre></figure>
+
+<h2 id="dockerfile">Dockerfile:</h2>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">iot@sg-ucs-1:~/temp-docker/hello-world<span class="nv">$ </span><span class="nb">cat </span>Dockerfile 
+FROM scratch
+ADD hello /
+CMD <span class="o">[</span><span class="s2">"/hello"</span><span class="o">]</span>
+iot@sg-ucs-1:~/temp-docker/hello-world<span class="nv">$ </span></code></pre></figure>
+
+<h2 id="build-container-image">Build container image</h2>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">iot@sg-ucs-1:~/temp-docker/hello-world<span class="nv">$ </span><span class="nb">sudo </span>docker build <span class="nt">-t</span> hello <span class="nb">.</span>
+Sending build context to Docker daemon 6.144 kB
+Step 1 : FROM scratch
+ <span class="nt">---</span><span class="o">&gt;</span> 
+Step 2 : ADD hello /
+ <span class="nt">---</span><span class="o">&gt;</span> f246c1ebded0
+Removing intermediate container b8f2e862b305
+Step 3 : CMD /hello
+ <span class="nt">---</span><span class="o">&gt;</span> Running <span class="k">in </span>2590c17b439c
+ <span class="nt">---</span><span class="o">&gt;</span> c47cc50ca9c3
+Removing intermediate container 2590c17b439c
+Successfully built c47cc50ca9c3
+iot@sg-ucs-1:~/temp-docker/hello-world<span class="nv">$ </span><span class="nb">sudo </span>docker images
+REPOSITORY          TAG                 IMAGE ID            CREATED             VIRTUAL SIZE
+hello               latest              c47cc50ca9c3        7 seconds ago       2.064 kB
+&lt;none&gt;              &lt;none&gt;              366a6281a9f6        3 minutes ago       2.752 kB
+&lt;none&gt;              &lt;none&gt;              b2fa06955e3a        10 hours ago        123.1 MB
+elasticsearch       latest              9bd9659e5b46        3 days ago          351.3 MB
+jetty               latest              6544cee122fe        3 days ago          318.9 MB
+nginx               latest              cb2a085838a2        4 days ago          181.8 MB
+mongo               latest              a1112943ce27        4 days ago          402.2 MB
+golang              latest              0f5f664883a2        4 days ago          696.6 MB
+debian              latest              81d47ee3898e        5 days ago          123.1 MB
+debian              jessie              81d47ee3898e        5 days ago          123.1 MB
+ubuntu              xenial              e37d367c3507        5 days ago          130 MB
+ubuntu              trusty              a437f423d026        5 days ago          188 MB
+ubuntu              12.04               8436209beb19        5 days ago          103.6 MB
+fedora              latest              b083ce60cff6        2 weeks ago         230.3 MB
+registry            latest              c78f4fd8bf90        6 weeks ago         33.2 MB
+busybox             latest              1911ea24d99d        7 weeks ago         1.11 MB
+centos              latest              2785d012ae3e        11 weeks ago        191.8 MB
+iot@sg-ucs-1:~/temp-docker/hello-world<span class="nv">$ </span><span class="nb">sudo </span>docker run <span class="nt">--rm</span> hello
+
+Hello from Docker by WENWEI WENG!
+This message shows that a simple hellow world built from scratch is working.
+
+iot@sg-ucs-1:~/temp-docker/hello-world<span class="nv">$ </span></code></pre></figure>
+
+<h1 id="build-a-minimal-linux-image-with-a-file-named-test-alpine-wengtxt">Build a minimal linux image with a file named “test-alpine-weng.txt”</h1>
+<p>Objective: a minimal linux image with a file named “test-alpine-weng.txt”</p>
+
+<p>How: starting with “alpine” image as base, add file “test-alpine-weng.txt””.</p>
+
+<h2 id="create-the-file-test-alpine-wengtxt">create the file “test-alpine-weng.txt”</h2>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">iot@sg-ucs-1:~/temp-docker/alpine-weng<span class="nv">$ </span><span class="nb">cat </span>test-alpine-weng.txt 
+adding a new file into alpine base image by Wenwei Weng.
+
+iot@sg-ucs-1:~/temp-docker/alpine-weng<span class="nv">$ </span></code></pre></figure>
+
+<h2 id="dockerfile-1">Dockerfile</h2>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">iot@sg-ucs-1:~/temp-docker/alpine-weng<span class="nv">$ </span><span class="nb">cat </span>Dockerfile 
+FROM alpine 
+ADD test-alpine-weng.txt /
+CMD <span class="o">[</span><span class="s2">"cat /test-alpine-weng.txt"</span><span class="o">]</span>
+
+iot@sg-ucs-1:~/temp-docker/alpine-weng<span class="nv">$ </span></code></pre></figure>
+
+<h2 id="build-container-image-and-run">Build container image and run</h2>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">iot@sg-ucs-1:~/temp-docker/alpine-weng<span class="nv">$ </span><span class="nb">sudo </span>docker build <span class="nt">-t</span> alpine-weng <span class="nb">.</span>
+Sending build context to Docker daemon 3.072 kB
+Step 1 : FROM scratch
+ <span class="nt">---</span><span class="o">&gt;</span> 
+Step 2 : ADD test-alpine-weng.txt /
+ <span class="nt">---</span><span class="o">&gt;</span> 481b37eca163
+Removing intermediate container 76feaa4e8422
+Step 3 : CMD <span class="nb">cat</span> /test-alpine-weng.txt
+ <span class="nt">---</span><span class="o">&gt;</span> Running <span class="k">in </span>ac76f3fc697a
+ <span class="nt">---</span><span class="o">&gt;</span> 0a6ea5edd612
+Removing intermediate container ac76f3fc697a
+Successfully built 0a6ea5edd612
+iot@sg-ucs-1:~/temp-docker/alpine-weng<span class="nv">$ </span>vi Dockerfile 
+iot@sg-ucs-1:~/temp-docker/alpine-weng<span class="nv">$ </span><span class="nb">sudo </span>docker build <span class="nt">-t</span> alpine-weng <span class="nb">.</span>
+Sending build context to Docker daemon 3.072 kB
+Step 1 : FROM alpine
+ <span class="nt">---</span><span class="o">&gt;</span> 031b4db7df57
+Step 2 : ADD test-alpine-weng.txt /
+ <span class="nt">---</span><span class="o">&gt;</span> 3a4198f8c17b
+Removing intermediate container 0e51f073610c
+Step 3 : CMD <span class="nb">cat</span> /test-alpine-weng.txt
+ <span class="nt">---</span><span class="o">&gt;</span> Running <span class="k">in </span>bd34e7f24c95
+ <span class="nt">---</span><span class="o">&gt;</span> 5bb6c4a478c8
+Removing intermediate container bd34e7f24c95
+Successfully built 5bb6c4a478c8
+iot@sg-ucs-1:~/temp-docker/alpine-weng<span class="nv">$ </span><span class="nb">sudo </span>docker images
+REPOSITORY          TAG                 IMAGE ID            CREATED             VIRTUAL SIZE
+alpine-weng         latest              5bb6c4a478c8        17 seconds ago      3.988 MB
+&lt;none&gt;              &lt;none&gt;              0a6ea5edd612        41 seconds ago      58 B
+hello               latest              c47cc50ca9c3        5 minutes ago       2.064 kB
+&lt;none&gt;              &lt;none&gt;              366a6281a9f6        8 minutes ago       2.752 kB
+&lt;none&gt;              &lt;none&gt;              b2fa06955e3a        10 hours ago        123.1 MB
+alpine              latest              031b4db7df57        27 hours ago        3.987 MB
+elasticsearch       latest              9bd9659e5b46        3 days ago          351.3 MB
+jetty               latest              6544cee122fe        3 days ago          318.9 MB
+nginx               latest              cb2a085838a2        4 days ago          181.8 MB
+mongo               latest              a1112943ce27        4 days ago          402.2 MB
+golang              latest              0f5f664883a2        4 days ago          696.6 MB
+debian              jessie              81d47ee3898e        5 days ago          123.1 MB
+debian              latest              81d47ee3898e        5 days ago          123.1 MB
+ubuntu              xenial              e37d367c3507        5 days ago          130 MB
+ubuntu              trusty              a437f423d026        5 days ago          188 MB
+ubuntu              12.04               8436209beb19        5 days ago          103.6 MB
+fedora              latest              b083ce60cff6        2 weeks ago         230.3 MB
+registry            latest              c78f4fd8bf90        6 weeks ago         33.2 MB
+busybox             latest              1911ea24d99d        7 weeks ago         1.11 MB
+centos              latest              2785d012ae3e        11 weeks ago        191.8 MB
+iot@sg-ucs-1:~/temp-docker/alpine-weng<span class="nv">$ </span><span class="nb">sudo </span>docker run <span class="nt">--rm</span> <span class="nt">-it</span> alpine-weng /bin/sh
+/ <span class="c"># ls</span>
+bin                   lib                   root                  sys                   var
+dev                   media                 run                   test-alpine-weng.txt
+etc                   mnt                   sbin                  tmp
+home                  proc                  srv                   usr
+/ <span class="c"># cat test-alpine-weng.txt </span>
+adding a new file into alpine base image by Wenwei Weng.
+
+/ <span class="c">#  exit</span>
+iot@sg-ucs-1:~/temp-docker/alpine-weng<span class="err">$</span></code></pre></figure>
+
+<h1 id="reference">Reference</h1>
+
+<p>For more details, check <a href="https://docs.docker.com/engine/userguide/eng-image/baseimages/">docker docs</a>.</p>
+
+
+</article>
+
+
+
+
+
+<section class="rss">
+  <p class="rss-subscribe text"><strong>Subscribe <a href="/feed.xml">via RSS</a></strong></p>
+</section>
+
+<section class="share">
+  <span>Share: </span>
+  
+    
+    
+    
+    
+    
+    
+    
+    
+  
+    
+    
+    
+    
+    
+      <a href="//www.linkedin.com/shareArticle?mini=true&url=http%3A%2F%2Flocalhost%3A4000%2Flinux%2F2017%2F03%2F04%2Fdocker-container-image-creation.html"
+        onclick="window.open(this.href, 'linkedin-share', 'width=550,height=255');return false;">
+        <i class="fa fa-linkedin-square fa-lg"></i>
+      </a>
+    
+    
+    
+    
+  
+</section>
+
+
+
+
+</div>
+</div>
+
+    </div>
+
+    <footer class="site-footer">
+
+  <div class="wrapper">
+
+    <h3 class="footer-heading">Wenwei Weng's Blog</h3>
+
+    <div class="site-navigation">
+
+      <p><strong>Site Map</strong></p>
+      <ul class="pages">
+				
+	
+	<li class="nav-link"><a href="/about/">About</a>
+	
+
+	
+
+	
+
+	
+	<li class="nav-link"><a href="/posts/">Posts</a>
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+      </ul>
+    </div>
+
+    <div class="site-contact">
+
+      <p><strong>Contact</strong></p>
+      <ul class="social-media-list">
+        <li>
+          <a href="mailto:weweng@gmail.com">
+            <i class="fa fa-envelope-o"></i>
+            <span class="username">weweng@gmail.com</span>
+          </a>
+        </li>
+
+        
+          
+          <li>
+            <a href="https://github.com/weweng" title="Fork me on GitHub">
+              <i class="fa fa-github"></i>
+              <span class="username">weweng</span>
+            </a>
+          </li>
+          
+        
+          
+          <li>
+            <a href="https://www.linkedin.com/in/wenwei-weng/" title="Connect with me on LinkedIn">
+              <i class="fa fa-linkedin"></i>
+              <span class="username">Wenwei Weng</span>
+            </a>
+          </li>
+          
+        
+
+      </ul>
+    </div>
+
+    <div class="site-signature">
+      <p class="rss-subscribe text"><strong>Subscribe <a href="/feed.xml">via RSS</a></strong></p>
+      <p class="text">A simple yet classy theme for your Jekyll based blog.
+</p>
+    </div>
+
+  </div>
+
+</footer>
+
+<!-- Scripts -->
+<script src="//code.jquery.com/jquery-3.4.1.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.10/highlight.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.1/js/lightbox.min.js"></script>
+<script src="//unpkg.com/popper.js@1"></script>
+<script src="//unpkg.com/tippy.js@5"></script>
+
+<script type="text/javascript">
+$(document).ready(function() {
+  // Default syntax highlighting
+  hljs.initHighlightingOnLoad();
+
+  // Header
+  var menuToggle = $('#js-mobile-menu').unbind();
+  $('#js-navigation-menu').removeClass("show");
+  menuToggle.on('click', function(e) {
+    e.preventDefault();
+    $('#js-navigation-menu').slideToggle(function(){
+      if($('#js-navigation-menu').is(':hidden')) {
+        $('#js-navigation-menu').removeAttr('style');
+      }
+    });
+  });
+
+	// Enable tooltips via Tippy.js
+	if (Array.isArray(window.tooltips)) {
+		window.tooltips.forEach(function(tooltip) {
+			var selector = tooltip[0];
+			var config = tooltip[1];
+			tippy(selector, config);
+		})
+	}
+});
+
+</script>
+
+
+
+
+
+
+  </body>
+
+</html>

@@ -1,4 +1,7 @@
-gem 'github-pages'
 source 'https://rubygems.org'
-gem 'github-markdown'
-gem 'sanitize'
+gem 'jekyll', '<4'
+gem 'jekyll-archives'
+gem 'jekyll-sitemap'
+gem 'jekyll-paginate-v2'
+
+gem "webrick", "~> 1.8"

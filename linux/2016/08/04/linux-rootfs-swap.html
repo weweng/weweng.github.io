@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>Linux root file systen change while kernel running</title>
+  <meta name="description" content="When a Linux system running, there are two critical things: kernel and root file system. They are working together to provide services to user.">
+  
+  <meta name="author" content="Wenwei Weng">
+  <meta name="copyright" content="&copy; Wenwei Weng 2023">
+  
+
+  <!-- External libraries -->
+  <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css">
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.9.0/styles/monokai-sublime.min.css">
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/lightbox2/2.7.1/css/lightbox.css">
+
+  <!-- Favicon and other icons (made with http://www.favicon-generator.org/) -->
+  <link rel="shortcut icon" href="/assets/icons/favicon.ico" type="image/x-icon">
+  <link rel="icon" href="/assets/icons/favicon.ico" type="image/x-icon">
+  <link rel="apple-touch-icon" sizes="57x57" href="/assets/icons/apple-icon-57x57.png">
+  <link rel="apple-touch-icon" sizes="60x60" href="/assets/icons/apple-icon-60x60.png">
+  <link rel="apple-touch-icon" sizes="72x72" href="/assets/icons/apple-icon-72x72.png">
+  <link rel="apple-touch-icon" sizes="76x76" href="/assets/icons/apple-icon-76x76.png">
+  <link rel="apple-touch-icon" sizes="114x114" href="/assets/icons/apple-icon-114x114.png">
+  <link rel="apple-touch-icon" sizes="120x120" href="/assets/icons/apple-icon-120x120.png">
+  <link rel="apple-touch-icon" sizes="144x144" href="/assets/icons/apple-icon-144x144.png">
+  <link rel="apple-touch-icon" sizes="152x152" href="/assets/icons/apple-icon-152x152.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/assets/icons/apple-icon-180x180.png">
+  <link rel="icon" type="image/png" sizes="192x192"  href="/assets/icons/android-icon-192x192.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/assets/icons/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="96x96" href="/assets/icons/favicon-96x96.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/assets/icons/favicon-16x16.png">
+  <link rel="manifest" href="/assets/icons/manifest.json">
+  <meta name="msapplication-TileColor" content="#ffffff">
+  <meta name="msapplication-TileImage" content="/assets/icons/ms-icon-144x144.png">
+  <meta name="theme-color" content="#ffffff">
+
+  
+
+  
+
+  
+
+  <!-- Site styles -->
+  <link rel="stylesheet" href="/css/main.css">
+  <link rel="canonical" href="http://localhost:4000/linux/2016/08/04/linux-rootfs-swap.html">
+	<link rel="alternate" type="application/rss+xml" title="Wenwei Weng's Blog" href="http://localhost:4000/feed.xml" />
+	
+	<!-- Tooltips -->
+	<script type="text/javascript">
+		window.tooltips = []
+	</script>
+</head>
+
+
+  <body>
+
+    <header class="navigation" role="banner">
+  <div class="navigation-wrapper">
+    <a href="/" class="logo">
+      
+      <img src="/assets/avatar.png" alt="Wenwei Weng's Blog">
+      
+    </a>
+    <a href="javascript:void(0)" class="navigation-menu-button" id="js-mobile-menu">
+      <i class="fa fa-bars"></i>
+    </a>
+    <nav role="navigation">
+      <ul id="js-navigation-menu" class="navigation-menu show">
+				
+	
+	<li class="nav-link"><a href="/about/">About</a>
+	
+
+	
+
+	
+
+	
+	<li class="nav-link"><a href="/posts/">Posts</a>
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+      </ul>
+    </nav>
+  </div>
+</header>
+
+
+    <div class="page-content">
+        <div class="post">
+
+<div class="post-header-container " >
+  <div class="scrim ">
+    <header class="post-header">
+      <h1 class="title">Linux root file systen change while kernel running</h1>
+      <p class="info">by <strong>Wenwei Weng</strong></p>
+    </header>
+  </div>
+</div>
+
+<div class="wrapper">
+
+ <span class="page-divider">
+  <span class="one"></span>
+  <span class="two"></span>
+</span>
+ 
+
+<section class="post-meta">
+  <div class="post-date">August 4, 2016</div>
+  <div class="post-categories">
+  in 
+    
+    <a href="/category/Linux">Linux</a>
+    
+  
+  </div>
+</section>
+
+<article class="post-content">
+  <p>When a Linux system running, there are two critical things: kernel and root file system. They are working together to provide services to user.</p>
+
+<p>In Cisco IR800 platform, I have a need to run a linux which has kind of luxury file system, which includes gcc, make, gdb, dpdk package etc.. When the box boots, it runs a min-linux which has a busybox based very minimum root file system inside DRAM. Since the box BIOS has been closed to have option to boot USB stick, it is not an option to install GRUB, kernel and root file system in USB memory stick to boot distribution like ubuntu.</p>
+
+<p>The solution is to install a new root file system in 8GB USB meory stick and swap to new root file using chroot.</p>
+
+<p><img src="/uploads/linux/linux-chroot.png" alt="Linux root fs" /></p>
+
+<!--more-->
+
+<h1 id="build-a-nice-root-file-system-using-yocto-project">Build a nice root file system using yocto project</h1>
+
+<p>I ended up to use yocto project to build a core-image-lsb-sdk image.</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">iot@iot-UCSC-C240-M3S:~/yocto-proj<span class="nv">$ </span><span class="nb">source </span>oe-init-build-env
+iot@iot-UCSC-C240-M3S:~/yocto-proj/build<span class="nv">$ </span>bitbake core-image-lsb-sdk
+.................................................
+.................................................
+iot@iot-UCSC-C240-M3S:~/yocto-proj/build<span class="nv">$ </span><span class="nb">ls</span> <span class="nt">-l</span> tmp/deploy/images/qemux86-64/core-image-lsb-sdk-qemux86-64-20160728211755.rootfs.ext4
+<span class="nt">-rw-r--r--</span> 1 iot iot 2747091968 Aug  3 10:54 tmp/deploy/images/qemux86-64/core-image-lsb-sdk-qemux86-64-20160728211755.rootfs.ext4
+iot@iot-UCSC-C240-M3S:~/yocto-proj/build<span class="err">$</span></code></pre></figure>
+
+<h1 id="push-root-file-system-into-usb-memory-stick">Push root file system into USB memory stick</h1>
+
+<p>Plug a 8GB USB memory stick into UCS box, and mount ext4 file and USB stick, copy it over</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="o">[</span>root@sg-centos-hv1 dpdk]# <span class="nb">mkdir</span> /mnt/ext4_rfs/
+<span class="o">[</span>root@sg-centos-hv1 dpdk]# losetup /dev/loop0 /home/scratch/dpdk/core-image-lsb-sdk-qemux86-64-20160728211755.rootfs.ext4
+<span class="o">[</span>root@sg-centos-hv1 dpdk]# mount /dev/loop0 /mnt/ext4_rfs/
+<span class="o">[</span>root@sg-centos-hv1 dpdk]# <span class="nb">ls</span> /mnt/ext4_rfs/
+bin  boot  dev  downloads  etc  home  lib  lib64  lost+found  media  mnt  opt  proc  run  sbin  software  sys  tmp  usr  var  www
+<span class="o">[</span>root@sg-centos-hv1 dpdk]# <span class="nb">cd</span> /mnt/ext4_rfs/
+<span class="o">[</span>root@sg-centos-hv1 ext4_rfs]# <span class="nb">du</span> <span class="nt">-sh</span>
+2.0G    <span class="nb">.</span>
+<span class="o">[</span>root@sg-centos-hv1 ext4_rfs]#
+
+<span class="o">[</span>root@sg-centos-hv1 ext4_rfs]# dmesg | <span class="nb">tail</span> <span class="nt">-10</span>
+sd 20:0:0:0: Attached scsi generic sg10 <span class="nb">type </span>0
+sd 20:0:0:0: <span class="o">[</span>sdb] 15663104 512-byte logical blocks: <span class="o">(</span>8.01 GB/7.46 GiB<span class="o">)</span>
+sd 20:0:0:0: <span class="o">[</span>sdb] Write Protect is off
+sd 20:0:0:0: <span class="o">[</span>sdb] Mode Sense: 43 00 00 00
+sd 20:0:0:0: <span class="o">[</span>sdb] Assuming drive cache: write through
+sd 20:0:0:0: <span class="o">[</span>sdb] Assuming drive cache: write through
+ sdb: sdb1
+sd 20:0:0:0: <span class="o">[</span>sdb] Assuming drive cache: write through
+sd 20:0:0:0: <span class="o">[</span>sdb] Attached SCSI removable disk
+
+<span class="o">[</span>root@sg-centos-hv1 ext4_rfs]# fdisk <span class="nt">-l</span> /dev/sdb
+
+Disk /dev/sdb: 8019 MB, 8019509248 bytes
+255 heads, 63 sectors/track, 974 cylinders
+Units <span class="o">=</span> cylinders of 16065 <span class="k">*</span> 512 <span class="o">=</span> 8225280 bytes
+Sector size <span class="o">(</span>logical/physical<span class="o">)</span>: 512 bytes / 512 bytes
+I/O size <span class="o">(</span>minimum/optimal<span class="o">)</span>: 512 bytes / 512 bytes
+Disk identifier: 0x0007c493
+
+   Device Boot      Start         End      Blocks   Id  System
+/dev/sdb1               1         974     7823623+  83  Linux
+
+
+<span class="o">[</span>root@sg-centos-hv1 ext4_rfs]# <span class="nb">ls</span> /mnt/usb/
+<span class="o">[</span>root@sg-centos-hv1 ext4_rfs]# mount /dev/sdb1 /mnt/usb/
+<span class="o">[</span>root@sg-centos-hv1 ext4_rfs]# <span class="nb">rm</span> <span class="nt">-rf</span> /mnt/usb/<span class="k">*</span>
+<span class="o">[</span>root@sg-centos-hv1 ext4_rfs]# <span class="nb">cp</span> <span class="nt">-rf</span> /mnt/ext4_rfs/<span class="k">*</span> /mnt/usb<span class="p">;</span> <span class="nb">sync</span><span class="p">;</span> <span class="nb">sync</span><span class="p">;</span> <span class="nb">sync</span>
+<span class="o">[</span>root@sg-centos-hv1 ext4_rfs]# <span class="nb">cd</span>
+<span class="o">[</span>root@sg-centos-hv1 ~]# umount /mnt/usb
+<span class="o">[</span>root@sg-centos-hv1 ~]# umount /mnt/ext4_rfs/
+<span class="o">[</span>root@sg-centos-hv1 ~]# losetup <span class="nt">-d</span> /dev/loop0
+<span class="o">[</span>root@sg-centos-hv1 ~]#</code></pre></figure>
+
+<h1 id="plug-into-ir800-box-to-run-as-new-root-file-system">plug into IR800 box to run as new root file system</h1>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="c"># uname -a</span>
+Linux gemini 3.17.8 <span class="c">#3 SMP Wed Mar 25 16:35:59 PDT 2015 x86_64 GNU/Linux</span>
+<span class="c"># fdisk -l</span>
+
+Disk /dev/loop0: 953.7 MiB, 999967744 bytes, 1953062 sectors
+Units: sectors of 1 <span class="k">*</span> 512 <span class="o">=</span> 512 bytes
+Sector size <span class="o">(</span>logical/physical<span class="o">)</span>: 512 bytes / 512 bytes
+I/O size <span class="o">(</span>minimum/optimal<span class="o">)</span>: 512 bytes / 512 bytes
+Disklabel <span class="nb">type</span>: dos
+Disk identifier: 0x00000000
+
+
+Disk /dev/loop1: 244.1 MiB, 255967744 bytes, 499937 sectors
+Units: sectors of 1 <span class="k">*</span> 512 <span class="o">=</span> 512 bytes
+Sector size <span class="o">(</span>logical/physical<span class="o">)</span>: 512 bytes / 512 bytes
+I/O size <span class="o">(</span>minimum/optimal<span class="o">)</span>: 512 bytes / 512 bytes
+Disklabel <span class="nb">type</span>: dos
+Disk identifier: 0x00000000
+
+
+Disk /dev/sda: 7.5 GiB, 8019509248 bytes, 15663104 sectors
+Units: sectors of 1 <span class="k">*</span> 512 <span class="o">=</span> 512 bytes
+Sector size <span class="o">(</span>logical/physical<span class="o">)</span>: 512 bytes / 512 bytes
+I/O size <span class="o">(</span>minimum/optimal<span class="o">)</span>: 512 bytes / 512 bytes
+Disklabel <span class="nb">type</span>: dos
+Disk identifier: 0x0007c493
+
+Device     Boot Start      End  Sectors  Size Id Type
+/dev/sda1          63 15647309 15647247  7.5G 83 Linux
+
+Disk /dev/sdb: 3.7 GiB, 3909091328 bytes, 7634944 sectors
+Units: sectors of 1 <span class="k">*</span> 512 <span class="o">=</span> 512 bytes
+Sector size <span class="o">(</span>logical/physical<span class="o">)</span>: 512 bytes / 512 bytes
+I/O size <span class="o">(</span>minimum/optimal<span class="o">)</span>: 512 bytes / 512 bytes
+Disklabel <span class="nb">type</span>: dos
+Disk identifier: 0x000938d2
+
+Device     Boot   Start     End Sectors   Size Id Type
+/dev/sdb1  <span class="k">*</span>         63  500062  500000 244.1M 83 Linux
+/dev/sdb2        500063 1000062  500000 244.1M  6 FAT16
+/dev/sdb3       1000063 2953187 1953125 953.7M  6 FAT16
+/dev/sdb4       2953188 7630874 4677687   2.2G  f W95 Ext<span class="s1">'d (LBA)
+/dev/sdb5       2953251 5941531 2988281   1.4G 83 Linux
+/dev/sdb6       5941533 7630874 1689342 824.9M 83 Linux
+
+#
+# mkdir /new_rootfs_usb
+# mount /dev/sda1 /new_rootfs_usb/
+
+#
+# mount --move /sys /new_rootfs_usb/sys
+# mount --move /proc /new_rootfs_usb/proc
+# mount --move /dev /new_rootfs_usb/dev
+# chroot /new_rootfs_usb /bin/bash
+# pwd
+/
+# ls
+bin   dev        etc   lib    lost+found  mnt  proc  sbin      sys  usr  www
+boot  downloads  home  lib64  media       opt  run   software  tmp  var
+# ls -l
+total 64
+drwxr-xr-x  2 root root 4096 Aug  4  2016 bin
+drwxr-xr-x  2 root root 4096 Aug  4  2016 boot
+drwxr-xr-x  8 root root 2540 Aug 29 19:48 dev
+drwxr-xr-x  2 root root 4096 Aug  4  2016 downloads
+drwxr-xr-x 67 root root 4096 Aug  4  2016 etc
+drwxr-xr-x  6 root root 4096 Aug  4  2016 home
+drwxr-xr-x  9 root root 4096 Aug  4  2016 lib
+lrwxrwxrwx  1 root root    3 Aug  4  2016 lib64 -&gt; lib
+drwx------  2 root root 4096 Aug  4  2016 lost+found
+drwxr-xr-x  2 root root 4096 Aug  4  2016 media
+drwxr-xr-x  3 root root 4096 Aug  4  2016 mnt
+drwxr-xr-x  4 root root 4096 Aug  4  2016 opt
+dr-xr-xr-x 59 root root    0 Aug 29 19:48 proc
+drwxr-xr-x  3 root root 4096 Aug  4  2016 run
+drwxr-xr-x  3 root root 4096 Aug  4  2016 sbin
+drwxr-xr-x  4 root root 4096 Aug  4  2016 software
+dr-xr-xr-x 11 root root    0 Aug 29 19:48 sys
+lrwxrwxrwx  1 root root    8 Aug  4  2016 tmp -&gt; /var/tmp
+drwxr-xr-x 11 root root 4096 Aug  4  2016 usr
+drwxr-xr-x  9 root root 4096 Aug  4  2016 var
+drwxr-xr-x  3 root root 4096 Aug  4  2016 www
+# which gcc
+/usr/bin/gcc
+# which make
+/usr/bin/make
+# which ldd
+/usr/bin/ldd
+# uname -a
+Linux gemini 3.17.8 #3 SMP Wed Mar 25 16:35:59 PDT 2015 x86_64 GNU/Linux
+# df -h
+Filesystem      Size  Used Avail Use% Mounted on
+/dev/sda1       7.3G  2.0G  4.9G  29% /
+devtmpfs        952M     0  952M   0% /dev
+tmpfs           956M     0  956M   0% /dev/shm
+#</span></code></pre></figure>
+
+<p>Now the box is happily running the same kernel, but with a luxury root file system.</p>
+
+<p>Note: I tried pivot_root and switch_root, both didn’t work. Googling around I didn’t find any solution.</p>
+
+</article>
+
+
+
+
+
+<section class="rss">
+  <p class="rss-subscribe text"><strong>Subscribe <a href="/feed.xml">via RSS</a></strong></p>
+</section>
+
+<section class="share">
+  <span>Share: </span>
+  
+    
+    
+    
+    
+    
+    
+    
+    
+  
+    
+    
+    
+    
+    
+      <a href="//www.linkedin.com/shareArticle?mini=true&url=http%3A%2F%2Flocalhost%3A4000%2Flinux%2F2016%2F08%2F04%2Flinux-rootfs-swap.html"
+        onclick="window.open(this.href, 'linkedin-share', 'width=550,height=255');return false;">
+        <i class="fa fa-linkedin-square fa-lg"></i>
+      </a>
+    
+    
+    
+    
+  
+</section>
+
+
+
+
+</div>
+</div>
+
+    </div>
+
+    <footer class="site-footer">
+
+  <div class="wrapper">
+
+    <h3 class="footer-heading">Wenwei Weng's Blog</h3>
+
+    <div class="site-navigation">
+
+      <p><strong>Site Map</strong></p>
+      <ul class="pages">
+				
+	
+	<li class="nav-link"><a href="/about/">About</a>
+	
+
+	
+
+	
+
+	
+	<li class="nav-link"><a href="/posts/">Posts</a>
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+      </ul>
+    </div>
+
+    <div class="site-contact">
+
+      <p><strong>Contact</strong></p>
+      <ul class="social-media-list">
+        <li>
+          <a href="mailto:weweng@gmail.com">
+            <i class="fa fa-envelope-o"></i>
+            <span class="username">weweng@gmail.com</span>
+          </a>
+        </li>
+
+        
+          
+          <li>
+            <a href="https://github.com/weweng" title="Fork me on GitHub">
+              <i class="fa fa-github"></i>
+              <span class="username">weweng</span>
+            </a>
+          </li>
+          
+        
+          
+          <li>
+            <a href="https://www.linkedin.com/in/wenwei-weng/" title="Connect with me on LinkedIn">
+              <i class="fa fa-linkedin"></i>
+              <span class="username">Wenwei Weng</span>
+            </a>
+          </li>
+          
+        
+
+      </ul>
+    </div>
+
+    <div class="site-signature">
+      <p class="rss-subscribe text"><strong>Subscribe <a href="/feed.xml">via RSS</a></strong></p>
+      <p class="text">A simple yet classy theme for your Jekyll based blog.
+</p>
+    </div>
+
+  </div>
+
+</footer>
+
+<!-- Scripts -->
+<script src="//code.jquery.com/jquery-3.4.1.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.10/highlight.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.1/js/lightbox.min.js"></script>
+<script src="//unpkg.com/popper.js@1"></script>
+<script src="//unpkg.com/tippy.js@5"></script>
+
+<script type="text/javascript">
+$(document).ready(function() {
+  // Default syntax highlighting
+  hljs.initHighlightingOnLoad();
+
+  // Header
+  var menuToggle = $('#js-mobile-menu').unbind();
+  $('#js-navigation-menu').removeClass("show");
+  menuToggle.on('click', function(e) {
+    e.preventDefault();
+    $('#js-navigation-menu').slideToggle(function(){
+      if($('#js-navigation-menu').is(':hidden')) {
+        $('#js-navigation-menu').removeAttr('style');
+      }
+    });
+  });
+
+	// Enable tooltips via Tippy.js
+	if (Array.isArray(window.tooltips)) {
+		window.tooltips.forEach(function(tooltip) {
+			var selector = tooltip[0];
+			var config = tooltip[1];
+			tippy(selector, config);
+		})
+	}
+});
+
+</script>
+
+
+
+
+
+
+  </body>
+
+</html>

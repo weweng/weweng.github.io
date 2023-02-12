@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>GIT proxy set up</title>
+  <meta name="description" content="GIT is becoming very popular as SCM due to its simplicity and flexibity. Often software developers encounter proxy issue when the server sit behind firewall....">
+  
+  <meta name="author" content="Wenwei Weng">
+  <meta name="copyright" content="&copy; Wenwei Weng 2023">
+  
+
+  <!-- External libraries -->
+  <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css">
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.9.0/styles/monokai-sublime.min.css">
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/lightbox2/2.7.1/css/lightbox.css">
+
+  <!-- Favicon and other icons (made with http://www.favicon-generator.org/) -->
+  <link rel="shortcut icon" href="/assets/icons/favicon.ico" type="image/x-icon">
+  <link rel="icon" href="/assets/icons/favicon.ico" type="image/x-icon">
+  <link rel="apple-touch-icon" sizes="57x57" href="/assets/icons/apple-icon-57x57.png">
+  <link rel="apple-touch-icon" sizes="60x60" href="/assets/icons/apple-icon-60x60.png">
+  <link rel="apple-touch-icon" sizes="72x72" href="/assets/icons/apple-icon-72x72.png">
+  <link rel="apple-touch-icon" sizes="76x76" href="/assets/icons/apple-icon-76x76.png">
+  <link rel="apple-touch-icon" sizes="114x114" href="/assets/icons/apple-icon-114x114.png">
+  <link rel="apple-touch-icon" sizes="120x120" href="/assets/icons/apple-icon-120x120.png">
+  <link rel="apple-touch-icon" sizes="144x144" href="/assets/icons/apple-icon-144x144.png">
+  <link rel="apple-touch-icon" sizes="152x152" href="/assets/icons/apple-icon-152x152.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/assets/icons/apple-icon-180x180.png">
+  <link rel="icon" type="image/png" sizes="192x192"  href="/assets/icons/android-icon-192x192.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/assets/icons/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="96x96" href="/assets/icons/favicon-96x96.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/assets/icons/favicon-16x16.png">
+  <link rel="manifest" href="/assets/icons/manifest.json">
+  <meta name="msapplication-TileColor" content="#ffffff">
+  <meta name="msapplication-TileImage" content="/assets/icons/ms-icon-144x144.png">
+  <meta name="theme-color" content="#ffffff">
+
+  
+
+  
+
+  
+
+  <!-- Site styles -->
+  <link rel="stylesheet" href="/css/main.css">
+  <link rel="canonical" href="http://localhost:4000/tools/2015/05/08/GIT-proxy-setup.html">
+	<link rel="alternate" type="application/rss+xml" title="Wenwei Weng's Blog" href="http://localhost:4000/feed.xml" />
+	
+	<!-- Tooltips -->
+	<script type="text/javascript">
+		window.tooltips = []
+	</script>
+</head>
+
+
+  <body>
+
+    <header class="navigation" role="banner">
+  <div class="navigation-wrapper">
+    <a href="/" class="logo">
+      
+      <img src="/assets/avatar.png" alt="Wenwei Weng's Blog">
+      
+    </a>
+    <a href="javascript:void(0)" class="navigation-menu-button" id="js-mobile-menu">
+      <i class="fa fa-bars"></i>
+    </a>
+    <nav role="navigation">
+      <ul id="js-navigation-menu" class="navigation-menu show">
+				
+	
+	<li class="nav-link"><a href="/about/">About</a>
+	
+
+	
+
+	
+
+	
+	<li class="nav-link"><a href="/posts/">Posts</a>
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+      </ul>
+    </nav>
+  </div>
+</header>
+
+
+    <div class="page-content">
+        <div class="post">
+
+<div class="post-header-container " >
+  <div class="scrim ">
+    <header class="post-header">
+      <h1 class="title">GIT proxy set up</h1>
+      <p class="info">by <strong>Wenwei Weng</strong></p>
+    </header>
+  </div>
+</div>
+
+<div class="wrapper">
+
+ <span class="page-divider">
+  <span class="one"></span>
+  <span class="two"></span>
+</span>
+ 
+
+<section class="post-meta">
+  <div class="post-date">May 8, 2015</div>
+  <div class="post-categories">
+  in 
+    
+    <a href="/category/Tools">Tools</a>
+    
+  
+  </div>
+</section>
+
+<article class="post-content">
+  <p>GIT is becoming very popular as SCM due to its simplicity and flexibity. 
+Often software developers encounter proxy issue when the server sit behind firewall.
+There are three protocols git can use to clone a repository: http, git and ssh.</p>
+
+<p><img src="" alt="proxy setup](/uploads/git/git-proxy-setup.jpg) " /></p>
+
+<p>GIT clone example:</p>
+<ol>
+<li> git clone http://git.denx.de/u-boot.git  </li>
+<li> git clone git://git.denx.de/u-boot.git  </li>
+<li> git clone ssh://git@github.com/weweng/blog.git   </li>
+</ol>
+
+<p>In this post, I explain how to set up proxy for each protocol using proxy.esl.cisco.com as example.</p>
+
+<!--more-->
+
+<h1 id="http">HTTP</h1>
+<p>There are two approaches: env variable and git config</p>
+
+<h2 id="set-http_proxy-enviroment-variable">set http_proxy enviroment variable</h2>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">weng@weng-ucs1:<span class="nv">$ </span><span class="nb">export </span><span class="nv">http_proxy</span><span class="o">=</span><span class="s1">'http://proxy.esl.cisco.com:8080'</span></code></pre></figure>
+
+<p>or</p>
+
+<h2 id="git-config">git config</h2>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">git config <span class="nt">--global</span> http.proxy http://proxy.esl.cisco.com:8080
+
+weng@weng-ucs1:<span class="nv">$ </span><span class="nb">cat</span> ~/.gitconfig 
+<span class="o">[</span>http]
+	proxy <span class="o">=</span> http://proxy.esl.cisco.com:8080</code></pre></figure>
+
+<p>then it works as following:</p>
+
+<p>git clone http://git.denx.de/u-boot.git</p>
+
+<h1 id="git">GIT</h1>
+
+<p>First install corkscrew using apt-get (since I’m running ubuntu)
+sudo apt-get install corkscrew</p>
+
+<p>Second, create a bash script named as “git-proxy”</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">weng@weng-ucs1:<span class="nv">$ </span><span class="nb">cat</span> /usr/local/bin/git-proxy 
+<span class="c">#!/bin/sh
+</span>
+<span class="nb">exec</span> /usr/bin/corkscrew proxy.esl.cisco.com 8080 <span class="nv">$*</span> 
+weng@weng-ucs1:<span class="nv">$ </span>git config  <span class="nt">--global</span>   core.gitProxy git-proxy
+weng@weng-ucs1:<span class="err">$</span></code></pre></figure>
+
+<p>Finally, it works as following:</p>
+
+<p>git clone git://git.denx.de/u-boot.git</p>
+
+<h1 id="ssh">SSH</h1>
+<p>This is most complicated scenario. I use github.com as example.</p>
+
+<p>Step#1 create an entry in ~/.ssh/config like below:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">weng@weng-ucs1:<span class="nv">$ </span><span class="nb">cat</span> /home/weng/.ssh/config
+Host github.com
+  Hostname github.com
+  User git
+  ProxyCommand nc <span class="nt">-x</span> proxy.esl.cisco.com:1080 %h %p
+weng@weng-ucs1:<span class="nv">$ </span></code></pre></figure>
+
+<p>Step#2 Generate RSA key and add into github.com 
+Please take the steps from https://help.github.com/articles/generating-ssh-keys/</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">weng@weng-ucs1:<span class="nv">$ </span>ssh-keygen <span class="nt">-t</span> rsa <span class="nt">-C</span> <span class="s2">"weweng@gmail.com"</span>
+...
+
+weng@weng-ucs1:<span class="nv">$ </span><span class="nb">cat</span> ~/.ssh/id_rsa.pub
+ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQChKci3nRcHGZ5v1OspCiIX8vj72VCCksuILKjaFC5Q+u95AtWa1+kDhQj02ijA+RQGttWfEK5es7M9pfeeBHjtsuTSbbcReyKWi4qBIMKrGV6fyadeVad1Sj7GpV3eUUFZjjMTVgSZJ5lUK1JRpYjr2LuDD8etQgo7k0rwy3i/gIDlp2U4marG/0oPB2btLI/CgUcbBnNX/hsuR1P/hRX31HUp+Ru5UxypHNSuyh6YH6e0i2vfvbKcnU0xnk1ed7dBD86Np8uu76jfM5MdNe1AvPUx4+oJM0c6yf6e55sco5wLy8nTDgRftVW4wbbe93Y+zxwXU/AsW2HNakh0mR5L weweng@gmail.com
+weng@weng-ucs1:<span class="nv">$ </span></code></pre></figure>
+
+<p>Add above key into your guthub.com account, after that, then we should see following:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">weng@weng-ucs1:<span class="nv">$ </span>ssh github.com
+PTY allocation request failed on channel 0
+Hi weweng! You<span class="s1">'ve successfully authenticated, but GitHub does not provide shell access.
+Connection to github.com closed.
+weng@weng-ucs1:$ </span></code></pre></figure>
+
+<p>Now we can veirfy git over ssh work:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">weng@weng-ucs1:<span class="nv">$ </span>git clone ssh://git@github.com/weweng/blog.git
+Cloning into <span class="s1">'blog'</span>...
+remote: Counting objects: 157, <span class="k">done</span><span class="nb">.</span>
+remote: Compressing objects: 100% <span class="o">(</span>13/13<span class="o">)</span>, <span class="k">done</span><span class="nb">.</span>
+remote: Total 157 <span class="o">(</span>delta 6<span class="o">)</span>, reused 0 <span class="o">(</span>delta 0<span class="o">)</span>, pack-reused 142
+Receiving objects: 100% <span class="o">(</span>157/157<span class="o">)</span>, 2.30 MiB | 1.17 MiB/s, <span class="k">done</span><span class="nb">.</span>
+Resolving deltas: 100% <span class="o">(</span>57/57<span class="o">)</span>, <span class="k">done</span><span class="nb">.</span>
+weng@weng-ucs1:<span class="nv">$ </span></code></pre></figure>
+
+
+</article>
+
+
+
+
+
+<section class="rss">
+  <p class="rss-subscribe text"><strong>Subscribe <a href="/feed.xml">via RSS</a></strong></p>
+</section>
+
+<section class="share">
+  <span>Share: </span>
+  
+    
+    
+    
+    
+    
+    
+    
+    
+  
+    
+    
+    
+    
+    
+      <a href="//www.linkedin.com/shareArticle?mini=true&url=http%3A%2F%2Flocalhost%3A4000%2Ftools%2F2015%2F05%2F08%2FGIT-proxy-setup.html"
+        onclick="window.open(this.href, 'linkedin-share', 'width=550,height=255');return false;">
+        <i class="fa fa-linkedin-square fa-lg"></i>
+      </a>
+    
+    
+    
+    
+  
+</section>
+
+
+
+
+</div>
+</div>
+
+    </div>
+
+    <footer class="site-footer">
+
+  <div class="wrapper">
+
+    <h3 class="footer-heading">Wenwei Weng's Blog</h3>
+
+    <div class="site-navigation">
+
+      <p><strong>Site Map</strong></p>
+      <ul class="pages">
+				
+	
+	<li class="nav-link"><a href="/about/">About</a>
+	
+
+	
+
+	
+
+	
+	<li class="nav-link"><a href="/posts/">Posts</a>
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+      </ul>
+    </div>
+
+    <div class="site-contact">
+
+      <p><strong>Contact</strong></p>
+      <ul class="social-media-list">
+        <li>
+          <a href="mailto:weweng@gmail.com">
+            <i class="fa fa-envelope-o"></i>
+            <span class="username">weweng@gmail.com</span>
+          </a>
+        </li>
+
+        
+          
+          <li>
+            <a href="https://github.com/weweng" title="Fork me on GitHub">
+              <i class="fa fa-github"></i>
+              <span class="username">weweng</span>
+            </a>
+          </li>
+          
+        
+          
+          <li>
+            <a href="https://www.linkedin.com/in/wenwei-weng/" title="Connect with me on LinkedIn">
+              <i class="fa fa-linkedin"></i>
+              <span class="username">Wenwei Weng</span>
+            </a>
+          </li>
+          
+        
+
+      </ul>
+    </div>
+
+    <div class="site-signature">
+      <p class="rss-subscribe text"><strong>Subscribe <a href="/feed.xml">via RSS</a></strong></p>
+      <p class="text">A simple yet classy theme for your Jekyll based blog.
+</p>
+    </div>
+
+  </div>
+
+</footer>
+
+<!-- Scripts -->
+<script src="//code.jquery.com/jquery-3.4.1.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.10/highlight.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.1/js/lightbox.min.js"></script>
+<script src="//unpkg.com/popper.js@1"></script>
+<script src="//unpkg.com/tippy.js@5"></script>
+
+<script type="text/javascript">
+$(document).ready(function() {
+  // Default syntax highlighting
+  hljs.initHighlightingOnLoad();
+
+  // Header
+  var menuToggle = $('#js-mobile-menu').unbind();
+  $('#js-navigation-menu').removeClass("show");
+  menuToggle.on('click', function(e) {
+    e.preventDefault();
+    $('#js-navigation-menu').slideToggle(function(){
+      if($('#js-navigation-menu').is(':hidden')) {
+        $('#js-navigation-menu').removeAttr('style');
+      }
+    });
+  });
+
+	// Enable tooltips via Tippy.js
+	if (Array.isArray(window.tooltips)) {
+		window.tooltips.forEach(function(tooltip) {
+			var selector = tooltip[0];
+			var config = tooltip[1];
+			tippy(selector, config);
+		})
+	}
+});
+
+</script>
+
+
+
+
+
+
+  </body>
+
+</html>

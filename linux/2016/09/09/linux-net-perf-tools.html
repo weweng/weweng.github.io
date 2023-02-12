@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>Network performance testing tools</title>
+  <meta name="description" content="As my day job is to develop routing platforms to route packets, from time to time I need to measure the performance of router in terms of throughput, i.e. pu...">
+  
+  <meta name="author" content="Wenwei Weng">
+  <meta name="copyright" content="&copy; Wenwei Weng 2023">
+  
+
+  <!-- External libraries -->
+  <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css">
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.9.0/styles/monokai-sublime.min.css">
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/lightbox2/2.7.1/css/lightbox.css">
+
+  <!-- Favicon and other icons (made with http://www.favicon-generator.org/) -->
+  <link rel="shortcut icon" href="/assets/icons/favicon.ico" type="image/x-icon">
+  <link rel="icon" href="/assets/icons/favicon.ico" type="image/x-icon">
+  <link rel="apple-touch-icon" sizes="57x57" href="/assets/icons/apple-icon-57x57.png">
+  <link rel="apple-touch-icon" sizes="60x60" href="/assets/icons/apple-icon-60x60.png">
+  <link rel="apple-touch-icon" sizes="72x72" href="/assets/icons/apple-icon-72x72.png">
+  <link rel="apple-touch-icon" sizes="76x76" href="/assets/icons/apple-icon-76x76.png">
+  <link rel="apple-touch-icon" sizes="114x114" href="/assets/icons/apple-icon-114x114.png">
+  <link rel="apple-touch-icon" sizes="120x120" href="/assets/icons/apple-icon-120x120.png">
+  <link rel="apple-touch-icon" sizes="144x144" href="/assets/icons/apple-icon-144x144.png">
+  <link rel="apple-touch-icon" sizes="152x152" href="/assets/icons/apple-icon-152x152.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/assets/icons/apple-icon-180x180.png">
+  <link rel="icon" type="image/png" sizes="192x192"  href="/assets/icons/android-icon-192x192.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/assets/icons/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="96x96" href="/assets/icons/favicon-96x96.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/assets/icons/favicon-16x16.png">
+  <link rel="manifest" href="/assets/icons/manifest.json">
+  <meta name="msapplication-TileColor" content="#ffffff">
+  <meta name="msapplication-TileImage" content="/assets/icons/ms-icon-144x144.png">
+  <meta name="theme-color" content="#ffffff">
+
+  
+
+  
+
+  
+
+  <!-- Site styles -->
+  <link rel="stylesheet" href="/css/main.css">
+  <link rel="canonical" href="http://localhost:4000/linux/2016/09/09/linux-net-perf-tools.html">
+	<link rel="alternate" type="application/rss+xml" title="Wenwei Weng's Blog" href="http://localhost:4000/feed.xml" />
+	
+	<!-- Tooltips -->
+	<script type="text/javascript">
+		window.tooltips = []
+	</script>
+</head>
+
+
+  <body>
+
+    <header class="navigation" role="banner">
+  <div class="navigation-wrapper">
+    <a href="/" class="logo">
+      
+      <img src="/assets/avatar.png" alt="Wenwei Weng's Blog">
+      
+    </a>
+    <a href="javascript:void(0)" class="navigation-menu-button" id="js-mobile-menu">
+      <i class="fa fa-bars"></i>
+    </a>
+    <nav role="navigation">
+      <ul id="js-navigation-menu" class="navigation-menu show">
+				
+	
+	<li class="nav-link"><a href="/about/">About</a>
+	
+
+	
+
+	
+
+	
+	<li class="nav-link"><a href="/posts/">Posts</a>
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+      </ul>
+    </nav>
+  </div>
+</header>
+
+
+    <div class="page-content">
+        <div class="post">
+
+<div class="post-header-container " >
+  <div class="scrim ">
+    <header class="post-header">
+      <h1 class="title">Network performance testing tools</h1>
+      <p class="info">by <strong>Wenwei Weng</strong></p>
+    </header>
+  </div>
+</div>
+
+<div class="wrapper">
+
+ <span class="page-divider">
+  <span class="one"></span>
+  <span class="two"></span>
+</span>
+ 
+
+<section class="post-meta">
+  <div class="post-date">September 9, 2016</div>
+  <div class="post-categories">
+  in 
+    
+    <a href="/category/Linux">Linux</a>
+    
+  
+  </div>
+</section>
+
+<article class="post-content">
+  <p>As my day job is to develop routing platforms to route packets, from time to time I need to measure the performance of router in terms of throughput, i.e. pump traffic into UUT ingress interface, and get traffic out from egress interface. In my view, there are three classes of testing tools:</p>
+<ol>
+<li>Dedicated testing equipment like IXIA, Spirent. These are expensive and accurate equipments. It requires dedicated hardware, training.</li>
+<li>Open source tools like Pktgen-DPDK, [TRex](https://github.com/cisco-system-traffic-generator): These tools are wokring with NIC directly, and can create high rate relative precise traffiic.  </li>
+<li>Open source tools like iperf, netperf, nuttcp. These are free tools, easy to install, easy to use. It generates traffic using socket. So timing wise, it is much less accurate. However it still gives roughly the performance number. </li>
+</ol>
+<p><img src="/uploads/linux/linux-perf-tools.jpg" alt="Linux network performance tools" /></p>
+
+<p>In this post, I will go throught netperf, iperf, nuttcp.</p>
+
+<!--more-->
+
+<h1 id="test-bed-set-up">Test bed set up</h1>
+<p>I uses three Cisco UCS boxes below.</p>
+
+<p><img src="/uploads/linux/net-perf-test-bed.jpg" alt="net performance test bed" /></p>
+
+<p>some details:</p>
+<ol>
+<li>The middle box "iotg-epc-ucs3" runs Fedora 24, and is used as UUT. </li>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="o">[</span>weng@iotg-epc-ucs3 ~]<span class="nv">$ </span>  ifconfig enp11s0f0
+enp11s0f0: <span class="nv">flags</span><span class="o">=</span>4163&lt;UP,BROADCAST,RUNNING,MULTICAST&gt;  mtu 1500
+        inet 10.10.10.2  netmask 255.255.255.0  broadcast 10.10.10.255
+        inet6 fe80::c204:be95:d906:ba13  prefixlen 64  scopeid 0x20&lt;<span class="nb">link</span><span class="o">&gt;</span>
+        ether 00:10:18:a7:82:28  txqueuelen 1000  <span class="o">(</span>Ethernet<span class="o">)</span>
+        RX packets 2189444  bytes 153377208 <span class="o">(</span>146.2 MiB<span class="o">)</span>
+        RX errors 0  dropped 0  overruns 0  frame 0
+        TX packets 23132269  bytes 22045460531 <span class="o">(</span>20.5 GiB<span class="o">)</span>
+        TX errors 0  dropped 0 overruns 0  carrier 0  collisions 0
+
+<span class="o">[</span>weng@iotg-epc-ucs3 ~]<span class="nv">$ </span>  ifconfig enp11s0f1
+enp11s0f1: <span class="nv">flags</span><span class="o">=</span>4163&lt;UP,BROADCAST,RUNNING,MULTICAST&gt;  mtu 1500
+        inet 20.20.20.2  netmask 255.255.255.0  broadcast 20.20.20.255
+        inet6 fe80::ee39:1018:b17e:3f76  prefixlen 64  scopeid 0x20&lt;<span class="nb">link</span><span class="o">&gt;</span>
+        ether 00:10:18:a7:82:2a  txqueuelen 1000  <span class="o">(</span>Ethernet<span class="o">)</span>
+        RX packets 23176127  bytes 22049032366 <span class="o">(</span>20.5 GiB<span class="o">)</span>
+        RX errors 0  dropped 0  overruns 0  frame 0
+        TX packets 2200466  bytes 154280229 <span class="o">(</span>147.1 MiB<span class="o">)</span>
+        TX errors 0  dropped 0 overruns 0  carrier 0  collisions 0
+
+<span class="o">[</span>weng@iotg-epc-ucs3 ~]<span class="nv">$ </span>route
+Kernel IP routing table
+Destination     Gateway         Genmask         Flags Metric Ref    Use Iface
+default         gateway         0.0.0.0         UG    100    0        0 enp12s0f0
+default         gateway         0.0.0.0         UG    101    0        0 enp12s0f1
+default         gateway         0.0.0.0         UG    102    0        0 ens1f0
+10.10.10.0      0.0.0.0         255.255.255.0   U     100    0        0 enp11s0f0
+20.20.20.0      0.0.0.0         255.255.255.0   U     100    0        0 enp11s0f1
+30.30.30.0      0.0.0.0         255.255.255.0   U     100    0        0 enp12s0f0
+40.40.40.0      0.0.0.0         255.255.255.0   U     100    0        0 enp12s0f1
+172.0.0.0       gateway         255.0.0.0       UG    1      0        0 ens1f0
+172.27.161.0    0.0.0.0         255.255.255.128 U     100    0        0 ens1f0
+<span class="o">[</span>weng@iotg-epc-ucs3 ~]<span class="nv">$ </span><span class="nb">cat</span> /proc/sys/net/ipv4/ip_forward <span class="c"># make sure IP forwad is turned on</span>
+1
+<span class="o">[</span>weng@iotg-epc-ucs3 ~]<span class="nv">$ </span><span class="c"># make sure firewall is disable as it might block the testing traffic</span>
+<span class="o">[</span>weng@iotg-epc-ucs3 ~]<span class="nv">$ </span>systemctl status firewalld
+<span class="se">\u</span>25cf firewalld.service - firewalld - dynamic firewall daemon
+   Loaded: loaded <span class="o">(</span>/usr/lib/systemd/system/firewalld.service<span class="p">;</span> enabled<span class="p">;</span> vendor preset: enabled<span class="o">)</span>
+   Active: inactive <span class="o">(</span>dead<span class="o">)</span> since Thu 2016-09-08 11:15:25 PDT<span class="p">;</span> 1 day 10h ago
+  Process: 1306 <span class="nv">ExecStart</span><span class="o">=</span>/usr/sbin/firewalld <span class="nt">--nofork</span> <span class="nt">--nopid</span> <span class="nv">$FIREWALLD_ARGS</span> <span class="o">(</span><span class="nv">code</span><span class="o">=</span>exited, s
+ Main PID: 1306 <span class="o">(</span><span class="nv">code</span><span class="o">=</span>exited, <span class="nv">status</span><span class="o">=</span>0/SUCCESS<span class="o">)</span>
+
+Warning: Journal has been rotated since unit was started. Log output is incomplete or unavaila
+<span class="o">[</span>weng@iotg-epc-ucs3 ~]<span class="nv">$ </span></code></pre></figure>
+
+<li> The box iotg-epc-ucs2 runs ubuntu 16.04LTS, is used as server</li>
+
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">epc@iotg-epc-ucs2:~<span class="nv">$ </span>ifconfig eth0
+eth0      Link encap:Ethernet  HWaddr 00:10:18:c9:54:d8  
+          inet addr:10.10.10.1  Bcast:10.10.10.255  Mask:255.255.255.0
+          inet6 addr: fe80::210:18ff:fec9:54d8/64 Scope:Link
+          UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
+          RX packets:23133246 errors:1 dropped:0 overruns:0 frame:1
+          TX packets:2191846 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:0 txqueuelen:1000 
+          RX bytes:22045747179 <span class="o">(</span>22.0 GB<span class="o">)</span>  TX bytes:153829920 <span class="o">(</span>153.8 MB<span class="o">)</span>
+
+epc@iotg-epc-ucs2:~<span class="nv">$ </span>route
+Kernel IP routing table
+Destination     Gateway         Genmask         Flags Metric Ref    Use Iface
+default         10.10.10.2      0.0.0.0         UG    0      0        0 eth0
+10.10.10.0      <span class="k">*</span>               255.255.255.0   U     1      0        0 eth0
+20.20.20.0      10.10.10.2      255.255.255.0   UG    0      0        0 eth0
+30.30.30.0      <span class="k">*</span>               255.255.255.0   U     1      0        0 eth1
+40.40.40.0      30.30.30.2      255.255.255.0   UG    0      0        0 eth1
+171.0.0.0       <span class="k">*</span>               255.0.0.0       U     0      0        0 eth4
+172.0.0.0       172.27.161.1    255.0.0.0       UG    0      0        0 eth4
+172.27.161.0    <span class="k">*</span>               255.255.255.128 U     1      0        0 eth4
+173.0.0.0       <span class="k">*</span>               255.0.0.0       U     0      0        0 eth4
+192.168.122.0   <span class="k">*</span>               255.255.255.0   U     0      0        0 virbr0
+epc@iotg-epc-ucs2:~<span class="nv">$ </span>which netperf
+/usr/local/bin/netperf
+epc@iotg-epc-ucs2:~<span class="nv">$ </span>which iperf3
+/usr/bin/iperf3
+epc@iotg-epc-ucs2:~<span class="nv">$ </span>which nuttcp
+/usr/bin/nuttcp
+epc@iotg-epc-ucs2:~<span class="nv">$ </span></code></pre></figure>
+
+
+<li> The box weng-ucs1 runs ubuntu 16.04LTS, is used as client. </li>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">weng@weng-ucs1:~<span class="nv">$ </span>ifconfig eth5
+eth5      Link encap:Ethernet  HWaddr cc:ef:48:b4:4b:f9  
+          inet addr:20.20.20.1  Bcast:20.20.20.255  Mask:255.255.255.0
+          inet6 addr: fe80::ceef:48ff:feb4:4bf9/64 Scope:Link
+          UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
+          RX packets:1442040 errors:0 dropped:0 overruns:0 frame:0
+          TX packets:16883772 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:0 txqueuelen:1000 
+          RX bytes:95197117 <span class="o">(</span>95.1 MB<span class="o">)</span>  TX bytes:12520409066 <span class="o">(</span>12.5 GB<span class="o">)</span>
+          Memory:b3220000-b323ffff 
+
+weng@weng-ucs1:~<span class="nv">$ </span>route
+Kernel IP routing table
+Destination     Gateway         Genmask         Flags Metric Ref    Use Iface
+default         40.40.40.2      0.0.0.0         UG    100    0        0 eth1
+default         172.27.161.1    0.0.0.0         UG    101    0        0 eth4
+10.10.10.0      20.20.20.2      255.255.255.0   UG    0      0        0 eth5
+20.20.20.0      <span class="k">*</span>               255.255.255.0   U     100    0        0 eth5
+30.30.30.0      40.40.40.2      255.255.255.0   UG    0      0        0 eth1
+40.40.40.0      <span class="k">*</span>               255.255.255.0   U     100    0        0 eth1
+link-local      <span class="k">*</span>               255.255.0.0     U     1000   0        0 eth5
+172.27.161.0    <span class="k">*</span>               255.255.255.128 U     100    0        0 eth4
+192.168.122.0   <span class="k">*</span>               255.255.255.0   U     0      0        0 virbr0
+weng@weng-ucs1:~<span class="nv">$ </span>which iperf3
+/usr/bin/iperf3
+weng@weng-ucs1:~<span class="nv">$ </span>which netperf
+/usr/local/bin/netperf
+weng@weng-ucs1:~<span class="nv">$ </span>which nuttcp
+/usr/bin/nuttcp
+weng@weng-ucs1:~<span class="nv">$ </span>ping 10.10.10.1
+PING 10.10.10.1 <span class="o">(</span>10.10.10.1<span class="o">)</span> 56<span class="o">(</span>84<span class="o">)</span> bytes of data.
+64 bytes from 10.10.10.1: <span class="nv">icmp_seq</span><span class="o">=</span>1 <span class="nv">ttl</span><span class="o">=</span>63 <span class="nb">time</span><span class="o">=</span>0.374 ms
+64 bytes from 10.10.10.1: <span class="nv">icmp_seq</span><span class="o">=</span>2 <span class="nv">ttl</span><span class="o">=</span>63 <span class="nb">time</span><span class="o">=</span>0.365 ms
+64 bytes from 10.10.10.1: <span class="nv">icmp_seq</span><span class="o">=</span>3 <span class="nv">ttl</span><span class="o">=</span>63 <span class="nb">time</span><span class="o">=</span>0.360 ms
+64 bytes from 10.10.10.1: <span class="nv">icmp_seq</span><span class="o">=</span>4 <span class="nv">ttl</span><span class="o">=</span>63 <span class="nb">time</span><span class="o">=</span>0.391 ms
+64 bytes from 10.10.10.1: <span class="nv">icmp_seq</span><span class="o">=</span>5 <span class="nv">ttl</span><span class="o">=</span>63 <span class="nb">time</span><span class="o">=</span>0.397 ms
+64 bytes from 10.10.10.1: <span class="nv">icmp_seq</span><span class="o">=</span>6 <span class="nv">ttl</span><span class="o">=</span>63 <span class="nb">time</span><span class="o">=</span>0.368 ms
+^C
+<span class="nt">---</span> 10.10.10.1 ping statistics <span class="nt">---</span>
+6 packets transmitted, 6 received, 0% packet loss, <span class="nb">time </span>5000ms
+rtt min/avg/max/mdev <span class="o">=</span> 0.360/0.375/0.397/0.028 ms
+weng@weng-ucs1:~<span class="nv">$ </span></code></pre></figure>
+
+
+</ol>
+
+<h1 id="netperf">netperf</h1>
+<p>netperf is my preferred tool, it allows the specify the packet size.</p>
+
+<p>Start server, which listens on port 5000 , using local ipv4 address 10.10.10.1.</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">epc@iotg-epc-ucs2:~<span class="nv">$ </span><span class="nb">sudo </span>netserver <span class="nt">-L</span> 10.10.10.1 <span class="nt">-4</span> <span class="nt">-p</span> 5000 <span class="nt">-D</span>
+Starting netserver with host <span class="s1">'10.10.10.1'</span> port <span class="s1">'5000'</span> and family AF_INET</code></pre></figure>
+
+<p>Start client to measure throughput.</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">weng@weng-ucs1:~<span class="nv">$ </span><span class="nb">sudo </span>netperf <span class="nt">-H</span> 10.10.10.1 <span class="nt">-p</span> 5000 <span class="nt">-t</span> TCP_STREAM <span class="nt">--</span> <span class="nt">-m</span> 64
+MIGRATED TCP STREAM TEST from 0.0.0.0 <span class="o">(</span>0.0.0.0<span class="o">)</span> port 0 AF_INET to 10.10.10.1 <span class="o">()</span> port 0 AF_INET
+Recv   Send    Send                          
+Socket Socket  Message  Elapsed              
+Size   Size    Size     Time     Throughput  
+bytes  bytes   bytes    secs.    10^6bits/sec  
+
+ 87380  16384     64    10.03     940.66   
+weng@weng-ucs1:~<span class="nv">$ </span><span class="nb">sudo </span>netperf <span class="nt">-H</span> 10.10.10.1 <span class="nt">-p</span> 5000 <span class="nt">-t</span> TCP_STREAM <span class="nt">--</span> <span class="nt">-m</span> 32
+MIGRATED TCP STREAM TEST from 0.0.0.0 <span class="o">(</span>0.0.0.0<span class="o">)</span> port 0 AF_INET to 10.10.10.1 <span class="o">()</span> port 0 AF_INET
+Recv   Send    Send                          
+Socket Socket  Message  Elapsed              
+Size   Size    Size     Time     Throughput  
+bytes  bytes   bytes    secs.    10^6bits/sec  
+
+ 87380  16384     32    10.00     767.18   
+weng@weng-ucs1:~<span class="nv">$ </span></code></pre></figure>
+
+<h1 id="iperf3-doc-see-httpsiperffriperf-docphp">iperf3 (doc see https://iperf.fr/iperf-doc.php.)</h1>
+<p>Start iperf3 server, listen on port 6000.</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">epc@iotg-epc-ucs2:~<span class="nv">$ </span><span class="nb">sudo </span>iperf3 <span class="nt">-s</span> <span class="nt">-p</span> 6000 <span class="nt">-B</span> 10.10.10.1 
+Server listening on 6000
+<span class="nt">-----------------------------------------------------------</span>
+Accepted connection from 20.20.20.1, port 33256
+<span class="o">[</span>  5] <span class="nb">local </span>10.10.10.1 port 6000 connected to 20.20.20.1 port 33258
+<span class="o">[</span> ID] Interval           Transfer     Bandwidth
+<span class="o">[</span>  5]   0.00-1.00   sec  83.4 MBytes   699 Mbits/sec                  
+<span class="o">[</span>  5]   1.00-2.00   sec  87.1 MBytes   731 Mbits/sec                  
+<span class="o">[</span>  5]   2.00-3.00   sec  87.1 MBytes   731 Mbits/sec                  
+<span class="o">[</span>  5]   3.00-4.00   sec  87.1 MBytes   731 Mbits/sec                  
+<span class="o">[</span>  5]   4.00-5.00   sec  87.1 MBytes   731 Mbits/sec                  
+<span class="o">[</span>  5]   5.00-6.00   sec  87.1 MBytes   731 Mbits/sec                  
+<span class="o">[</span>  5]   6.00-7.00   sec  87.1 MBytes   731 Mbits/sec                  
+<span class="o">[</span>  5]   7.00-8.00   sec  87.1 MBytes   731 Mbits/sec                  
+<span class="o">[</span>  5]   8.00-9.00   sec  87.1 MBytes   731 Mbits/sec                  
+<span class="o">[</span>  5]   9.00-10.00  sec  87.1 MBytes   731 Mbits/sec                  
+<span class="o">[</span>  5]  10.00-10.04  sec  3.30 MBytes   730 Mbits/sec                  
+- - - - - - - - - - - - - - - - - - - - - - - - -
+<span class="o">[</span> ID] Interval           Transfer     Bandwidth       Retr
+<span class="o">[</span>  5]   0.00-10.04  sec   874 MBytes   730 Mbits/sec    0             sender
+<span class="o">[</span>  5]   0.00-10.04  sec   870 MBytes   727 Mbits/sec                  receiver
+<span class="nt">-----------------------------------------------------------</span>
+Server listening on 6000
+<span class="nt">-----------------------------------------------------------</span>
+Accepted connection from 20.20.20.1, port 33260
+<span class="o">[</span>  5] <span class="nb">local </span>10.10.10.1 port 6000 connected to 20.20.20.1 port 33262
+<span class="o">[</span> ID] Interval           Transfer     Bandwidth
+<span class="o">[</span>  5]   0.00-1.00   sec  96.1 MBytes   806 Mbits/sec                  
+<span class="o">[</span>  5]   1.00-2.00   sec   101 MBytes   847 Mbits/sec                  
+<span class="o">[</span>  5]   2.00-3.00   sec   101 MBytes   847 Mbits/sec                  
+<span class="o">[</span>  5]   3.00-4.00   sec   101 MBytes   847 Mbits/sec                  
+<span class="o">[</span>  5]   4.00-5.00   sec   101 MBytes   847 Mbits/sec                  
+<span class="o">[</span>  5]   5.00-6.00   sec   101 MBytes   847 Mbits/sec                  
+<span class="o">[</span>  5]   6.00-7.00   sec   101 MBytes   847 Mbits/sec                  
+<span class="o">[</span>  5]   7.00-8.00   sec   101 MBytes   847 Mbits/sec                  
+<span class="o">[</span>  5]   8.00-9.00   sec   101 MBytes   847 Mbits/sec                  
+<span class="o">[</span>  5]   9.00-10.00  sec   101 MBytes   847 Mbits/sec                  
+<span class="o">[</span>  5]  10.00-10.04  sec  3.71 MBytes   846 Mbits/sec                  
+- - - - - - - - - - - - - - - - - - - - - - - - -
+<span class="o">[</span> ID] Interval           Transfer     Bandwidth       Retr
+<span class="o">[</span>  5]   0.00-10.04  sec  1012 MBytes   846 Mbits/sec   71             sender
+<span class="o">[</span>  5]   0.00-10.04  sec  1009 MBytes   843 Mbits/sec                  receiver
+<span class="nt">-----------------------------------------------------------</span>
+Server listening on 6000
+<span class="nt">-----------------------------------------------------------</span></code></pre></figure>
+
+<p>Start iperf3 client.</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">weng@weng-ucs1:~<span class="nv">$ </span> <span class="nb">sudo </span>iperf3 <span class="nt">-p</span> 6000 <span class="nt">-c</span> 10.10.10.1 <span class="nt">-M</span> 256
+<span class="o">[</span><span class="nb">sudo</span><span class="o">]</span> password <span class="k">for </span>weng: 
+Connecting to host 10.10.10.1, port 6000
+<span class="o">[</span>  4] <span class="nb">local </span>20.20.20.1 port 33258 connected to 10.10.10.1 port 6000
+<span class="o">[</span> ID] Interval           Transfer     Bandwidth       Retr  Cwnd
+<span class="o">[</span>  4]   0.00-1.00   sec  89.6 MBytes   752 Mbits/sec    0    327 KBytes       
+<span class="o">[</span>  4]   1.00-2.00   sec  87.4 MBytes   733 Mbits/sec    0    327 KBytes       
+<span class="o">[</span>  4]   2.00-3.00   sec  86.2 MBytes   723 Mbits/sec    0    342 KBytes       
+<span class="o">[</span>  4]   3.00-4.00   sec  87.5 MBytes   734 Mbits/sec    0    342 KBytes       
+<span class="o">[</span>  4]   4.00-5.00   sec  87.7 MBytes   735 Mbits/sec    0    342 KBytes       
+<span class="o">[</span>  4]   5.00-6.00   sec  86.5 MBytes   725 Mbits/sec    0    342 KBytes       
+<span class="o">[</span>  4]   6.00-7.00   sec  87.5 MBytes   734 Mbits/sec    0    342 KBytes       
+<span class="o">[</span>  4]   7.00-8.00   sec  86.4 MBytes   725 Mbits/sec    0    342 KBytes       
+<span class="o">[</span>  4]   8.00-9.00   sec  87.5 MBytes   734 Mbits/sec    0    342 KBytes       
+<span class="o">[</span>  4]   9.00-10.00  sec  87.4 MBytes   733 Mbits/sec    0    342 KBytes       
+- - - - - - - - - - - - - - - - - - - - - - - - -
+<span class="o">[</span> ID] Interval           Transfer     Bandwidth       Retr
+<span class="o">[</span>  4]   0.00-10.00  sec   874 MBytes   733 Mbits/sec    0             sender
+<span class="o">[</span>  4]   0.00-10.00  sec   870 MBytes   730 Mbits/sec                  receiver
+
+iperf Done.
+weng@weng-ucs1:~<span class="nv">$ </span> <span class="nb">sudo </span>iperf3 <span class="nt">-p</span> 6000 <span class="nt">-c</span> 10.10.10.1 <span class="nt">-M</span> 512
+Connecting to host 10.10.10.1, port 6000
+<span class="o">[</span>  4] <span class="nb">local </span>20.20.20.1 port 33262 connected to 10.10.10.1 port 6000
+<span class="o">[</span> ID] Interval           Transfer     Bandwidth       Retr  Cwnd
+<span class="o">[</span>  4]   0.00-1.00   sec   102 MBytes   856 Mbits/sec   71    314 KBytes       
+<span class="o">[</span>  4]   1.00-2.00   sec   101 MBytes   850 Mbits/sec    0    328 KBytes       
+<span class="o">[</span>  4]   2.00-3.00   sec   101 MBytes   850 Mbits/sec    0    328 KBytes       
+<span class="o">[</span>  4]   3.00-4.00   sec   101 MBytes   850 Mbits/sec    0    371 KBytes       
+<span class="o">[</span>  4]   4.00-5.00   sec   101 MBytes   850 Mbits/sec    0    380 KBytes       
+<span class="o">[</span>  4]   5.00-6.00   sec   100 MBytes   840 Mbits/sec    0    384 KBytes       
+<span class="o">[</span>  4]   6.00-7.00   sec   101 MBytes   850 Mbits/sec    0    387 KBytes       
+<span class="o">[</span>  4]   7.00-8.00   sec   101 MBytes   850 Mbits/sec    0    387 KBytes       
+<span class="o">[</span>  4]   8.00-9.00   sec   101 MBytes   851 Mbits/sec    0    387 KBytes       
+<span class="o">[</span>  4]   9.00-10.00  sec   100 MBytes   841 Mbits/sec    0    387 KBytes       
+- - - - - - - - - - - - - - - - - - - - - - - - -
+<span class="o">[</span> ID] Interval           Transfer     Bandwidth       Retr
+<span class="o">[</span>  4]   0.00-10.00  sec  1012 MBytes   849 Mbits/sec   71             sender
+<span class="o">[</span>  4]   0.00-10.00  sec  1009 MBytes   846 Mbits/sec                  receiver
+
+iperf Done.
+weng@weng-ucs1:~<span class="nv">$ </span></code></pre></figure>
+
+<h1 id="nuttcp">nuttcp</h1>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">epc@iotg-epc-ucs2:~<span class="nv">$ </span> <span class="nb">sudo </span>nuttcp <span class="nt">-S</span>  <span class="nt">-P</span> 7000</code></pre></figure>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">weng@weng-ucs1:~<span class="nv">$ </span><span class="nb">sudo </span>nuttcp <span class="nt">-i1</span> <span class="nt">-P</span> 7000 <span class="nt">-M</span> 512 10.10.10.1
+  100.5000 MB /   1.00 sec <span class="o">=</span>  843.0492 Mbps     0 retrans
+  101.0000 MB /   1.00 sec <span class="o">=</span>  847.2316 Mbps     0 retrans
+  101.0000 MB /   1.00 sec <span class="o">=</span>  847.2528 Mbps     0 retrans
+  100.8750 MB /   1.00 sec <span class="o">=</span>  846.2169 Mbps     0 retrans
+  100.9375 MB /   1.00 sec <span class="o">=</span>  846.7175 Mbps     0 retrans
+  101.0000 MB /   1.00 sec <span class="o">=</span>  847.2367 Mbps     0 retrans
+  101.0625 MB /   1.00 sec <span class="o">=</span>  847.7805 Mbps     0 retrans
+  101.0000 MB /   1.00 sec <span class="o">=</span>  847.2647 Mbps     0 retrans
+  101.0000 MB /   1.00 sec <span class="o">=</span>  847.2367 Mbps     0 retrans
+  101.0625 MB /   1.00 sec <span class="o">=</span>  847.7686 Mbps     0 retrans
+
+ 1012.1250 MB /  10.03 sec <span class="o">=</span>  846.7138 Mbps 3 %TX 30 %RX 0 retrans 0.40 msRTT
+weng@weng-ucs1:~<span class="nv">$ </span><span class="nb">sudo </span>nuttcp <span class="nt">-i1</span> <span class="nt">-P</span> 7000 <span class="nt">-M</span> 1024 10.10.10.1
+  108.6875 MB /   1.00 sec <span class="o">=</span>  911.7295 Mbps     0 retrans
+  109.4375 MB /   1.00 sec <span class="o">=</span>  918.0044 Mbps     0 retrans
+  109.3125 MB /   1.00 sec <span class="o">=</span>  917.0045 Mbps     0 retrans
+  109.5000 MB /   1.00 sec <span class="o">=</span>  918.5416 Mbps     0 retrans
+  109.4375 MB /   1.00 sec <span class="o">=</span>  918.0384 Mbps     0 retrans
+  109.4375 MB /   1.00 sec <span class="o">=</span>  918.0338 Mbps     0 retrans
+  109.4375 MB /   1.00 sec <span class="o">=</span>  918.0228 Mbps     0 retrans
+  109.5000 MB /   1.00 sec <span class="o">=</span>  918.5581 Mbps     0 retrans
+  109.4375 MB /   1.00 sec <span class="o">=</span>  918.0209 Mbps     0 retrans
+  109.5000 MB /   1.00 sec <span class="o">=</span>  918.5425 Mbps     0 retrans
+
+ 1096.0625 MB /  10.02 sec <span class="o">=</span>  917.3818 Mbps 5 %TX 19 %RX 0 retrans 0.46 msRTT
+weng@weng-ucs1:~<span class="nv">$ </span></code></pre></figure>
+
+<h1 id="reference">Reference:</h1>
+<ul>
+<li> netperf: http://www.netperf.org/svn/netperf2/tags/netperf-2.7.0/doc/netperf.html </li>
+<li> iperf: https://iperf.fr/iperf-doc.php</li>
+<li> nuttcp: http://manpages.ubuntu.com/manpages/trusty/man8/nuttcp.8.html</li>
+</ul>
+
+</article>
+
+
+
+
+
+<section class="rss">
+  <p class="rss-subscribe text"><strong>Subscribe <a href="/feed.xml">via RSS</a></strong></p>
+</section>
+
+<section class="share">
+  <span>Share: </span>
+  
+    
+    
+    
+    
+    
+    
+    
+    
+  
+    
+    
+    
+    
+    
+      <a href="//www.linkedin.com/shareArticle?mini=true&url=http%3A%2F%2Flocalhost%3A4000%2Flinux%2F2016%2F09%2F09%2Flinux-net-perf-tools.html"
+        onclick="window.open(this.href, 'linkedin-share', 'width=550,height=255');return false;">
+        <i class="fa fa-linkedin-square fa-lg"></i>
+      </a>
+    
+    
+    
+    
+  
+</section>
+
+
+
+
+</div>
+</div>
+
+    </div>
+
+    <footer class="site-footer">
+
+  <div class="wrapper">
+
+    <h3 class="footer-heading">Wenwei Weng's Blog</h3>
+
+    <div class="site-navigation">
+
+      <p><strong>Site Map</strong></p>
+      <ul class="pages">
+				
+	
+	<li class="nav-link"><a href="/about/">About</a>
+	
+
+	
+
+	
+
+	
+	<li class="nav-link"><a href="/posts/">Posts</a>
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+      </ul>
+    </div>
+
+    <div class="site-contact">
+
+      <p><strong>Contact</strong></p>
+      <ul class="social-media-list">
+        <li>
+          <a href="mailto:weweng@gmail.com">
+            <i class="fa fa-envelope-o"></i>
+            <span class="username">weweng@gmail.com</span>
+          </a>
+        </li>
+
+        
+          
+          <li>
+            <a href="https://github.com/weweng" title="Fork me on GitHub">
+              <i class="fa fa-github"></i>
+              <span class="username">weweng</span>
+            </a>
+          </li>
+          
+        
+          
+          <li>
+            <a href="https://www.linkedin.com/in/wenwei-weng/" title="Connect with me on LinkedIn">
+              <i class="fa fa-linkedin"></i>
+              <span class="username">Wenwei Weng</span>
+            </a>
+          </li>
+          
+        
+
+      </ul>
+    </div>
+
+    <div class="site-signature">
+      <p class="rss-subscribe text"><strong>Subscribe <a href="/feed.xml">via RSS</a></strong></p>
+      <p class="text">A simple yet classy theme for your Jekyll based blog.
+</p>
+    </div>
+
+  </div>
+
+</footer>
+
+<!-- Scripts -->
+<script src="//code.jquery.com/jquery-3.4.1.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.10/highlight.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.1/js/lightbox.min.js"></script>
+<script src="//unpkg.com/popper.js@1"></script>
+<script src="//unpkg.com/tippy.js@5"></script>
+
+<script type="text/javascript">
+$(document).ready(function() {
+  // Default syntax highlighting
+  hljs.initHighlightingOnLoad();
+
+  // Header
+  var menuToggle = $('#js-mobile-menu').unbind();
+  $('#js-navigation-menu').removeClass("show");
+  menuToggle.on('click', function(e) {
+    e.preventDefault();
+    $('#js-navigation-menu').slideToggle(function(){
+      if($('#js-navigation-menu').is(':hidden')) {
+        $('#js-navigation-menu').removeAttr('style');
+      }
+    });
+  });
+
+	// Enable tooltips via Tippy.js
+	if (Array.isArray(window.tooltips)) {
+		window.tooltips.forEach(function(tooltip) {
+			var selector = tooltip[0];
+			var config = tooltip[1];
+			tippy(selector, config);
+		})
+	}
+});
+
+</script>
+
+
+
+
+
+
+  </body>
+
+</html>

@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>Building linux system (kernel + root file system) from scratch</title>
+  <meta name="description" content="I always feel good if I can build something from scratch and works! I love Linux.  I will show how to build a Linux system with bleeding edge linux kernel an...">
+  
+  <meta name="author" content="Wenwei Weng">
+  <meta name="copyright" content="&copy; Wenwei Weng 2023">
+  
+
+  <!-- External libraries -->
+  <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css">
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.9.0/styles/monokai-sublime.min.css">
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/lightbox2/2.7.1/css/lightbox.css">
+
+  <!-- Favicon and other icons (made with http://www.favicon-generator.org/) -->
+  <link rel="shortcut icon" href="/assets/icons/favicon.ico" type="image/x-icon">
+  <link rel="icon" href="/assets/icons/favicon.ico" type="image/x-icon">
+  <link rel="apple-touch-icon" sizes="57x57" href="/assets/icons/apple-icon-57x57.png">
+  <link rel="apple-touch-icon" sizes="60x60" href="/assets/icons/apple-icon-60x60.png">
+  <link rel="apple-touch-icon" sizes="72x72" href="/assets/icons/apple-icon-72x72.png">
+  <link rel="apple-touch-icon" sizes="76x76" href="/assets/icons/apple-icon-76x76.png">
+  <link rel="apple-touch-icon" sizes="114x114" href="/assets/icons/apple-icon-114x114.png">
+  <link rel="apple-touch-icon" sizes="120x120" href="/assets/icons/apple-icon-120x120.png">
+  <link rel="apple-touch-icon" sizes="144x144" href="/assets/icons/apple-icon-144x144.png">
+  <link rel="apple-touch-icon" sizes="152x152" href="/assets/icons/apple-icon-152x152.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/assets/icons/apple-icon-180x180.png">
+  <link rel="icon" type="image/png" sizes="192x192"  href="/assets/icons/android-icon-192x192.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/assets/icons/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="96x96" href="/assets/icons/favicon-96x96.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/assets/icons/favicon-16x16.png">
+  <link rel="manifest" href="/assets/icons/manifest.json">
+  <meta name="msapplication-TileColor" content="#ffffff">
+  <meta name="msapplication-TileImage" content="/assets/icons/ms-icon-144x144.png">
+  <meta name="theme-color" content="#ffffff">
+
+  
+
+  
+
+  
+
+  <!-- Site styles -->
+  <link rel="stylesheet" href="/css/main.css">
+  <link rel="canonical" href="http://localhost:4000/linux/2015/05/02/Build-Linux-kernel-rootfs-from-scratch.html">
+	<link rel="alternate" type="application/rss+xml" title="Wenwei Weng's Blog" href="http://localhost:4000/feed.xml" />
+	
+	<!-- Tooltips -->
+	<script type="text/javascript">
+		window.tooltips = []
+	</script>
+</head>
+
+
+  <body>
+
+    <header class="navigation" role="banner">
+  <div class="navigation-wrapper">
+    <a href="/" class="logo">
+      
+      <img src="/assets/avatar.png" alt="Wenwei Weng's Blog">
+      
+    </a>
+    <a href="javascript:void(0)" class="navigation-menu-button" id="js-mobile-menu">
+      <i class="fa fa-bars"></i>
+    </a>
+    <nav role="navigation">
+      <ul id="js-navigation-menu" class="navigation-menu show">
+				
+	
+	<li class="nav-link"><a href="/about/">About</a>
+	
+
+	
+
+	
+
+	
+	<li class="nav-link"><a href="/posts/">Posts</a>
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+      </ul>
+    </nav>
+  </div>
+</header>
+
+
+    <div class="page-content">
+        <div class="post">
+
+<div class="post-header-container " >
+  <div class="scrim ">
+    <header class="post-header">
+      <h1 class="title">Building linux system (kernel + root file system) from scratch</h1>
+      <p class="info">by <strong>Wenwei Weng</strong></p>
+    </header>
+  </div>
+</div>
+
+<div class="wrapper">
+
+ <span class="page-divider">
+  <span class="one"></span>
+  <span class="two"></span>
+</span>
+ 
+
+<section class="post-meta">
+  <div class="post-date">May 2, 2015</div>
+  <div class="post-categories">
+  in 
+    
+    <a href="/category/Linux">Linux</a>
+    
+  
+  </div>
+</section>
+
+<article class="post-content">
+  <p>I always feel good if I can build something from scratch and works! I love Linux.  <br />
+I will show how to build a Linux system with bleeding edge linux kernel and latest stable busybox release, and run linux in [qemu] (http://www.qemu.org/).</p>
+
+<!--more-->
+
+<h1 id="host-machine">Host machine</h1>
+
+<p>I have a x86 based ubuntu 12.04 desktop running inside VirtualBox, which is used to do this exercise.</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">weng@weng-VirtualBox:/scratch/<span class="nv">$ </span>lsb_release <span class="nt">-a</span>
+No LSB modules are available.
+Distributor ID:	Ubuntu
+Description:	Ubuntu 12.04.3 LTS
+Release:	12.04
+Codename:	precise
+weng@weng-VirtualBox:/scratch/<span class="nv">$ </span><span class="nb">uname</span> <span class="nt">-a</span>
+Linux weng-VirtualBox 3.2.51 <span class="c">#5 SMP Fri Jun 6 19:57:45 PDT 2014 i686 i686 i386 GNU/Linux</span>
+weng@weng-VirtualBox:/scratch/<span class="nv">$ </span></code></pre></figure>
+
+<h1 id="what-will-be-built">What will be built?</h1>
+
+<p>To run a linux system, as a minimum requirement, it needs:</p>
+<ul>
+  <li>bootloader: e.g. GRUB/LILO (for x86 CPU), u-boot (for ARM, PowerPC, MIPS). Since I will run linux systrem in qemu, 
+I will skip bootloader.</li>
+  <li>kernel: it can be obtained from [kernel.org] (http://www.kernel.org). I will use the latest version 4.0., 
+which is released very recently.</li>
+  <li>root file system: it is a first root file system image that is mounted at / while the Linux boots.
+The purpose of the initial root file system is to provide kernel modules and necessary utilities 
+that might be needed in order to bring up the real root filesystem. 
+This is a temporary file system for linux system like desktop, or server, during boot, linux system will detect disk, and switch to
+file system installed in disk. But for embedded system, it might just stay in this initial root file system. <br />
+There are two schemes to implement the intial root file system: initrd and initramfs</li>
+  <li>initrd scheme: the image may be a file system image (optionally compressed), <br />
+which is made available in a special block device (/dev/ram) that is then mounted as 
+the initial root file system. The driver for that file system must be compiled statically 
+into the kernel. Many distributions originally used compressed ext2 file system images. 
+Others (including Debian 3.1) used cramfs in order to boot on memory-limited systems, 
+since the cramfs image can be mounted in-place without requiring extra space for decompression.
+Once the initial root file system is up, the kernel executes /linuxrc as its first process.
+When it exits, the kernel assumes that the real root file system has been mounted and 
+executes /sbin/init to begin the normal user-space boot process.</li>
+  <li>initramfs scheme: (available in Linux 2.6.13 onwards), the image may be a cpio archive 
+(optionally compressed). The archive is unpacked by the kernel into a special instance of 
+a tmpfs that becomes the initial root file system. This scheme has the advantage of not requiring 
+an intermediate file system or block drivers to be compiled into the kernel. 
+Some systems use the dracut package to create an initramfs image.<br />
+In the initramfs scheme, the kernel executes /init as its first process, which is not expected to exit.
+For more information about initial ramdisk and initramfs, 
+check [initrd wikipedia] (http://en.wikipedia.org/wiki/Initrd) and [initramfs wikipedia] (http://en.wikipedia.org/wiki/Initramfs). <br />
+I will use initramfs scheme. [busybox] (http://www.busybox.net) has a minimum memory footprint, it is very popular in embedded linux. <br />
+I will be using the latest stable release 1.23.1.</li>
+</ul>
+
+<p>Let’s do it! As a first step, we want to create directories:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">weng@weng-VirtualBox:/scratch<span class="nv">$ </span><span class="nb">mkdir </span>linux-kernel-rootfs-from-scratch
+weng@weng-VirtualBox:/scratch<span class="nv">$ </span><span class="nb">cd </span>linux-kernel-rootfs-from-scratch
+weng@weng-VirtualBox:/scratch/linux-kernel-rootfs-from-scratch<span class="nv">$ </span>
+weng@weng-VirtualBox:/scratch/linux-kernel-rootfs-from-scratch<span class="nv">$ </span><span class="nb">mkdir </span>initramfs</code></pre></figure>
+
+<h2 id="build-busybox">Build BusyBox</h2>
+
+<p>First, I download busybox and extract it.</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">weng@weng-VirtualBox:/scratch/linux-kernel-rootfs-from-scratch<span class="nv">$ </span>wget http://www.busybox.net/downloads/busybox-1.23.1.tar.bz2
+weng@weng-VirtualBox:/scratch/linux-kernel-rootfs-from-scratch<span class="nv">$ </span><span class="nb">tar </span>xf busybox-1.23.1.tar.bz2
+weng@weng-VirtualBox:/scratch/linux-kernel-rootfs-from-scratch<span class="nv">$ </span><span class="nb">rm </span>busybox-1.23.1.tar.bz2</code></pre></figure>
+
+<p>Now let’s configure busybox. It has same method as linux kernel configuration menu. Nice!</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">weng@weng-VirtualBox:/scratch/linux-kernel-rootfs-from-scratch/busybox-1.23.1<span class="nv">$ </span>make menuconfig</code></pre></figure>
+
+<p>The only thing I need to change is CONFIG_DESKTOP=n.</p>
+
+<p><img src="" alt="](/uploads/linux-kernel-rootfs-scratch/busybox-menuconfig.png)" /></p>
+
+<p>Compile:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">weng@weng-VirtualBox:/scratch/linux-kernel-rootfs-from-scratch/busybox-1.23.1<span class="nv">$ </span>make
+weng@weng-VirtualBox:/scratch/linux-kernel-rootfs-from-scratch/busybox-1.23.1<span class="nv">$ </span>make <span class="nb">install</span></code></pre></figure>
+
+<p>After “make install”, the files need to be packed are placed inside directory “_install”.<br />
+Now we need copy those files into “initramfs” staging area:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">weng@weng-VirtualBox:/scratch/linux-kernel-rootfs-from-scratch/busybox-1.23.1<span class="nv">$ </span><span class="nb">sudo cp</span> <span class="nt">-avR</span> _install/<span class="k">*</span> ../initramfs/</code></pre></figure>
+
+<p>Now we need check what is dependancies of “busybox”, meaning what libraries are needed for it to be able to execute.<br />
+For this, we use ldd to find what are needed:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">weng@weng-VirtualBox:/scratch/linux-kernel-rootfs-from-scratch/busybox-1.23.1<span class="nv">$ </span>ldd busybox
+	linux-gate.so.1 <span class="o">=&gt;</span>  <span class="o">(</span>0xb774c000<span class="o">)</span>
+	libm.so.6 <span class="o">=&gt;</span> /lib/i386-linux-gnu/libm.so.6 <span class="o">(</span>0xb7704000<span class="o">)</span>
+	libc.so.6 <span class="o">=&gt;</span> /lib/i386-linux-gnu/libc.so.6 <span class="o">(</span>0xb755a000<span class="o">)</span>
+	/lib/ld-linux.so.2 <span class="o">(</span>0xb774d000<span class="o">)</span></code></pre></figure>
+
+<p>From the output, there are four shared library files needed, but in fact there are only three, let me explain why:</p>
+<ul>
+  <li>linux-gate.so.1: this file actually we won’t find anywhere even we do a find on the whole system. It is exposed to
+each process by the running kernel as the mechanism for making system calls. <br />
+There is an excellent [blog] (http://www.trilithium.com/johan/2005/08/linux-gate/) explaining linux-gate.so.</li>
+  <li>libm.so.6: this math library, we need handle.</li>
+  <li>libc.so.6: this is C library, we need handle.</li>
+  <li>ld-linux.so.2: this is the kernel handler for ELF binary to be launched to execute.  <br />
+The main purpose of this program is to map the binary into memory, load any referenced libraries in the program 
+(e.g. the libm.so.6 previously mentioned), and then hand off control to the starting address of the binary being executed.
+This program is defined as part of the structure of the ELF file, in the INTERP section of the program header. 
+For 32bit linux binaries, this is the typical name of the 32bit interpreter. <br />
+For 64bit binaries, you’ll find it is typically called ld-linux-x86_64.so.2 (for 64bit x86 platforms).</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">weng@weng-VirtualBox:/scratch/linux-kernel-rootfs-from-scratch/busybox-1.23.1<span class="nv">$ </span>readelf <span class="nt">-l</span> busybox
+
+Elf file <span class="nb">type </span>is EXEC <span class="o">(</span>Executable file<span class="o">)</span>
+Entry point 0x804d94c
+There are 9 program headers, starting at offset 52
+
+Program Headers:
+  Type           Offset   VirtAddr   PhysAddr   FileSiz MemSiz  Flg Align
+  PHDR           0x000034 0x08048034 0x08048034 0x00120 0x00120 R E 0x4
+  INTERP         0x000154 0x08048154 0x08048154 0x00013 0x00013 R   0x1
+      <span class="o">[</span>Requesting program interpreter: /lib/ld-linux.so.2]
+  LOAD           0x000000 0x08048000 0x08048000 0xba50c 0xba50c R E 0x1000
+  LOAD           0x0baf08 0x08103f08 0x08103f08 0x00817 0x02b34 RW  0x1000
+  DYNAMIC        0x0baf1c 0x08103f1c 0x08103f1c 0x000d0 0x000d0 RW  0x4
+  NOTE           0x000168 0x08048168 0x08048168 0x00044 0x00044 R   0x4
+  GNU_EH_FRAME   0x0ba280 0x08102280 0x08102280 0x00074 0x00074 R   0x4
+  GNU_STACK      0x000000 0x00000000 0x00000000 0x00000 0x00000 RW  0x4
+  GNU_RELRO      0x0baf08 0x08103f08 0x08103f08 0x000f8 0x000f8 R   0x1
+..........</code></pre></figure>
+
+<p>Note that in this exercise, I use host compiler to build busybox because the target is assumed to be x86 also.<br />
+The following what I’m doing is pretty hacky. It is not right way, but works in this case. 
+The correct way would be cross compile those three shared libraries.</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">weng@weng-VirtualBox:/scratch/linux-kernel-rootfs-from-scratch/initramfs<span class="nv">$ </span><span class="nb">mkdir </span>lib/i386-linux-gnu
+weng@weng-VirtualBox:/scratch/linux-kernel-rootfs-from-scratch/initramfs<span class="nv">$ </span><span class="nb">cp</span> <span class="nt">-av</span> /lib/i386-linux-gnu/lib[mc].so.6 lib/i386-linux-gnu
+weng@weng-VirtualBox:/scratch/linux-kernel-rootfs-from-scratch/initramfs<span class="nv">$ </span><span class="nb">cp</span> <span class="nt">-av</span> /lib/i386-linux-gnu/lib[mc]-2.15.so lib/i386-linux-gnu
+weng@weng-VirtualBox:/scratch/linux-kernel-rootfs-from-scratch/initramfs<span class="nv">$ </span><span class="nb">cp</span> <span class="nt">-av</span> /lib/ld-linux.so.2 lib/
+weng@weng-VirtualBox:/scratch/linux-kernel-rootfs-from-scratch/initramfs<span class="nv">$ </span><span class="nb">cp</span> <span class="nt">-av</span> /lib/i386-linux-gnu/ld-2.15.so lib/i386-linux-gnu</code></pre></figure>
+
+<p>Now we need create /init, which can be called by kernel at the last stage of boot process:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">weng@weng-VirtualBox:/scratch/linux-kernel-rootfs-from-scratch/initramfs<span class="nv">$ </span><span class="nb">cat </span>init 
+<span class="c">#!/bin/sh</span>
+
+/bin/mount <span class="nt">-t</span> proc none /proc
+/bin/mount <span class="nt">-t</span> sysfs sysfs /sys
+
+<span class="nb">cat</span> <span class="o">&lt;&lt;</span><span class="sh">'</span><span class="no">EOF</span><span class="sh">'
+
+Welcome to Wenwei Weng's mini
+  _ _                  
+ | (_)_ __  _   ___  __
+ | | | '_ </span><span class="se">\|</span><span class="sh"> | | </span><span class="se">\ \/</span><span class="sh"> /
+ | | | | | | |_| |&gt;  &lt; 
+ |_|_|_| |_|</span><span class="se">\_</span><span class="sh">_,_/_/</span><span class="se">\_\</span><span class="sh">
+</span><span class="no">                       
+
+EOF
+</span><span class="nb">echo</span> <span class="s1">'Enjoy this little puppy!'</span>
+<span class="nb">echo</span> <span class="s1">'~~~~~~~~~~~~~~~~~~~~~~~~'</span>
+<span class="nb">echo</span> <span class="s1">''</span>
+
+/bin/sh
+
+weng@weng-VirtualBox:/scratch/linux-kernel-rootfs-from-scratch/initramfs<span class="nv">$ </span><span class="nb">ls</span> <span class="nt">-l</span> init 
+<span class="nt">-rwxrwxr-x</span> 1 weng weng 345 May  1 21:38 init</code></pre></figure>
+
+<p>Now we have everything ready, and it can be packed into cpio file now:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">weng@weng-VirtualBox:/scratch/linux-kernel-rootfs-from-scratch/initramfs<span class="nv">$ </span>find <span class="nb">.</span> <span class="nt">-print0</span> | cpio <span class="nt">--null</span> <span class="nt">-ov</span> <span class="nt">--format</span><span class="o">=</span>newc <span class="o">&gt;</span> ../weng-initramfs.cpio</code></pre></figure>
+
+<p>In fact, this is not really needed in this exercise, as we will package initramfs directly into kernel. See step below.</p>
+
+<h2 id="build-linux-kernel">Build Linux kernel</h2>
+<p>First, I download linux kernel bleeding edge version 4.0 and extract it.</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">weng@weng-VirtualBox:/scratch/linux-kernel-rootfs-from-scratch<span class="nv">$ </span>wget https://www.kernel.org/pub/linux/kernel/v4.x/linux-4.0.tar.xz
+weng@weng-VirtualBox:/scratch/linux-kernel-rootfs-from-scratch<span class="nv">$ </span><span class="nb">tar</span> <span class="nt">-jxf</span> linux-4.0.tar.xz
+weng@weng-VirtualBox:/scratch/linux-kernel-rootfs-from-scratch<span class="nv">$ </span><span class="nb">rm </span>linux-4.0.tar.xz</code></pre></figure>
+
+<p>Now we can configure linux kernel by :</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">weng@weng-VirtualBox:/scratch/linux-kernel-rootfs-from-scratch/linux-4.0<span class="nv">$make</span> menuconfig</code></pre></figure>
+
+<p>The only thing we need to change is to inclue the initramfs directory path, see below:</p>
+
+<p><img src="" alt="](/uploads/linux-kernel-rootfs-scratch/kernel-menuconfig.png)" /></p>
+
+<p>After exist from menuconfig, we can build kernel, and copy the final result bzImage:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">weng@weng-VirtualBox:/scratch/linux-kernel-rootfs-from-scratch/linux-4.0<span class="nv">$make</span> <span class="nt">-j8</span>
+weng@weng-VirtualBox:/scratch/linux-kernel-rootfs-from-scratch/linux-4.0<span class="nv">$cp</span> <span class="nb">arch</span>/x86/boot/bzImage ../bzImage.4.0 </code></pre></figure>
+
+<h1 id="run-it-using-qemu">Run it using qemu</h1>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">weng@weng-VirtualBox:/scratch/linux-kernel-rootfs-from-scratch<span class="nv">$ </span>qemu-system-i386 <span class="nt">-kernel</span> bzImage.4.0</code></pre></figure>
+
+<p><img src="" alt="](/uploads/linux-kernel-rootfs-scratch/linux-running.png)" /></p>
+
+
+</article>
+
+
+
+
+
+<section class="rss">
+  <p class="rss-subscribe text"><strong>Subscribe <a href="/feed.xml">via RSS</a></strong></p>
+</section>
+
+<section class="share">
+  <span>Share: </span>
+  
+    
+    
+    
+    
+    
+    
+    
+    
+  
+    
+    
+    
+    
+    
+      <a href="//www.linkedin.com/shareArticle?mini=true&url=http%3A%2F%2Flocalhost%3A4000%2Flinux%2F2015%2F05%2F02%2FBuild-Linux-kernel-rootfs-from-scratch.html"
+        onclick="window.open(this.href, 'linkedin-share', 'width=550,height=255');return false;">
+        <i class="fa fa-linkedin-square fa-lg"></i>
+      </a>
+    
+    
+    
+    
+  
+</section>
+
+
+
+
+</div>
+</div>
+
+    </div>
+
+    <footer class="site-footer">
+
+  <div class="wrapper">
+
+    <h3 class="footer-heading">Wenwei Weng's Blog</h3>
+
+    <div class="site-navigation">
+
+      <p><strong>Site Map</strong></p>
+      <ul class="pages">
+				
+	
+	<li class="nav-link"><a href="/about/">About</a>
+	
+
+	
+
+	
+
+	
+	<li class="nav-link"><a href="/posts/">Posts</a>
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+      </ul>
+    </div>
+
+    <div class="site-contact">
+
+      <p><strong>Contact</strong></p>
+      <ul class="social-media-list">
+        <li>
+          <a href="mailto:weweng@gmail.com">
+            <i class="fa fa-envelope-o"></i>
+            <span class="username">weweng@gmail.com</span>
+          </a>
+        </li>
+
+        
+          
+          <li>
+            <a href="https://github.com/weweng" title="Fork me on GitHub">
+              <i class="fa fa-github"></i>
+              <span class="username">weweng</span>
+            </a>
+          </li>
+          
+        
+          
+          <li>
+            <a href="https://www.linkedin.com/in/wenwei-weng/" title="Connect with me on LinkedIn">
+              <i class="fa fa-linkedin"></i>
+              <span class="username">Wenwei Weng</span>
+            </a>
+          </li>
+          
+        
+
+      </ul>
+    </div>
+
+    <div class="site-signature">
+      <p class="rss-subscribe text"><strong>Subscribe <a href="/feed.xml">via RSS</a></strong></p>
+      <p class="text">A simple yet classy theme for your Jekyll based blog.
+</p>
+    </div>
+
+  </div>
+
+</footer>
+
+<!-- Scripts -->
+<script src="//code.jquery.com/jquery-3.4.1.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.10/highlight.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.1/js/lightbox.min.js"></script>
+<script src="//unpkg.com/popper.js@1"></script>
+<script src="//unpkg.com/tippy.js@5"></script>
+
+<script type="text/javascript">
+$(document).ready(function() {
+  // Default syntax highlighting
+  hljs.initHighlightingOnLoad();
+
+  // Header
+  var menuToggle = $('#js-mobile-menu').unbind();
+  $('#js-navigation-menu').removeClass("show");
+  menuToggle.on('click', function(e) {
+    e.preventDefault();
+    $('#js-navigation-menu').slideToggle(function(){
+      if($('#js-navigation-menu').is(':hidden')) {
+        $('#js-navigation-menu').removeAttr('style');
+      }
+    });
+  });
+
+	// Enable tooltips via Tippy.js
+	if (Array.isArray(window.tooltips)) {
+		window.tooltips.forEach(function(tooltip) {
+			var selector = tooltip[0];
+			var config = tooltip[1];
+			tippy(selector, config);
+		})
+	}
+});
+
+</script>
+
+
+
+
+
+
+  </body>
+
+</html>

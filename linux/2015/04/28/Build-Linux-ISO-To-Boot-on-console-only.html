@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>Building Ubuntu ISO image to install ubuntu server in a headless box</title>
+  <meta name="description" content="Today I spent a few hours to build Ubuntu ISO image to install ubuntu server in a headless box.">
+  
+  <meta name="author" content="Wenwei Weng">
+  <meta name="copyright" content="&copy; Wenwei Weng 2023">
+  
+
+  <!-- External libraries -->
+  <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css">
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.9.0/styles/monokai-sublime.min.css">
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/lightbox2/2.7.1/css/lightbox.css">
+
+  <!-- Favicon and other icons (made with http://www.favicon-generator.org/) -->
+  <link rel="shortcut icon" href="/assets/icons/favicon.ico" type="image/x-icon">
+  <link rel="icon" href="/assets/icons/favicon.ico" type="image/x-icon">
+  <link rel="apple-touch-icon" sizes="57x57" href="/assets/icons/apple-icon-57x57.png">
+  <link rel="apple-touch-icon" sizes="60x60" href="/assets/icons/apple-icon-60x60.png">
+  <link rel="apple-touch-icon" sizes="72x72" href="/assets/icons/apple-icon-72x72.png">
+  <link rel="apple-touch-icon" sizes="76x76" href="/assets/icons/apple-icon-76x76.png">
+  <link rel="apple-touch-icon" sizes="114x114" href="/assets/icons/apple-icon-114x114.png">
+  <link rel="apple-touch-icon" sizes="120x120" href="/assets/icons/apple-icon-120x120.png">
+  <link rel="apple-touch-icon" sizes="144x144" href="/assets/icons/apple-icon-144x144.png">
+  <link rel="apple-touch-icon" sizes="152x152" href="/assets/icons/apple-icon-152x152.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/assets/icons/apple-icon-180x180.png">
+  <link rel="icon" type="image/png" sizes="192x192"  href="/assets/icons/android-icon-192x192.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/assets/icons/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="96x96" href="/assets/icons/favicon-96x96.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/assets/icons/favicon-16x16.png">
+  <link rel="manifest" href="/assets/icons/manifest.json">
+  <meta name="msapplication-TileColor" content="#ffffff">
+  <meta name="msapplication-TileImage" content="/assets/icons/ms-icon-144x144.png">
+  <meta name="theme-color" content="#ffffff">
+
+  
+
+  
+
+  
+
+  <!-- Site styles -->
+  <link rel="stylesheet" href="/css/main.css">
+  <link rel="canonical" href="http://localhost:4000/linux/2015/04/28/Build-Linux-ISO-To-Boot-on-console-only.html">
+	<link rel="alternate" type="application/rss+xml" title="Wenwei Weng's Blog" href="http://localhost:4000/feed.xml" />
+	
+	<!-- Tooltips -->
+	<script type="text/javascript">
+		window.tooltips = []
+	</script>
+</head>
+
+
+  <body>
+
+    <header class="navigation" role="banner">
+  <div class="navigation-wrapper">
+    <a href="/" class="logo">
+      
+      <img src="/assets/avatar.png" alt="Wenwei Weng's Blog">
+      
+    </a>
+    <a href="javascript:void(0)" class="navigation-menu-button" id="js-mobile-menu">
+      <i class="fa fa-bars"></i>
+    </a>
+    <nav role="navigation">
+      <ul id="js-navigation-menu" class="navigation-menu show">
+				
+	
+	<li class="nav-link"><a href="/about/">About</a>
+	
+
+	
+
+	
+
+	
+	<li class="nav-link"><a href="/posts/">Posts</a>
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+      </ul>
+    </nav>
+  </div>
+</header>
+
+
+    <div class="page-content">
+        <div class="post">
+
+<div class="post-header-container " >
+  <div class="scrim ">
+    <header class="post-header">
+      <h1 class="title">Building Ubuntu ISO image to install ubuntu server in a headless box</h1>
+      <p class="info">by <strong>Wenwei Weng</strong></p>
+    </header>
+  </div>
+</div>
+
+<div class="wrapper">
+
+ <span class="page-divider">
+  <span class="one"></span>
+  <span class="two"></span>
+</span>
+ 
+
+<section class="post-meta">
+  <div class="post-date">April 28, 2015</div>
+  <div class="post-categories">
+  in 
+    
+    <a href="/category/Linux">Linux</a>
+    
+  
+  </div>
+</section>
+
+<article class="post-content">
+  <p>Today I spent a few hours to build Ubuntu ISO image to install ubuntu server in a headless box.</p>
+
+<p><img src="" alt="headless box](/uploads/ir800-1.jpg)" /></p>
+
+<!--more-->
+
+<h1 id="putting-it-together">Putting it together</h1>
+
+<h2 id="download-ubuntu-server-distribution-iso-image">Download Ubuntu server distribution ISO image</h2>
+<p>Ubuntu server ISO images are available from <a href="http://www.ubuntu.com/download/server">ubuntu download site</a>. <br />
+I used ubuntu server 15.04.</p>
+
+<h2 id="save-iso-image-to-a-linux-box-which-you-have-sudo-or-root-access">Save ISO image to a linux box, which you have sudo or root access</h2>
+<p>Because you need to mount ISO image to extract the content and modified it..
+e.g. /scratch/ubuntu-15.04-server-amd64.iso</p>
+
+<h2 id="mount-iso-image-and-make-a-copy-to-modify">Mount ISO image and make a copy to modify</h2>
+<p>Next is to mount ISO image using loop mount so that we can access the files inside ISO image.
+Since ISO image mount is typically read only, we need to make a copy from ISO mounting directory.
+Please use either root or sudo to do the following commands.</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="o">[</span>root@sg-centos-hv1 scratch]# make a directoty to as mount point <span class="k">for </span>ISO image mount
+<span class="o">[</span>root@sg-centos-hv1 scratch]# <span class="nb">mkdir</span> /mnt/iso
+<span class="o">[</span>root@sg-centos-hv1 scratch]# loop mount ISO image
+<span class="o">[</span>root@sg-centos-hv1 scratch]# mount <span class="nt">-o</span> loop /scratch/ubuntu-15.04-server-amd64.iso  /mnt/iso
+<span class="o">[</span>root@sg-centos-hv1 scratch]# <span class="nb">ls</span> /mnt/iso
+boot  dists  doc  EFI  <span class="nb">install  </span>isolinux  md5sum.txt  pics  pool  preseed  README.diskdefines  ubuntu
+
+<span class="o">[</span>root@sg-centos-hv1 scratch]# make a directory to get a copy of ISO content
+<span class="o">[</span>root@sg-centos-hv1 scratch]# <span class="nb">mkdir</span> /opt/ubuntuiso
+<span class="o">[</span>root@sg-centos-hv1 scratch]# <span class="nb">cp</span> <span class="nt">-rT</span> /mnt/iso/<span class="k">*</span> /opt/ubuntuiso
+ </code></pre></figure>
+
+<h2 id="modify-syslinux-boot-config--and-linux-boot-kernel-config">Modify SYSLINUX boot config  and Linux boot kernel config</h2>
+<p>Ubuntu ISO image uses [syslinux] (http://www.syslinux.org/) as bootloader. By default, it uses VGA as graphic output. 
+We need disable graphic and make it goes to serial port/console ttyS0  by modifying files:</p>
+
+<ul>
+  <li>isolinux/isolinux.cfg</li>
+  <li>isolinux/menu.cfg</li>
+  <li>isolinux/txt.cfg</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="o">[</span>root@sg-centos-hv1 scratch]# <span class="nb">cat</span> /opt/ubuntuiso/isolinux/isolinux.cfg
+<span class="c"># D-I config version 2.0</span>
+serial 0 115200
+include menu.cfg
+prompt 0
+<span class="nb">timeout </span>3
+
+<span class="o">[</span>root@sg-centos-hv1 scratch]# <span class="nb">cat</span> /opt/ubuntuiso/isolinux/menu.cfg
+menu hshift 13
+menu width 49
+menu margin 8
+
+menu title Installer boot menu
+include txt.cfg
+menu begin advanced
+        menu title Advanced options
+        label mainmenu
+                menu label ^Back..
+                menu <span class="nb">exit
+        </span>include adtxt.cfg
+menu end
+label <span class="nb">help
+        </span>menu label ^Help
+        text <span class="nb">help
+   </span>Display <span class="nb">help </span>screens<span class="p">;</span> <span class="nb">type</span> <span class="s1">'menu'</span> at boot prompt to <span class="k">return </span>to this menu
+        endtext
+        config prompt.cfg
+
+<span class="o">[</span>root@sg-centos-hv1 scratch]# <span class="nb">cat</span> /opt/ubuntuiso/isolinux/txt.cfg
+default <span class="nb">install
+</span>label <span class="nb">install
+  </span>menu label ^Install Ubuntu Server
+  kernel /install/vmlinuz
+  append  <span class="nv">file</span><span class="o">=</span>/cdrom/preseed/ubuntu-server.seed text <span class="nv">console</span><span class="o">=</span>ttyS0,115200 <span class="nv">initrd</span><span class="o">=</span>/install/initrd.gz quiet <span class="nt">--</span>
+<span class="o">[</span>root@sg-centos-hv1 scratch]#</code></pre></figure>
+
+<h2 id="remake-iso-image-using-mkisofs">Remake ISO image using mkisofs</h2>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="o">[</span>root@sg-centos-hv1 scratch]# mkisofs <span class="nt">-D</span> <span class="nt">-r</span> <span class="nt">-V</span> <span class="s2">"SERIALPORT_UBUNTU"</span> <span class="nt">-cache-inodes</span> <span class="nt">-J</span> <span class="nt">-l</span> <span class="nt">-b</span> isolinux/isolinux.bin <span class="nt">-c</span> isolinux/boot.cat <span class="nt">-no-emul-boot</span> <span class="nt">-boot-load-size</span> 4 <span class="nt">-boot-info-table</span> <span class="nt">-o</span> /scratch/ubuntu1504-server-amd64-serial.iso /opt/ubuntuiso</code></pre></figure>
+
+<h2 id="boot-iso-image-in-headless-box-to-install">Boot ISO image in headless box to install</h2>
+<p>Burn ISO image into CD, and boot ISO image in a headless box through CDROM, connect serial/console port with speed 115200, wow!</p>
+
+<p><img src="" alt="](/uploads/ubuntu-iso-server-serial/install-screen.jpg)" /></p>
+
+<p>Following the usual installation steps to complete installation.</p>
+
+<h2 id="after-installation-is-complete-boots">After installation is complete, boots!</h2>
+
+<p><img src="" alt="](/uploads/ubuntu-iso-server-serial/boot-screen.jpg)" /></p>
+
+<h1 id="conclusion">Conclusion</h1>
+<p>Ubuntu server can be installed in a headless box, which has even less 2GB disk space.</p>
+
+
+</article>
+
+
+
+
+
+<section class="rss">
+  <p class="rss-subscribe text"><strong>Subscribe <a href="/feed.xml">via RSS</a></strong></p>
+</section>
+
+<section class="share">
+  <span>Share: </span>
+  
+    
+    
+    
+    
+    
+    
+    
+    
+  
+    
+    
+    
+    
+    
+      <a href="//www.linkedin.com/shareArticle?mini=true&url=http%3A%2F%2Flocalhost%3A4000%2Flinux%2F2015%2F04%2F28%2FBuild-Linux-ISO-To-Boot-on-console-only.html"
+        onclick="window.open(this.href, 'linkedin-share', 'width=550,height=255');return false;">
+        <i class="fa fa-linkedin-square fa-lg"></i>
+      </a>
+    
+    
+    
+    
+  
+</section>
+
+
+
+
+</div>
+</div>
+
+    </div>
+
+    <footer class="site-footer">
+
+  <div class="wrapper">
+
+    <h3 class="footer-heading">Wenwei Weng's Blog</h3>
+
+    <div class="site-navigation">
+
+      <p><strong>Site Map</strong></p>
+      <ul class="pages">
+				
+	
+	<li class="nav-link"><a href="/about/">About</a>
+	
+
+	
+
+	
+
+	
+	<li class="nav-link"><a href="/posts/">Posts</a>
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+      </ul>
+    </div>
+
+    <div class="site-contact">
+
+      <p><strong>Contact</strong></p>
+      <ul class="social-media-list">
+        <li>
+          <a href="mailto:weweng@gmail.com">
+            <i class="fa fa-envelope-o"></i>
+            <span class="username">weweng@gmail.com</span>
+          </a>
+        </li>
+
+        
+          
+          <li>
+            <a href="https://github.com/weweng" title="Fork me on GitHub">
+              <i class="fa fa-github"></i>
+              <span class="username">weweng</span>
+            </a>
+          </li>
+          
+        
+          
+          <li>
+            <a href="https://www.linkedin.com/in/wenwei-weng/" title="Connect with me on LinkedIn">
+              <i class="fa fa-linkedin"></i>
+              <span class="username">Wenwei Weng</span>
+            </a>
+          </li>
+          
+        
+
+      </ul>
+    </div>
+
+    <div class="site-signature">
+      <p class="rss-subscribe text"><strong>Subscribe <a href="/feed.xml">via RSS</a></strong></p>
+      <p class="text">A simple yet classy theme for your Jekyll based blog.
+</p>
+    </div>
+
+  </div>
+
+</footer>
+
+<!-- Scripts -->
+<script src="//code.jquery.com/jquery-3.4.1.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.10/highlight.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.1/js/lightbox.min.js"></script>
+<script src="//unpkg.com/popper.js@1"></script>
+<script src="//unpkg.com/tippy.js@5"></script>
+
+<script type="text/javascript">
+$(document).ready(function() {
+  // Default syntax highlighting
+  hljs.initHighlightingOnLoad();
+
+  // Header
+  var menuToggle = $('#js-mobile-menu').unbind();
+  $('#js-navigation-menu').removeClass("show");
+  menuToggle.on('click', function(e) {
+    e.preventDefault();
+    $('#js-navigation-menu').slideToggle(function(){
+      if($('#js-navigation-menu').is(':hidden')) {
+        $('#js-navigation-menu').removeAttr('style');
+      }
+    });
+  });
+
+	// Enable tooltips via Tippy.js
+	if (Array.isArray(window.tooltips)) {
+		window.tooltips.forEach(function(tooltip) {
+			var selector = tooltip[0];
+			var config = tooltip[1];
+			tippy(selector, config);
+		})
+	}
+});
+
+</script>
+
+
+
+
+
+
+  </body>
+
+</html>

@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>Linux tool "dd" - avoid using cache memory</title>
+  <meta name="description" content="In the post of Linux memory  management, it is discussed that linux uses availabe DRAM as buffer/cache to optimize the whole system performance. That is cert...">
+  
+  <meta name="author" content="Wenwei Weng">
+  <meta name="copyright" content="&copy; Wenwei Weng 2023">
+  
+
+  <!-- External libraries -->
+  <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css">
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.9.0/styles/monokai-sublime.min.css">
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/lightbox2/2.7.1/css/lightbox.css">
+
+  <!-- Favicon and other icons (made with http://www.favicon-generator.org/) -->
+  <link rel="shortcut icon" href="/assets/icons/favicon.ico" type="image/x-icon">
+  <link rel="icon" href="/assets/icons/favicon.ico" type="image/x-icon">
+  <link rel="apple-touch-icon" sizes="57x57" href="/assets/icons/apple-icon-57x57.png">
+  <link rel="apple-touch-icon" sizes="60x60" href="/assets/icons/apple-icon-60x60.png">
+  <link rel="apple-touch-icon" sizes="72x72" href="/assets/icons/apple-icon-72x72.png">
+  <link rel="apple-touch-icon" sizes="76x76" href="/assets/icons/apple-icon-76x76.png">
+  <link rel="apple-touch-icon" sizes="114x114" href="/assets/icons/apple-icon-114x114.png">
+  <link rel="apple-touch-icon" sizes="120x120" href="/assets/icons/apple-icon-120x120.png">
+  <link rel="apple-touch-icon" sizes="144x144" href="/assets/icons/apple-icon-144x144.png">
+  <link rel="apple-touch-icon" sizes="152x152" href="/assets/icons/apple-icon-152x152.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/assets/icons/apple-icon-180x180.png">
+  <link rel="icon" type="image/png" sizes="192x192"  href="/assets/icons/android-icon-192x192.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/assets/icons/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="96x96" href="/assets/icons/favicon-96x96.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/assets/icons/favicon-16x16.png">
+  <link rel="manifest" href="/assets/icons/manifest.json">
+  <meta name="msapplication-TileColor" content="#ffffff">
+  <meta name="msapplication-TileImage" content="/assets/icons/ms-icon-144x144.png">
+  <meta name="theme-color" content="#ffffff">
+
+  
+
+  
+
+  
+
+  <!-- Site styles -->
+  <link rel="stylesheet" href="/css/main.css">
+  <link rel="canonical" href="http://localhost:4000/linux/2016/09/05/linux-dd-cache.html">
+	<link rel="alternate" type="application/rss+xml" title="Wenwei Weng's Blog" href="http://localhost:4000/feed.xml" />
+	
+	<!-- Tooltips -->
+	<script type="text/javascript">
+		window.tooltips = []
+	</script>
+</head>
+
+
+  <body>
+
+    <header class="navigation" role="banner">
+  <div class="navigation-wrapper">
+    <a href="/" class="logo">
+      
+      <img src="/assets/avatar.png" alt="Wenwei Weng's Blog">
+      
+    </a>
+    <a href="javascript:void(0)" class="navigation-menu-button" id="js-mobile-menu">
+      <i class="fa fa-bars"></i>
+    </a>
+    <nav role="navigation">
+      <ul id="js-navigation-menu" class="navigation-menu show">
+				
+	
+	<li class="nav-link"><a href="/about/">About</a>
+	
+
+	
+
+	
+
+	
+	<li class="nav-link"><a href="/posts/">Posts</a>
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+      </ul>
+    </nav>
+  </div>
+</header>
+
+
+    <div class="page-content">
+        <div class="post">
+
+<div class="post-header-container " >
+  <div class="scrim ">
+    <header class="post-header">
+      <h1 class="title">Linux tool "dd" - avoid using cache memory</h1>
+      <p class="info">by <strong>Wenwei Weng</strong></p>
+    </header>
+  </div>
+</div>
+
+<div class="wrapper">
+
+ <span class="page-divider">
+  <span class="one"></span>
+  <span class="two"></span>
+</span>
+ 
+
+<section class="post-meta">
+  <div class="post-date">September 5, 2016</div>
+  <div class="post-categories">
+  in 
+    
+    <a href="/category/Linux">Linux</a>
+    
+  
+  </div>
+</section>
+
+<article class="post-content">
+  <p>In the post of Linux memory  management, it is discussed that linux uses availabe DRAM as buffer/cache to optimize the whole system performance. That is certainly a very good thing. However, there could be side effect.</p>
+
+<p><img src="/uploads/linux/linux-dd-cache.jpg" alt="Linux dd cache" /></p>
+
+<!--more-->
+
+<h1 id="what-is-the-issue">What is the issue?</h1>
+<p>Last week I have spent a lot time to figure out why kernel lockup during IR829 bundle image installation. During the bundle image installation, there is a step to extract Guest OS disk image out from bundle image and write it into Guest OS disk using linux utility tool “dd”.</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">bash# <span class="nb">gzip</span> <span class="nt">-d</span> <span class="nt">-c</span> <span class="nv">$GOS_IMAGE</span>.gz | <span class="nb">dd </span><span class="nv">of</span><span class="o">=</span>/dev/sda <span class="nv">bs</span><span class="o">=</span>1M</code></pre></figure>
+
+<p>From time to time the kernel lockup occurs. During the process, I ran “top” to monitor the overall state of the box, I can see that free memory drops sharply and the memory consumption by Buffer&amp;Cache increased dramatically, which is expected as dd is trying to write disk image into disk /dev/sda. Linux kernel uses available DRAM to cache/buffer disk image. The cache/buffer space will be reclaimed by a kernel thread “kswapd” in case of kernel realizes that there is need/demand by other process. All sounds very nice, however the reality is not so nice, especailly for a running kernel version 2.6.35. Sometime “kswapd” doesn’t do its job right and lockup the box.</p>
+
+<h1 id="what-is-solution">What is solution?</h1>
+<p>The solution is to avoid using the cache memory when Guest OS disk image is copied into disk. By reading the latest version of dd manual, it indicates that there are options like iflag, oflag. However the manual doesn’t say what are possibe flags/values. I then chased down to GNU coreutil document for dd: https://www.gnu.org/software/coreutils/manual/html_node/dd-invocation.html,
+it mentions the very interesting options such as “nocache”, “dsync”, “direct”.
+This makes me really exciting. The first try is “dd iflag=nocache oflag-nocache”, it turns out that the option is not accepted. When I checked the version by “dd –version”, I found that the running dd version is 8.5, which is really old, comparing to the latest one version 8.25, which is released in January 20 2016. Check http://ftp.gnu.org/gnu/coreutils/.</p>
+
+<p>So I ended up to download the latest version <a href="http://ftp.gnu.org/gnu/coreutils/coreutils-8.25.tar.xz">coreutils</a> and compiled them and packaged it into my linux ramdisk.</p>
+
+<p>Acoording to the <a href="http://xrefs.info/linux-packages/xref/coreutils-8.21/tests/dd/nocache.sh">dd nocache unit testcase</a>,</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">  <span class="c"># Stream data just using readahead cache</span>
+  <span class="nb">dd </span><span class="k">if</span><span class="o">=</span>ifile <span class="nv">of</span><span class="o">=</span>ofile <span class="nv">iflag</span><span class="o">=</span>nocache <span class="nv">oflag</span><span class="o">=</span>nocache <span class="o">||</span> <span class="nv">fail</span><span class="o">=</span>1</code></pre></figure>
+
+<p>However it does not work for me. It works well after I add “dsync” option in oflag like below:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">bash# <span class="nb">gzip</span> <span class="nt">-d</span> <span class="nt">-c</span> <span class="nv">$GOS_IMAGE</span>.gz | <span class="nb">dd </span><span class="nv">of</span><span class="o">=</span>/dev/sda <span class="nv">iflag</span><span class="o">=</span>nocache <span class="nv">oflag</span><span class="o">=</span>nocache,dsync <span class="nv">bs</span><span class="o">=</span>1M</code></pre></figure>
+
+<p>With these new options, there is no noticable cache/buffer memory consumption increase during the installation period, however the paid price is the increased time to complete the whole operation, which is expected.</p>
+
+<h1 id="how-it-works">How it works?</h1>
+<p>I further checked the souce code how it works. It turns out that <a href="http://xrefs.info/linux-packages/xref/coreutils-8.21/src/dd.c#894">dd.c</a> implements a function invalidate_cache,which tells kernel to the block of memory is no longer needed through posix_fadvise(fd, …, POSIX_FADV_DONTNEED).</p>
+
+<figure class="highlight"><pre><code class="language-c" data-lang="c"><span class="cm">/* Discard the cache from the current offset of either
+   STDIN_FILENO or STDOUT_FILENO.
+   Return true on success.  */</span>
+
+<span class="k">static</span> <span class="n">bool</span>
+<span class="nf">invalidate_cache</span> <span class="p">(</span><span class="kt">int</span> <span class="n">fd</span><span class="p">,</span> <span class="kt">off_t</span> <span class="n">len</span><span class="p">)</span>
+<span class="p">{</span>
+  <span class="kt">int</span> <span class="n">adv_ret</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">;</span>
+
+  <span class="cm">/* Minimize syscalls.  */</span>
+  <span class="kt">off_t</span> <span class="n">clen</span> <span class="o">=</span> <span class="n">cache_round</span> <span class="p">(</span><span class="n">fd</span><span class="p">,</span> <span class="n">len</span><span class="p">);</span>
+  <span class="k">if</span> <span class="p">(</span><span class="n">len</span> <span class="o">&amp;&amp;</span> <span class="o">!</span><span class="n">clen</span><span class="p">)</span>
+    <span class="k">return</span> <span class="nb">true</span><span class="p">;</span> <span class="cm">/* Don't advise this time.  */</span>
+  <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">len</span> <span class="o">&amp;&amp;</span> <span class="o">!</span><span class="n">clen</span> <span class="o">&amp;&amp;</span> <span class="n">max_records</span><span class="p">)</span>
+    <span class="k">return</span> <span class="nb">true</span><span class="p">;</span> <span class="cm">/* Nothing pending.  */</span>
+  <span class="kt">off_t</span> <span class="n">pending</span> <span class="o">=</span> <span class="n">len</span> <span class="o">?</span> <span class="n">cache_round</span> <span class="p">(</span><span class="n">fd</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">:</span> <span class="mi">0</span><span class="p">;</span>
+
+  <span class="k">if</span> <span class="p">(</span><span class="n">fd</span> <span class="o">==</span> <span class="n">STDIN_FILENO</span><span class="p">)</span>
+    <span class="p">{</span>
+      <span class="k">if</span> <span class="p">(</span><span class="n">input_seekable</span><span class="p">)</span>
+        <span class="p">{</span>
+          <span class="cm">/* Note we're being careful here to only invalidate what
+             we've read, so as not to dump any read ahead cache.  */</span>
+<span class="cp">#if HAVE_POSIX_FADVISE
+</span>            <span class="n">adv_ret</span> <span class="o">=</span> <span class="n">posix_fadvise</span> <span class="p">(</span><span class="n">fd</span><span class="p">,</span> <span class="n">input_offset</span> <span class="o">-</span> <span class="n">clen</span> <span class="o">-</span> <span class="n">pending</span><span class="p">,</span> <span class="n">clen</span><span class="p">,</span>
+                                     <span class="n">POSIX_FADV_DONTNEED</span><span class="p">);</span>
+<span class="cp">#else
+</span>            <span class="n">errno</span> <span class="o">=</span> <span class="n">ENOTSUP</span><span class="p">;</span>
+<span class="cp">#endif
+</span>        <span class="p">}</span>
+      <span class="k">else</span>
+        <span class="n">errno</span> <span class="o">=</span> <span class="n">ESPIPE</span><span class="p">;</span>
+    <span class="p">}</span>
+  <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="n">fd</span> <span class="o">==</span> <span class="n">STDOUT_FILENO</span><span class="p">)</span>
+    <span class="p">{</span>
+      <span class="k">static</span> <span class="kt">off_t</span> <span class="n">output_offset</span> <span class="o">=</span> <span class="o">-</span><span class="mi">2</span><span class="p">;</span>
+
+      <span class="k">if</span> <span class="p">(</span><span class="n">output_offset</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="p">{</span>
+          <span class="k">if</span> <span class="p">(</span><span class="mi">0</span> <span class="o">&gt;</span> <span class="n">output_offset</span><span class="p">)</span>
+            <span class="p">{</span>
+              <span class="n">output_offset</span> <span class="o">=</span> <span class="n">lseek</span> <span class="p">(</span><span class="n">fd</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">SEEK_CUR</span><span class="p">);</span>
+              <span class="n">output_offset</span> <span class="o">-=</span> <span class="n">clen</span> <span class="o">+</span> <span class="n">pending</span><span class="p">;</span>
+            <span class="p">}</span>
+          <span class="k">if</span> <span class="p">(</span><span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">output_offset</span><span class="p">)</span>
+            <span class="p">{</span>
+<span class="cp">#if HAVE_POSIX_FADVISE
+</span>              <span class="n">adv_ret</span> <span class="o">=</span> <span class="n">posix_fadvise</span> <span class="p">(</span><span class="n">fd</span><span class="p">,</span> <span class="n">output_offset</span><span class="p">,</span> <span class="n">clen</span><span class="p">,</span>
+                                       <span class="n">POSIX_FADV_DONTNEED</span><span class="p">);</span>
+<span class="cp">#else
+</span>              <span class="n">errno</span> <span class="o">=</span> <span class="n">ENOTSUP</span><span class="p">;</span>
+<span class="cp">#endif
+</span>              <span class="n">output_offset</span> <span class="o">+=</span> <span class="n">clen</span> <span class="o">+</span> <span class="n">pending</span><span class="p">;</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+
+  <span class="k">return</span> <span class="n">adv_ret</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">1</span> <span class="o">?</span> <span class="nb">true</span> <span class="o">:</span> <span class="nb">false</span><span class="p">;</span>
+<span class="p">}</span></code></pre></figure>
+
+
+</article>
+
+
+
+
+
+<section class="rss">
+  <p class="rss-subscribe text"><strong>Subscribe <a href="/feed.xml">via RSS</a></strong></p>
+</section>
+
+<section class="share">
+  <span>Share: </span>
+  
+    
+    
+    
+    
+    
+    
+    
+    
+  
+    
+    
+    
+    
+    
+      <a href="//www.linkedin.com/shareArticle?mini=true&url=http%3A%2F%2Flocalhost%3A4000%2Flinux%2F2016%2F09%2F05%2Flinux-dd-cache.html"
+        onclick="window.open(this.href, 'linkedin-share', 'width=550,height=255');return false;">
+        <i class="fa fa-linkedin-square fa-lg"></i>
+      </a>
+    
+    
+    
+    
+  
+</section>
+
+
+
+
+</div>
+</div>
+
+    </div>
+
+    <footer class="site-footer">
+
+  <div class="wrapper">
+
+    <h3 class="footer-heading">Wenwei Weng's Blog</h3>
+
+    <div class="site-navigation">
+
+      <p><strong>Site Map</strong></p>
+      <ul class="pages">
+				
+	
+	<li class="nav-link"><a href="/about/">About</a>
+	
+
+	
+
+	
+
+	
+	<li class="nav-link"><a href="/posts/">Posts</a>
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+      </ul>
+    </div>
+
+    <div class="site-contact">
+
+      <p><strong>Contact</strong></p>
+      <ul class="social-media-list">
+        <li>
+          <a href="mailto:weweng@gmail.com">
+            <i class="fa fa-envelope-o"></i>
+            <span class="username">weweng@gmail.com</span>
+          </a>
+        </li>
+
+        
+          
+          <li>
+            <a href="https://github.com/weweng" title="Fork me on GitHub">
+              <i class="fa fa-github"></i>
+              <span class="username">weweng</span>
+            </a>
+          </li>
+          
+        
+          
+          <li>
+            <a href="https://www.linkedin.com/in/wenwei-weng/" title="Connect with me on LinkedIn">
+              <i class="fa fa-linkedin"></i>
+              <span class="username">Wenwei Weng</span>
+            </a>
+          </li>
+          
+        
+
+      </ul>
+    </div>
+
+    <div class="site-signature">
+      <p class="rss-subscribe text"><strong>Subscribe <a href="/feed.xml">via RSS</a></strong></p>
+      <p class="text">A simple yet classy theme for your Jekyll based blog.
+</p>
+    </div>
+
+  </div>
+
+</footer>
+
+<!-- Scripts -->
+<script src="//code.jquery.com/jquery-3.4.1.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.10/highlight.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.1/js/lightbox.min.js"></script>
+<script src="//unpkg.com/popper.js@1"></script>
+<script src="//unpkg.com/tippy.js@5"></script>
+
+<script type="text/javascript">
+$(document).ready(function() {
+  // Default syntax highlighting
+  hljs.initHighlightingOnLoad();
+
+  // Header
+  var menuToggle = $('#js-mobile-menu').unbind();
+  $('#js-navigation-menu').removeClass("show");
+  menuToggle.on('click', function(e) {
+    e.preventDefault();
+    $('#js-navigation-menu').slideToggle(function(){
+      if($('#js-navigation-menu').is(':hidden')) {
+        $('#js-navigation-menu').removeAttr('style');
+      }
+    });
+  });
+
+	// Enable tooltips via Tippy.js
+	if (Array.isArray(window.tooltips)) {
+		window.tooltips.forEach(function(tooltip) {
+			var selector = tooltip[0];
+			var config = tooltip[1];
+			tippy(selector, config);
+		})
+	}
+});
+
+</script>
+
+
+
+
+
+
+  </body>
+
+</html>

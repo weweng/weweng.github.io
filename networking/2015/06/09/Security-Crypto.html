@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>Internet Security - Cryptography fundamentals</title>
+  <meta name="description" content="Internet security is becoming more relevant in life as internet is growing daily. There are many aspects of internet security. Cryptograph is a fundamental e...">
+  
+  <meta name="author" content="Wenwei Weng">
+  <meta name="copyright" content="&copy; Wenwei Weng 2023">
+  
+
+  <!-- External libraries -->
+  <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css">
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.9.0/styles/monokai-sublime.min.css">
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/lightbox2/2.7.1/css/lightbox.css">
+
+  <!-- Favicon and other icons (made with http://www.favicon-generator.org/) -->
+  <link rel="shortcut icon" href="/assets/icons/favicon.ico" type="image/x-icon">
+  <link rel="icon" href="/assets/icons/favicon.ico" type="image/x-icon">
+  <link rel="apple-touch-icon" sizes="57x57" href="/assets/icons/apple-icon-57x57.png">
+  <link rel="apple-touch-icon" sizes="60x60" href="/assets/icons/apple-icon-60x60.png">
+  <link rel="apple-touch-icon" sizes="72x72" href="/assets/icons/apple-icon-72x72.png">
+  <link rel="apple-touch-icon" sizes="76x76" href="/assets/icons/apple-icon-76x76.png">
+  <link rel="apple-touch-icon" sizes="114x114" href="/assets/icons/apple-icon-114x114.png">
+  <link rel="apple-touch-icon" sizes="120x120" href="/assets/icons/apple-icon-120x120.png">
+  <link rel="apple-touch-icon" sizes="144x144" href="/assets/icons/apple-icon-144x144.png">
+  <link rel="apple-touch-icon" sizes="152x152" href="/assets/icons/apple-icon-152x152.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/assets/icons/apple-icon-180x180.png">
+  <link rel="icon" type="image/png" sizes="192x192"  href="/assets/icons/android-icon-192x192.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/assets/icons/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="96x96" href="/assets/icons/favicon-96x96.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/assets/icons/favicon-16x16.png">
+  <link rel="manifest" href="/assets/icons/manifest.json">
+  <meta name="msapplication-TileColor" content="#ffffff">
+  <meta name="msapplication-TileImage" content="/assets/icons/ms-icon-144x144.png">
+  <meta name="theme-color" content="#ffffff">
+
+  
+
+  
+
+  
+
+  <!-- Site styles -->
+  <link rel="stylesheet" href="/css/main.css">
+  <link rel="canonical" href="http://localhost:4000/networking/2015/06/09/Security-Crypto.html">
+	<link rel="alternate" type="application/rss+xml" title="Wenwei Weng's Blog" href="http://localhost:4000/feed.xml" />
+	
+	<!-- Tooltips -->
+	<script type="text/javascript">
+		window.tooltips = []
+	</script>
+</head>
+
+
+  <body>
+
+    <header class="navigation" role="banner">
+  <div class="navigation-wrapper">
+    <a href="/" class="logo">
+      
+      <img src="/assets/avatar.png" alt="Wenwei Weng's Blog">
+      
+    </a>
+    <a href="javascript:void(0)" class="navigation-menu-button" id="js-mobile-menu">
+      <i class="fa fa-bars"></i>
+    </a>
+    <nav role="navigation">
+      <ul id="js-navigation-menu" class="navigation-menu show">
+				
+	
+	<li class="nav-link"><a href="/about/">About</a>
+	
+
+	
+
+	
+
+	
+	<li class="nav-link"><a href="/posts/">Posts</a>
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+      </ul>
+    </nav>
+  </div>
+</header>
+
+
+    <div class="page-content">
+        <div class="post">
+
+<div class="post-header-container " >
+  <div class="scrim ">
+    <header class="post-header">
+      <h1 class="title">Internet Security - Cryptography fundamentals</h1>
+      <p class="info">by <strong>Wenwei Weng</strong></p>
+    </header>
+  </div>
+</div>
+
+<div class="wrapper">
+
+ <span class="page-divider">
+  <span class="one"></span>
+  <span class="two"></span>
+</span>
+ 
+
+<section class="post-meta">
+  <div class="post-date">June 9, 2015</div>
+  <div class="post-categories">
+  in 
+    
+    <a href="/category/Networking">Networking</a>
+    
+  
+  </div>
+</section>
+
+<article class="post-content">
+  <p>Internet security is becoming more relevant in life as internet is growing daily. There are many aspects of internet security. 
+Cryptograph is a fundamental element when we talk about internet security related to encryption and decryption.</p>
+
+<p><img src="" alt="cryptography](/uploads/crypto/security-crypto-1.jpg)" /></p>
+
+<p>In this post, I will give a summary of cypto used in network security.</p>
+
+<!--more-->
+
+<h1 id="terminology">terminology</h1>
+
+<h2 id="cipher">Cipher</h2>
+<p>A cipher is an algorithm for performing data encryption and decryption. e.g. old day’s Caesar Cipher, Vigenere Cipher, Tranposition Cipher;
+today’s DES, 3DES, AES, Rivest Ciphers. See a brief desciption for each.</p>
+
+<h3 id="des">DES</h3>
+<p>The Data Encryption Standard (DES) has now been in use for over 35 years and still has
+not been found to have a signifi cant fl aw. However, because its key length is relatively
+short, it can be susceptible to brute - force attacks.
+DES uses a 64 -bit key, but only 56 of the bits are used for encryption. Unfortunately, 16
+of those remaining 56 bits are known and 40 bits are unknown. The other 8 bits are used
+for parity. What that means, essentially, is that DES has a 40 - bit key strength. 
+DES has two operating modes, stream cipher and block cipher. Further, each of these
+two modes has two types within it.</p>
+
+<h3 id="3des">3DES</h3>
+<p>Triple DES, as the 3DES encryption algorithm has become known, essentially strengthens
+the original DES algorithm by applying it three times. Because the original DES algorithm is
+cryptographically strong, it can be made much stronger by encrypting the data three times.
+This triple encryption makes a brute - force attack unfeasible. The effective key strength can be
+either 112 bit or 168 bit, which is what Cisco uses. Let us examine how the 3DES algorithm works.</p>
+<ol>
+ <li> A first 56 -bit key is used to encrypt the plaintext.</li>
+ <li> A second 56 -bit key is used to decrypt the data.</li>
+ <li> A third 56 -bit key is used to encrypt the data again.</li>
+</ol>
+
+<h3 id="aes">AES</h3>
+<p>Advanced Encryption Algorithm (AES) came about after the federal government decided
+that it needed to create a new standard that would replace DES as the offi cial government
+encryption cipher. A bake - off of sorts was initiated in 1997. The winner, selected in 2000,
+was the Rijndael cipher, a mixture of the last names of the two creators, Joan Daemen and
+Vincent Rijmen. This cipher became an offi cial government standard in 2002.
+The Rijndael cipher uses a variable key length and block size in the implementation of
+the cipher. There are potentially nine different combinations of key length and block size.
+You may use a key length of 256 bits, 192 bits, or 128 bits to encrypt block sizes of
+128 bits, 192 bits, or 256 bits.</p>
+
+<h3 id="rivest-ciphers">Rivest Ciphers</h3>
+<p>The Rivest ciphers are also known as the RC ciphers. Ron Rivest is a well -known cryptographer
+and professor at MIT. He is the author of the Rivest ciphers known as RC2, RC4, and RC5 and
+coauthor of RC6.</p>
+<ul>
+ <li>RC2: Variable - length key - block cipher, designed to be an alternative to DES. </li>
+ <li>RC4: Variable key - length stream cipher used frequently in file encryption products, as well as in Secure Sockets Layer (SSL).</li>
+ <li>RC5: RC5 has a variable - length key and variable - length block size. </li>
+ <li>RC6: Block cipher meant to compete for the AES standard. </li> 
+</ul>
+
+<h3 id="examples-encryt-and-decrypt-a-text-file">Examples: encryt and decrypt a text file</h3>
+
+<p>We can use openssl in linux to encrypt and decryt file.</p>
+
+<p>First let’s create a file named as “plaintext-hello.txt”</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">weng@weng-VirtualBox:/tmp<span class="nv">$ </span><span class="nb">echo</span> <span class="s2">"hello world"</span> <span class="o">&gt;</span> plaintext-hello.txt
+weng@weng-VirtualBox:/tmp<span class="nv">$ </span><span class="nb">cat </span>plaintext-hello.txt 
+hello world</code></pre></figure>
+
+<p>Second, let’s encrypt it using passord “cipherme”</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"> weng@weng-VirtualBox:/tmp<span class="nv">$ </span>openssl enc <span class="nt">-aes-256-cbc</span> <span class="nt">-in</span> plaintext-hello.txt <span class="nt">-out</span> cipher-hello.bin
+enter aes-256-cbc encryption password:
+Verifying - enter aes-256-cbc encryption password:
+weng@weng-VirtualBox:/tmp<span class="nv">$ </span><span class="nb">ls</span> <span class="nt">-l</span> plaintext-hello.txt cipher-hello.bin 
+<span class="nt">-rw-rw-r--</span> 1 weng weng 32 May 29 23:21 cipher-hello.bin
+<span class="nt">-rw-rw-r--</span> 1 weng weng 12 May 29 16:46 plaintext-hello.txt
+weng@weng-VirtualBox:/tmp<span class="nv">$ </span>file cipher-hello.bin
+cipher-hello.bin: data
+weng@weng-VirtualBox:/tmp<span class="nv">$ </span>hexdump cipher-hello.bin 
+0000000 6153 746c 6465 5f5f b3c1 c94b f30d 73a9
+0000010 1ab0 022b 57c9 40fe 3da4 3450 f47d ec8f
+0000020
+weng@weng-VirtualBox:/tmp<span class="nv">$ </span></code></pre></figure>
+
+<p>Third, let’s decrypt the binary to see if we can restore “hello world” plain text. As shown below, we did it.</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">weng@weng-VirtualBox:/tmp<span class="nv">$ </span>openssl enc <span class="nt">-aes-256-cbc</span> <span class="nt">-d</span> <span class="nt">-in</span> cipher-hello.bin <span class="nt">-out</span> decrypt-plaintext-hello.txt
+enter aes-256-cbc decryption password:
+weng@weng-VirtualBox:/tmp<span class="nv">$ </span><span class="nb">ls</span> <span class="nt">-l</span> plaintext-hello.txt decrypt-plaintext-hello.txt 
+<span class="nt">-rw-rw-r--</span> 1 weng weng 12 May 29 23:23 decrypt-plaintext-hello.txt
+<span class="nt">-rw-rw-r--</span> 1 weng weng 12 May 29 16:46 plaintext-hello.txt
+weng@weng-VirtualBox:/tmp<span class="nv">$ </span><span class="nb">cat </span>decrypt-plaintext-hello.txt 
+hello world
+weng@weng-VirtualBox:/tmp<span class="nv">$ </span>diff plaintext-hello.txt  decrypt-plaintext-hello.txt 
+weng@weng-VirtualBox:/tmp<span class="nv">$ </span></code></pre></figure>
+
+<p>In the above example, the algorithm aes-256-cbc is picked. For supported encrypt algorithm, use “man openssl” to find out.</p>
+
+<h2 id="digital-signature">Digital signature</h2>
+
+<h3 id="hashing">hashing</h3>
+<p>What is hashing? Simply put, hashing is taking some type of input data and generating
+some sort of value. This value is typically a fixed - length integer. The process of taking
+input data and generating the value is called a hash function . The output of the hash
+function is called the hash value. 
+A hash function has fi ve main features:</p>
+<ul>
+<li> Easily compute the hash value for any message ---&gt; Fast and Efficient </li>
+<li> Must never create the same hash value from two different sets of data ---&gt; Collision Resistant</li>
+<li> Cannot modify the message without altering the hash value ---&gt; Manipulation resistant</li>
+<li> Cannot determine the message from the hash value ---&gt;  One-way hash </li>
+<li> Take variable -length data and produce a fixed-length value ---&gt; Fixed-length hash value</li> 
+</ul>
+
+<p>The typical hashing used are: MD5, SHA1, SHA256, SHA512. See example below.</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">weng@weng-VirtualBox:/tmp<span class="nv">$ </span><span class="nb">md5sum </span>plaintext-hello.txt 
+6f5902ac237024bdd0c176cb93063dc4  plaintext-hello.txt
+weng@weng-VirtualBox:/tmp<span class="nv">$ </span><span class="nb">sha1sum </span>plaintext-hello.txt 
+22596363b3de40b06f981fb85d82312e8c0ed511  plaintext-hello.txt
+weng@weng-VirtualBox:/tmp<span class="nv">$ </span><span class="nb">sha256sum </span>plaintext-hello.txt 
+a948904f2f0f479b8f8197694b30184b0d2ed1c1cd2a1ec0fb85d299a192a447  plaintext-hello.txt
+weng@weng-VirtualBox:/tmp<span class="nv">$ </span><span class="nb">sha512sum </span>plaintext-hello.txt 
+db3974a97f2407b7cae1ae637c0030687a11913274d578492558e39c16c017de84eacdc8c62fe34ee4e12b4b1428817f09b6a2760c3f8a664ceae94d2434a593  plaintext-hello.txt
+weng@weng-VirtualBox:/tmp<span class="nv">$ </span></code></pre></figure>
+
+<h3 id="hash--message-authentication-code-hmac">Hash  Message Authentication Code (HMAC)</h3>
+<p>Hash Message Authentication Code (HMAC) is a way to further secure a hash. HMAC
+is not a hash function requirement but has its place when we talk about securing the hash
+function. Because some popular hash algorithms have been shown not to be completely
+collision resistant, it is important to add newer techniques to validate the integrity of a
+hash. HMAC accomplishes this by adding another layer of data into the hashing mix. This
+layer is called a <strong>secret key</strong> . The secret key is known only by the sender and receiver, and it
+provides authentication to HMAC.
+In the HMAC process, the input data is taken and a secret key is added. Both the input data
+and secret key are put through the hashing algorithm. This produces an HMAC hash . The size
+of the HMAC hash is the same as that of the corresponding hashing algorithm. (The two main
+types of HMAC hashes are HMAC - MD5, which produces a 128 - bit hash, and HMAC - SHA -
+1, which produces a 160 -bit hash.)</p>
+
+<p>See example below, HMAC of “Hello World” from file plaintext-hello.txt, using secret key “mykey”.
+The sender sends the message along with HMAC using shared secret key (in below example “mykey”).
+The receiver gets the message, and computes HMAC using received data, plus shared secret key, 
+generate HMAC, and comparing too received HMAC. If both are equal, then it means message is received as sent exactly.</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">weng@weng-VirtualBox:/tmp<span class="nv">$ </span><span class="nb">cat </span>plaintext-hello.txt | openssl dgst <span class="nt">-md5</span> <span class="nt">-hmac</span> <span class="s2">"mykey"</span>
+<span class="o">(</span>stdin<span class="o">)=</span> 8bd99a681483d550395267d84b9f18dc
+weng@weng-VirtualBox:/tmp<span class="nv">$ </span><span class="nb">cat </span>plaintext-hello.txt | openssl dgst <span class="nt">-sha1</span> <span class="nt">-hmac</span> <span class="s2">"mykey"</span>
+<span class="o">(</span>stdin<span class="o">)=</span> 7d7eaa5f37fda075bfc031b4b7c36d14c841f217
+weng@weng-VirtualBox:/tmp<span class="nv">$ </span></code></pre></figure>
+
+<h3 id="digital-signatures">Digital Signatures</h3>
+<p>A digital signature is an electronic means to validate the authenticity and integrity of a
+message, software, or document. Most digital signatures use asymmetric cryptography to
+accomplish the authenticity.</p>
+
+<p><img src="" alt="digtial signature process](/uploads/crypto/digital-signature-process.jpg)" /></p>
+
+<p>As shown above, it uses private key to genearte HMAC in the sender side, however the pubic key is used in receiver side to generate HMAC to compare.
+This is the key feature of asymmetric encryption technology, which we talk next.</p>
+
+<h2 id="asymmetric-encryption">Asymmetric encryption</h2>
+
+<h2 id="pki">PKI</h2>
+
+<h2 id="digital-certificate">Digital Certificate</h2>
+
+
+</article>
+
+
+
+
+
+<section class="rss">
+  <p class="rss-subscribe text"><strong>Subscribe <a href="/feed.xml">via RSS</a></strong></p>
+</section>
+
+<section class="share">
+  <span>Share: </span>
+  
+    
+    
+    
+    
+    
+    
+    
+    
+  
+    
+    
+    
+    
+    
+      <a href="//www.linkedin.com/shareArticle?mini=true&url=http%3A%2F%2Flocalhost%3A4000%2Fnetworking%2F2015%2F06%2F09%2FSecurity-Crypto.html"
+        onclick="window.open(this.href, 'linkedin-share', 'width=550,height=255');return false;">
+        <i class="fa fa-linkedin-square fa-lg"></i>
+      </a>
+    
+    
+    
+    
+  
+</section>
+
+
+
+
+</div>
+</div>
+
+    </div>
+
+    <footer class="site-footer">
+
+  <div class="wrapper">
+
+    <h3 class="footer-heading">Wenwei Weng's Blog</h3>
+
+    <div class="site-navigation">
+
+      <p><strong>Site Map</strong></p>
+      <ul class="pages">
+				
+	
+	<li class="nav-link"><a href="/about/">About</a>
+	
+
+	
+
+	
+
+	
+	<li class="nav-link"><a href="/posts/">Posts</a>
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+      </ul>
+    </div>
+
+    <div class="site-contact">
+
+      <p><strong>Contact</strong></p>
+      <ul class="social-media-list">
+        <li>
+          <a href="mailto:weweng@gmail.com">
+            <i class="fa fa-envelope-o"></i>
+            <span class="username">weweng@gmail.com</span>
+          </a>
+        </li>
+
+        
+          
+          <li>
+            <a href="https://github.com/weweng" title="Fork me on GitHub">
+              <i class="fa fa-github"></i>
+              <span class="username">weweng</span>
+            </a>
+          </li>
+          
+        
+          
+          <li>
+            <a href="https://www.linkedin.com/in/wenwei-weng/" title="Connect with me on LinkedIn">
+              <i class="fa fa-linkedin"></i>
+              <span class="username">Wenwei Weng</span>
+            </a>
+          </li>
+          
+        
+
+      </ul>
+    </div>
+
+    <div class="site-signature">
+      <p class="rss-subscribe text"><strong>Subscribe <a href="/feed.xml">via RSS</a></strong></p>
+      <p class="text">A simple yet classy theme for your Jekyll based blog.
+</p>
+    </div>
+
+  </div>
+
+</footer>
+
+<!-- Scripts -->
+<script src="//code.jquery.com/jquery-3.4.1.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.10/highlight.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.1/js/lightbox.min.js"></script>
+<script src="//unpkg.com/popper.js@1"></script>
+<script src="//unpkg.com/tippy.js@5"></script>
+
+<script type="text/javascript">
+$(document).ready(function() {
+  // Default syntax highlighting
+  hljs.initHighlightingOnLoad();
+
+  // Header
+  var menuToggle = $('#js-mobile-menu').unbind();
+  $('#js-navigation-menu').removeClass("show");
+  menuToggle.on('click', function(e) {
+    e.preventDefault();
+    $('#js-navigation-menu').slideToggle(function(){
+      if($('#js-navigation-menu').is(':hidden')) {
+        $('#js-navigation-menu').removeAttr('style');
+      }
+    });
+  });
+
+	// Enable tooltips via Tippy.js
+	if (Array.isArray(window.tooltips)) {
+		window.tooltips.forEach(function(tooltip) {
+			var selector = tooltip[0];
+			var config = tooltip[1];
+			tippy(selector, config);
+		})
+	}
+});
+
+</script>
+
+
+
+
+
+
+  </body>
+
+</html>

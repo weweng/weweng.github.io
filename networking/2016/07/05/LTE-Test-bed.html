@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>4G/LTE Mobile Network Test Bed</title>
+  <meta name="description" content="During the software development of mobile router, IOT gateway, it is essential tohave 4G/LTE test bed in place.">
+  
+  <meta name="author" content="Wenwei Weng">
+  <meta name="copyright" content="&copy; Wenwei Weng 2023">
+  
+
+  <!-- External libraries -->
+  <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css">
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.9.0/styles/monokai-sublime.min.css">
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/lightbox2/2.7.1/css/lightbox.css">
+
+  <!-- Favicon and other icons (made with http://www.favicon-generator.org/) -->
+  <link rel="shortcut icon" href="/assets/icons/favicon.ico" type="image/x-icon">
+  <link rel="icon" href="/assets/icons/favicon.ico" type="image/x-icon">
+  <link rel="apple-touch-icon" sizes="57x57" href="/assets/icons/apple-icon-57x57.png">
+  <link rel="apple-touch-icon" sizes="60x60" href="/assets/icons/apple-icon-60x60.png">
+  <link rel="apple-touch-icon" sizes="72x72" href="/assets/icons/apple-icon-72x72.png">
+  <link rel="apple-touch-icon" sizes="76x76" href="/assets/icons/apple-icon-76x76.png">
+  <link rel="apple-touch-icon" sizes="114x114" href="/assets/icons/apple-icon-114x114.png">
+  <link rel="apple-touch-icon" sizes="120x120" href="/assets/icons/apple-icon-120x120.png">
+  <link rel="apple-touch-icon" sizes="144x144" href="/assets/icons/apple-icon-144x144.png">
+  <link rel="apple-touch-icon" sizes="152x152" href="/assets/icons/apple-icon-152x152.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/assets/icons/apple-icon-180x180.png">
+  <link rel="icon" type="image/png" sizes="192x192"  href="/assets/icons/android-icon-192x192.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/assets/icons/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="96x96" href="/assets/icons/favicon-96x96.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/assets/icons/favicon-16x16.png">
+  <link rel="manifest" href="/assets/icons/manifest.json">
+  <meta name="msapplication-TileColor" content="#ffffff">
+  <meta name="msapplication-TileImage" content="/assets/icons/ms-icon-144x144.png">
+  <meta name="theme-color" content="#ffffff">
+
+  
+
+  
+
+  
+
+  <!-- Site styles -->
+  <link rel="stylesheet" href="/css/main.css">
+  <link rel="canonical" href="http://localhost:4000/networking/2016/07/05/LTE-Test-bed.html">
+	<link rel="alternate" type="application/rss+xml" title="Wenwei Weng's Blog" href="http://localhost:4000/feed.xml" />
+	
+	<!-- Tooltips -->
+	<script type="text/javascript">
+		window.tooltips = []
+	</script>
+</head>
+
+
+  <body>
+
+    <header class="navigation" role="banner">
+  <div class="navigation-wrapper">
+    <a href="/" class="logo">
+      
+      <img src="/assets/avatar.png" alt="Wenwei Weng's Blog">
+      
+    </a>
+    <a href="javascript:void(0)" class="navigation-menu-button" id="js-mobile-menu">
+      <i class="fa fa-bars"></i>
+    </a>
+    <nav role="navigation">
+      <ul id="js-navigation-menu" class="navigation-menu show">
+				
+	
+	<li class="nav-link"><a href="/about/">About</a>
+	
+
+	
+
+	
+
+	
+	<li class="nav-link"><a href="/posts/">Posts</a>
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+      </ul>
+    </nav>
+  </div>
+</header>
+
+
+    <div class="page-content">
+        <div class="post">
+
+<div class="post-header-container " >
+  <div class="scrim ">
+    <header class="post-header">
+      <h1 class="title">4G/LTE Mobile Network Test Bed</h1>
+      <p class="info">by <strong>Wenwei Weng</strong></p>
+    </header>
+  </div>
+</div>
+
+<div class="wrapper">
+
+ <span class="page-divider">
+  <span class="one"></span>
+  <span class="two"></span>
+</span>
+ 
+
+<section class="post-meta">
+  <div class="post-date">July 5, 2016</div>
+  <div class="post-categories">
+  in 
+    
+    <a href="/category/Networking">Networking</a>
+    
+  
+  </div>
+</section>
+
+<article class="post-content">
+  <p>During the software development of mobile router, IOT gateway, it is essential to
+have 4G/LTE test bed in place.</p>
+
+<p><img src="/uploads/lte-testbed.jpg" alt="LTE testbed" /> 
+In this post, I will cover three approaches to set up test bed for 4G/LTE test bed.</p>
+
+<!--more-->
+
+<p>To have a cost effective, and easy to use 4G/LTE test bed is critical for software development when
+it comes to mobile router, IOT gateway software development. It could be also critical for hardware
+compliance testing as well.</p>
+
+<p>In my lab at Cisco, there are three approaches:</p>
+
+<ol>
+<li> Using SIM card from carrier, and connect to live 4G/LTE network.</li>
+<li> Using the dedicated base state simulator (BSS)</li>
+<li> Using software defined radio (SDR) picoLTE </li>
+</ol>
+
+<p>The above three ways, there are pros and cons as decribed below.</p>
+
+<h1 id="using-sim-card-from-carrier-and-connect-to-live-4glte-network">Using SIM card from carrier, and connect to live 4G/LTE network.</h1>
+
+<p>With this approach, you can buy SIM card from wireless carrier like AT&amp;T, Verizon, T-Mobile. 
+The SIM card is inserted into unit under test (UUT), it is ready for testing.</p>
+
+<p>pros:</p>
+<ol>
+<li> Minimum effort to prepare. </li>
+<li> Very minimum initial cost to start.
+&lt;/ol&gt;
+
+cons:
+<ol>
+<li> It requires monthly payment even when it is not used. </li>
+<li> The network is not under fully controlled enviroment. Even though most time the carrier network should be up running, 
+     there is down time for sure. This will add up another variable. This could be a serious concern especially when the
+     software is still under development.  </li>
+<li> This is not suitable for performance testing.</li>
+<li> One SIM card is limited to the modem for the carrier only,  i.e. it can NOT be used to test different model of modems. </li>
+</ol>
+
+# Using the dedicated base state simulator (BSS)
+With this approach, you need buy the dedicated BSS from vendors such as [Rohde &amp; Schwarz] (http://www.rohde-schwarz.com), 
+[Anritsu] (http://www.anritsu.com).
+A test SIM card is used, typically RF cable will be used to feed radio signal to UUT.
+
+pros:
+<ol>
+<li> The whole enviroment is under fully controlled, meaning it is stable and to be trusted. </li>
+<li> It typically provides ethernet port to feed traffic from device like IXIA, Spirent for performance testing.</li>
+<li> It can test various modems by changing the setup.</li>
+<li> It can do almost all kinds of testing. </li>
+</ol>
+
+cons:
+<ol>
+<li> BSS is very expensive, a basic setup box easily costs $70K. This is a lot investment!</li>
+<li> Typically one box can be used to test one UUT at one time, at most two UUTs.</li>
+<li> The setup is quite complicated.</li>
+</ol>
+
+# Using software defined radio (SDR) picoLTE
+With this approach, you need purchase the dedicated SDR picoLTE from vendor like [Nutaq] (http://www.nutaq.com).
+A test SIM card is used. picoLTE will be acting as eNode, also with mme, PGW. The ethernet interface is provided
+so that it can be connected to corporate network for testing.
+
+pros:
+<ol>
+<li> It is cost effective comparing to BSS (only cost 1/3 or half)</li>
+<li> It can test many UUT devices(e.g. 50) in the sametime. </li>
+<li> It runs under a controlled enviroment. </li>
+<li> The setup is relative easy. Mainly it needs to change the configuration file to change the radio frequency.</li>
+</ol>
+
+cons:
+<ol>
+<li> It can NOT be used for performance testing. </li>
+</ol>
+
+Besides the above three approaches, there are other ways like using a low end eNode, then run MME, SGW, PGW software stack in another linux box. 
+This would require more resources, but could be a good approach too if the company owns those software stack.
+
+</li></ol>
+
+</article>
+
+
+
+
+
+<section class="rss">
+  <p class="rss-subscribe text"><strong>Subscribe <a href="/feed.xml">via RSS</a></strong></p>
+</section>
+
+<section class="share">
+  <span>Share: </span>
+  
+    
+    
+    
+    
+    
+    
+    
+    
+  
+    
+    
+    
+    
+    
+      <a href="//www.linkedin.com/shareArticle?mini=true&url=http%3A%2F%2Flocalhost%3A4000%2Fnetworking%2F2016%2F07%2F05%2FLTE-Test-bed.html"
+        onclick="window.open(this.href, 'linkedin-share', 'width=550,height=255');return false;">
+        <i class="fa fa-linkedin-square fa-lg"></i>
+      </a>
+    
+    
+    
+    
+  
+</section>
+
+
+
+
+</div>
+</div>
+
+    </div>
+
+    <footer class="site-footer">
+
+  <div class="wrapper">
+
+    <h3 class="footer-heading">Wenwei Weng's Blog</h3>
+
+    <div class="site-navigation">
+
+      <p><strong>Site Map</strong></p>
+      <ul class="pages">
+				
+	
+	<li class="nav-link"><a href="/about/">About</a>
+	
+
+	
+
+	
+
+	
+	<li class="nav-link"><a href="/posts/">Posts</a>
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+      </ul>
+    </div>
+
+    <div class="site-contact">
+
+      <p><strong>Contact</strong></p>
+      <ul class="social-media-list">
+        <li>
+          <a href="mailto:weweng@gmail.com">
+            <i class="fa fa-envelope-o"></i>
+            <span class="username">weweng@gmail.com</span>
+          </a>
+        </li>
+
+        
+          
+          <li>
+            <a href="https://github.com/weweng" title="Fork me on GitHub">
+              <i class="fa fa-github"></i>
+              <span class="username">weweng</span>
+            </a>
+          </li>
+          
+        
+          
+          <li>
+            <a href="https://www.linkedin.com/in/wenwei-weng/" title="Connect with me on LinkedIn">
+              <i class="fa fa-linkedin"></i>
+              <span class="username">Wenwei Weng</span>
+            </a>
+          </li>
+          
+        
+
+      </ul>
+    </div>
+
+    <div class="site-signature">
+      <p class="rss-subscribe text"><strong>Subscribe <a href="/feed.xml">via RSS</a></strong></p>
+      <p class="text">A simple yet classy theme for your Jekyll based blog.
+</p>
+    </div>
+
+  </div>
+
+</footer>
+
+<!-- Scripts -->
+<script src="//code.jquery.com/jquery-3.4.1.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.10/highlight.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.1/js/lightbox.min.js"></script>
+<script src="//unpkg.com/popper.js@1"></script>
+<script src="//unpkg.com/tippy.js@5"></script>
+
+<script type="text/javascript">
+$(document).ready(function() {
+  // Default syntax highlighting
+  hljs.initHighlightingOnLoad();
+
+  // Header
+  var menuToggle = $('#js-mobile-menu').unbind();
+  $('#js-navigation-menu').removeClass("show");
+  menuToggle.on('click', function(e) {
+    e.preventDefault();
+    $('#js-navigation-menu').slideToggle(function(){
+      if($('#js-navigation-menu').is(':hidden')) {
+        $('#js-navigation-menu').removeAttr('style');
+      }
+    });
+  });
+
+	// Enable tooltips via Tippy.js
+	if (Array.isArray(window.tooltips)) {
+		window.tooltips.forEach(function(tooltip) {
+			var selector = tooltip[0];
+			var config = tooltip[1];
+			tippy(selector, config);
+		})
+	}
+});
+
+</script>
+
+
+
+
+
+
+  </body>
+
+</html>

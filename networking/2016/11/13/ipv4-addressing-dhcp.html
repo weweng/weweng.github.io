@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>IPv4 addressing</title>
+  <meta name="description" content="When Internet was started, it starts with IPv4 address, which is 32-bit number.Initially the IPv4 address is classified into type A, B, C, D, E. In 1993 IETF...">
+  
+  <meta name="author" content="Wenwei Weng">
+  <meta name="copyright" content="&copy; Wenwei Weng 2023">
+  
+
+  <!-- External libraries -->
+  <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css">
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.9.0/styles/monokai-sublime.min.css">
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/lightbox2/2.7.1/css/lightbox.css">
+
+  <!-- Favicon and other icons (made with http://www.favicon-generator.org/) -->
+  <link rel="shortcut icon" href="/assets/icons/favicon.ico" type="image/x-icon">
+  <link rel="icon" href="/assets/icons/favicon.ico" type="image/x-icon">
+  <link rel="apple-touch-icon" sizes="57x57" href="/assets/icons/apple-icon-57x57.png">
+  <link rel="apple-touch-icon" sizes="60x60" href="/assets/icons/apple-icon-60x60.png">
+  <link rel="apple-touch-icon" sizes="72x72" href="/assets/icons/apple-icon-72x72.png">
+  <link rel="apple-touch-icon" sizes="76x76" href="/assets/icons/apple-icon-76x76.png">
+  <link rel="apple-touch-icon" sizes="114x114" href="/assets/icons/apple-icon-114x114.png">
+  <link rel="apple-touch-icon" sizes="120x120" href="/assets/icons/apple-icon-120x120.png">
+  <link rel="apple-touch-icon" sizes="144x144" href="/assets/icons/apple-icon-144x144.png">
+  <link rel="apple-touch-icon" sizes="152x152" href="/assets/icons/apple-icon-152x152.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/assets/icons/apple-icon-180x180.png">
+  <link rel="icon" type="image/png" sizes="192x192"  href="/assets/icons/android-icon-192x192.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/assets/icons/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="96x96" href="/assets/icons/favicon-96x96.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/assets/icons/favicon-16x16.png">
+  <link rel="manifest" href="/assets/icons/manifest.json">
+  <meta name="msapplication-TileColor" content="#ffffff">
+  <meta name="msapplication-TileImage" content="/assets/icons/ms-icon-144x144.png">
+  <meta name="theme-color" content="#ffffff">
+
+  
+
+  
+
+  
+
+  <!-- Site styles -->
+  <link rel="stylesheet" href="/css/main.css">
+  <link rel="canonical" href="http://localhost:4000/networking/2016/11/13/ipv4-addressing-dhcp.html">
+	<link rel="alternate" type="application/rss+xml" title="Wenwei Weng's Blog" href="http://localhost:4000/feed.xml" />
+	
+	<!-- Tooltips -->
+	<script type="text/javascript">
+		window.tooltips = []
+	</script>
+</head>
+
+
+  <body>
+
+    <header class="navigation" role="banner">
+  <div class="navigation-wrapper">
+    <a href="/" class="logo">
+      
+      <img src="/assets/avatar.png" alt="Wenwei Weng's Blog">
+      
+    </a>
+    <a href="javascript:void(0)" class="navigation-menu-button" id="js-mobile-menu">
+      <i class="fa fa-bars"></i>
+    </a>
+    <nav role="navigation">
+      <ul id="js-navigation-menu" class="navigation-menu show">
+				
+	
+	<li class="nav-link"><a href="/about/">About</a>
+	
+
+	
+
+	
+
+	
+	<li class="nav-link"><a href="/posts/">Posts</a>
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+      </ul>
+    </nav>
+  </div>
+</header>
+
+
+    <div class="page-content">
+        <div class="post">
+
+<div class="post-header-container " >
+  <div class="scrim ">
+    <header class="post-header">
+      <h1 class="title">IPv4 addressing</h1>
+      <p class="info">by <strong>Wenwei Weng</strong></p>
+    </header>
+  </div>
+</div>
+
+<div class="wrapper">
+
+ <span class="page-divider">
+  <span class="one"></span>
+  <span class="two"></span>
+</span>
+ 
+
+<section class="post-meta">
+  <div class="post-date">November 13, 2016</div>
+  <div class="post-categories">
+  in 
+    
+    <a href="/category/Networking">Networking</a>
+    
+  
+  </div>
+</section>
+
+<article class="post-content">
+  <p>When Internet was started, it starts with IPv4 address, which is 32-bit number.
+Initially the IPv4 address is classified into type A, B, C, D, E. In 1993 IETF introduced Classless Inter-Domain Routing (CIDR) with goal to slow the growth of routing tables on routers across the Internet, and to help slow the rapid exhaustion of IPv4 addresses.</p>
+
+<p><img src="/uploads/networking/ipv4-addressing.jpg" alt="ipv4 address" /></p>
+
+<!--more-->
+
+<h1 id="classful-ipv4-address">Classful IPv4 address</h1>
+
+<p>The IPv4 address is classified into class A, B, C, D and E, D is for multicast, and E is reserved. In fact, it is really not used in the nwtwork. Below table shows Class A, B and C address.</p>
+
+<p><img src="/uploads/networking/ipv4-classful-address.jpg" alt="ipv4 class" /></p>
+
+<h2 id="class-a-----0xxxxxxx">Class A -   *0xxxxxxx</h2>
+<p>First octet is used for numbering the networks as defined by default mask.</p>
+
+<p>Available number of bits that can be ‘modified’ as represented by ‘x’ are 7 and therefore number of possible different network number combinations using those bits is equal to 2^7. For each Class A network, it can have hosts up to 2^24-2.</p>
+
+<p>Note: that 10.x.x.x is defined as private IPv4 address, which means these addresses are not routable in the public internet, rather they are extensive used inside corprate network, i.e. intranet. Inside Cisco network, majority of linux servers in the data center has 10.x.x.x address.</p>
+
+<h2 id="class-b---10xxxxxxxxxxxxxx">Class B - 10xxxxxx.xxxxxxxx</h2>
+
+<p>First two octets are used for numbering the networks as defined by default mask.</p>
+
+<p>Available number of bits that can be ‘modified’ as represented by ‘x’ are 14 and therefore number of possible different network number combinations using those bits is equal to 2^14. For each Class B network, it can have hosts up to 2^16-2.</p>
+
+<p>Note: that 172.16.x.x - 172.32.x.x are defined as private IPv4 address, which means these addresses are not routable in the public internet, rather they are extensive used inside corprate network, i.e. intranet. Inside Cisco network, 172.16.x.x-172.32.x,x are used for lab, i.e. linux server, router interfaces etc.</p>
+
+<h2 id="class-c---110xxxxxxxxxxxxxxxxxxxxx">Class C - 110xxxxx.xxxxxxxx.xxxxxxxx</h2>
+
+<p>First three octets are used for numbering the networks as defined by default mask.</p>
+
+<p>Available number of bits that can be ‘modified’ as represented by ‘x’ are 21 and therefore number of possible different network number combinations using those bits is equal to 2^21. For each Class C network, it can have hosts up to 2^8-2</p>
+
+<p>Note: that 192.168.x.x is defined as private IPv4 address, which means these addresses are not routable in the public internet, rather they are extensive used inside corprate network, i.e. intranet. Inside Cisco network, 192.168.x.x is used as private network for group/BU specific set up, they are typically going through NAT to talk to coprate network.</p>
+
+<p>As we can see in the case of Class A network, the maximum allowed hosts is huge, which is often not the case in the actual network. This leads to waste of limited precious IPv4 address. In Cisco router, by default, the routing protocol assumes classless addressing, i.e. when it advertises the route, it will include network with subnet mask. Still if the customer really wants to enable classful routing, it can do so by “no ip classless”:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">IR809-WEWENG-1<span class="o">(</span>config<span class="o">)</span><span class="c">#no ip c?</span>
+cache-ager      cache-invalidate-delay  cef  classless
+community-list
+
+IR809-WEWENG-1<span class="o">(</span>config<span class="o">)</span><span class="c">#no ip classless</span></code></pre></figure>
+
+<h1 id="cidr-vlsm-cidr-notation">CIDR, VLSM, CIDR notation</h1>
+<p>Under CIDR, IPv4 addresses are described as consisting of two groups of bits in the address: the most significant bits are the network address (or network prefix or network block), which identifies a whole network or subnet, and the least significant set forms the host identifier, which specifies a particular interface of a host on that network.Under CIDR, the restriction of network block is either 8, 16, or 24 bits is removed. Based on the actual network set up, the network can be any size as appropriate.</p>
+
+<p>Classless Inter-Domain Routing is based on variable-length subnet masking (VLSM). Under CIDR, one host is described through CIDR notation, e.g.</p>
+<ul>
+<li> 192.168.100.14/24 represents the IPv4 address 192.168.100.14 and its associated routing prefix 192.168.100.0, or equivalently, its subnet mask 255.255.255.0, which has 24 leading 1-bits. </li>
+<li> block 192.168.100.0/22 represents the 1024 IPv4 addresses from 192.168.100.0 to 192.168.103.255.</li>
+</ul>
+
+<p>One of advantge of CIDR, it provides the possibility of fine-grained routing prefix aggregation. For example, sixteen contiguous /24 networks can be aggregated and advertised to a larger network as a single /20 routing table entry, if the first 20 bits of their network addresses match. Two aligned contiguous /20 blocks may be aggregated to a /19, and so forth. This results in reduction of the number of routes that have to be advertised.</p>
+
+<h1 id="ipv4-address-configuration">IPv4 Address configuration</h1>
+<p>There are two ways to have IPv4 address configurated for an interface: static or dhcp.</p>
+
+<h2 id="static-ipv4-address-configuration">static IPv4 address configuration</h2>
+<p>Under Cisco router, the address can be assigned using CLI, see example below, it is to configure GigabitEthernet1 interface to IPv4 address 192.168.100.1/24:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">IR809-WEWENG-1#conf t
+Enter configuration commands, one per line.  End with CNTL/Z.
+IR809-WEWENG-1<span class="o">(</span>config<span class="o">)</span><span class="c">#interface GigabitEthernet1</span>
+IR809-WEWENG-1<span class="o">(</span>config-if<span class="o">)</span><span class="c">#ip address ?</span>
+  A.B.C.D  IP address
+  dhcp     IP Address negotiated via DHCP
+  pool     IP Address autoconfigured from a <span class="nb">local </span>DHCP pool
+
+IR809-WEWENG-1<span class="o">(</span>config-if<span class="o">)</span><span class="c">#ip address 192.168.100.1 ?</span>
+  A.B.C.D  IP subnet mask
+
+IR809-WEWENG-1<span class="o">(</span>config-if<span class="o">)</span><span class="c">#ip address 192.168.100.1 255.255.255.0</span>
+IR809-WEWENG-1<span class="o">(</span>config-if<span class="o">)</span><span class="c">#end</span>
+IR809-WEWENG-1#</code></pre></figure>
+
+<p>Under linux, let’s sya there is an ethernet interface “eth0”, you can Assign static IP Address to eth0 interface editing configuration file /etc/network/interfaces to make permanent changes as shown below.</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">auto eth0
+iface eth0 inet static
+address 192.168.100.2
+netmask 255.255.255.0
+gateway 192.168.100.1</code></pre></figure>
+
+<p>To confiugre the interface “eth0” right away , there are two commands: old one “ifconfig “, and new one “ip addr add …”.</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">root# ip addr add 192.168.100.2/24 dev eth0
+root# <span class="c"># or</span>
+root# ifconfig eth0 192.168.100.2 netmask 255.255.255.0 up</code></pre></figure>
+
+<h2 id="dhcp-dynamic-address-configuration">DHCP: dynamic address configuration</h2>
+<p>Cisco IOS can server a DHCO server to provide IP address to local interface or to hosts in the network.
+Below is a quick example of a dhcp pool, which provides the IPv4 address to interface gigabitEthernet 1.</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">IR809-WEWENG-1<span class="o">(</span>config<span class="o">)</span><span class="c">#</span>
+IR809-WEWENG-1<span class="o">(</span>config<span class="o">)</span><span class="c">#ip dhcp?</span>
+dhcp  dhcp-client  dhcp-server
+
+IR809-WEWENG-1<span class="o">(</span>config<span class="o">)</span><span class="c">#ip dhcp pool ?</span>
+  LINE  Pool name
+
+IR809-WEWENG-1<span class="o">(</span>config<span class="o">)</span><span class="c">#ip dhcp pool local-pool1</span>
+IR809-WEWENG-1<span class="o">(</span>dhcp-config<span class="o">)</span><span class="c">#network 192.168.100.0 ?</span>
+  /nn or A.B.C.D  Network mask or prefix length
+  &lt;cr&gt;
+
+IR809-WEWENG-1<span class="o">(</span>dhcp-config<span class="o">)</span><span class="c">#network 192.168.100.0 /24</span>
+IR809-WEWENG-1<span class="o">(</span>dhcp-config<span class="o">)</span><span class="c">#lease ?</span>
+  &lt;0-365&gt;   Days
+  infinite  Infinite lease
+
+IR809-WEWENG-1<span class="o">(</span>dhcp-config<span class="o">)</span><span class="c">#lease 1 ?</span>
+  &lt;0-23&gt;  Hours
+  &lt;cr&gt;
+
+IR809-WEWENG-1<span class="o">(</span>dhcp-config<span class="o">)</span><span class="c">#lease 1 12</span>
+IR809-WEWENG-1<span class="o">(</span>dhcp-config<span class="o">)</span><span class="c">#exit</span>
+IR809-WEWENG-1<span class="o">(</span>config<span class="o">)</span><span class="c">#interface gigabitEthernet 1</span>
+IR809-WEWENG-1<span class="o">(</span>config-if<span class="o">)</span><span class="c">#ip address ?</span>
+  A.B.C.D  IP address
+  dhcp     IP Address negotiated via DHCP
+  pool     IP Address autoconfigured from a <span class="nb">local </span>DHCP pool
+
+IR809-WEWENG-1<span class="o">(</span>config-if<span class="o">)</span><span class="c">#ip address pool ?</span>
+  LINE  Pool name
+
+IR809-WEWENG-1<span class="o">(</span>config-if<span class="o">)</span><span class="c">#ip address pool local-pool1 ?</span>
+LINE    &lt;cr&gt;
+
+IR809-WEWENG-1<span class="o">(</span>config-if<span class="o">)</span><span class="c">#ip address pool local-pool1</span>
+IR809-WEWENG-1<span class="o">(</span>config-if<span class="o">)</span><span class="c">#end</span>
+IR809-WEWENG-1#show interfaces gigabitEthernet 1
+GigabitEthernet1 is administratively down, line protocol is down
+  Hardware is Gigabit Ethernet, address is 78ba.f9c3.1948 <span class="o">(</span>bia 78ba.f9c3.1948<span class="o">)</span>
+  Internet address is 192.168.100.1/24
+  MTU 1500 bytes, BW 1000000 Kbit/sec, DLY 10 usec,
+     reliability 255/255, txload 1/255, rxload 1/255
+  Encapsulation ARPA, loopback not <span class="nb">set
+  </span>Keepalive <span class="nb">set</span> <span class="o">(</span>10 sec<span class="o">)</span>
+  Half Duplex, Auto Speed, media <span class="nb">type </span>is RJ45
+  output flow-control is XON, input flow-control is XON
+  ARP <span class="nb">type</span>: ARPA, ARP Timeout 04:00:00
+  Last input never, output never, output hang never
+  Last clearing of <span class="s2">"show interface"</span> counters never
+  Input queue: 0/250/0/0 <span class="o">(</span>size/max/drops/flushes<span class="o">)</span><span class="p">;</span> Total output drops: 0
+  Queueing strategy: fifo
+  Output queue: 0/40 <span class="o">(</span>size/max<span class="o">)</span>
+  5 minute input rate 0 bits/sec, 0 packets/sec
+  5 minute output rate 0 bits/sec, 0 packets/sec
+     0 packets input, 0 bytes, 0 no buffer
+     Received 0 broadcasts <span class="o">(</span>0 IP multicasts<span class="o">)</span>
+     0 runts, 0 giants, 0 throttles
+     0 input errors, 0 CRC, 0 frame, 0 overrun, 0 ignored
+     0 watchdog, 0 multicast, 0 pause input
+     0 packets output, 0 bytes, 0 underruns
+     0 output errors, 0 collisions, 0 interface resets
+     0 unknown protocol drops
+     0 babbles, 0 late collision, 0 deferred
+     0 lost carrier, 0 no carrier, 0 pause output
+     0 output buffer failures, 0 output buffers swapped out
+IR809-WEWENG-1#</code></pre></figure>
+
+<p>As shown above, interface gigabitethernet 1 acquires the IP address “192.168.100.1/24” from the dhcp pool “local-pool1”.</p>
+
+
+</article>
+
+
+
+
+
+<section class="rss">
+  <p class="rss-subscribe text"><strong>Subscribe <a href="/feed.xml">via RSS</a></strong></p>
+</section>
+
+<section class="share">
+  <span>Share: </span>
+  
+    
+    
+    
+    
+    
+    
+    
+    
+  
+    
+    
+    
+    
+    
+      <a href="//www.linkedin.com/shareArticle?mini=true&url=http%3A%2F%2Flocalhost%3A4000%2Fnetworking%2F2016%2F11%2F13%2Fipv4-addressing-dhcp.html"
+        onclick="window.open(this.href, 'linkedin-share', 'width=550,height=255');return false;">
+        <i class="fa fa-linkedin-square fa-lg"></i>
+      </a>
+    
+    
+    
+    
+  
+</section>
+
+
+
+
+</div>
+</div>
+
+    </div>
+
+    <footer class="site-footer">
+
+  <div class="wrapper">
+
+    <h3 class="footer-heading">Wenwei Weng's Blog</h3>
+
+    <div class="site-navigation">
+
+      <p><strong>Site Map</strong></p>
+      <ul class="pages">
+				
+	
+	<li class="nav-link"><a href="/about/">About</a>
+	
+
+	
+
+	
+
+	
+	<li class="nav-link"><a href="/posts/">Posts</a>
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+      </ul>
+    </div>
+
+    <div class="site-contact">
+
+      <p><strong>Contact</strong></p>
+      <ul class="social-media-list">
+        <li>
+          <a href="mailto:weweng@gmail.com">
+            <i class="fa fa-envelope-o"></i>
+            <span class="username">weweng@gmail.com</span>
+          </a>
+        </li>
+
+        
+          
+          <li>
+            <a href="https://github.com/weweng" title="Fork me on GitHub">
+              <i class="fa fa-github"></i>
+              <span class="username">weweng</span>
+            </a>
+          </li>
+          
+        
+          
+          <li>
+            <a href="https://www.linkedin.com/in/wenwei-weng/" title="Connect with me on LinkedIn">
+              <i class="fa fa-linkedin"></i>
+              <span class="username">Wenwei Weng</span>
+            </a>
+          </li>
+          
+        
+
+      </ul>
+    </div>
+
+    <div class="site-signature">
+      <p class="rss-subscribe text"><strong>Subscribe <a href="/feed.xml">via RSS</a></strong></p>
+      <p class="text">A simple yet classy theme for your Jekyll based blog.
+</p>
+    </div>
+
+  </div>
+
+</footer>
+
+<!-- Scripts -->
+<script src="//code.jquery.com/jquery-3.4.1.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.10/highlight.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.1/js/lightbox.min.js"></script>
+<script src="//unpkg.com/popper.js@1"></script>
+<script src="//unpkg.com/tippy.js@5"></script>
+
+<script type="text/javascript">
+$(document).ready(function() {
+  // Default syntax highlighting
+  hljs.initHighlightingOnLoad();
+
+  // Header
+  var menuToggle = $('#js-mobile-menu').unbind();
+  $('#js-navigation-menu').removeClass("show");
+  menuToggle.on('click', function(e) {
+    e.preventDefault();
+    $('#js-navigation-menu').slideToggle(function(){
+      if($('#js-navigation-menu').is(':hidden')) {
+        $('#js-navigation-menu').removeAttr('style');
+      }
+    });
+  });
+
+	// Enable tooltips via Tippy.js
+	if (Array.isArray(window.tooltips)) {
+		window.tooltips.forEach(function(tooltip) {
+			var selector = tooltip[0];
+			var config = tooltip[1];
+			tippy(selector, config);
+		})
+	}
+});
+
+</script>
+
+
+
+
+
+
+  </body>
+
+</html>

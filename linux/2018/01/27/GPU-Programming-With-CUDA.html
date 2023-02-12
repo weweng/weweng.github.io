@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>GPU Programming With CUDA</title>
+  <meta name="description" content="Parallel computing using general purpose GPU is really taking off with advancement of technology from Nvidia, AMD, Intel. Especially Nvidia is dominating the...">
+  
+  <meta name="author" content="Wenwei Weng">
+  <meta name="copyright" content="&copy; Wenwei Weng 2023">
+  
+
+  <!-- External libraries -->
+  <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css">
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.9.0/styles/monokai-sublime.min.css">
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/lightbox2/2.7.1/css/lightbox.css">
+
+  <!-- Favicon and other icons (made with http://www.favicon-generator.org/) -->
+  <link rel="shortcut icon" href="/assets/icons/favicon.ico" type="image/x-icon">
+  <link rel="icon" href="/assets/icons/favicon.ico" type="image/x-icon">
+  <link rel="apple-touch-icon" sizes="57x57" href="/assets/icons/apple-icon-57x57.png">
+  <link rel="apple-touch-icon" sizes="60x60" href="/assets/icons/apple-icon-60x60.png">
+  <link rel="apple-touch-icon" sizes="72x72" href="/assets/icons/apple-icon-72x72.png">
+  <link rel="apple-touch-icon" sizes="76x76" href="/assets/icons/apple-icon-76x76.png">
+  <link rel="apple-touch-icon" sizes="114x114" href="/assets/icons/apple-icon-114x114.png">
+  <link rel="apple-touch-icon" sizes="120x120" href="/assets/icons/apple-icon-120x120.png">
+  <link rel="apple-touch-icon" sizes="144x144" href="/assets/icons/apple-icon-144x144.png">
+  <link rel="apple-touch-icon" sizes="152x152" href="/assets/icons/apple-icon-152x152.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/assets/icons/apple-icon-180x180.png">
+  <link rel="icon" type="image/png" sizes="192x192"  href="/assets/icons/android-icon-192x192.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/assets/icons/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="96x96" href="/assets/icons/favicon-96x96.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/assets/icons/favicon-16x16.png">
+  <link rel="manifest" href="/assets/icons/manifest.json">
+  <meta name="msapplication-TileColor" content="#ffffff">
+  <meta name="msapplication-TileImage" content="/assets/icons/ms-icon-144x144.png">
+  <meta name="theme-color" content="#ffffff">
+
+  
+
+  
+
+  
+
+  <!-- Site styles -->
+  <link rel="stylesheet" href="/css/main.css">
+  <link rel="canonical" href="http://localhost:4000/linux/2018/01/27/GPU-Programming-With-CUDA.html">
+	<link rel="alternate" type="application/rss+xml" title="Wenwei Weng's Blog" href="http://localhost:4000/feed.xml" />
+	
+	<!-- Tooltips -->
+	<script type="text/javascript">
+		window.tooltips = []
+	</script>
+</head>
+
+
+  <body>
+
+    <header class="navigation" role="banner">
+  <div class="navigation-wrapper">
+    <a href="/" class="logo">
+      
+      <img src="/assets/avatar.png" alt="Wenwei Weng's Blog">
+      
+    </a>
+    <a href="javascript:void(0)" class="navigation-menu-button" id="js-mobile-menu">
+      <i class="fa fa-bars"></i>
+    </a>
+    <nav role="navigation">
+      <ul id="js-navigation-menu" class="navigation-menu show">
+				
+	
+	<li class="nav-link"><a href="/about/">About</a>
+	
+
+	
+
+	
+
+	
+	<li class="nav-link"><a href="/posts/">Posts</a>
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+      </ul>
+    </nav>
+  </div>
+</header>
+
+
+    <div class="page-content">
+        <div class="post">
+
+<div class="post-header-container " >
+  <div class="scrim ">
+    <header class="post-header">
+      <h1 class="title">GPU Programming With CUDA</h1>
+      <p class="info">by <strong>Wenwei Weng</strong></p>
+    </header>
+  </div>
+</div>
+
+<div class="wrapper">
+
+ <span class="page-divider">
+  <span class="one"></span>
+  <span class="two"></span>
+</span>
+ 
+
+<section class="post-meta">
+  <div class="post-date">January 27, 2018</div>
+  <div class="post-categories">
+  in 
+    
+    <a href="/category/Linux">Linux</a>
+    
+  
+  </div>
+</section>
+
+<article class="post-content">
+  <p>Parallel computing using general purpose GPU is really taking off with advancement of technology from Nvidia, AMD, Intel. Especially Nvidia is dominating the field with variety of GPU offering and also software infrastructure CUDA (initially called as Compute Unified Device Architecture), which is a parallel computing platform and application programming interface (API) model. In this article, I share how GPU programming with CUDA looks like using UCS server with Nvidia GPU GRID K1</p>
+
+<p><img src="/uploads/linux/gpu-programming-cuda.jpg" alt="GPU Programming with CUDA" /></p>
+
+<!--more-->
+<h2 id="gpu-programming-model">GPU Programming model</h2>
+
+<p>First introducing two terminologies:</p>
+
+<ul>
+  <li>Host: The CPU (e.g. x86, ARM) and its memory (host memory)</li>
+  <li>Device: The GPU (e.g. Nvidia GPU) and its memory (device memory).</li>
+</ul>
+
+<p>There will be host code, which is executed in host CPU (e.g. x86); and there will be device code, which is loaded in host and push into GPU to run. The following diagram shows programming model and execution flow.</p>
+
+<p><img src="/uploads/linux/gpu-programming-cuda-model.jpg" alt="GPU Programming with CUDA model" /></p>
+
+<p>The basic hello world code is shown below:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"> <span class="nb">cat </span>hello.cu
+
+__global__ void mykernel<span class="o">(</span>void<span class="o">)</span> <span class="o">{</span>
+
+<span class="o">}</span>
+
+int main<span class="o">(</span>void<span class="o">)</span> <span class="o">{</span>
+    mykernel<span class="o">&lt;&lt;&lt;</span>1,1&gt;&gt;&gt;<span class="o">()</span><span class="p">;</span>
+    <span class="nb">printf</span><span class="o">(</span><span class="s2">"Hello World!</span><span class="se">\n</span><span class="s2">"</span><span class="o">)</span><span class="p">;</span>
+    <span class="k">return </span>0<span class="p">;</span>
+<span class="o">}</span></code></pre></figure>
+
+<p>The host code is same as usual, but the device code is marked with a new keyword “<strong>global</strong>”.
+host code invokes device code almost same as usual, except it adds «1,1» which means using one block and one thread, which isn’t interesting at all. Let’s trying something more interesting.</p>
+
+<h2 id="running-an-example-of-vector-additions-using-mutiple-block-and-multiple-threads">Running an example of vector additions using mutiple block and multiple threads</h2>
+
+<p>The main advantage of GPU computing is to have huge numbers of parallel executions. For that, CUDA introduces:</p>
+<ul>
+  <li>Block: On the device, each block can execute in parallel, each block has index of “blockIdx.x”</li>
+  <li>Thread: a block can be split into parallel threads, each thread has index of “threadIdx.x”</li>
+  <li>Combining block with thread: the index is “threadIdx.x + blockIdx.x * blockDim.x”</li>
+</ul>
+
+<p><img src="/uploads/linux/gpu-programming-block-thread.jpg" alt="GPU block thread index access" /></p>
+
+<p>The below code creates two input arrays, which holds random integers, and the third array to hold result of addition, which is to be done by GPU.</p>
+
+<p>First make sure we have Nvidia GPU GRID K1 and Nvidia compiler in place:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">iot@iotg-ml-1:~/cuda-ex<span class="nv">$ </span>nvidia-smi 
+Fri Jun  2 06:41:22 2017       
++-----------------------------------------------------------------------------+
+| NVIDIA-SMI 367.124                Driver Version: 367.124                   |
+|-------------------------------+----------------------+----------------------+
+| GPU  Name        Persistence-M| Bus-Id        Disp.A | Volatile Uncorr. ECC |
+| Fan  Temp  Perf  Pwr:Usage/Cap|         Memory-Usage | GPU-Util  Compute M. |
+|<span class="o">===============================</span>+<span class="o">======================</span>+<span class="o">======================</span>|
+|   0  GRID K1             Off  | 0000:85:00.0     Off |                  N/A |
+| N/A   34C    P0    13W /  31W |      0MiB /  4036MiB |      0%      Default |
++-------------------------------+----------------------+----------------------+
+|   1  GRID K1             Off  | 0000:86:00.0     Off |                  N/A |
+| N/A   35C    P0    13W /  31W |      0MiB /  4036MiB |      0%      Default |
++-------------------------------+----------------------+----------------------+
+|   2  GRID K1             Off  | 0000:87:00.0     Off |                  N/A |
+| N/A   27C    P0    13W /  31W |      0MiB /  4036MiB |      0%      Default |
++-------------------------------+----------------------+----------------------+
+|   3  GRID K1             Off  | 0000:88:00.0     Off |                  N/A |
+| N/A   30C    P0    12W /  31W |      0MiB /  4036MiB |      0%      Default |
++-------------------------------+----------------------+----------------------+
+                                                                               
++-----------------------------------------------------------------------------+
+| Processes:                                                       GPU Memory |
+|  GPU       PID  Type  Process name                               Usage      |
+|<span class="o">=============================================================================</span>|
+|  No running processes found                                                 |
++-----------------------------------------------------------------------------+
+iot@iotg-ml-1:~/cuda-ex<span class="err">$</span>
+iot@iotg-ml-1:~/cuda-ex<span class="nv">$ </span>which nvcc
+/usr/local/cuda/bin/nvcc
+iot@iotg-ml-1:~/cuda-ex<span class="nv">$ </span>nvcc <span class="nt">--version</span>
+nvcc: NVIDIA <span class="o">(</span>R<span class="o">)</span> Cuda compiler driver
+Copyright <span class="o">(</span>c<span class="o">)</span> 2005-2016 NVIDIA Corporation
+Built on Sun_Sep__4_22:14:01_CDT_2016
+Cuda compilation tools, release 8.0, V8.0.44
+iot@iotg-ml-1:~/cuda-ex<span class="nv">$ </span></code></pre></figure>
+
+<p>Now let’s try following example:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">iot@iotg-ml-1:~/cuda-ex<span class="nv">$ </span><span class="nb">cat </span>gpu-add-vector.cu 
+<span class="c">#include &lt;stdio.h&gt;</span>
+
+<span class="c">#define N (2048*2048)</span>
+<span class="c">#define THREADS_PER_BLOCK 512</span>
+
+__global__ void add<span class="o">(</span>int <span class="k">*</span>a, int <span class="k">*</span>b, int <span class="k">*</span>c, int n<span class="o">)</span> <span class="o">{</span>
+	int index <span class="o">=</span> threadIdx.x + blockIdx.x <span class="k">*</span> blockDim.x<span class="p">;</span>
+	<span class="k">if</span> <span class="o">(</span>index &lt; n<span class="o">)</span>
+		c[index] <span class="o">=</span> a[index] + b[index]<span class="p">;</span>
+<span class="o">}</span>
+
+int main<span class="o">(</span>void<span class="o">)</span> <span class="o">{</span>
+	int <span class="k">*</span>a, <span class="k">*</span>b, <span class="k">*</span>c<span class="p">;</span>	// host copies of a, b, c
+	int <span class="k">*</span>d_a, <span class="k">*</span>d_b, <span class="k">*</span>d_c<span class="p">;</span> // device copies of a, b, c
+	int size <span class="o">=</span> N <span class="k">*</span> sizeof<span class="o">(</span>int<span class="o">)</span><span class="p">;</span>
+	int i<span class="p">;</span>
+
+	// Alloc space <span class="k">for </span>device copies of a, b, c
+	cudaMalloc<span class="o">((</span>void <span class="k">**</span><span class="o">)</span>&amp;d_a, size<span class="o">)</span><span class="p">;</span>
+	cudaMalloc<span class="o">((</span>void <span class="k">**</span><span class="o">)</span>&amp;d_b, size<span class="o">)</span><span class="p">;</span>
+	cudaMalloc<span class="o">((</span>void <span class="k">**</span><span class="o">)</span>&amp;d_c, size<span class="o">)</span><span class="p">;</span>
+	// Alloc space <span class="k">for </span>host copies of a, b, c and setup input values
+	a <span class="o">=</span> <span class="o">(</span>int <span class="k">*</span><span class="o">)</span>malloc<span class="o">(</span>size<span class="o">)</span><span class="p">;</span>  <span class="k">for</span> <span class="o">(</span>i <span class="o">=</span> 0<span class="p">;</span> i &lt; N<span class="p">;</span> i++<span class="o">)</span>  a[i] <span class="o">=</span> rand<span class="o">()</span>/10<span class="p">;</span>
+	b <span class="o">=</span> <span class="o">(</span>int <span class="k">*</span><span class="o">)</span>malloc<span class="o">(</span>size<span class="o">)</span><span class="p">;</span>  <span class="k">for</span> <span class="o">(</span>i <span class="o">=</span> 0<span class="p">;</span> i &lt; N<span class="p">;</span> i++<span class="o">)</span>  b[i] <span class="o">=</span> rand<span class="o">()</span>/10<span class="p">;</span>
+	c <span class="o">=</span> <span class="o">(</span>int <span class="k">*</span><span class="o">)</span>malloc<span class="o">(</span>size<span class="o">)</span><span class="p">;</span>
+	
+	// Copy inputs to device
+	cudaMemcpy<span class="o">(</span>d_a, a, size, cudaMemcpyHostToDevice<span class="o">)</span><span class="p">;</span>
+	cudaMemcpy<span class="o">(</span>d_b, b, size, cudaMemcpyHostToDevice<span class="o">)</span><span class="p">;</span>
+	
+	// Launch add<span class="o">()</span> kernel on GPU
+	add<span class="o">&lt;&lt;&lt;</span>N/THREADS_PER_BLOCK,THREADS_PER_BLOCK&gt;&gt;&gt;<span class="o">(</span>d_a, d_b, d_c, N<span class="o">)</span><span class="p">;</span>
+	
+	// Copy result back to host
+	cudaMemcpy<span class="o">(</span>c, d_c, size, cudaMemcpyDeviceToHost<span class="o">)</span><span class="p">;</span>
+	
+	// Verify the result
+	<span class="nb">printf</span><span class="o">(</span><span class="s2">"</span><span class="se">\n</span><span class="s2"> Verifying the result:"</span><span class="o">)</span><span class="p">;</span>
+        <span class="k">for</span> <span class="o">(</span>i <span class="o">=</span> 0<span class="p">;</span> i &lt; N<span class="p">;</span> i++<span class="o">)</span> <span class="o">{</span>
+	  <span class="k">if</span> <span class="o">((</span>a[i] + b[i]<span class="o">)</span> <span class="o">!=</span> c[i]<span class="o">)</span> <span class="o">{</span>
+	    <span class="nb">printf</span><span class="o">(</span><span class="s2">"Failed at %d: a=%d, b=%d, c=%d </span><span class="se">\n</span><span class="s2">"</span>, i, a[i], b[i], c[i]<span class="o">)</span><span class="p">;</span>
+	    <span class="nb">break</span><span class="p">;</span>
+	  <span class="o">}</span>
+	<span class="o">}</span>
+        <span class="k">if</span> <span class="o">(</span>i <span class="o">==</span> N<span class="o">)</span> <span class="nb">printf</span><span class="o">(</span><span class="s2">"PASSED!</span><span class="se">\n\n</span><span class="s2">"</span><span class="o">)</span><span class="p">;</span>
+
+	// Cleanup
+	free<span class="o">(</span>a<span class="o">)</span><span class="p">;</span> free<span class="o">(</span>b<span class="o">)</span><span class="p">;</span> free<span class="o">(</span>c<span class="o">)</span><span class="p">;</span>
+	cudaFree<span class="o">(</span>d_a<span class="o">)</span><span class="p">;</span> cudaFree<span class="o">(</span>d_b<span class="o">)</span><span class="p">;</span> cudaFree<span class="o">(</span>d_c<span class="o">)</span><span class="p">;</span>
+	
+	<span class="k">return</span> <span class="o">(</span>0<span class="o">)</span><span class="p">;</span>
+<span class="o">}</span>
+
+iot@iotg-ml-1:~/cuda-ex<span class="nv">$ </span>nvcc gpu-add-vector.cu <span class="nt">-o</span> gpu-add-vector
+nvcc warning : The <span class="s1">'compute_20'</span>, <span class="s1">'sm_20'</span>, and <span class="s1">'sm_21'</span> architectures are deprecated, and may be removed <span class="k">in </span>a future release <span class="o">(</span>Use <span class="nt">-Wno-deprecated-gpu-targets</span> to suppress warning<span class="o">)</span><span class="nb">.</span>
+iot@iotg-ml-1:~/cuda-ex<span class="nv">$ </span>./gpu-add-vector 
+
+ Verifying the result:PASSED!
+ 
+iot@iotg-ml-1:~/cuda-ex<span class="nv">$ </span></code></pre></figure>
+
+<h1 id="reference">Reference:</h1>
+<ul>
+  <li>https://www.nvidia.com/docs/IO/116711/sc11-cuda-c-basics.pdf</li>
+  <li>https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html</li>
+</ul>
+
+
+</article>
+
+
+
+
+
+<section class="rss">
+  <p class="rss-subscribe text"><strong>Subscribe <a href="/feed.xml">via RSS</a></strong></p>
+</section>
+
+<section class="share">
+  <span>Share: </span>
+  
+    
+    
+    
+    
+    
+    
+    
+    
+  
+    
+    
+    
+    
+    
+      <a href="//www.linkedin.com/shareArticle?mini=true&url=http%3A%2F%2Flocalhost%3A4000%2Flinux%2F2018%2F01%2F27%2FGPU-Programming-With-CUDA.html"
+        onclick="window.open(this.href, 'linkedin-share', 'width=550,height=255');return false;">
+        <i class="fa fa-linkedin-square fa-lg"></i>
+      </a>
+    
+    
+    
+    
+  
+</section>
+
+
+
+
+</div>
+</div>
+
+    </div>
+
+    <footer class="site-footer">
+
+  <div class="wrapper">
+
+    <h3 class="footer-heading">Wenwei Weng's Blog</h3>
+
+    <div class="site-navigation">
+
+      <p><strong>Site Map</strong></p>
+      <ul class="pages">
+				
+	
+	<li class="nav-link"><a href="/about/">About</a>
+	
+
+	
+
+	
+
+	
+	<li class="nav-link"><a href="/posts/">Posts</a>
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+      </ul>
+    </div>
+
+    <div class="site-contact">
+
+      <p><strong>Contact</strong></p>
+      <ul class="social-media-list">
+        <li>
+          <a href="mailto:weweng@gmail.com">
+            <i class="fa fa-envelope-o"></i>
+            <span class="username">weweng@gmail.com</span>
+          </a>
+        </li>
+
+        
+          
+          <li>
+            <a href="https://github.com/weweng" title="Fork me on GitHub">
+              <i class="fa fa-github"></i>
+              <span class="username">weweng</span>
+            </a>
+          </li>
+          
+        
+          
+          <li>
+            <a href="https://www.linkedin.com/in/wenwei-weng/" title="Connect with me on LinkedIn">
+              <i class="fa fa-linkedin"></i>
+              <span class="username">Wenwei Weng</span>
+            </a>
+          </li>
+          
+        
+
+      </ul>
+    </div>
+
+    <div class="site-signature">
+      <p class="rss-subscribe text"><strong>Subscribe <a href="/feed.xml">via RSS</a></strong></p>
+      <p class="text">A simple yet classy theme for your Jekyll based blog.
+</p>
+    </div>
+
+  </div>
+
+</footer>
+
+<!-- Scripts -->
+<script src="//code.jquery.com/jquery-3.4.1.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.10/highlight.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.1/js/lightbox.min.js"></script>
+<script src="//unpkg.com/popper.js@1"></script>
+<script src="//unpkg.com/tippy.js@5"></script>
+
+<script type="text/javascript">
+$(document).ready(function() {
+  // Default syntax highlighting
+  hljs.initHighlightingOnLoad();
+
+  // Header
+  var menuToggle = $('#js-mobile-menu').unbind();
+  $('#js-navigation-menu').removeClass("show");
+  menuToggle.on('click', function(e) {
+    e.preventDefault();
+    $('#js-navigation-menu').slideToggle(function(){
+      if($('#js-navigation-menu').is(':hidden')) {
+        $('#js-navigation-menu').removeAttr('style');
+      }
+    });
+  });
+
+	// Enable tooltips via Tippy.js
+	if (Array.isArray(window.tooltips)) {
+		window.tooltips.forEach(function(tooltip) {
+			var selector = tooltip[0];
+			var config = tooltip[1];
+			tippy(selector, config);
+		})
+	}
+});
+
+</script>
+
+
+
+
+
+
+  </body>
+
+</html>

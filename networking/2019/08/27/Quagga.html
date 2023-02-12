@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>OSPF Routing with Quagga</title>
+  <meta name="description" content="Quagga is a very popular open source routing software. It supports all main IGP protocols like RIP, OSFP, IS-IS, also EGP protocol like BGP.I thought it is i...">
+  
+  <meta name="author" content="Wenwei Weng">
+  <meta name="copyright" content="&copy; Wenwei Weng 2023">
+  
+
+  <!-- External libraries -->
+  <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css">
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.9.0/styles/monokai-sublime.min.css">
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/lightbox2/2.7.1/css/lightbox.css">
+
+  <!-- Favicon and other icons (made with http://www.favicon-generator.org/) -->
+  <link rel="shortcut icon" href="/assets/icons/favicon.ico" type="image/x-icon">
+  <link rel="icon" href="/assets/icons/favicon.ico" type="image/x-icon">
+  <link rel="apple-touch-icon" sizes="57x57" href="/assets/icons/apple-icon-57x57.png">
+  <link rel="apple-touch-icon" sizes="60x60" href="/assets/icons/apple-icon-60x60.png">
+  <link rel="apple-touch-icon" sizes="72x72" href="/assets/icons/apple-icon-72x72.png">
+  <link rel="apple-touch-icon" sizes="76x76" href="/assets/icons/apple-icon-76x76.png">
+  <link rel="apple-touch-icon" sizes="114x114" href="/assets/icons/apple-icon-114x114.png">
+  <link rel="apple-touch-icon" sizes="120x120" href="/assets/icons/apple-icon-120x120.png">
+  <link rel="apple-touch-icon" sizes="144x144" href="/assets/icons/apple-icon-144x144.png">
+  <link rel="apple-touch-icon" sizes="152x152" href="/assets/icons/apple-icon-152x152.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/assets/icons/apple-icon-180x180.png">
+  <link rel="icon" type="image/png" sizes="192x192"  href="/assets/icons/android-icon-192x192.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/assets/icons/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="96x96" href="/assets/icons/favicon-96x96.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/assets/icons/favicon-16x16.png">
+  <link rel="manifest" href="/assets/icons/manifest.json">
+  <meta name="msapplication-TileColor" content="#ffffff">
+  <meta name="msapplication-TileImage" content="/assets/icons/ms-icon-144x144.png">
+  <meta name="theme-color" content="#ffffff">
+
+  
+
+  
+
+  
+
+  <!-- Site styles -->
+  <link rel="stylesheet" href="/css/main.css">
+  <link rel="canonical" href="http://localhost:4000/networking/2019/08/27/Quagga.html">
+	<link rel="alternate" type="application/rss+xml" title="Wenwei Weng's Blog" href="http://localhost:4000/feed.xml" />
+	
+	<!-- Tooltips -->
+	<script type="text/javascript">
+		window.tooltips = []
+	</script>
+</head>
+
+
+  <body>
+
+    <header class="navigation" role="banner">
+  <div class="navigation-wrapper">
+    <a href="/" class="logo">
+      
+      <img src="/assets/avatar.png" alt="Wenwei Weng's Blog">
+      
+    </a>
+    <a href="javascript:void(0)" class="navigation-menu-button" id="js-mobile-menu">
+      <i class="fa fa-bars"></i>
+    </a>
+    <nav role="navigation">
+      <ul id="js-navigation-menu" class="navigation-menu show">
+				
+	
+	<li class="nav-link"><a href="/about/">About</a>
+	
+
+	
+
+	
+
+	
+	<li class="nav-link"><a href="/posts/">Posts</a>
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+      </ul>
+    </nav>
+  </div>
+</header>
+
+
+    <div class="page-content">
+        <div class="post">
+
+<div class="post-header-container " >
+  <div class="scrim ">
+    <header class="post-header">
+      <h1 class="title">OSPF Routing with Quagga</h1>
+      <p class="info">by <strong>Wenwei Weng</strong></p>
+    </header>
+  </div>
+</div>
+
+<div class="wrapper">
+
+ <span class="page-divider">
+  <span class="one"></span>
+  <span class="two"></span>
+</span>
+ 
+
+<section class="post-meta">
+  <div class="post-date">August 27, 2019</div>
+  <div class="post-categories">
+  in 
+    
+    <a href="/category/Networking">Networking</a>
+    
+  
+  </div>
+</section>
+
+<article class="post-content">
+  <p>Quagga is a very popular open source routing software. It supports all main IGP protocols like RIP, OSFP, IS-IS, also EGP protocol like BGP.
+<img src="/uploads/networking/quagga-opensource.jpg" alt="Open source Routing" />
+I thought it is interesting to try it out…
+<!--more--></p>
+<h2 id="quagga-software-architecture">Quagga software architecture</h2>
+
+<p><img src="/uploads/networking/quagga-arch.jpg" alt="Quagga Software architecture" /></p>
+
+<p>The Quagga architecture consists of a core daemon (zebra) which is an abstraction layer to the underlying Unix kernel and presents the Zserv API over a Unix-domain socket or TCP socket to Quagga clients. The Zserv clients typically implement a routing protocol and communicate routing updates to the zebra daemon.
+Existing Zserv clients are:</p>
+<ul>
+  <li>ospfd, implementing Open Shortest Path First (OSPFv2)</li>
+  <li>bgpd, implementing Border Gateway Protocol (BGPv4+), including address family support for IP multicast and IPv6</li>
+  <li>ripd, implementing Routing Information Protocol (RIP) version 1 and 2;</li>
+  <li>isisd, implementing Intermediate System to Intermediate System (IS-IS)</li>
+  <li>ospf6d, implementing Open Shortest Path First (OSPFv3) for IPv6</li>
+  <li>ripngd, implementing Routing Information Protocol (RIPng) for IPv6</li>
+  <li>pimd, implementing Protocol Independent Multicast (PIM-SSM) for Source-specific multicast</li>
+</ul>
+
+<h2 id="install-quagga-in-ubuntu">Install Quagga in ubuntu</h2>
+<p>Qugga source code can be downloaded from  http://download.savannah.gnu.org/releases/quagga/. It can be built from source easily. However for popular linux distribution like ubuntu, it already has binary in the main repo. So the life is easier.</p>
+
+<p>Steps to install in ubuntu:</p>
+<ul>
+  <li>sudo apt install quagga quagga-doc</li>
+  <li>Enable linux IPv4 packet forwarding in /etc/sysctl.conf : net.ipv4.ip_forward=1</li>
+  <li>Setup config for quagga:</li>
+</ul>
+
+<ol>
+  <li>cp /usr/share/doc/quagga-core/examples/vtysh.conf.sample /etc/quagga/vtysh.conf</li>
+  <li>cp /usr/share/doc/quagga-core/examples/zebra.conf.sample /etc/quagga/zebra.conf</li>
+  <li>cp /usr/share/doc/quagga-core/examples/bgpd.conf.sample /etc/quagga/bgpd.conf</li>
+  <li>cp /usr/share/doc/quagga-core/examples/ospfd.conf.sample /etc/quagga/ospf.conf</li>
+</ol>
+
+<ul>
+  <li>sudo chown quagga:quagga /etc/quagga/*.conf</li>
+  <li>sudo chown quagga:quaggavty /etc/quagga/vtysh.conf</li>
+  <li>sudo chmod 640 /etc/quagga/*.conf</li>
+  <li>Run zebra and needed routing daemon
+    <ol>
+      <li>sudo service zebra start</li>
+      <li>sudo service zebra status</li>
+      <li>sudo service bgpd start</li>
+      <li>sudo service ospfd start</li>
+      <li>sudo service bgpd status</li>
+    </ol>
+  </li>
+</ul>
+
+<h2 id="console-access">“Console” access:</h2>
+<ul>
+  <li>zebra:  telnet localhost 2601</li>
+  <li>ripd:   telnet localhost 2602</li>
+  <li>ripngd: telnet localhost 2603</li>
+  <li>ospfd:  telnet localhost 2604</li>
+  <li>bgpd:   telnet localhost 2605</li>
+  <li>vtysh:  sudo vtysh</li>
+</ul>
+
+<p>the default password is zebra.</p>
+
+<h2 id="quagga--network-topology">Quagga  network topology</h2>
+<p>I created four virtualBox VMs and have internal networks connect them as below:</p>
+
+<p><img src="/uploads/networking/quagga-network.jpg" alt="Quagga test network" /></p>
+
+<h2 id="run-ospf-using-quagga">Run OSPF using Quagga</h2>
+
+<p>Quagga-Master:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">xterm# <span class="nb">sudo </span>vtysh
+
+Quagga-Master# show running-config 
+Building configuration...
+
+Current configuration:
+<span class="o">!</span>
+<span class="nb">hostname </span>Router
+<span class="nb">hostname </span>ospfd
+log stdout
+<span class="nb">hostname </span>bgpd
+<span class="nb">hostname </span>Quagga-Master
+<span class="o">!</span>
+password zebra
+<span class="nb">enable </span>password zebra
+<span class="o">!</span>
+interface enp0s3
+<span class="o">!</span>
+interface enp0s8
+ ip address 11.1.1.1/24
+<span class="o">!</span>
+interface enp0s9
+ ip address 22.1.1.1/24
+<span class="o">!</span>
+interface enp0s10
+ ip address 33.1.1.1/24
+<span class="o">!</span>
+interface lo
+<span class="o">!</span>
+router bgp 7675
+ bgp router-id 33.1.1.1
+<span class="o">!</span>
+ address-family ipv6
+ exit-address-family
+ <span class="nb">exit</span>
+<span class="o">!</span>
+router ospf
+<span class="o">!</span>
+ip forwarding
+<span class="o">!</span>
+line vty
+<span class="o">!</span>
+end
+Quagga-Master#
+Quagga-Master# conf t
+Quagga-Master<span class="o">(</span>config<span class="o">)</span><span class="c"># router ospf</span>
+Quagga-Master<span class="o">(</span>config-router<span class="o">)</span><span class="c"># network 11.1.1.0 </span>
+% There is no matched command.
+Quagga-Master<span class="o">(</span>config-router<span class="o">)</span><span class="c"># network 11.1.1.0/24 </span>
+  area  Set the OSPF area ID
+Quagga-Master<span class="o">(</span>config-router<span class="o">)</span><span class="c"># network 11.1.1.0/24 area 0</span>
+Quagga-Master<span class="o">(</span>config-router<span class="o">)</span><span class="c"># network 22.1.1.0/24 area 0</span>
+Quagga-Master<span class="o">(</span>config-router<span class="o">)</span><span class="c"># network 33.1.1.0/24 area 0</span>
+Quagga-Master<span class="o">(</span>config-router<span class="o">)</span><span class="c"># end</span>
+Quagga-Master# </code></pre></figure>
+
+<p>Quagga-1:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">Quagga-1# show running-config 
+Building configuration...
+
+Current configuration:
+<span class="o">!</span>
+<span class="nb">hostname </span>Router
+<span class="nb">hostname </span>ospfd
+log stdout
+<span class="nb">hostname </span>bgpd
+<span class="nb">hostname </span>Quagga-1
+<span class="o">!</span>
+password zebra
+<span class="nb">enable </span>password zebra
+<span class="o">!</span>
+interface enp0s3
+<span class="o">!</span>
+interface enp0s8
+ ip address 11.1.1.2/24
+<span class="o">!</span>
+interface enp0s9
+ ip address 111.1.1.1/24
+<span class="o">!</span>
+interface lo
+<span class="o">!</span>
+ip forwarding
+<span class="o">!</span>
+line vty
+<span class="o">!</span>
+end
+Quagga-1# 
+Quagga-1# conf t
+Quagga-1<span class="o">(</span>config<span class="o">)</span><span class="c"># router ospf</span>
+Quagga-1<span class="o">(</span>config-router<span class="o">)</span><span class="c"># network 11.1.1.0/24 area 0</span>
+Quagga-1<span class="o">(</span>config-router<span class="o">)</span><span class="c"># network 111.1.1.0/24 area 0</span>
+Quagga-1<span class="o">(</span>config-router<span class="o">)</span><span class="c"># end</span>
+Quagga-1# </code></pre></figure>
+
+<p>Quagga-2:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">Quagga-2# show running-config 
+Building configuration...
+
+Current configuration:
+<span class="o">!</span>
+<span class="nb">hostname </span>Router
+<span class="nb">hostname </span>ospfd
+log stdout
+<span class="nb">hostname </span>bgpd
+<span class="nb">hostname </span>Quagga-2
+<span class="o">!</span>
+password zebra
+<span class="nb">enable </span>password zebra
+<span class="o">!</span>
+interface enp0s3
+<span class="o">!</span>
+interface enp0s8
+ ip address 22.1.1.2/24
+<span class="o">!</span>
+interface enp0s9
+ ip address 122.1.1.1/24
+<span class="o">!</span>
+interface lo
+<span class="o">!</span>
+ip forwarding
+<span class="o">!</span>
+line vty
+<span class="o">!</span>
+end
+Quagga-2# 
+Quagga-2# conf t
+Quagga-2<span class="o">(</span>config<span class="o">)</span><span class="c"># router ospf </span>
+Quagga-2<span class="o">(</span>config-router<span class="o">)</span><span class="c"># network 22.1.1.0/24 area 0</span>
+Quagga-2<span class="o">(</span>config-router<span class="o">)</span><span class="c"># network 122.1.1.0/24 area 0</span>
+Quagga-2<span class="o">(</span>config-router<span class="o">)</span><span class="c"># end</span>
+Quagga-2#</code></pre></figure>
+
+<p>Quagga-3:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">Quagga-3# show run
+Building configuration...
+
+Current configuration:
+<span class="o">!</span>
+<span class="nb">hostname </span>Router
+<span class="nb">hostname </span>ospfd
+log stdout
+<span class="nb">hostname </span>bgpd
+<span class="nb">hostname </span>Quagga-3
+<span class="o">!</span>
+password zebra
+<span class="nb">enable </span>password zebra
+<span class="o">!</span>
+interface enp0s3
+<span class="o">!</span>
+interface enp0s8
+ ip address 33.1.1.2/24
+<span class="o">!</span>
+interface enp0s9
+ ip address 133.1.1.1/24
+<span class="o">!</span>
+interface lo
+<span class="o">!</span>
+ip forwarding
+<span class="o">!</span>
+line vty
+<span class="o">!</span>
+end
+Quagga-3# 
+Quagga-3# conf t
+Quagga-3<span class="o">(</span>config<span class="o">)</span><span class="c"># router ospf</span>
+Quagga-3<span class="o">(</span>config-router<span class="o">)</span><span class="c"># network 33.1.1.0/24 area 0</span>
+Quagga-3<span class="o">(</span>config-router<span class="o">)</span><span class="c"># network 133.1.1.0/24 area 0</span>
+Quagga-3<span class="o">(</span>config-router<span class="o">)</span><span class="c"># end</span>
+Quagga-3# </code></pre></figure>
+
+<h2 id="check-the-routing-table-and-try-to-ping">Check the routing table and try to ping</h2>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">Quagga-Master# show ip ospf neighbor 
+
+Neighbor ID     Pri State           Dead Time Address         Interface         
+   RXmtL RqstL DBsmL
+111.1.1.1         1 Full/Backup       38.280s 11.1.1.2        enp0s8:11.1.1.1   
+       0     0     0
+22.1.1.2          1 Full/Backup       38.846s 22.1.1.2        enp0s9:22.1.1.1   
+       0     0     0
+133.1.1.1         1 Full/Backup       38.905s 33.1.1.2        enp0s10:33.1.1.1  
+       0     0     0
+Quagga-Master# show ip route
+Codes: K - kernel route, C - connected, S - static, R - RIP,
+       O - OSPF, I - IS-IS, B - BGP, P - PIM, A - Babel, N - NHRP,
+       <span class="o">&gt;</span> - selected route, <span class="k">*</span> - FIB route
+
+C&gt;<span class="k">*</span> 10.0.2.0/24 is directly connected, enp0s3
+O   11.1.1.0/24 <span class="o">[</span>110/10] is directly connected, enp0s8, 00:16:16
+C&gt;<span class="k">*</span> 11.1.1.0/24 is directly connected, enp0s8
+O   22.1.1.0/24 <span class="o">[</span>110/10] is directly connected, enp0s9, 00:16:10
+C&gt;<span class="k">*</span> 22.1.1.0/24 is directly connected, enp0s9
+O   33.1.1.0/24 <span class="o">[</span>110/10] is directly connected, enp0s10, 00:16:05
+C&gt;<span class="k">*</span> 33.1.1.0/24 is directly connected, enp0s10
+O&gt;<span class="k">*</span> 111.1.1.0/24 <span class="o">[</span>110/20] via 11.1.1.2, enp0s8, 00:00:09
+C&gt;<span class="k">*</span> 127.0.0.0/8 is directly connected, lo
+O&gt;<span class="k">*</span> 133.1.1.0/24 <span class="o">[</span>110/20] via 33.1.1.2, enp0s10, 00:00:02
+K&gt;<span class="k">*</span> 169.254.0.0/16 is directly connected, enp0s10
+Quagga-Master# 
+Quagga-Master# ping 133.1.1.1
+PING 133.1.1.1 <span class="o">(</span>133.1.1.1<span class="o">)</span> 56<span class="o">(</span>84<span class="o">)</span> bytes of data.
+64 bytes from 133.1.1.1: <span class="nv">icmp_seq</span><span class="o">=</span>1 <span class="nv">ttl</span><span class="o">=</span>64 <span class="nb">time</span><span class="o">=</span>0.379 ms
+64 bytes from 133.1.1.1: <span class="nv">icmp_seq</span><span class="o">=</span>2 <span class="nv">ttl</span><span class="o">=</span>64 <span class="nb">time</span><span class="o">=</span>0.330 ms
+64 bytes from 133.1.1.1: <span class="nv">icmp_seq</span><span class="o">=</span>3 <span class="nv">ttl</span><span class="o">=</span>64 <span class="nb">time</span><span class="o">=</span>0.345 ms
+^C
+<span class="nt">---</span> 133.1.1.1 ping statistics <span class="nt">---</span>
+3 packets transmitted, 3 received, 0% packet loss, <span class="nb">time </span>2044ms
+rtt min/avg/max/mdev <span class="o">=</span> 0.330/0.351/0.379/0.025 ms
+Quagga-Master# ping 22.1.1.1
+PING 22.1.1.1 <span class="o">(</span>22.1.1.1<span class="o">)</span> 56<span class="o">(</span>84<span class="o">)</span> bytes of data.
+64 bytes from 22.1.1.1: <span class="nv">icmp_seq</span><span class="o">=</span>1 <span class="nv">ttl</span><span class="o">=</span>64 <span class="nb">time</span><span class="o">=</span>0.017 ms
+64 bytes from 22.1.1.1: <span class="nv">icmp_seq</span><span class="o">=</span>2 <span class="nv">ttl</span><span class="o">=</span>64 <span class="nb">time</span><span class="o">=</span>0.028 ms
+64 bytes from 22.1.1.1: <span class="nv">icmp_seq</span><span class="o">=</span>3 <span class="nv">ttl</span><span class="o">=</span>64 <span class="nb">time</span><span class="o">=</span>0.030 ms
+^C
+<span class="nt">---</span> 22.1.1.1 ping statistics <span class="nt">---</span>
+3 packets transmitted, 3 received, 0% packet loss, <span class="nb">time </span>2037ms
+rtt min/avg/max/mdev <span class="o">=</span> 0.017/0.025/0.030/0.005 ms
+Quagga-Master# 
+
+Quagga-1# show ip ospf neighbor 
+
+Neighbor ID     Pri State           Dead Time Address         Interface         
+   RXmtL RqstL DBsmL
+33.1.1.1          1 Full/DR           39.851s 11.1.1.1        enp0s8:11.1.1.2   
+       0     0     0
+Quagga-1# show ip route 
+Codes: K - kernel route, C - connected, S - static, R - RIP,
+       O - OSPF, I - IS-IS, B - BGP, P - PIM, A - Babel, N - NHRP,
+       <span class="o">&gt;</span> - selected route, <span class="k">*</span> - FIB route
+
+C&gt;<span class="k">*</span> 10.0.2.0/24 is directly connected, enp0s3
+O   11.1.1.0/24 <span class="o">[</span>110/10] is directly connected, enp0s8, 00:07:52
+C&gt;<span class="k">*</span> 11.1.1.0/24 is directly connected, enp0s8
+O&gt;<span class="k">*</span> 22.1.1.0/24 <span class="o">[</span>110/20] via 11.1.1.1, enp0s8, 00:07:42
+O&gt;<span class="k">*</span> 33.1.1.0/24 <span class="o">[</span>110/20] via 11.1.1.1, enp0s8, 00:07:42
+O   111.1.1.0/24 <span class="o">[</span>110/10] is directly connected, enp0s9, 00:00:10
+C&gt;<span class="k">*</span> 111.1.1.0/24 is directly connected, enp0s9
+C&gt;<span class="k">*</span> 127.0.0.0/8 is directly connected, lo
+O&gt;<span class="k">*</span> 133.1.1.0/24 <span class="o">[</span>110/30] via 11.1.1.1, enp0s8, 00:00:07
+K&gt;<span class="k">*</span> 169.254.0.0/16 is directly connected, enp0s8
+Quagga-1# ping 133.1.1.1
+PING 133.1.1.1 <span class="o">(</span>133.1.1.1<span class="o">)</span> 56<span class="o">(</span>84<span class="o">)</span> bytes of data.
+64 bytes from 133.1.1.1: <span class="nv">icmp_seq</span><span class="o">=</span>1 <span class="nv">ttl</span><span class="o">=</span>63 <span class="nb">time</span><span class="o">=</span>0.563 ms
+64 bytes from 133.1.1.1: <span class="nv">icmp_seq</span><span class="o">=</span>2 <span class="nv">ttl</span><span class="o">=</span>63 <span class="nb">time</span><span class="o">=</span>0.527 ms
+^C
+<span class="nt">---</span> 133.1.1.1 ping statistics <span class="nt">---</span>
+2 packets transmitted, 2 received, 0% packet loss, <span class="nb">time </span>1017ms
+rtt min/avg/max/mdev <span class="o">=</span> 0.527/0.545/0.563/0.018 ms
+Quagga-1# </code></pre></figure>
+
+<p>Check the routing table in linux kernel:</p>
+
+<p>Quagga-master VM: we can see it matches with what we see from “show ip route” below:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">ubuntu1804-1@ubuntu18041-VirtualBox:~<span class="nv">$ </span>route
+Kernel IP routing table
+Destination     Gateway         Genmask         Flags Metric Ref    Use Iface
+default         _gateway        0.0.0.0         UG    103    0        0 enp0s3
+10.0.2.0        0.0.0.0         255.255.255.0   U     103    0        0 enp0s3
+11.1.1.0        0.0.0.0         255.255.255.0   U     0      0        0 enp0s8
+22.1.1.0        0.0.0.0         255.255.255.0   U     0      0        0 enp0s9
+33.1.1.0        0.0.0.0         255.255.255.0   U     0      0        0 enp0s10
+111.1.1.0       11.1.1.2        255.255.255.0   UG    20     0        0 enp0s8
+133.1.1.0       33.1.1.2        255.255.255.0   UG    20     0        0 enp0s10
+link-local      0.0.0.0         255.255.0.0     U     1000   0        0 enp0s10
+ubuntu1804-1@ubuntu18041-VirtualBox:~<span class="nv">$ </span></code></pre></figure>
+
+<p>As we can see, it is pretty easy to set up a linux box as router!</p>
+
+
+</article>
+
+
+
+
+
+<section class="rss">
+  <p class="rss-subscribe text"><strong>Subscribe <a href="/feed.xml">via RSS</a></strong></p>
+</section>
+
+<section class="share">
+  <span>Share: </span>
+  
+    
+    
+    
+    
+    
+    
+    
+    
+  
+    
+    
+    
+    
+    
+      <a href="//www.linkedin.com/shareArticle?mini=true&url=http%3A%2F%2Flocalhost%3A4000%2Fnetworking%2F2019%2F08%2F27%2FQuagga.html"
+        onclick="window.open(this.href, 'linkedin-share', 'width=550,height=255');return false;">
+        <i class="fa fa-linkedin-square fa-lg"></i>
+      </a>
+    
+    
+    
+    
+  
+</section>
+
+
+
+
+</div>
+</div>
+
+    </div>
+
+    <footer class="site-footer">
+
+  <div class="wrapper">
+
+    <h3 class="footer-heading">Wenwei Weng's Blog</h3>
+
+    <div class="site-navigation">
+
+      <p><strong>Site Map</strong></p>
+      <ul class="pages">
+				
+	
+	<li class="nav-link"><a href="/about/">About</a>
+	
+
+	
+
+	
+
+	
+	<li class="nav-link"><a href="/posts/">Posts</a>
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+      </ul>
+    </div>
+
+    <div class="site-contact">
+
+      <p><strong>Contact</strong></p>
+      <ul class="social-media-list">
+        <li>
+          <a href="mailto:weweng@gmail.com">
+            <i class="fa fa-envelope-o"></i>
+            <span class="username">weweng@gmail.com</span>
+          </a>
+        </li>
+
+        
+          
+          <li>
+            <a href="https://github.com/weweng" title="Fork me on GitHub">
+              <i class="fa fa-github"></i>
+              <span class="username">weweng</span>
+            </a>
+          </li>
+          
+        
+          
+          <li>
+            <a href="https://www.linkedin.com/in/wenwei-weng/" title="Connect with me on LinkedIn">
+              <i class="fa fa-linkedin"></i>
+              <span class="username">Wenwei Weng</span>
+            </a>
+          </li>
+          
+        
+
+      </ul>
+    </div>
+
+    <div class="site-signature">
+      <p class="rss-subscribe text"><strong>Subscribe <a href="/feed.xml">via RSS</a></strong></p>
+      <p class="text">A simple yet classy theme for your Jekyll based blog.
+</p>
+    </div>
+
+  </div>
+
+</footer>
+
+<!-- Scripts -->
+<script src="//code.jquery.com/jquery-3.4.1.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.10/highlight.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.1/js/lightbox.min.js"></script>
+<script src="//unpkg.com/popper.js@1"></script>
+<script src="//unpkg.com/tippy.js@5"></script>
+
+<script type="text/javascript">
+$(document).ready(function() {
+  // Default syntax highlighting
+  hljs.initHighlightingOnLoad();
+
+  // Header
+  var menuToggle = $('#js-mobile-menu').unbind();
+  $('#js-navigation-menu').removeClass("show");
+  menuToggle.on('click', function(e) {
+    e.preventDefault();
+    $('#js-navigation-menu').slideToggle(function(){
+      if($('#js-navigation-menu').is(':hidden')) {
+        $('#js-navigation-menu').removeAttr('style');
+      }
+    });
+  });
+
+	// Enable tooltips via Tippy.js
+	if (Array.isArray(window.tooltips)) {
+		window.tooltips.forEach(function(tooltip) {
+			var selector = tooltip[0];
+			var config = tooltip[1];
+			tippy(selector, config);
+		})
+	}
+});
+
+</script>
+
+
+
+
+
+
+  </body>
+
+</html>
