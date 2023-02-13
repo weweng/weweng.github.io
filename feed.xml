@@ -6,9 +6,21 @@
 </description>
     <link>http://localhost:4000/</link>
     <atom:link href="http://localhost:4000/feed.xml" rel="self" type="application/rss+xml"/>
-    <pubDate>Sun, 12 Feb 2023 07:06:40 +0000</pubDate>
-    <lastBuildDate>Sun, 12 Feb 2023 07:06:40 +0000</lastBuildDate>
+    <pubDate>Mon, 13 Feb 2023 07:11:16 +0000</pubDate>
+    <lastBuildDate>Mon, 13 Feb 2023 07:11:16 +0000</lastBuildDate>
     <generator>Jekyll v3.8.6</generator>
+    
+      <item>
+        <title>Create a docker container for Jekyll blog site</title>
+        <description>&lt;p&gt;I haven’t updated my blog for various reasons, one of them is due to my laptop changed including while I was at Cisco and then moved to Palao Alto networks....</description>
+        <pubDate>Sun, 12 Feb 2023 00:00:00 +0000</pubDate>
+        <link>http://localhost:4000/web/2023/02/12/jekyll-blog-setup.html</link>
+        <guid isPermaLink="true">http://localhost:4000/web/2023/02/12/jekyll-blog-setup.html</guid>
+        
+        
+        <category>Web</category>
+        
+      </item>
     
       <item>
         <title>IP BGP Routing Configuration</title>
@@ -112,18 +124,6 @@
         <pubDate>Fri, 21 Jul 2017 00:00:00 +0000</pubDate>
         <link>http://localhost:4000/linux/2017/07/21/ARMv8-UEFI-manual-boot.html</link>
         <guid isPermaLink="true">http://localhost:4000/linux/2017/07/21/ARMv8-UEFI-manual-boot.html</guid>
-        
-        
-        <category>Linux</category>
-        
-      </item>
-    
-      <item>
-        <title>Linux udev rule to create persistent device name</title>
-        <description>&lt;p&gt;udev is targeted at Linux kernels 2.6 and beyond to provide a userspace solution for a dynamic /dev directory, with persistent device naming. The previous /dev implementation, devfs, is now...</description>
-        <pubDate>Sun, 21 May 2017 00:00:00 +0000</pubDate>
-        <link>http://localhost:4000/linux/2017/05/21/udev-rule.html</link>
-        <guid isPermaLink="true">http://localhost:4000/linux/2017/05/21/udev-rule.html</guid>
         
         
         <category>Linux</category>
